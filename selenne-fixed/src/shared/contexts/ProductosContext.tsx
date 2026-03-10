@@ -17,7 +17,11 @@ export interface ProductoAdmin {
   imagenes: string[];
   imagenesPorColor?: { [colorName: string]: string[] };
   tallas: string[];
+  tallasConStock: { nombre: string; stock: number }[];
   colores: string[];
+  variantes: { tallaNombre?: string; colorNombre?: string; stock: number }[];
+  agotado: boolean;
+  agotadoGeneral: boolean;
   materiales: string[];
   tipoProducto: string;    // TipoNombre  (ej: "Camisa de cuello")
   descripcion: string;
@@ -112,6 +116,30 @@ function mapProducto(p: any): ProductoAdmin {
       const t = p.tallas ?? p.Tallas ?? [];
       return Array.isArray(t) ? t.map((x: any) => x?.nombre ?? x?.Nombre ?? String(x)).filter(Boolean) : [];
     })(),
+    tallasConStock: (() => {
+      const t = p.tallas ?? p.Tallas ?? [];
+      if (!Array.isArray(t)) return [];
+      return t.map((x: any) => ({
+        nombre: x?.nombre ?? x?.Nombre ?? String(x),
+        stock: x?.stock ?? x?.Stock ?? 10,
+      })).filter((x: any) => x.nombre);
+    })(),
+    variantes: (() => {
+      const v = p.variantes ?? p.Variantes ?? [];
+      console.log('[Variantes raw]', v);
+      if (!Array.isArray(v)) return [];
+      return v.map((x: any) => ({
+        tallaNombre: x?.tallaNombre ?? x?.TallaNombre ?? undefined,
+        colorNombre: x?.colorNombre ?? x?.ColorNombre ?? undefined,
+        stock: x?.stock ?? x?.Stock ?? 0,
+      }));
+    })(),
+    agotado: (() => {
+      const v = p.variantes ?? p.Variantes ?? [];
+      if (Array.isArray(v) && v.length > 0) return v.reduce((s: number, x: any) => s + (x?.stock ?? x?.Stock ?? 0), 0) <= 0;
+      return (p.stock ?? p.Stock ?? 0) <= 0;
+    })(),
+    agotadoGeneral: p.agotadoGeneral ?? p.AgotadoGeneral ?? (p.stock ?? p.Stock ?? 0) <= 0,
     colores: (() => {
       const c = p.colores ?? p.Colores ?? [];
       return Array.isArray(c) ? c.map((x: any) => x?.nombre ?? x?.Nombre ?? String(x)).filter(Boolean) : [];
@@ -134,6 +162,10 @@ function extraerLista(raw: any): ProductoAdmin[] {
   if (!Array.isArray(lista)) {
     console.warn('[Productos] respuesta inesperada:', raw);
     return [];
+  }
+  // DEBUG: log first product variantes from raw API
+  if (lista.length > 0) {
+    console.log('[API raw] primer producto variantes:', lista[0]?.variantes ?? lista[0]?.Variantes ?? 'NO FIELD');
   }
   return lista.map(mapProducto);
 }
@@ -266,9 +298,14 @@ export const ProductosProvider: React.FC<{ children: ReactNode }> = ({ children 
     console.log('[Sync] colores recibidos:', colores, '| ctx:', coloresCtx.map((c:any)=>c.nombre));
 
     const tallaIDs = tallas
-      .map(nombre => tallasCtx.find((t: any) => t.nombre === nombre))
-      .filter(Boolean)
-      .map((t: any) => ({ TallaID: Number(t.id), Stock: 10 }));
+      .map(nombre => {
+        const ctx = tallasCtx.find((t: any) => t.nombre === nombre);
+        if (!ctx) return null;
+        // Use stock from talla object if available (formato {nombre, stock})
+        const stockVal = (nombre as any)?.stock ?? 10;
+        return { TallaID: Number(ctx.id), Stock: stockVal };
+      })
+      .filter(Boolean);
 
     const colorIDs = colores
       .map(nombre => coloresCtx.find((c: any) => c.nombre === nombre))
@@ -316,6 +353,12 @@ export const ProductosProvider: React.FC<{ children: ReactNode }> = ({ children 
     await mutarProducto('POST', `/api/productos/${id}/materiales`, { MaterialIDs: materialIDs });
   };
 
+  const sincronizarVariantes = async (id: string, variantes: {tallaNombre?: string; colorNombre?: string; stock: number}[]) => {
+    if (!variantes.length) return;
+    console.log('[Sync] variantes a enviar:', variantes);
+    await mutarProducto('POST', `/api/productos/${id}/variantes`, { Variantes: variantes });
+  };
+
   const crearProducto = async (
     payload: CreateProductoPayload,
     tallas?: string[],
@@ -330,6 +373,7 @@ export const ProductosProvider: React.FC<{ children: ReactNode }> = ({ children 
     if (res.ok && res.id) {
       await sincronizarTallasColores(String(res.id), tallas || [], colores || [], tallasCtx || [], coloresCtx || []);
       if (imagenes?.length || payload.imagenesPorColor) await sincronizarImagenes(String(res.id), imagenes || [], (payload as any).imagenesPorColor);
+      if ((payload as any).variantes?.length) await sincronizarVariantes(String(res.id), (payload as any).variantes);
       if (materiales?.length && materialesCtx?.length) await sincronizarMateriales(String(res.id), materiales, materialesCtx);
       await cargarProductos();
       return true;
@@ -352,6 +396,7 @@ export const ProductosProvider: React.FC<{ children: ReactNode }> = ({ children 
     if (ok) {
       await sincronizarTallasColores(id, tallas || [], colores || [], tallasCtx || [], coloresCtx || []);
       if (imagenes !== undefined) await sincronizarImagenes(id, imagenes, (payload as any).imagenesPorColor);
+      if ((payload as any).variantes !== undefined) await sincronizarVariantes(id, (payload as any).variantes);
       if (materiales !== undefined && materialesCtx?.length) await sincronizarMateriales(id, materiales, materialesCtx);
       await cargarProductos();
     }

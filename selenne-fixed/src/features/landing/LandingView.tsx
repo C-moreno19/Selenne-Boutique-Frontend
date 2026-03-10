@@ -410,7 +410,16 @@ export const LandingView: React.FC<LandingViewProps> = ({
                                   <span className="text-sm text-gray-600">{formatPrecio(prod.precio)}</span>
                                 </div>
                                 <div className="mt-2 flex gap-2">
-                                  <Button size="sm" onClick={() => { setProductoSeleccionado(prod); setTallaSeleccionada(prod.tallas?.[0] || 'Única'); setColorSeleccionado(prod.colores?.[0] || ''); }}>
+                                  <Button size="sm" onClick={() => { setProductoSeleccionado(prod);
+                                  console.log('[VerDetalles] tallas:', prod.tallas, 'colores:', prod.colores, 'variantes:', prod.variantes?.slice(0,3));
+                                  const colorInicial = prod.colores?.[0] || '';
+                                  const primeraDisponible = prod.tallas?.find((t: string) => {
+                                    if (!prod.variantes?.length) return true;
+                                    const v = prod.variantes.find((x: any) => x.tallaNombre === t && (!colorInicial || x.colorNombre === colorInicial));
+                                    return v ? v.stock > 0 : true;
+                                  });
+                                  setTallaSeleccionada(primeraDisponible || prod.tallas?.[0] || 'Única');
+                                  setColorSeleccionado(colorInicial); }}>
                                     Ver
                                   </Button>
                                   <Button size="sm" variant="outline" onClick={() => toggleFavorito(prod.id)}>
@@ -728,6 +737,13 @@ export const LandingView: React.FC<LandingViewProps> = ({
                       {producto.badge}
                     </Badge>
                   )}
+                  {producto.agotado && (
+                    <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center rounded-t-xl">
+                      <span className="bg-white text-gray-800 text-xs font-bold px-3 py-1 rounded-full shadow">
+                        Agotado
+                      </span>
+                    </div>
+                  )}
                   {producto.precioOriginal && (
                     <Badge className="absolute top-3 right-3 bg-black hover:bg-black text-white">
                       -
@@ -821,12 +837,15 @@ export const LandingView: React.FC<LandingViewProps> = ({
                     <Button
                       onClick={() => {
                         setProductoSeleccionado(producto);
-                        setTallaSeleccionada(
-                          producto.tallas?.[0] || 'Única',
-                        );
-                        setColorSeleccionado(
-                          producto.colores?.[0] || "",
-                        );
+                        console.log('[Modal] tallas:', producto.tallas, 'colores:', producto.colores, 'variantes:', producto.variantes?.slice(0,3));
+                        const colorIni = producto.colores?.[0] || '';
+                        const tallaIni = producto.tallas?.find((t: string) => {
+                          if (!producto.variantes?.length) return true;
+                          const v = producto.variantes.find((x: any) => x.tallaNombre === t && (!colorIni || x.colorNombre === colorIni));
+                          return v ? v.stock > 0 : true;
+                        });
+                        setTallaSeleccionada(tallaIni || producto.tallas?.[0] || 'Única');
+                        setColorSeleccionado(colorIni);
                         setCantidadSeleccionada(1);
                         setImagenActual(0);
                       }}
@@ -895,12 +914,23 @@ export const LandingView: React.FC<LandingViewProps> = ({
                             {productoSeleccionado.badge}
                           </Badge>
                         )}
-                        {/* Imagen principal — prioriza imágenes del color seleccionado */}
+                        {/* Imagen principal — si hay color seleccionado, solo mostrar sus imágenes */}
                         {(() => {
-                          const imgsPorColor = colorSeleccionado && productoSeleccionado.imagenesPorColor?.[colorSeleccionado];
-                          const galeria = (imgsPorColor && imgsPorColor.length > 0)
-                            ? imgsPorColor
-                            : productoSeleccionado.imagenes;
+                          const imgsPorColor = colorSeleccionado
+                            ? (productoSeleccionado.imagenesPorColor?.[colorSeleccionado] || [])
+                            : [];
+                          const tieneImagenesDeColor = imgsPorColor.length > 0;
+                          // Si color seleccionado pero sin imágenes → mostrar placeholder "sin imagen"
+                          if (colorSeleccionado && !tieneImagenesDeColor) {
+                            return (
+                              <div className="w-full h-full flex flex-col items-center justify-center bg-gray-50 text-gray-400">
+                                <div className="text-4xl mb-2">👗</div>
+                                <p className="text-sm">Sin imagen para este color</p>
+                              </div>
+                            );
+                          }
+                          // Sin color seleccionado o color con imágenes → mostrar galería normal
+                          const galeria = tieneImagenesDeColor ? imgsPorColor : (productoSeleccionado.imagenes || []);
                           const src = galeria?.[imagenActual] || productoSeleccionado.imagen;
                           return (
                             <img
@@ -929,13 +959,15 @@ export const LandingView: React.FC<LandingViewProps> = ({
                           )}
                       </div>
                       
-                      {/* Miniaturas — usa imágenes del color o generales */}
+                      {/* Miniaturas — solo del color seleccionado o generales */}
                       {(() => {
-                        const imgsPorColor = colorSeleccionado && productoSeleccionado.imagenesPorColor?.[colorSeleccionado];
-                        const galeria = (imgsPorColor && imgsPorColor.length > 0)
-                          ? imgsPorColor
-                          : productoSeleccionado.imagenes;
-                        return galeria && galeria.length > 1 ? (
+                        const imgsPorColor = colorSeleccionado
+                          ? (productoSeleccionado.imagenesPorColor?.[colorSeleccionado] || [])
+                          : [];
+                        const tieneImagenesDeColor = imgsPorColor.length > 0;
+                        if (colorSeleccionado && !tieneImagenesDeColor) return null;
+                        const galeria = tieneImagenesDeColor ? imgsPorColor : (productoSeleccionado.imagenes || []);
+                        return galeria.length > 1 ? (
                           <div className="flex gap-1 mt-1">
                             {galeria.slice(0, 4).map((img, idx) => (
                               <img
@@ -1060,16 +1092,57 @@ export const LandingView: React.FC<LandingViewProps> = ({
                     )}
 
                     {/* SELECTOR DE TALLA */}
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-900 mb-2">
-                        Selecciona tu talla:
-                      </label>
-                      <SizeSelector
-                        sizes={productoSeleccionado.tallas}
-                        value={tallaSeleccionada}
-                        onChange={setTallaSeleccionada}
-                      />
-                    </div>
+                    {productoSeleccionado.tallas?.length > 0 && (
+                      <div>
+                        <label className="block text-xs font-semibold text-gray-900 mb-2">
+                          Selecciona tu talla:
+                        </label>
+                        <div className="flex flex-wrap gap-2">
+                          {productoSeleccionado.tallas.map((talla) => {
+                            // Stock por talla+color si hay variantes, sino stock general por talla
+                            const variantes = productoSeleccionado.variantes || [];
+                            let sinStock = false;
+                            let stockDisponible = 0;
+                            if (variantes.length > 0) {
+                              const colorEfectivo2 = colorSeleccionado || (productoSeleccionado.colores?.length === 1 ? productoSeleccionado.colores[0] : null);
+                              if (talla === productoSeleccionado.tallas?.[0]) console.log('[SinStock debug] talla:', talla, 'colorEfectivo2:', colorEfectivo2, 'variante sample:', variantes[0]);
+                              if (colorEfectivo2) {
+                                const v = variantes.find((x: any) => x.tallaNombre === talla && x.colorNombre === colorEfectivo2);
+                                stockDisponible = v?.stock ?? 0;
+                              } else {
+                                stockDisponible = variantes.filter((x: any) => x.tallaNombre === talla).reduce((s: number, x: any) => s + (x.stock ?? 0), 0);
+                              }
+                              sinStock = stockDisponible <= 0;
+                            } else {
+                              const tallaInfo = productoSeleccionado.tallasConStock?.find((t: any) => t.nombre === talla);
+                              sinStock = tallaInfo ? tallaInfo.stock <= 0 : false;
+                            }
+                            const seleccionada = tallaSeleccionada === talla;
+                            return (
+                              <button
+                                key={talla}
+                                type="button"
+                                disabled={sinStock}
+                                onClick={() => !sinStock && setTallaSeleccionada(talla)}
+                                className={`relative px-3 py-1.5 rounded-md border text-sm font-medium transition-all
+                                  ${sinStock
+                                    ? 'border-gray-200 text-gray-300 bg-gray-50 cursor-not-allowed line-through'
+                                    : seleccionada
+                                      ? 'border-[#d65391] bg-[#d65391] text-white shadow-sm'
+                                      : 'border-gray-300 text-gray-700 hover:border-[#d65391]'
+                                  }`}
+                                title={sinStock ? 'Agotado en esta talla' : `${talla}${variantes.length > 0 ? ` — ${stockDisponible} disponibles` : ''}`}
+                              >
+                                {talla}
+                                {sinStock && (
+                                  <span className="absolute -top-1 -right-1 bg-red-400 text-white text-[9px] px-1 rounded-full">✕</span>
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
 
                     {/* CANTIDAD */}
                     <div>
@@ -1105,25 +1178,71 @@ export const LandingView: React.FC<LandingViewProps> = ({
                       </div>
                     </div>
 
+                    {/* STOCK STATUS */}
+                    {productoSeleccionado.agotado ? (
+                      <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                        <span className="text-red-500">⚠️</span>
+                        <div>
+                          <p className="text-sm font-semibold text-red-600">Producto Agotado</p>
+                          <p className="text-xs text-red-400">Sin stock disponible por el momento</p>
+                        </div>
+                      </div>
+                    ) : (
+                      (() => {
+                          const variantes = productoSeleccionado.variantes || [];
+                          const colorEfectivo = colorSeleccionado || (productoSeleccionado.colores?.length === 1 ? productoSeleccionado.colores[0] : null);
+                          let texto = 'Selecciona una talla';
+                          let isAgotado = false;
+                          if (variantes.length > 0) {
+                            if (tallaSeleccionada && colorEfectivo) {
+                              const v = variantes.find((x: any) => x.tallaNombre === tallaSeleccionada && x.colorNombre === colorEfectivo);
+                              const stockV = v?.stock ?? 0;
+                              isAgotado = stockV <= 0;
+                              texto = isAgotado ? `Agotado en ${tallaSeleccionada} / ${colorEfectivo}` : `${stockV} unidades en ${tallaSeleccionada} / ${colorEfectivo}`;
+                            } else if (tallaSeleccionada) {
+                              const total = variantes.filter((x: any) => x.tallaNombre === tallaSeleccionada).reduce((s: number, x: any) => s + (x.stock ?? 0), 0);
+                              isAgotado = total <= 0;
+                              texto = isAgotado ? `Agotado en ${tallaSeleccionada}` : `${total} unidades en ${tallaSeleccionada}`;
+                            } else if (colorEfectivo) {
+                              const total = variantes.filter((x: any) => x.colorNombre === colorEfectivo).reduce((s: number, x: any) => s + (x.stock ?? 0), 0);
+                              isAgotado = total <= 0;
+                              texto = isAgotado ? 'Color agotado' : `${total} unidades en ${colorEfectivo}`;
+                            }
+                          } else {
+                            const stockTotal = productoSeleccionado.stock ?? 0;
+                            isAgotado = stockTotal <= 0;
+                            texto = isAgotado ? 'Agotado' : `${stockTotal} unidades disponibles`;
+                          }
+                          return (
+                            <div className="flex items-center gap-1">
+                              <div className={`w-2 h-2 rounded-full ${isAgotado ? 'bg-red-400' : 'bg-green-400'}`}></div>
+                              <span className={`text-xs font-medium ${isAgotado ? 'text-red-500' : 'text-green-600'}`}>{texto}</span>
+                            </div>
+                          );
+                        })()
+                    )}
+
                     {/* BOTONES DE ACCIÓN */}
                     <div className="space-y-1 pt-2 border-t border-gray-200">
                           <Button
+                        disabled={productoSeleccionado.agotado}
                         onClick={() => {
-                          if (!productoSeleccionado) return;
+                          if (!productoSeleccionado || productoSeleccionado.agotado) return;
                           const talla = tallaSeleccionada || 'Única';
                           agregarAlCarrito(productoSeleccionado, talla, colorSeleccionado || undefined, cantidadSeleccionada);
                           setProductoSeleccionado(null);
                           onNavigateToCheckout?.();
                         }}
-                        className="w-full bg-[#d65391] hover:bg-[#c04380] text-white h-9 font-semibold text-xs shadow-md hover:shadow-lg transition-all"
+                        className={`w-full h-9 font-semibold text-xs shadow-md transition-all text-white ${productoSeleccionado.agotado ? 'bg-gray-300 cursor-not-allowed' : 'bg-[#d65391] hover:bg-[#c04380] hover:shadow-lg'}`}
                         style={{ fontFamily: "Inter, sans-serif" }}
                       >
                         <Zap className="w-4 h-4 mr-2" />
-                        Comprar Ahora
+                        {productoSeleccionado.agotado ? 'Agotado' : 'Comprar Ahora'}
                       </Button>
                       <Button
-                        onClick={handleAgregarAlCarrito}
-                        className="w-full bg-black hover:bg-gray-800 text-white h-9 font-semibold text-xs transition-all"
+                        disabled={productoSeleccionado.agotado}
+                        onClick={!productoSeleccionado.agotado ? handleAgregarAlCarrito : undefined}
+                        className={`w-full h-9 font-semibold text-xs transition-all text-white ${productoSeleccionado.agotado ? 'bg-gray-300 cursor-not-allowed' : 'bg-black hover:bg-gray-800'}`}
                         style={{ fontFamily: "Inter, sans-serif" }}
                       >
                         <ShoppingBag className="w-4 h-4 mr-2" />

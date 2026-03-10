@@ -42,6 +42,7 @@ export const ProductosView: React.FC = () => {
     imagen: '',
     imagenes: [],
     imagenesPorColor: {},
+    variantes: [],
     tallas: [],
     colores: [],
     materiales: [],
@@ -109,7 +110,7 @@ export const ProductosView: React.FC = () => {
     setSelectedProduct(product);
     // Mantener imagenesPorColor como está — no mezclar con imagenes generales
     const imagenesPorColor = product.imagenesPorColor || {};
-    setEditForm({ ...product, categoriaMain: product.categoria || product.categoriaMain, imagenesPorColor });
+    setEditForm({ ...product, categoriaMain: product.categoria || product.categoriaMain, imagenesPorColor, variantes: product.variantes || [] });
     setEditErrors({});
     setEditColorSelection({ color: '', imageUrl: '' });
     setIsEditModalOpen(true);
@@ -338,7 +339,7 @@ export const ProductosView: React.FC = () => {
     // Imágenes generales (sin color asignado)
     const imagenesEditUrls: string[] = (editForm.imagenes || []).filter((u: string) => u && !u.startsWith('data:'));
     // Pasar imagenesPorColor en el payload para que se envíe con ColorNombre
-    const payloadConImagenes = { ...payload, imagenesPorColor: editForm.imagenesPorColor || {} };
+    const payloadConImagenes = { ...payload, imagenesPorColor: editForm.imagenesPorColor || {}, variantes: editForm.variantes || [] };
     console.log('[Edit] imagenesEditUrls:', imagenesEditUrls, 'imagenesPorColor:', editForm.imagenesPorColor);
     const ok = await actualizarProducto(selectedProduct.id, payloadConImagenes, editForm.tallas || [], editForm.colores || [], tallas, colores, imagenesEditUrls, editForm.materiales || [], materiales);
     if (ok) {
@@ -399,7 +400,7 @@ export const ProductosView: React.FC = () => {
     };
 
     const imagenesUrls: string[] = (createForm.imagenes || []).filter((u: string) => u && !u.startsWith('data:'));
-    const payloadConImagenes = { ...payload, imagenesPorColor: createForm.imagenesPorColor || {} };
+    const payloadConImagenes = { ...payload, imagenesPorColor: createForm.imagenesPorColor || {}, variantes: createForm.variantes || [] };
     console.log('[Create] imagenesUrls:', imagenesUrls, 'imagenesPorColor:', createForm.imagenesPorColor);
     const ok = await crearProducto(payloadConImagenes, createForm.tallas || [], createForm.colores || [], tallas, colores, imagenesUrls, createForm.materiales || [], materiales);
     if (ok) {
@@ -948,6 +949,66 @@ export const ProductosView: React.FC = () => {
               </div>
             </div>
 
+            {/* PASO 3.5: Stock por Talla y Color (Variantes) */}
+            {(editForm.tallas?.length > 0 && editForm.colores?.length > 0) && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <h3 className="font-semibold text-gray-900 mb-1 flex items-center gap-2">
+                  📦 Stock por Talla / Color
+                </h3>
+                <p className="text-xs text-gray-500 mb-3">
+                  Define cuántas unidades hay de cada combinación. Deja en 0 para marcar como agotado esa variante.
+                </p>
+                <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                  {(() => {
+                    const tallasEdit: string[] = editForm.tallas || [];
+                    const coloresEdit: string[] = editForm.colores || [];
+                    const variantes: any[] = editForm.variantes || [];
+                    const getStock = (t: string, c: string) => {
+                      const v = variantes.find((x: any) => x.tallaNombre === t && x.colorNombre === c);
+                      return v?.stock ?? 0;
+                    };
+                    const setStock = (t: string, c: string, val: number) => {
+                      const current = [...(editForm.variantes || [])];
+                      const idx = current.findIndex((x: any) => x.tallaNombre === t && x.colorNombre === c);
+                      if (idx >= 0) current[idx] = { ...current[idx], stock: val };
+                      else current.push({ tallaNombre: t, colorNombre: c, stock: val });
+                      updateEditForm('variantes', current);
+                    };
+                    return tallasEdit.flatMap((talla: string) =>
+                      coloresEdit.map((color: string) => {
+                        const stock = getStock(talla, color);
+                        return (
+                          <div key={`${talla}-${color}`} className="flex items-center justify-between bg-white rounded border border-gray-200 px-3 py-2">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-medium text-gray-700 w-12">{talla}</span>
+                              <span className="text-xs text-gray-400">—</span>
+                              <span className="text-xs text-gray-600">{color}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {stock === 0 && <span className="text-[10px] text-red-500 font-semibold">Agotado</span>}
+                              <input
+                                type="number"
+                                min={0}
+                                value={stock === 0 ? '' : stock}
+                                placeholder="0"
+                                onChange={e => {
+                                  const raw = e.target.value;
+                                  if (raw === '') { setStock(talla, color, 0); return; }
+                                  const val = parseInt(raw);
+                                  if (!isNaN(val) && val >= 0) setStock(talla, color, val);
+                                }}
+                                className="w-16 text-center text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:border-[#d65391]"
+                              />
+                            </div>
+                          </div>
+                        );
+                      })
+                    );
+                  })()}
+                </div>
+              </div>
+            )}
+
             {/* PASO 4: Imágenes por Color */}
             <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
               <h3 className="font-semibold text-gray-900 mb-3">Paso 4: Imágenes por Color</h3>
@@ -1371,6 +1432,119 @@ export const ProductosView: React.FC = () => {
                 </div>
               </div>
             </div>
+
+            {/* PASO 3.5: Stock por Talla y Color (Variantes) */}
+            {(editForm.tallas?.length > 0 && editForm.colores?.length > 0) && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <h3 className="font-semibold text-gray-900 mb-1 flex items-center gap-2">
+                  📦 Stock por Talla / Color
+                </h3>
+                <p className="text-xs text-gray-500 mb-3">
+                  Define cuántas unidades hay de cada combinación. Deja en 0 para marcar como agotado esa variante.
+                </p>
+                <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                  {(() => {
+                    const tallasEdit: string[] = editForm.tallas || [];
+                    const coloresEdit: string[] = editForm.colores || [];
+                    const variantes: any[] = editForm.variantes || [];
+                    const getStock = (t: string, c: string) => {
+                      const v = variantes.find((x: any) => x.tallaNombre === t && x.colorNombre === c);
+                      return v?.stock ?? 0;
+                    };
+                    const setStock = (t: string, c: string, val: number) => {
+                      const current = [...(editForm.variantes || [])];
+                      const idx = current.findIndex((x: any) => x.tallaNombre === t && x.colorNombre === c);
+                      if (idx >= 0) current[idx] = { ...current[idx], stock: val };
+                      else current.push({ tallaNombre: t, colorNombre: c, stock: val });
+                      updateEditForm('variantes', current);
+                    };
+                    return tallasEdit.flatMap((talla: string) =>
+                      coloresEdit.map((color: string) => {
+                        const stock = getStock(talla, color);
+                        return (
+                          <div key={`${talla}-${color}`} className="flex items-center justify-between bg-white rounded border border-gray-200 px-3 py-2">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-medium text-gray-700 w-12">{talla}</span>
+                              <span className="text-xs text-gray-400">—</span>
+                              <span className="text-xs text-gray-600">{color}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {stock === 0 && <span className="text-[10px] text-red-500 font-semibold">Agotado</span>}
+                              <input
+                                type="number"
+                                min={0}
+                                value={stock === 0 ? '' : stock}
+                                placeholder="0"
+                                onChange={e => {
+                                  const raw = e.target.value;
+                                  if (raw === '') { setStock(talla, color, 0); return; }
+                                  const val = parseInt(raw);
+                                  if (!isNaN(val) && val >= 0) setStock(talla, color, val);
+                                }}
+                                className="w-16 text-center text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:border-[#d65391]"
+                              />
+                            </div>
+                          </div>
+                        );
+                      })
+                    );
+                  })()}
+                </div>
+              </div>
+            )}
+
+            {/* PASO 3.5: Stock por Talla y Color */}
+            {(createForm.tallas?.length > 0 && createForm.colores?.length > 0) && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <h3 className="font-semibold text-gray-900 mb-1">📦 Stock por Talla / Color</h3>
+                <p className="text-xs text-gray-500 mb-3">Define cuántas unidades hay de cada combinación. Deja en 0 para agotado.</p>
+                <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                  {(() => {
+                    const tallasC: string[] = createForm.tallas || [];
+                    const coloresC: string[] = createForm.colores || [];
+                    const variantes: any[] = createForm.variantes || [];
+                    const getStock = (t: string, c: string) => variantes.find((x: any) => x.tallaNombre === t && x.colorNombre === c)?.stock ?? 0;
+                    const setStock = (t: string, c: string, val: number) => {
+                      const cur = [...(createForm.variantes || [])];
+                      const idx = cur.findIndex((x: any) => x.tallaNombre === t && x.colorNombre === c);
+                      if (idx >= 0) cur[idx] = { ...cur[idx], stock: val };
+                      else cur.push({ tallaNombre: t, colorNombre: c, stock: val });
+                      updateCreateForm('variantes', cur);
+                    };
+                    return tallasC.flatMap((talla: string) =>
+                      coloresC.map((color: string) => {
+                        const stock = getStock(talla, color);
+                        return (
+                          <div key={`${talla}-${color}`} className="flex items-center justify-between bg-white rounded border border-gray-200 px-3 py-2">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-medium text-gray-700 w-12">{talla}</span>
+                              <span className="text-xs text-gray-400">—</span>
+                              <span className="text-xs text-gray-600">{color}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {stock === 0 && <span className="text-[10px] text-red-500 font-semibold">Agotado</span>}
+                              <input
+                                type="number"
+                                min={0}
+                                value={stock === 0 ? '' : stock}
+                                placeholder="0"
+                                onChange={e => {
+                                  const raw = e.target.value;
+                                  if (raw === '') { setStock(talla, color, 0); return; }
+                                  const val = parseInt(raw);
+                                  if (!isNaN(val) && val >= 0) setStock(talla, color, val);
+                                }}
+                                className="w-16 text-center text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:border-[#d65391]"
+                              />
+                            </div>
+                          </div>
+                        );
+                      })
+                    );
+                  })()}
+                </div>
+              </div>
+            )}
 
             {/* PASO 4: Imágenes por Color */}
             <div className="bg-white border-2 border-gray-100 rounded-lg p-5 shadow-sm">
