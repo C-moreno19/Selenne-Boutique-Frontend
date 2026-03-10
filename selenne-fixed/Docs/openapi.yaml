@@ -1,0 +1,113 @@
+openapi: 3.0.1
+info:
+  title: Selenne API
+  description: API para Selenne Boutique (Web, Mobile, Admin)
+  version: 1.0.0
+servers:
+  - url: https://api.example.com
+    description: Producción
+  - url: http://localhost:5000
+    description: Desarrollo local
+paths:
+  /api/auth/signup:
+    post:
+      tags: [Auth]
+      summary: Registrar nuevo usuario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignupRequest'
+      responses:
+        '201':
+          description: Usuario creado
+  /api/auth/login:
+    post:
+      tags: [Auth]
+      summary: Iniciar sesión
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login exitoso
+  /api/auth/refresh-token:
+    post:
+      tags: [Auth]
+      summary: Renovar access token usando refresh token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refreshToken: { type: string }
+      responses:
+        '200': { description: Token renovado }
+  /api/landing/productos:
+    get:
+      tags: [Landing]
+      summary: Productos para landing
+      parameters:
+        - in: query
+          name: pagina
+          schema: { type: integer, default: 1 }
+        - in: query
+          name: items
+          schema: { type: integer, default: 12 }
+      responses:
+        '200': { description: Lista de productos }
+  /api/productos:
+    get:
+      tags: [Productos]
+      summary: Listar productos (filtros)
+      parameters:
+        - in: query
+          name: busqueda
+          schema: { type: string }
+        - in: query
+          name: categoria
+          schema: { type: string }
+        - in: query
+          name: pagina
+          schema: { type: integer, default: 1 }
+        - in: query
+          name: items
+          schema: { type: integer, default: 12 }
+      responses:
+        '200': { description: Productos paginados }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    SignupRequest:
+      type: object
+      required: [NombreCompleto, Email, Contraseña]
+      properties:
+        NombreCompleto: { type: string }
+        Email: { type: string, format: email }
+        Telefono: { type: string }
+        Contraseña: { type: string }
+    LoginRequest:
+      type: object
+      required: [Email, Contraseña]
+      properties:
+        Email: { type: string, format: email }
+        Contraseña: { type: string }
+    ProductoListDto:
+      type: object
+      properties:
+        ProductoID: { type: integer }
+        Codigo: { type: string }
+        Nombre: { type: string }
+        PrecioVenta: { type: number }
+        Stock: { type: integer }
+        ImagenUrl: { type: string }
