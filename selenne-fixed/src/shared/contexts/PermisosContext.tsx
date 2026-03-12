@@ -1,193 +1,93 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
-
-export interface Permission {
-  id: string;
-  label: string;
-  checked: boolean;
-}
-
-export interface PermissionModule {
-  id: string;
-  name: string;
-  permissions: Permission[];
-  checked: boolean;
-}
-
-interface RolePermissions {
-  [roleName: string]: PermissionModule[];
-}
+import React, { createContext, useContext, ReactNode } from 'react';
 
 interface PermisosContextType {
-  getPermisos: (roleName: string) => PermissionModule[];
-  setPermisos: (roleName: string, permisos: PermissionModule[]) => void;
-  tienePermiso: (roleName: string, permisoId: string) => boolean;
-  tieneModuloActivo: (roleName: string, moduleId: string) => boolean;
   canAccessSection: (section: string) => boolean;
   canDelete: () => boolean;
+  hasPermiso: (permiso: string) => boolean;
+  // Legacy compatibility
+  getPermisos: (roleName: string) => any[];
+  setPermisos: (roleName: string, permisos: any[]) => void;
+  tienePermiso: (roleName: string, permisoId: string) => boolean;
+  tieneModuloActivo: (roleName: string, moduleId: string) => boolean;
 }
 
 const PermisosContext = createContext<PermisosContextType | undefined>(undefined);
 
-const normalizeRoleName = (roleName: string): string => {
-  const normalized = roleName.toUpperCase().trim();
-  const roleMapping: { [key: string]: string } = {
-    'VENDEDOR': 'EMPLEADO',
-    'ADMIN': 'ADMINISTRADOR',
-  };
-  return roleMapping[normalized] || normalized;
+// Mapeo de sección del sidebar → permiso requerido en BD
+const sectionToPermiso: { [key: string]: string } = {
+  'productos':      'productos:ver',
+  'categorias':     'productos:ver',
+  'tallas':         'productos:ver',
+  'colores':        'productos:ver',
+  'materiales':     'productos:ver',
+  'marcas':         'productos:ver',
+  'tipos-producto': 'productos:ver',
+  'ventas':         'ventas:ver',
+  'pedidos':        'ventas:ver',
+  'clientes':       'ventas:ver',
+  'compras':        'usuarios:ver',
+  'usuarios':       'usuarios:ver',
+  'roles':          'roles:ver',
+  'reportes':       'reportes:ver',
+  'configuracion':  'admin:dashboard',
 };
 
-const permisosIniciales: RolePermissions = {
-  'ADMINISTRADOR': [],
-  'EMPLEADO': [
-    {
-      id: 'productos',
-      name: 'Módulo Productos',
-      checked: true,
-      permissions: [
-        { id: 'productos_ver', label: 'Ver listado de productos', checked: true },
-        { id: 'productos_crear', label: 'Crear productos', checked: false },
-        { id: 'productos_editar', label: 'Editar productos', checked: false },
-        { id: 'productos_eliminar', label: 'Eliminar productos', checked: false },
-      ],
-    },
-    {
-      id: 'ventas',
-      name: 'Módulo Ventas',
-      checked: true,
-      permissions: [
-        { id: 'ventas_ver', label: 'Ver listado de ventas', checked: true },
-        { id: 'ventas_crear', label: 'Registrar ventas', checked: true },
-        { id: 'ventas_editar', label: 'Editar ventas', checked: false },
-        { id: 'ventas_anular', label: 'Anular ventas', checked: false },
-      ],
-    },
-  ],
-  'CLIENTE': [],
+const getUser = () => {
+  try {
+    const stored = localStorage.getItem('currentUser');
+    return stored ? JSON.parse(stored) : null;
+  } catch { return null; }
 };
 
-const sectionToModuleMapping: { [key: string]: string } = {
-  'home': 'home',
-  'productos': 'productos',
-  'categorias': 'productos',
-  'tallas': 'productos',
-  'colores': 'productos',
-  'materiales': 'productos',
-  'marcas': 'productos',
-  'tipos-producto': 'productos',
-  'ventas': 'ventas',
-  'roles': 'admin',
-  'usuarios': 'admin',
-  'proveedores': 'admin',
-  'compras': 'admin',
-  'pedidos': 'admin',
-  'clientes': 'admin',
-  'perfil': 'all',
-  'mi-cuenta': 'all',
+const getUserPermisos = (): string[] => {
+  const user = getUser();
+  return user?.permisos || [];
+};
+
+const isAdmin = (): boolean => {
+  const user = getUser();
+  const role = (user?.role || '').toLowerCase();
+  return role.includes('admin');
 };
 
 export const PermisosProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [permisosPorRol, setPermisosPorRol] = useState<RolePermissions>(() => {
-    try {
-      const storedPermisos = localStorage.getItem('permisosPorRol');
-      if (storedPermisos) {
-        return JSON.parse(storedPermisos);
-      }
-    } catch (error) {
-      console.error('Error cargando permisos desde localStorage:', error);
-    }
-    localStorage.setItem('permisosPorRol', JSON.stringify(permisosIniciales));
-    return permisosIniciales;
-  });
 
-  const getPermisos = (roleName: string): PermissionModule[] => {
-    const normalizedRoleName = normalizeRoleName(roleName);
-    return permisosPorRol[normalizedRoleName] || [];
-  };
-
-  const setPermisos = (roleName: string, permisos: PermissionModule[]) => {
-    const normalizedRoleName = normalizeRoleName(roleName);
-    const updatedPermisos = {
-      ...permisosPorRol,
-      [normalizedRoleName]: permisos
-    };
-    try {
-      localStorage.setItem('permisosPorRol', JSON.stringify(updatedPermisos));
-    } catch (error) {
-      console.error('Error guardando permisos en localStorage:', error);
-    }
-    setPermisosPorRol(updatedPermisos);
-  };
-
-  const tienePermiso = (roleName: string, permisoId: string): boolean => {
-    const normalizedRoleName = normalizeRoleName(roleName);
-    if (normalizedRoleName === 'ADMINISTRADOR') return true;
-
-    const permisos = getPermisos(roleName);
-    for (const module of permisos) {
-      const permiso = module.permissions.find(p => p.id === permisoId);
-      if (permiso && permiso.checked) return true;
-    }
-    return false;
-  };
-
-  const tieneModuloActivo = (roleName: string, moduleId: string): boolean => {
-    const normalizedRoleName = normalizeRoleName(roleName);
-    if (normalizedRoleName === 'ADMINISTRADOR') return true;
-
-    const permisos = getPermisos(roleName);
-    const module = permisos.find(m => m.id === moduleId);
-    if (module) {
-      return module.permissions.some(p => p.checked);
-    }
-    return false;
+  const hasPermiso = (permiso: string): boolean => {
+    if (isAdmin()) return true;
+    return getUserPermisos().includes(permiso);
   };
 
   const canAccessSection = (section: string): boolean => {
-    try {
-      const authData = localStorage.getItem('currentUser');
-      if (authData) {
-        const user = JSON.parse(authData);
-        const normalizedRoleName = normalizeRoleName(user.role);
+    if (isAdmin()) return true;
+    // Secciones siempre accesibles
+    if (['home', 'perfil', 'mi-cuenta', 'dashboard'].includes(section)) return true;
 
-        if (normalizedRoleName === 'ADMINISTRADOR') return true;
-        if (sectionToModuleMapping[section] === 'all') return true;
-
-        const moduleId = sectionToModuleMapping[section];
-        if (moduleId === 'productos' || moduleId === 'ventas') {
-          return tieneModuloActivo(user.role, moduleId);
-        }
-
-        return false;
-      }
-    } catch (error) {
-      console.error('Error verificando permisos de sección:', error);
-    }
-    return false;
+    const permiso = sectionToPermiso[section];
+    if (!permiso) return false;
+    return getUserPermisos().includes(permiso);
   };
 
-  const canDelete = (): boolean => {
-    try {
-      const authData = localStorage.getItem('currentUser');
-      if (authData) {
-        const user = JSON.parse(authData);
-        const normalizedRoleName = normalizeRoleName(user.role);
-        return normalizedRoleName === 'ADMINISTRADOR';
-      }
-    } catch (error) {
-      console.error('Error verificando permisos de eliminación:', error);
-    }
-    return false;
+  const canDelete = (): boolean => isAdmin();
+
+  // Legacy methods for backward compatibility
+  const getPermisos = (_roleName: string) => [];
+  const setPermisos = (_roleName: string, _permisos: any[]) => {};
+  const tienePermiso = (_roleName: string, permisoId: string) => hasPermiso(permisoId);
+  const tieneModuloActivo = (_roleName: string, moduleId: string) => {
+    if (isAdmin()) return true;
+    const permisos = getUserPermisos();
+    return permisos.some(p => p.startsWith(moduleId + ':'));
   };
 
   return (
     <PermisosContext.Provider value={{
+      canAccessSection,
+      canDelete,
+      hasPermiso,
       getPermisos,
       setPermisos,
       tienePermiso,
       tieneModuloActivo,
-      canAccessSection,
-      canDelete
     }}>
       {children}
     </PermisosContext.Provider>
