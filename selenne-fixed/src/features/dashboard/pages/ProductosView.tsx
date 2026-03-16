@@ -108,6 +108,7 @@ export const ProductosView: React.FC = () => {
 
   const handleEdit = (product: Product) => {
     setSelectedProduct(product);
+    console.log('[handleEdit] tallas:', product.tallas, 'colores:', product.colores);
     // Mantener imagenesPorColor como está — no mezclar con imagenes generales
     const imagenesPorColor = product.imagenesPorColor || {};
     setEditForm({ ...product, categoriaMain: product.categoria || product.categoriaMain, imagenesPorColor, variantes: product.variantes || [] });
@@ -321,7 +322,14 @@ export const ProductosView: React.FC = () => {
     const tipID = tipoObj ? Number(tipoObj.id) : selectedProduct.tipoProductoID ?? 1;
 
     // Nunca guardar base64 — solo URLs reales
-    const imagenEdit = (editForm.imagen || '').startsWith('data:') ? '' : (editForm.imagen || '');
+    let imagenEdit = editForm.imagen || '';
+    if (imagenEdit.startsWith('data:')) {
+      // Subir al servidor si es base64
+      const blob = await fetch(imagenEdit).then(r => r.blob());
+      const file = new File([blob], 'imagen-principal.jpg', { type: blob.type });
+      const uploaded = await uploadImageToServer(file);
+      imagenEdit = uploaded || '';
+    }
 
     const payload = {
       Nombre: editForm.nombre,
