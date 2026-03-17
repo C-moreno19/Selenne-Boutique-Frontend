@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Search, Eye, Edit, Trash2, ChevronRight, Users } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '../../../components/ui/dialog';
+import { useAuth } from '../../../shared/contexts/AuthContext';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../../../components/ui/alert-dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../components/ui/select';
 import { toast } from 'sonner@2.0.3';
@@ -17,6 +18,8 @@ interface Proveedor extends ProveedorType {
 }
 
 export const ProveedoresView: React.FC = () => {
+  const { hasPermission } = useAuth();
+  const puedeAdmin = hasPermission('admin:dashboard');
   const { canDelete } = usePermisos();
   const { proveedores: proveedoresDelContexto, agregarProveedor } = useComprasAdmin();
   const [searchQuery, setSearchQuery] = useState('');
@@ -207,14 +210,14 @@ export const ProveedoresView: React.FC = () => {
                 </div>
               </div>
 
-              <button
+              {puedeAdmin && <button
                 onClick={handleCreate}
                 style={{ fontFamily: 'Inter, sans-serif' }}
                 className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2 whitespace-nowrap"
               >
                 <Plus className="w-5 h-5" />
                 Nuevo Proveedor
-              </button>
+              </button>}
             </div>
           </div>
 
@@ -292,14 +295,14 @@ export const ProveedoresView: React.FC = () => {
                           >
                             <Eye className="w-5 h-5" />
                           </button>
-                          <button
+                          {puedeAdmin && <button
                             onClick={() => handleEdit(proveedor)}
                             className="p-2 text-gray-600 hover:bg-yellow-50 hover:text-yellow-600 rounded-lg transition-colors"
                             title="Editar proveedor"
                           >
                             <Edit className="w-5 h-5" />
-                          </button>
-                          {canDelete() && (
+                          </button>}
+                          {puedeAdmin && (
                             <button
                               onClick={() => handleDelete(proveedor)}
                               className="p-2 text-gray-600 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors"

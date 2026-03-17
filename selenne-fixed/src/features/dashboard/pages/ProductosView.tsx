@@ -11,13 +11,18 @@ import { toast } from 'sonner';
 import { useProductos, ProductoAdmin } from '../../../shared/contexts/ProductosContext';
 import { useSubcategorias } from '../../../shared/contexts/SubcategoriasContext';
 import { useProductosAdmin } from '../../../shared/data/useProductosAdmin';
+import { useAuth } from '../../../shared/contexts/AuthContext';
 
 interface Product extends ProductoAdmin {}
 
 export const ProductosView: React.FC = () => {
   const { crearProducto, actualizarProducto, eliminarProducto } = useProductos();
   const { colores, tallas, materiales, marcas, categorias, categoriasRopa, tiposProducto } = useSubcategorias();
-  const todosLosProductos = useProductosAdmin(); // Obtener todos los productos (locales + admin)
+  const todosLosProductos = useProductosAdmin();
+  const { hasPermission } = useAuth();
+  const puedeEditar = hasPermission('productos:editar');
+  const puedeEliminar = hasPermission('productos:eliminar');
+  const puedeCrear = hasPermission('productos:crear');
   const [searchQuery, setSearchQuery] = useState('');
   const [precioMin, setPrecioMin] = useState<number | ''>('');
   const [precioMax, setPrecioMax] = useState<number | ''>('');
@@ -466,13 +471,15 @@ export const ProductosView: React.FC = () => {
               className="pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#d65391] focus:border-transparent"
             />
           </div>
-          <button 
-            onClick={handleCreate}
-            className="px-4 py-2 bg-[#d65391] text-white rounded-md hover:bg-[#c84a8f] transition-colors flex items-center gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            Nuevo Producto
-          </button>
+          {puedeCrear && (
+            <button 
+              onClick={handleCreate}
+              className="px-4 py-2 bg-[#d65391] text-white rounded-md hover:bg-[#c84a8f] transition-colors flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              Nuevo Producto
+            </button>
+          )}
         </div>
       </div>
 
@@ -551,20 +558,24 @@ export const ProductosView: React.FC = () => {
                   >
                     <Eye className="w-4 h-4" />
                   </button>
-                  <button 
-                    onClick={() => handleEdit(product)}
-                    className="p-2 text-gray-600 hover:bg-yellow-50 hover:text-yellow-600 rounded-lg transition-colors"
-                    title="Editar producto"
-                  >
-                    <Edit className="w-4 h-4" />
-                  </button>
-                  <button 
-                    onClick={() => handleDelete(product)}
-                    className="p-2 text-gray-600 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors"
-                    title="Eliminar producto"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  {puedeEditar && (
+                    <button 
+                      onClick={() => handleEdit(product)}
+                      className="p-2 text-gray-600 hover:bg-yellow-50 hover:text-yellow-600 rounded-lg transition-colors"
+                      title="Editar producto"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </button>
+                  )}
+                  {puedeEliminar && (
+                    <button 
+                      onClick={() => handleDelete(product)}
+                      className="p-2 text-gray-600 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors"
+                      title="Eliminar producto"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
                 <button
                   onClick={() => handleToggleActivo(product.id)}

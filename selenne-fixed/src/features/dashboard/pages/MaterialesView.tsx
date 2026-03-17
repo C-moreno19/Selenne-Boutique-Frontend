@@ -1,3 +1,4 @@
+import { useAuth } from '../../../shared/contexts/AuthContext';
 import React, { useState } from 'react';
 import { Plus, Search, Layers, Edit } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '../../../components/ui/dialog';
@@ -6,6 +7,8 @@ import { toast } from 'sonner';
 import { useSubcategorias } from '../../../shared/contexts/SubcategoriasContext';
 
 export const MaterialesView: React.FC = () => {
+  const { hasPermission } = useAuth();
+  const puedeAdmin = hasPermission('admin:dashboard');
   const { materiales, agregarMaterial, editarMaterial, eliminarMaterial } = useSubcategorias();
   const [searchQuery, setSearchQuery] = useState('');
   const [createOpen, setCreateOpen] = useState(false);
@@ -53,11 +56,11 @@ export const MaterialesView: React.FC = () => {
           <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: '32px' }} className="mb-2">Materiales</h1>
           <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-600">Gestiona los materiales de los productos</p>
         </div>
-        <button onClick={() => { setFormName(''); setCreateOpen(true); }}
+        {puedeAdmin && <button onClick={() => { setFormName(''); setCreateOpen(true); }}
           className="flex items-center gap-2 bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors">
           <Plus className="w-5 h-5" />
           <span style={{ fontFamily: 'Inter, sans-serif' }}>Nuevo Material</span>
-        </button>
+        </button>}
       </div>
 
       <div className="bg-white rounded-lg shadow p-6 mb-6">

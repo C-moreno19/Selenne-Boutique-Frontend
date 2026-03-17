@@ -7,6 +7,7 @@ import { toast } from 'sonner@2.0.3';
 // pagination removed — reverted to original listing
 import { usePermisos } from '../../../shared/contexts/PermisosContext';
 import { useComprasAdmin, type Compra as CompraType } from '../../../shared/contexts/ComprasAdminContext';
+import { useAuth } from '../../../shared/contexts/AuthContext';
 
 interface ProductoComprado {
   id?: string;
@@ -35,6 +36,9 @@ interface ComprasViewProps {
 
 export const ComprasView: React.FC<ComprasViewProps> = ({ onNavigateToNuevaCompra }) => {
   const { canDelete } = usePermisos();
+  const { hasPermission } = useAuth();
+  const puedeCrear = hasPermission('admin:dashboard');
+  const puedeEliminar = hasPermission('admin:dashboard');
   const { compras, proveedores, anularCompra } = useComprasAdmin();
   
   const [searchQuery, setSearchQuery] = useState('');
@@ -182,6 +186,7 @@ export const ComprasView: React.FC<ComprasViewProps> = ({ onNavigateToNuevaCompr
                 </div>
               </div>
 
+              {puedeCrear && (
               <button
                 onClick={() => onNavigateToNuevaCompra?.()}
                 style={{ fontFamily: 'Inter, sans-serif' }}
@@ -190,6 +195,7 @@ export const ComprasView: React.FC<ComprasViewProps> = ({ onNavigateToNuevaCompr
                 <Plus className="w-5 h-5" />
                 Nueva Compra
               </button>
+              )}
             </div>
           </div>
 
@@ -262,6 +268,7 @@ export const ComprasView: React.FC<ComprasViewProps> = ({ onNavigateToNuevaCompr
                           >
                             <Eye className="w-5 h-5" />
                           </button>
+                          {puedeEliminar && (
                           <button
                             onClick={() => handleDelete(compra)}
                             disabled={compra.estado === 'Anulada'}
@@ -274,6 +281,7 @@ export const ComprasView: React.FC<ComprasViewProps> = ({ onNavigateToNuevaCompr
                           >
                             <Trash2 className="w-5 h-5" />
                           </button>
+                          )}
                         </div>
                       </td>
                     </tr>

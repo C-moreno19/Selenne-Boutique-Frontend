@@ -7,7 +7,7 @@ import { Label } from '../../../components/ui/label';
 import { Checkbox } from '../../../components/ui/checkbox';
 import { toast } from 'sonner';
 import api, { getJson, postJson } from '../../../services/api';
-
+import { useAuth } from '../../../shared/contexts/AuthContext';
 interface ApiRole {
   roleID: number;
   nombre: string;
@@ -136,6 +136,11 @@ const PermisosEditor: React.FC<PermisosEditorProps> = ({ arr, onToggle, onToggle
 );
 
 export const RolesView: React.FC = () => {
+  const { hasPermission } = useAuth();
+  const puedeCrear = hasPermission('roles:crear');
+  const puedeEditar = hasPermission('roles:editar');
+  const puedeEliminar = hasPermission('roles:eliminar');
+  const puedePermisos = hasPermission('roles:permisos');
   const [roles, setRoles] = useState<ApiRole[]>([]);
   const [allPermisos, setAllPermisos] = useState<ApiPermiso[]>([]);
   const [loading, setLoading] = useState(true);
@@ -309,10 +314,12 @@ export const RolesView: React.FC = () => {
               className="px-4 py-3 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
               <RefreshCw className="w-5 h-5" />
             </button>
+            {puedeCrear && (
             <button onClick={handleCreate} style={{ fontFamily: 'Inter, sans-serif' }}
               className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 flex items-center gap-2 transition-colors">
               <Plus className="w-5 h-5" /> Nuevo Rol
             </button>
+            )}
           </div>
         </div>
 
@@ -362,15 +369,19 @@ export const RolesView: React.FC = () => {
                         className="p-2 text-gray-500 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors" title="Ver detalles">
                         <Eye className="w-5 h-5" />
                       </button>
+                      {puedePermisos && (
                       <button onClick={() => handleEditarPermisos(role)}
                         className="p-2 text-gray-500 hover:bg-purple-50 hover:text-purple-600 rounded-lg transition-colors" title="Configurar permisos">
                         <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
                       </button>
+                      )}
+                      {puedeEditar && (
                       <button onClick={() => handleEdit(role)}
                         className="p-2 text-gray-500 hover:bg-yellow-50 hover:text-yellow-600 rounded-lg transition-colors" title="Editar rol">
                         <Edit className="w-5 h-5" />
                       </button>
-                      {isPreexistente(role.nombre) ? (
+                      )}
+                      {puedeEliminar && (isPreexistente(role.nombre) ? (
                         <button disabled className="p-2 text-gray-300 cursor-not-allowed rounded-lg" title="No eliminable">
                           <Ban className="w-5 h-5" />
                         </button>
@@ -379,7 +390,7 @@ export const RolesView: React.FC = () => {
                           className="p-2 text-gray-500 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors" title="Eliminar rol">
                           <Trash2 className="w-5 h-5" />
                         </button>
-                      )}
+                      ))}
                     </div>
                   </td>
                 </tr>
