@@ -3,6 +3,7 @@ import { Plus, Search, Trash2, Edit, AlertCircle, Palette } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
 import { Label } from '../../../components/ui/label';
+import { useAuth } from '../../../shared/contexts/AuthContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '../../../components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../../../components/ui/alert-dialog';
 import { toast } from 'sonner';
@@ -10,6 +11,8 @@ import { useSubcategorias } from '../../../shared/contexts/SubcategoriasContext'
 import { lettersOnly } from '../../../shared/utils/validators';
 
 export const ColoresView: React.FC = () => {
+  const { hasPermission } = useAuth();
+  const puedeAdmin = hasPermission('admin:dashboard');
   const { colores, agregarColor, eliminarColor } = useSubcategorias();
   const [searchQuery, setSearchQuery] = useState('');
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -138,18 +141,18 @@ export const ColoresView: React.FC = () => {
                 </div>
               </div>
               <div className="flex gap-2">
-                <button 
+                {puedeAdmin && <button 
                   onClick={() => openEditModal(color)}
                   className="flex-1 text-[#d65391] border border-[#d65391] px-4 py-2 rounded-lg hover:bg-pink-50 transition-colors"
                 >
                   <span className="font-inter">Editar</span>
-                </button>
-                <button 
+                </button>}
+                {puedeAdmin && <button 
                   onClick={() => openDeleteModal(color)}
                   className="flex-1 text-red-600 border border-red-600 px-4 py-2 rounded-lg hover:bg-red-50 transition-colors"
                 >
                   <span className="font-inter">Eliminar</span>
-                </button>
+                </button>}
               </div>
             </div>
           ))

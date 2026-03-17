@@ -1,3 +1,4 @@
+import { useAuth } from '../../../shared/contexts/AuthContext';
 import React, { useState } from 'react';
 import { Plus, Search, Tag } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '../../../components/ui/dialog';
@@ -6,6 +7,8 @@ import { toast } from 'sonner';
 import { useSubcategorias } from '../../../shared/contexts/SubcategoriasContext';
 
 export const MarcasView: React.FC = () => {
+  const { hasPermission } = useAuth();
+  const puedeAdmin = hasPermission('admin:dashboard');
   const { marcas, agregarMarca, editarMarca, eliminarMarca } = useSubcategorias();
   const [searchQuery, setSearchQuery] = useState('');
   const [createOpen, setCreateOpen] = useState(false);
@@ -45,11 +48,11 @@ export const MarcasView: React.FC = () => {
           <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: '32px' }} className="mb-2">Marcas</h1>
           <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-600">Gestiona las marcas de los productos</p>
         </div>
-        <button onClick={() => { setFormName(''); setCreateOpen(true); }}
+        {puedeAdmin && <button onClick={() => { setFormName(''); setCreateOpen(true); }}
           className="flex items-center gap-2 bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors">
           <Plus className="w-5 h-5" />
           <span style={{ fontFamily: 'Inter, sans-serif' }}>Nueva Marca</span>
-        </button>
+        </button>}
       </div>
 
       <div className="bg-white rounded-lg shadow p-6 mb-6">
@@ -76,14 +79,14 @@ export const MarcasView: React.FC = () => {
               <h3 style={{ fontFamily: 'Inter, sans-serif' }} className="text-lg">{m.nombre}</h3>
             </div>
             <div className="flex gap-2">
-              <button onClick={() => { setSelectedId(m.id); setFormName(m.nombre); setSelectedNombre(m.nombre); setEditOpen(true); }}
+              {puedeAdmin && <button onClick={() => { setSelectedId(m.id); setFormName(m.nombre); setSelectedNombre(m.nombre); setEditOpen(true); }}
                 className="flex-1 text-[#d65391] border border-[#d65391] px-4 py-2 rounded-lg hover:bg-pink-50 transition-colors">
                 <span style={{ fontFamily: 'Inter, sans-serif' }}>Editar</span>
-              </button>
-              <button onClick={() => { setSelectedId(m.id); setSelectedNombre(m.nombre); setDeleteOpen(true); }}
+              </button>}
+              {puedeAdmin && <button onClick={() => { setSelectedId(m.id); setSelectedNombre(m.nombre); setDeleteOpen(true); }}
                 className="flex-1 text-red-600 border border-red-600 px-4 py-2 rounded-lg hover:bg-red-50 transition-colors">
                 <span style={{ fontFamily: 'Inter, sans-serif' }}>Eliminar</span>
-              </button>
+              </button>}
             </div>
           </div>
         ))}

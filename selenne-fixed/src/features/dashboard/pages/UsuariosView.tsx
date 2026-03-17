@@ -135,6 +135,9 @@ const fmtDate = (d: string) => {
 
 export const UsuariosView: React.FC = () => {
   const { hasPermission } = useAuth();
+  const puedeCrear = hasPermission('usuarios:crear');
+  const puedeEditar = hasPermission('usuarios:editar');
+  const puedeEliminar = hasPermission('usuarios:eliminar');
   const [users, setUsers] = useState<ApiUser[]>([]);
   const [roles, setRoles] = useState<ApiRole[]>([]);
   const [loading, setLoading] = useState(true);
@@ -335,9 +338,11 @@ export const UsuariosView: React.FC = () => {
               <button onClick={() => { setLoading(true); loadUsers().finally(() => setLoading(false)); }} className="px-4 py-3 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
                 <RefreshCw className="w-5 h-5" />
               </button>
+              {puedeCrear && (
               <button onClick={handleCreate} style={{ fontFamily: "Inter, sans-serif" }} className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2">
                 <Plus className="w-5 h-5" /> Nuevo Usuario
               </button>
+              )}
             </div>
           </div>
         </div>
@@ -397,21 +402,29 @@ export const UsuariosView: React.FC = () => {
                               <button onClick={() => { setSelectedUser(u); setViewOpen(true); setActiveDropdown(null); }} className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 text-left">
                                 <Eye className="w-4 h-4 text-gray-600" /><span style={{ fontFamily: "Inter, sans-serif" }} className="text-sm text-gray-700">Ver Detalles</span>
                               </button>
+                              {puedeEditar && (
                               <button onClick={() => handleEdit(u)} className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 text-left">
                                 <Edit className="w-4 h-4 text-gray-600" /><span style={{ fontFamily: "Inter, sans-serif" }} className="text-sm text-gray-700">Editar</span>
                               </button>
+                              )}
                               {u.roleID && (
                                 <button onClick={() => handlePermisos(u)} className="w-full flex items-center gap-3 px-4 py-2 hover:bg-blue-50 text-left">
                                   <Shield className="w-4 h-4 text-blue-600" /><span style={{ fontFamily: "Inter, sans-serif" }} className="text-sm text-blue-700">Configurar Permisos</span>
                                 </button>
                               )}
+                              {puedeEditar && (
                               <button onClick={() => handleToggleStatus(u)} className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 text-left">
                                 <Power className="w-4 h-4 text-gray-600" /><span style={{ fontFamily: "Inter, sans-serif" }} className="text-sm text-gray-700">{u.estado === "activo" ? "Desactivar" : "Activar"}</span>
                               </button>
+                              )}
+                              {puedeEliminar && (
+                              <>
                               <div className="border-t border-gray-200 my-1" />
                               <button onClick={() => handleDelete(u)} className="w-full flex items-center gap-3 px-4 py-2 hover:bg-red-50 text-left">
                                 <Trash2 className="w-4 h-4 text-red-600" /><span style={{ fontFamily: "Inter, sans-serif" }} className="text-sm text-red-600">Eliminar</span>
                               </button>
+                              </>
+                              )}
                             </div>
                           </>
                         )}
