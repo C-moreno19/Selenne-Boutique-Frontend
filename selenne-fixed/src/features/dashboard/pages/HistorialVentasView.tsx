@@ -1,8 +1,7 @@
-﻿import React, { useState, useEffect, useCallback } from 'react';
-import { Search, Eye, Archive, ChevronRight, Loader2, RefreshCw, Trash2 } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '../../../components/ui/dialog';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Search, Eye, ArrowLeft, ChevronRight, Loader2, RefreshCw, Trash2 } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../../../components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../../../components/ui/alert-dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../components/ui/select';
 import { toast } from 'sonner';
 import { getJson } from '../../../services/api';
 import api from '../../../services/api';
@@ -10,32 +9,28 @@ import { useAuth } from '../../../shared/contexts/AuthContext';
 
 interface PedidoDetalle { productoNombre: string; cantidad: number; precioUnitario: number; subtotal: number; talla?: string; color?: string; }
 interface Pedido {
-  pedidoID: number; nombreCliente: string; emailCliente: string; telefonoCliente: string;
-  direccionEnvio: string; ciudad: string; metodoPago: string;
-  subtotal: number; descuento: number; envio: number; total: number;
-  estado: string; fechaPedido: string; notas?: string; comprobantePago?: string;
-  detalles: PedidoDetalle[];
+  pedidoID: number; nombreCliente: string; emailCliente: string;
+  metodoPago: string; total: number; estado: string; fechaPedido: string;
+  notas?: string; detalles: PedidoDetalle[];
 }
 
-const ESTADOS_ACTIVOS = ['Aprobado'];
-const ESTADOS_CAMBIO = ['Completado', 'Cancelado'];
 const fmt = (n: number) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n);
 const estadoColor = (e: string) => {
-  if (e === 'Aprobado') return 'bg-blue-100 text-blue-700';
   if (e === 'Completado') return 'bg-green-100 text-green-700';
+  if (e === 'Rechazado') return 'bg-orange-100 text-orange-700';
   return 'bg-red-100 text-red-700';
 };
 
-interface VentasViewProps { onNavigateToHistorial?: () => void; }
+interface HistorialVentasViewProps { onBack?: () => void; }
 
-export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial }) => {
+export const HistorialVentasView: React.FC<HistorialVentasViewProps> = ({ onBack }) => {
   const { hasPermission } = useAuth();
   const puedeAdmin = hasPermission('admin:dashboard');
 
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
   const [saving, setSaving] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedPedido, setSelectedPedido] = useState<Pedido | null>(null);
   const [viewOpen, setViewOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -45,20 +40,17 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
       const res = await getJson('/api/pedidos');
       const all = (res?.data || res || []).map((p: any): Pedido => ({
         pedidoID: p.pedidoID, nombreCliente: p.nombreCliente ?? '',
-        emailCliente: p.emailCliente ?? '', telefonoCliente: p.telefonoCliente ?? '',
-        direccionEnvio: p.direccionEnvio ?? '', ciudad: p.ciudad ?? '',
-        metodoPago: p.metodoPago ?? '', subtotal: p.subtotal ?? 0,
-        descuento: p.descuento ?? 0, envio: p.envio ?? 0, total: p.total ?? 0,
-        estado: p.estado ?? '', fechaPedido: p.fechaPedido ?? '',
-        notas: p.notas ?? '', comprobantePago: p.comprobantePago ?? '',
+        emailCliente: p.emailCliente ?? '', metodoPago: p.metodoPago ?? '',
+        total: p.total ?? 0, estado: p.estado ?? '', fechaPedido: p.fechaPedido ?? '',
+        notas: p.notas ?? '',
         detalles: (p.detalles ?? []).map((d: any) => ({
           productoNombre: d.productoNombre ?? '', cantidad: d.cantidad ?? 0,
           precioUnitario: d.precioUnitario ?? 0, subtotal: d.subtotal ?? 0,
           talla: d.talla ?? '', color: d.color ?? '',
         })),
       }));
-      setPedidos(all.filter((p: Pedido) => ESTADOS_ACTIVOS.includes(p.estado)));
-    } catch { toast.error('Error cargando ventas'); }
+      setPedidos(all.filter((p: Pedido) => ['Completado', 'Cancelado', 'Rechazado'].includes(p.estado)));
+    } catch { toast.error('Error cargando historial'); }
     finally { setLoading(false); }
   }, []);
 
@@ -68,19 +60,6 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
     const q = searchQuery.toLowerCase();
     return p.nombreCliente.toLowerCase().includes(q) || p.emailCliente.toLowerCase().includes(q);
   });
-
-  const cambiarEstado = async (pedido: Pedido, estado: string) => {
-    setSaving(true);
-    try {
-      await api.fetchWithAuth(`/api/pedidos/${pedido.pedidoID}/estado`, {
-        method: 'PUT', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ NuevoEstado: estado }),
-      });
-      toast.success(`Venta marcada como ${estado}`);
-      loadData();
-    } catch { toast.error('Error cambiando estado'); }
-    finally { setSaving(false); }
-  };
 
   const eliminar = async () => {
     if (!selectedPedido) return;
@@ -104,9 +83,16 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
       <div className="flex items-center gap-2 mb-4">
         <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-500">Dashboard</span>
         <ChevronRight className="w-4 h-4 text-gray-400" />
-        <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-900">Gestión de Ventas</span>
+        <button onClick={onBack} style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-500 hover:text-gray-700">Gestión de Ventas</button>
+        <ChevronRight className="w-4 h-4 text-gray-400" />
+        <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-900">Historial</span>
       </div>
-      <h1 style={{ fontFamily: 'Playfair Display, serif' }} className="text-4xl text-gray-900 mb-6">Gestión de Ventas</h1>
+      <div className="flex items-center gap-4 mb-6">
+        <button onClick={onBack} className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">
+          <ArrowLeft className="w-5 h-5" />
+        </button>
+        <h1 style={{ fontFamily: 'Playfair Display, serif' }} className="text-4xl text-gray-900">Historial de Ventas</h1>
+      </div>
 
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex gap-4 mb-6">
         <div className="flex-1 relative">
@@ -115,15 +101,9 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
             onChange={e => setSearchQuery(e.target.value)} style={{ fontFamily: 'Inter, sans-serif' }}
             className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391]" />
         </div>
-        <div className="flex gap-3">
-          <button onClick={() => { setLoading(true); loadData(); }} className="px-4 py-3 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
-            <RefreshCw className="w-5 h-5" />
-          </button>
-          <button onClick={onNavigateToHistorial} style={{ fontFamily: 'Inter, sans-serif' }}
-            className="px-4 py-3 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 flex items-center gap-2 transition-colors">
-            <Archive className="w-5 h-5" /> Historial de Ventas
-          </button>
-        </div>
+        <button onClick={() => { setLoading(true); loadData(); }} className="px-4 py-3 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+          <RefreshCw className="w-5 h-5" />
+        </button>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
@@ -148,19 +128,7 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
                 <td className="px-6 py-4"><span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-600">{new Date(p.fechaPedido).toLocaleDateString('es-CO')}</span></td>
                 <td className="px-6 py-4"><span style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold">{fmt(p.total)}</span></td>
                 <td className="px-6 py-4">
-                  {puedeAdmin ? (
-                    <Select value={p.estado} onValueChange={v => cambiarEstado(p, v)}>
-                      <SelectTrigger className={`h-8 w-36 text-xs font-medium rounded-full border-0 ${estadoColor(p.estado)}`}>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Aprobado">Aprobado</SelectItem>
-                        {ESTADOS_CAMBIO.map(e => <SelectItem key={e} value={e}>{e}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                  ) : (
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${estadoColor(p.estado)}`} style={{ fontFamily: 'Inter, sans-serif' }}>{p.estado}</span>
-                  )}
+                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${estadoColor(p.estado)}`} style={{ fontFamily: 'Inter, sans-serif' }}>{p.estado}</span>
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-2">
@@ -179,63 +147,50 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
               </tr>
             ))}
             {filtered.length === 0 && (
-              <tr><td colSpan={6} className="px-6 py-12 text-center text-gray-400" style={{ fontFamily: 'Inter, sans-serif' }}>No hay ventas aprobadas</td></tr>
+              <tr><td colSpan={6} className="px-6 py-12 text-center text-gray-400" style={{ fontFamily: 'Inter, sans-serif' }}>No hay registros en el historial</td></tr>
             )}
           </tbody>
         </table>
         <div className="px-6 py-4 border-t border-gray-100">
           <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-500">
-            <span className="font-medium text-gray-800">{filtered.length}</span> ventas aprobadas
+            <span className="font-medium text-gray-800">{filtered.length}</span> registros en historial
           </span>
         </div>
       </div>
 
-      {/* Modal Ver Detalles */}
+      {/* Modal Ver */}
       <Dialog open={viewOpen} onOpenChange={setViewOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-200">
-            <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl">Detalles Venta #{selectedPedido?.pedidoID}</DialogTitle>
+            <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl">Detalle #{selectedPedido?.pedidoID}</DialogTitle>
           </DialogHeader>
           {selectedPedido && (
-            <div className="p-6 space-y-5">
-              <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-                <div className="bg-gray-50 px-5 py-3 border-b border-gray-200">
-                  <p style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-sm text-gray-700">👤 Cliente</p>
-                </div>
-                <div className="p-5 grid grid-cols-2 gap-3">
-                  {[['Nombre', selectedPedido.nombreCliente], ['Email', selectedPedido.emailCliente],
-                    ['Teléfono', selectedPedido.telefonoCliente], ['Ciudad', selectedPedido.ciudad],
-                    ['Dirección', selectedPedido.direccionEnvio], ['Método de pago', selectedPedido.metodoPago],
-                  ].map(([label, value]) => (
-                    <div key={label}>
-                      <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">{label}</p>
-                      <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-900">{value}</p>
-                    </div>
-                  ))}
+            <div className="p-6 space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                {[['Cliente', selectedPedido.nombreCliente], ['Email', selectedPedido.emailCliente],
+                  ['Método de pago', selectedPedido.metodoPago], ['Estado', selectedPedido.estado]].map(([l, v]) => (
+                  <div key={l}>
+                    <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">{l}</p>
+                    <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium">{v}</p>
+                  </div>
+                ))}
+                <div className="col-span-2">
+                  <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">Total</p>
+                  <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xl font-bold text-[#d65391]">{fmt(selectedPedido.total)}</p>
                 </div>
               </div>
               {selectedPedido.detalles.length > 0 && (
-                <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-                  <div className="bg-gray-50 px-5 py-3 border-b border-gray-200">
-                    <p style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-sm text-gray-700">📦 Productos</p>
-                  </div>
-                  <div className="p-5 space-y-2">
-                    {selectedPedido.detalles.map((d, i) => (
-                      <div key={i} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                        <div>
-                          <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium">{d.productoNombre}</p>
-                          <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">
-                            {d.cantidad} x {fmt(d.precioUnitario)} {d.talla && `• Talla: ${d.talla}`} {d.color && `• Color: ${d.color}`}
-                          </p>
-                        </div>
-                        <p style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-sm">{fmt(d.subtotal)}</p>
+                <div>
+                  <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs font-semibold text-gray-500 uppercase mb-2">Productos</p>
+                  {selectedPedido.detalles.map((d, i) => (
+                    <div key={i} className="flex justify-between p-3 bg-gray-50 rounded-lg mb-2">
+                      <div>
+                        <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium">{d.productoNombre}</p>
+                        <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">{d.cantidad} x {fmt(d.precioUnitario)}</p>
                       </div>
-                    ))}
-                    <div className="flex justify-between pt-2 border-t border-gray-200">
-                      <p style={{ fontFamily: 'Inter, sans-serif' }} className="font-bold">Total</p>
-                      <p style={{ fontFamily: 'Inter, sans-serif' }} className="font-bold text-[#d65391] text-lg">{fmt(selectedPedido.total)}</p>
+                      <p style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-sm">{fmt(d.subtotal)}</p>
                     </div>
-                  </div>
+                  ))}
                 </div>
               )}
             </div>
@@ -251,9 +206,9 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle style={{ fontFamily: 'Playfair Display, serif' }}>¿Eliminar venta?</AlertDialogTitle>
+            <AlertDialogTitle style={{ fontFamily: 'Playfair Display, serif' }}>¿Eliminar registro?</AlertDialogTitle>
             <AlertDialogDescription style={{ fontFamily: 'Inter, sans-serif' }}>
-              Vas a eliminar la venta #{selectedPedido?.pedidoID} de <strong>{selectedPedido?.nombreCliente}</strong>. Esta acción no se puede deshacer.
+              Vas a eliminar el registro #{selectedPedido?.pedidoID} de <strong>{selectedPedido?.nombreCliente}</strong>. Esta acción no se puede deshacer.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

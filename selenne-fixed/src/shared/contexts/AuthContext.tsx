@@ -58,7 +58,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       localStorage.setItem('currentUser', JSON.stringify(userData));
       window.dispatchEvent(new Event('auth:login'));
 
-      // Cargar perfil completo en background
       if (userData.usuarioID) {
         try {
           const perfil = await api.getJson(`/api/usuarios/${userData.usuarioID}`);

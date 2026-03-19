@@ -1,621 +1,335 @@
-import React, { useState, useEffect } from 'react';
-import { Plus, Search, Eye, Edit, Trash2, ChevronRight, Users } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Plus, Search, Eye, Edit, Trash2, ChevronRight, Loader2, RefreshCw } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '../../../components/ui/dialog';
-import { useAuth } from '../../../shared/contexts/AuthContext';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../../../components/ui/alert-dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../components/ui/select';
-import { toast } from 'sonner@2.0.3';
-import { lettersOnly, numbersOnly, removeSpaces } from '../../../shared/utils/validators';
-// pagination removed — reverted to original listing
-import { usePermisos } from '../../../shared/contexts/PermisosContext';
-import { useComprasAdmin, type Proveedor as ProveedorType } from '../../../shared/contexts/ComprasAdminContext';
+import { Input } from '../../../components/ui/input';
+import { Label } from '../../../components/ui/label';
+import { toast } from 'sonner';
+import { useAuth } from '../../../shared/contexts/AuthContext';
+import { getJson, postJson } from '../../../services/api';
+import api from '../../../services/api';
 
-interface Proveedor extends ProveedorType {
+interface Proveedor {
+  proveedorID: number;
+  nombre: string;
+  contacto?: string;
+  email?: string;
+  telefono?: string;
   documento?: string;
-  direccion?: string;
-  productos?: number;
-  activo?: boolean;
+  estado?: string;
 }
 
 export const ProveedoresView: React.FC = () => {
   const { hasPermission } = useAuth();
   const puedeAdmin = hasPermission('admin:dashboard');
-  const { canDelete } = usePermisos();
-  const { proveedores: proveedoresDelContexto, agregarProveedor } = useComprasAdmin();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [viewModalOpen, setViewModalOpen] = useState(false);
-  const [createModalOpen, setCreateModalOpen] = useState(false);
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [estadoModalOpen, setEstadoModalOpen] = useState(false);
-  const [selectedProveedor, setSelectedProveedor] = useState<Proveedor | null>(null);
 
-  const [formData, setFormData] = useState<Partial<Proveedor>>({
-    nombre: '',
-    contacto: '',
-    email: '',
-    telefono: '',
-    documento: '',
-    direccion: '',
-    productos: 0,
-    activo: true,
-  });
-
-  // pagination removed — show full filtered list
-
-  // Usar proveedores del contexto y agregar datos extras
   const [proveedores, setProveedores] = useState<Proveedor[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    // Mapear proveedores del contexto a la interfaz de esta vista
-    const proveedoresConDatos = proveedoresDelContexto.map(prov => ({
-      ...prov,
-      documento: prov.documento || '',
-      direccion: `Dirección no especificada`,
-      productos: 0,
-      activo: true,
-    }));
-    setProveedores(proveedoresConDatos);
-  }, [proveedoresDelContexto]);
+  const [viewOpen, setViewOpen] = useState(false);
+  const [formOpen, setFormOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [selected, setSelected] = useState<Proveedor | null>(null);
 
-  const filteredProveedores = proveedores.filter(proveedor => {
-    const query = searchQuery.toLowerCase().trim();
-    if (!query) return true;
-    return (
-      proveedor.nombre.toLowerCase().includes(query) ||
-      proveedor.contacto.toLowerCase().includes(query) ||
-      proveedor.email.toLowerCase().includes(query) ||
-      proveedor.telefono.toLowerCase().includes(query) ||
-      (proveedor.documento?.toLowerCase().includes(query) ?? false) ||
-      (proveedor.productos?.toString().includes(query) ?? false) ||
-      (proveedor.activo ? 'activo' : 'inactivo').includes(query)
-    );
+  const [form, setForm] = useState({ nombre: '', contacto: '', email: '', telefono: '', documento: '' });
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
+  const loadData = useCallback(async () => {
+    try {
+      const res = await getJson('/api/proveedores');
+      setProveedores((res?.data || res || []).map((p: any) => ({
+        proveedorID: p.proveedorID ?? p.ProveedorID,
+        nombre: p.nombre ?? p.Nombre ?? '',
+        contacto: p.contacto ?? p.Contacto ?? '',
+        email: p.email ?? p.Email ?? '',
+        telefono: p.telefono ?? p.Telefono ?? '',
+        documento: p.documento ?? p.Documento ?? '',
+        estado: p.estado ?? p.Estado ?? 'activo',
+      })));
+    } catch { toast.error('Error cargando proveedores'); }
+    finally { setLoading(false); }
+  }, []);
+
+  useEffect(() => { loadData(); }, [loadData]);
+
+  const filtered = proveedores.filter(p => {
+    const q = searchQuery.toLowerCase();
+    return p.nombre.toLowerCase().includes(q) ||
+      (p.contacto || '').toLowerCase().includes(q) ||
+      (p.email || '').toLowerCase().includes(q) ||
+      (p.telefono || '').toLowerCase().includes(q);
   });
 
-  const handleView = (proveedor: Proveedor) => {
-    setSelectedProveedor(proveedor);
-    setViewModalOpen(true);
+  const resetForm = () => { setForm({ nombre: '', contacto: '', email: '', telefono: '', documento: '' }); setFormErrors({}); };
+
+  const openCreate = () => { resetForm(); setIsEditing(false); setFormOpen(true); };
+  const openEdit = (p: Proveedor) => {
+    setSelected(p);
+    setForm({ nombre: p.nombre, contacto: p.contacto || '', email: p.email || '', telefono: p.telefono || '', documento: p.documento || '' });
+    setFormErrors({});
+    setIsEditing(true);
+    setFormOpen(true);
   };
 
-  const handleCreate = () => {
-    setFormData({
-      nombre: '',
-      contacto: '',
-      email: '',
-      telefono: '',
-      direccion: '',
-      productos: 0,
-      activo: true,
-    });
-    setCreateModalOpen(true);
+  const validate = () => {
+    const errors: Record<string, string> = {};
+    if (!form.nombre.trim()) errors.nombre = 'El nombre es obligatorio';
+    if (!form.email.trim()) errors.email = 'El email es obligatorio';
+    if (!form.telefono.trim()) errors.telefono = 'El teléfono es obligatorio';
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
-  const handleEdit = (proveedor: Proveedor) => {
-    setSelectedProveedor(proveedor);
-    setFormData({ ...proveedor });
-    setEditModalOpen(true);
+  const guardar = async () => {
+    if (!validate()) return;
+    setSaving(true);
+    try {
+      if (isEditing && selected) {
+        await api.fetchWithAuth(`/api/proveedores/${selected.proveedorID}`, {
+          method: 'PUT', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ Nombre: form.nombre, Contacto: form.contacto, Email: form.email, Telefono: form.telefono, Documento: form.documento }),
+        });
+        toast.success('Proveedor actualizado');
+      } else {
+        await postJson('/api/proveedores', { Nombre: form.nombre, Contacto: form.contacto, Email: form.email, Telefono: form.telefono, Documento: form.documento });
+        toast.success('Proveedor creado');
+      }
+      setFormOpen(false); resetForm(); loadData();
+    } catch (e: any) { toast.error(e?.data?.message || 'Error guardando proveedor'); }
+    finally { setSaving(false); }
   };
 
-  const handleDelete = (proveedor: Proveedor) => {
-    if (!canDelete()) {
-      toast.error('No tienes permisos para eliminar proveedores');
-      return;
-    }
-    setSelectedProveedor(proveedor);
-    setDeleteModalOpen(true);
+  const eliminar = async () => {
+    if (!selected) return;
+    setSaving(true);
+    try {
+      await api.fetchWithAuth(`/api/proveedores/${selected.proveedorID}`, { method: 'DELETE' });
+      toast.success('Proveedor eliminado');
+      setDeleteOpen(false); loadData();
+    } catch { toast.error('Error eliminando proveedor'); }
+    finally { setSaving(false); }
   };
 
-  const handleCambiarEstado = (proveedor: Proveedor) => {
-    setSelectedProveedor(proveedor);
-    setFormData({ activo: proveedor.activo });
-    setEstadoModalOpen(true);
-  };
-
-  const confirmDelete = () => {
-    if (selectedProveedor) {
-      setProveedores(prev => prev.filter(p => p.id !== selectedProveedor.id));
-      toast.success('Proveedor eliminado correctamente');
-      setDeleteModalOpen(false);
-      setSelectedProveedor(null);
-    }
-  };
-
-  const handleSaveCreate = () => {
-    if (!formData.nombre || !formData.email || !formData.telefono) {
-      toast.error('Por favor completa todos los campos obligatorios');
-      return;
-    }
-
-    const newProveedor: ProveedorType = {
-      id: `prov-${Date.now()}`,
-      nombre: formData.nombre,
-      contacto: formData.contacto || '',
-      email: formData.email,
-      telefono: formData.telefono,
-      documento: formData.documento || '',
-    };
-
-    // Guardar en el contexto global
-    agregarProveedor(newProveedor);
-    
-    setCreateModalOpen(false);
-    setFormData({ nombre: '', contacto: '', email: '', telefono: '', direccion: '', productos: 0, activo: true });
-    toast.success('Proveedor creado correctamente');
-  };
-
-  const handleSaveEdit = () => {
-    if (selectedProveedor) {
-      setProveedores(prev =>
-        prev.map(p => p.id === selectedProveedor.id ? { ...p, ...formData } : p)
-      );
-      setEditModalOpen(false);
-      toast.success('Proveedor actualizado correctamente');
-    }
-  };
-
-  const handleSaveEstado = () => {
-    if (selectedProveedor) {
-      setProveedores(prev =>
-        prev.map(p => p.id === selectedProveedor.id ? { ...p, activo: !p.activo } : p)
-      );
-      setEstadoModalOpen(false);
-      toast.success('Estado actualizado correctamente');
-    }
-  };
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-screen">
+      <Loader2 className="w-8 h-8 animate-spin text-[#d65391]" />
+    </div>
+  );
 
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
-      {/* Breadcrumb */}
       <div className="flex items-center gap-2 mb-4">
-        <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-500">
-          Dashboard
-        </span>
+        <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-500">Dashboard</span>
         <ChevronRight className="w-4 h-4 text-gray-400" />
-        <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-900">
-          Gestión de Proveedores
-        </span>
+        <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-900">Gestión de Proveedores</span>
+      </div>
+      <h1 style={{ fontFamily: 'Playfair Display, serif' }} className="text-4xl text-gray-900 mb-6">Gestión de Proveedores</h1>
+
+      {/* Barra */}
+      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex flex-col lg:flex-row gap-4 mb-6">
+        <div className="flex-1 relative">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <input type="text" placeholder="Buscar proveedores..." value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)} style={{ fontFamily: 'Inter, sans-serif' }}
+            className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391]" />
+        </div>
+        <div className="flex gap-3">
+          <button onClick={() => { setLoading(true); loadData(); }} className="px-4 py-3 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+            <RefreshCw className="w-5 h-5" />
+          </button>
+          {puedeAdmin && (
+            <button onClick={openCreate} style={{ fontFamily: 'Inter, sans-serif' }}
+              className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 flex items-center gap-2 transition-colors">
+              <Plus className="w-5 h-5" /> Nuevo Proveedor
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* Header */}
-      <div className="mb-6">
-        <div className="flex items-center gap-3 mb-2">
-          <h1 style={{ fontFamily: 'Playfair Display, serif' }} className="text-[36px] text-gray-900">
-            Gestión de Proveedores
-          </h1>
-          <span className="px-3 py-1 bg-[#d65391] text-white rounded-full text-sm" style={{ fontFamily: 'Inter, sans-serif' }}>
-            {filteredProveedores.length}
+      {/* Tabla */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <table className="w-full">
+          <thead className="bg-gray-50 border-b border-gray-200">
+            <tr>
+              {['NOMBRE', 'CONTACTO', 'EMAIL', 'TELÉFONO', 'DOCUMENTO', 'ACCIONES'].map(h => (
+                <th key={h} className="px-6 py-4 text-left">
+                  <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs font-semibold uppercase tracking-wider text-gray-500">{h}</span>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {filtered.map(p => (
+              <tr key={p.proveedorID} className="hover:bg-gray-50 transition-colors">
+                <td className="px-6 py-4"><span style={{ fontFamily: 'Inter, sans-serif' }} className="font-medium text-gray-900">{p.nombre}</span></td>
+                <td className="px-6 py-4"><span style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-600">{p.contacto || '—'}</span></td>
+                <td className="px-6 py-4"><span style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-600 text-sm">{p.email || '—'}</span></td>
+                <td className="px-6 py-4"><span style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-600">{p.telefono || '—'}</span></td>
+                <td className="px-6 py-4"><span style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-600 text-sm">{p.documento || '—'}</span></td>
+                <td className="px-6 py-4">
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => { setSelected(p); setViewOpen(true); }}
+                      className="p-2 text-gray-500 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors" title="Ver detalles">
+                      <Eye className="w-5 h-5" />
+                    </button>
+                    {puedeAdmin && (
+                      <>
+                        <button onClick={() => openEdit(p)}
+                          className="p-2 text-gray-500 hover:bg-yellow-50 hover:text-yellow-600 rounded-lg transition-colors" title="Editar">
+                          <Edit className="w-5 h-5" />
+                        </button>
+                        <button onClick={() => { setSelected(p); setDeleteOpen(true); }}
+                          className="p-2 text-gray-500 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors" title="Eliminar">
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            ))}
+            {filtered.length === 0 && (
+              <tr><td colSpan={6} className="px-6 py-12 text-center text-gray-400" style={{ fontFamily: 'Inter, sans-serif' }}>No se encontraron proveedores</td></tr>
+            )}
+          </tbody>
+        </table>
+        <div className="px-6 py-4 border-t border-gray-100">
+          <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-500">
+            Mostrando <span className="font-medium text-gray-800">{filtered.length}</span> de <span className="font-medium text-gray-800">{proveedores.length}</span> proveedores
           </span>
         </div>
-        <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-600">
-          Administra tus proveedores y contactos
-        </p>
       </div>
 
-      {/* Layout Principal */}
-      <div className="space-y-6">
-          {/* Barra de Herramientas */}
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="flex-1">
-                <div className="relative">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="Buscar proveedores..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    style={{ fontFamily: 'Inter, sans-serif' }}
-                    className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391] focus:border-transparent transition-all"
-                  />
-                </div>
-              </div>
-
-              {puedeAdmin && <button
-                onClick={handleCreate}
-                style={{ fontFamily: 'Inter, sans-serif' }}
-                className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2 whitespace-nowrap"
-              >
-                <Plus className="w-5 h-5" />
-                Nuevo Proveedor
-              </button>}
-            </div>
-          </div>
-
-          {/* Tabla */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50 border-b border-gray-200">
-                  <tr>
-                    <th className="px-6 py-4 text-left" style={{ fontFamily: 'Inter, sans-serif' }}>
-                      <span className="text-xs uppercase tracking-wider text-gray-600">NOMBRE</span>
-                    </th>
-                    <th className="px-6 py-4 text-left" style={{ fontFamily: 'Inter, sans-serif' }}>
-                      <span className="text-xs uppercase tracking-wider text-gray-600">CONTACTO</span>
-                    </th>
-                    <th className="px-6 py-4 text-left" style={{ fontFamily: 'Inter, sans-serif' }}>
-                      <span className="text-xs uppercase tracking-wider text-gray-600">TELÉFONO</span>
-                    </th>
-                    <th className="px-6 py-4 text-left" style={{ fontFamily: 'Inter, sans-serif' }}>
-                      <span className="text-xs uppercase tracking-wider text-gray-600">PRODUCTOS</span>
-                    </th>
-                    <th className="px-6 py-4 text-left" style={{ fontFamily: 'Inter, sans-serif' }}>
-                      <span className="text-xs uppercase tracking-wider text-gray-600">ESTADO</span>
-                    </th>
-                    <th className="px-6 py-4 text-left" style={{ fontFamily: 'Inter, sans-serif' }}>
-                      <span className="text-xs uppercase tracking-wider text-gray-600">ACCIONES</span>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {filteredProveedores.map((proveedor) => (
-                    <tr key={proveedor.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4">
-                        <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-900">
-                          {proveedor.nombre}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div>
-                          <div style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-900">
-                            {proveedor.contacto}
-                          </div>
-                          <div style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">
-                            {proveedor.email}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-600">
-                          {proveedor.telefono}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-900">
-                          {proveedor.productos}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <button
-                          onClick={() => handleCambiarEstado(proveedor)}
-                          className={`px-3 py-1 rounded-full text-xs ${
-                            proveedor.activo ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                          } hover:opacity-80 transition-opacity`}
-                          style={{ fontFamily: 'Inter, sans-serif' }}
-                        >
-                          {proveedor.activo ? 'Activo' : 'Inactivo'}
-                        </button>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => handleView(proveedor)}
-                            className="p-2 text-gray-600 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
-                            title="Ver detalles"
-                          >
-                            <Eye className="w-5 h-5" />
-                          </button>
-                          {puedeAdmin && <button
-                            onClick={() => handleEdit(proveedor)}
-                            className="p-2 text-gray-600 hover:bg-yellow-50 hover:text-yellow-600 rounded-lg transition-colors"
-                            title="Editar proveedor"
-                          >
-                            <Edit className="w-5 h-5" />
-                          </button>}
-                          {puedeAdmin && (
-                            <button
-                              onClick={() => handleDelete(proveedor)}
-                              className="p-2 text-gray-600 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors"
-                              title="Eliminar proveedor"
-                            >
-                              <Trash2 className="w-5 h-5" />
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            <div className="px-6 py-4 bg-white border-t border-gray-100">
-              <div className="text-sm text-gray-600" style={{ fontFamily: 'Inter, sans-serif' }}>
-                Mostrando <span className="text-gray-900">{filteredProveedores.length}</span> proveedores
-              </div>
-            </div>
-          </div>
-      </div>
-
-      {/* Modal Ver Detalles */}
-      <Dialog open={viewModalOpen} onOpenChange={setViewModalOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader className="bg-gradient-to-r from-[#d65391] to-[#f8a9c5] text-white p-6">
+      {/* Modal Crear / Editar */}
+      <Dialog open={formOpen} onOpenChange={setFormOpen}>
+        <DialogContent className="max-w-2xl h-auto flex flex-col p-0 gap-0">
+          <DialogHeader className="px-8 pt-6 pb-4 border-b border-gray-200 flex-shrink-0">
             <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl">
-              Detalles del Proveedor
+              {isEditing ? 'Editar Proveedor' : 'Nuevo Proveedor'}
             </DialogTitle>
             <DialogDescription style={{ fontFamily: 'Inter, sans-serif' }}>
-              Información completa del proveedor seleccionado
+              {isEditing ? 'Modifica la información del proveedor' : 'Completa los datos para registrar un nuevo proveedor'}
             </DialogDescription>
           </DialogHeader>
-          {selectedProveedor && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-600 block mb-1">
-                    Nombre
-                  </label>
-                  <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-lg text-gray-900">
-                    {selectedProveedor.nombre}
-                  </p>
+
+          <div className="flex-1 overflow-y-auto">
+            <div className="space-y-6 py-6 px-8">
+              <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                  <h3 style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-gray-800 text-base">📋 Información del Proveedor</h3>
                 </div>
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-600 block mb-1">
-                    Contacto
-                  </label>
-                  <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-lg text-gray-900">
-                    {selectedProveedor.contacto}
-                  </p>
-                </div>
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-600 block mb-1">
-                    Documento
-                  </label>
-                  <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-lg text-gray-900">
-                    {selectedProveedor.documento || '-'}
-                  </p>
-                </div>
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-600 block mb-1">
-                    Email
-                  </label>
-                  <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-900">
-                    {selectedProveedor.email}
-                  </p>
-                </div>
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-600 block mb-1">
-                    Teléfono
-                  </label>
-                  <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-lg text-gray-900">
-                    {selectedProveedor.telefono}
-                  </p>
+                <div className="p-6 grid grid-cols-2 gap-6">
+                  <div className="flex flex-col gap-2">
+                    <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">
+                      Nombre <span className="text-red-500">*</span>
+                    </Label>
+                    <Input value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })}
+                      placeholder="Nombre del proveedor"
+                      className={`h-10 ${formErrors.nombre ? 'border-red-500' : 'border-gray-300'}`} />
+                    {formErrors.nombre && <p className="text-red-500 text-xs">{formErrors.nombre}</p>}
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">Contacto</Label>
+                    <Input value={form.contacto} onChange={e => setForm({ ...form, contacto: e.target.value })}
+                      placeholder="Nombre del contacto" className="h-10 border-gray-300" />
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">
+                      Email <span className="text-red-500">*</span>
+                    </Label>
+                    <Input type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })}
+                      placeholder="email@ejemplo.com"
+                      className={`h-10 ${formErrors.email ? 'border-red-500' : 'border-gray-300'}`} />
+                    {formErrors.email && <p className="text-red-500 text-xs">{formErrors.email}</p>}
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">
+                      Teléfono <span className="text-red-500">*</span>
+                    </Label>
+                    <Input type="tel" value={form.telefono} onChange={e => setForm({ ...form, telefono: e.target.value })}
+                      placeholder="+57 300 123 4567"
+                      className={`h-10 ${formErrors.telefono ? 'border-red-500' : 'border-gray-300'}`} />
+                    {formErrors.telefono && <p className="text-red-500 text-xs">{formErrors.telefono}</p>}
+                  </div>
+
+                  <div className="flex flex-col gap-2 col-span-2">
+                    <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">Documento (NIT / Cédula)</Label>
+                    <Input value={form.documento} onChange={e => setForm({ ...form, documento: e.target.value })}
+                      placeholder="NIT o número de cédula" className="h-10 border-gray-300" />
+                  </div>
                 </div>
               </div>
+            </div>
+          </div>
 
-              <div className="bg-gray-50 rounded-lg p-4">
-                <label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-600 block mb-1">
-                  Dirección
-                </label>
-                <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-900">
-                  {selectedProveedor.direccion}
-                </p>
-              </div>
+          <DialogFooter className="gap-2 px-8 py-5 border-t border-gray-200 flex-shrink-0">
+            <button onClick={() => { setFormOpen(false); resetForm(); }} style={{ fontFamily: 'Inter, sans-serif' }}
+              className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">Cancelar</button>
+            <button onClick={guardar} disabled={saving} style={{ fontFamily: 'Inter, sans-serif' }}
+              className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 flex items-center gap-2 transition-colors">
+              {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+              {isEditing ? 'Guardar Cambios' : 'Crear Proveedor'}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-600 block mb-1">
-                    Productos
-                  </label>
-                  <p style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl text-gray-900">
-                    {selectedProveedor.productos}
-                  </p>
+      {/* Modal Ver Detalles */}
+      <Dialog open={viewOpen} onOpenChange={setViewOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader className="px-8 pt-6 pb-4 border-b border-gray-200">
+            <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl">Detalles del Proveedor</DialogTitle>
+          </DialogHeader>
+          {selected && (
+            <div className="p-6 space-y-4">
+              <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                <div className="bg-gray-50 px-6 py-3 border-b border-gray-200">
+                  <h3 style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-gray-700 text-sm">Información General</h3>
                 </div>
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-600 block mb-1">
-                    Estado
-                  </label>
-                  <span className={`px-3 py-1 rounded-full text-xs ${
-                    selectedProveedor.activo ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                  }`} style={{ fontFamily: 'Inter, sans-serif' }}>
-                    {selectedProveedor.activo ? 'Activo' : 'Inactivo'}
-                  </span>
+                <div className="p-6 grid grid-cols-2 gap-4">
+                  {[
+                    { label: 'Nombre', value: selected.nombre },
+                    { label: 'Contacto', value: selected.contacto || '—' },
+                    { label: 'Email', value: selected.email || '—' },
+                    { label: 'Teléfono', value: selected.telefono || '—' },
+                    { label: 'Documento', value: selected.documento || '—' },
+                  ].map(({ label, value }) => (
+                    <div key={label} className="flex flex-col gap-1">
+                      <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 font-medium uppercase">{label}</p>
+                      <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-semibold text-gray-900">{value}</p>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
           )}
-          <DialogFooter>
-            <button
-              onClick={() => setViewModalOpen(false)}
-              style={{ fontFamily: 'Inter, sans-serif' }}
-              className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
-            >
-              Cerrar
-            </button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Modal Crear/Editar */}
-      <Dialog open={createModalOpen || editModalOpen} onOpenChange={(open) => {
-        if (!open) {
-          setCreateModalOpen(false);
-          setEditModalOpen(false);
-        }
-      }}>
-        <DialogContent className="max-w-2xl rounded-lg overflow-hidden">
-          <DialogHeader className="bg-gradient-to-r from-[#d65391] to-[#f8a9c5] text-white p-6">
-            <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl">
-              {editModalOpen ? 'Editar Proveedor' : 'Nuevo Proveedor'}
-            </DialogTitle>
-            <DialogDescription style={{ fontFamily: 'Inter, sans-serif' }}>
-              {editModalOpen ? 'Modifica la información del proveedor' : 'Completa los datos para agregar un nuevo proveedor'}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 p-6">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-700 block mb-2">
-                  Nombre *
-                </label>
-                <input
-                  type="text"
-                  value={formData.nombre}
-                  onChange={(e) => setFormData({ ...formData, nombre: lettersOnly(e.target.value) })}
-                  style={{ fontFamily: 'Inter, sans-serif' }}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391]"
-                  placeholder="Nombre del proveedor"
-                />
-              </div>
-              <div>
-                <label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-700 block mb-2">
-                  Contacto
-                </label>
-                <input
-                  type="text"
-                  value={formData.contacto}
-                  onChange={(e) => setFormData({ ...formData, contacto: lettersOnly(e.target.value) })}
-                  style={{ fontFamily: 'Inter, sans-serif' }}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391]"
-                  placeholder="Nombre del contacto"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-700 block mb-2">
-                  Email *
-                </label>
-                <input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: removeSpaces(e.target.value) })}
-                  style={{ fontFamily: 'Inter, sans-serif' }}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391]"
-                  placeholder="email@ejemplo.com"
-                />
-              </div>
-              <div>
-                <label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-700 block mb-2">
-                  Teléfono *
-                </label>
-                <input
-                  type="tel"
-                  value={formData.telefono}
-                  onChange={(e) => setFormData({ ...formData, telefono: numbersOnly(e.target.value) })}
-                  style={{ fontFamily: 'Inter, sans-serif' }}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391]"
-                  placeholder="+57 300 123 4567"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-700 block mb-2">
-                  Documento
-                </label>
-                <input
-                  type="text"
-                  value={formData.documento}
-                  onChange={(e) => setFormData({ ...formData, documento: removeSpaces(e.target.value) })}
-                  style={{ fontFamily: 'Inter, sans-serif' }}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391]"
-                  placeholder="NIT o cédula"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-700 block mb-2">
-                Dirección
-              </label>
-              <textarea
-                value={formData.direccion}
-                onChange={(e) => setFormData({ ...formData, direccion: e.target.value })}
-                style={{ fontFamily: 'Inter, sans-serif' }}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391] min-h-[80px]"
-                placeholder="Dirección completa"
-              />
-            </div>
-          </div>
-          <DialogFooter className="gap-2">
-            <button
-              onClick={() => {
-                setCreateModalOpen(false);
-                setEditModalOpen(false);
-              }}
-              style={{ fontFamily: 'Inter, sans-serif' }}
-              className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
-            >
-              Cancelar
-            </button>
-            <button
-              onClick={editModalOpen ? handleSaveEdit : handleSaveCreate}
-              style={{ fontFamily: 'Inter, sans-serif' }}
-              className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
-            >
-              {editModalOpen ? 'Guardar Cambios' : 'Crear Proveedor'}
-            </button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Modal Cambiar Estado */}
-      <Dialog open={estadoModalOpen} onOpenChange={setEstadoModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl">
-              Cambiar Estado
-            </DialogTitle>
-            <DialogDescription style={{ fontFamily: 'Inter, sans-serif' }}>
-              Actualiza el estado del proveedor
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-600">
-              ¿Deseas cambiar el estado de este proveedor a {selectedProveedor?.activo ? 'Inactivo' : 'Activo'}?
-            </p>
-          </div>
-          <DialogFooter className="gap-2">
-            <button
-              onClick={() => setEstadoModalOpen(false)}
-              style={{ fontFamily: 'Inter, sans-serif' }}
-              className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
-            >
-              Cancelar
-            </button>
-            <button
-              onClick={handleSaveEstado}
-              style={{ fontFamily: 'Inter, sans-serif' }}
-              className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
-            >
-              Confirmar
-            </button>
+          <DialogFooter className="px-6 pb-6">
+            <button onClick={() => setViewOpen(false)} style={{ fontFamily: 'Inter, sans-serif' }}
+              className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">Cerrar</button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Modal Eliminar */}
-      <AlertDialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle style={{ fontFamily: 'Playfair Display, serif' }}>
-              ¿Eliminar proveedor?
-            </AlertDialogTitle>
+            <AlertDialogTitle style={{ fontFamily: 'Playfair Display, serif' }}>¿Eliminar proveedor?</AlertDialogTitle>
             <AlertDialogDescription style={{ fontFamily: 'Inter, sans-serif' }}>
-              {selectedProveedor && (
-                <>
-                  ¿Estás seguro de eliminar al proveedor "{selectedProveedor.nombre}"?
-                  {selectedProveedor.productos > 0 && (
-                    <span className="block mt-2 text-red-600">
-                      Este proveedor tiene {selectedProveedor.productos} productos asociados.
-                    </span>
-                  )}
-                  <span className="block mt-2">Esta acción no se puede deshacer.</span>
-                </>
-              )}
+              Vas a eliminar a <strong>{selected?.nombre}</strong>. Esta acción no se puede deshacer.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel style={{ fontFamily: 'Inter, sans-serif' }}>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmDelete}
-              style={{ fontFamily: 'Inter, sans-serif' }}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              Eliminar
+            <AlertDialogAction onClick={eliminar} disabled={saving}
+              className="bg-red-600 hover:bg-red-700 flex items-center gap-2" style={{ fontFamily: 'Inter, sans-serif' }}>
+              {saving && <Loader2 className="w-4 h-4 animate-spin" />} Eliminar
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
