@@ -4,10 +4,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../../../components/ui/alert-dialog';
 import { Input } from '../../../components/ui/input';
 import { Label } from '../../../components/ui/label';
-import { Checkbox } from '../../../components/ui/checkbox';
 import { toast } from 'sonner';
 import api, { getJson, postJson } from '../../../services/api';
 import { useAuth } from '../../../shared/contexts/AuthContext';
+
 interface ApiRole {
   roleID: number;
   nombre: string;
@@ -25,55 +25,99 @@ interface PermModule {
   id: string;
   name: string;
   icon: string;
+  generalPermiso?: string; // permiso que da acceso completo al módulo
   permisos: { id: string; label: string }[];
 }
 
+// Orden del menú: Dashboard, Productos, Compras, Gestión de Ventas, Usuarios, Configuración
 const MODULOS: PermModule[] = [
-  { id: 'usuarios', name: 'Módulo Usuarios', icon: '👥', permisos: [
-    { id: 'usuarios:ver', label: 'Ver usuarios' },
-    { id: 'usuarios:crear', label: 'Crear usuarios' },
-    { id: 'usuarios:editar', label: 'Editar usuarios' },
-    { id: 'usuarios:eliminar', label: 'Eliminar usuarios' },
-    { id: 'usuarios:bloquear', label: 'Bloquear/activar usuarios' },
-  ]},
-  { id: 'productos', name: 'Módulo Productos', icon: '📦', permisos: [
-    { id: 'productos:ver', label: 'Ver listado de productos' },
-    { id: 'productos:crear', label: 'Crear productos' },
-    { id: 'productos:editar', label: 'Editar productos' },
-    { id: 'productos:eliminar', label: 'Eliminar productos' },
-    { id: 'productos:descuento', label: 'Aplicar descuentos' },
-  ]},
-  { id: 'roles', name: 'Módulo Roles y Permisos', icon: '🔐', permisos: [
-    { id: 'roles:ver', label: 'Ver roles' },
-    { id: 'roles:crear', label: 'Crear roles' },
-    { id: 'roles:editar', label: 'Editar roles' },
-    { id: 'roles:eliminar', label: 'Eliminar roles' },
-    { id: 'roles:permisos', label: 'Gestionar permisos' },
-  ]},
-  { id: 'ventas', name: 'Módulo Ventas', icon: '🛒', permisos: [
-    { id: 'ventas:ver', label: 'Ver listado de ventas' },
-    { id: 'ventas:editar', label: 'Editar ventas' },
-    { id: 'ventas:eliminar', label: 'Anular ventas' },
-  ]},
-  { id: 'tienda', name: 'Módulo Tienda Online', icon: '🏪', permisos: [
-    { id: 'tienda:ver', label: 'Ver tienda' },
-    { id: 'tienda:comprar', label: 'Realizar compras' },
-    { id: 'tienda:carrito', label: 'Gestionar carrito' },
-  ]},
-  { id: 'reportes', name: 'Módulo Reportes', icon: '📊', permisos: [
-    { id: 'reportes:ver', label: 'Ver reportes' },
-    { id: 'reportes:ventas', label: 'Reportes de ventas' },
-    { id: 'reportes:inventario', label: 'Reportes de inventario' },
-    { id: 'reportes:clientes', label: 'Reportes de clientes' },
-    { id: 'reportes:financiero', label: 'Reporte financiero' },
-  ]},
-  { id: 'notificaciones', name: 'Módulo Notificaciones', icon: '🔔', permisos: [
-    { id: 'notif:enviar', label: 'Enviar notificaciones' },
-  ]},
-  { id: 'administracion', name: 'Módulo Administración', icon: '⚙️', permisos: [
-    { id: 'admin:dashboard', label: 'Ver dashboard admin' },
-    { id: 'config:auditoria', label: 'Ver auditoría del sistema' },
-  ]},
+  {
+    id: 'administracion', name: 'Dashboard / Administración', icon: '⚙️',
+    generalPermiso: 'admin:dashboard',
+    permisos: [
+      { id: 'admin:dashboard', label: 'Acceso al dashboard de administración' },
+      { id: 'config:auditoria', label: 'Ver auditoría del sistema' },
+    ]
+  },
+  {
+    id: 'productos', name: 'Gestión de Productos', icon: '📦',
+    generalPermiso: 'productos:ver',
+    permisos: [
+      { id: 'productos:ver', label: 'Ver listado de productos' },
+      { id: 'productos:crear', label: 'Crear productos' },
+      { id: 'productos:editar', label: 'Editar productos' },
+      { id: 'productos:eliminar', label: 'Eliminar productos' },
+      { id: 'productos:descuento', label: 'Aplicar descuentos' },
+    ]
+  },
+  {
+    id: 'compras', name: 'Compras', icon: '🛍️',
+    generalPermiso: 'compras:ver',
+    permisos: [
+      { id: 'compras:ver', label: 'Ver listado de compras' },
+      { id: 'compras:crear', label: 'Crear compras' },
+      { id: 'compras:editar', label: 'Editar compras' },
+      { id: 'compras:eliminar', label: 'Eliminar compras' },
+    ]
+  },
+  {
+    id: 'ventas', name: 'Gestión de Ventas', icon: '🛒',
+    generalPermiso: 'ventas:ver',
+    permisos: [
+      { id: 'ventas:ver', label: 'Ver pedidos y ventas' },
+      { id: 'ventas:editar', label: 'Editar / aprobar ventas' },
+      { id: 'ventas:eliminar', label: 'Eliminar / anular ventas' },
+    ]
+  },
+  {
+    id: 'usuarios', name: 'Usuarios', icon: '👥',
+    generalPermiso: 'usuarios:ver',
+    permisos: [
+      { id: 'usuarios:ver', label: 'Ver usuarios' },
+      { id: 'usuarios:crear', label: 'Crear usuarios' },
+      { id: 'usuarios:editar', label: 'Editar usuarios' },
+      { id: 'usuarios:eliminar', label: 'Eliminar usuarios' },
+      { id: 'usuarios:bloquear', label: 'Bloquear/activar usuarios' },
+    ]
+  },
+  {
+    id: 'roles', name: 'Configuración — Roles', icon: '🔐',
+    generalPermiso: 'roles:ver',
+    permisos: [
+      { id: 'roles:ver', label: 'Ver roles' },
+      { id: 'roles:crear', label: 'Crear roles' },
+      { id: 'roles:editar', label: 'Editar roles' },
+      { id: 'roles:eliminar', label: 'Eliminar roles' },
+      { id: 'roles:permisos', label: 'Gestionar permisos' },
+    ]
+  },
+  {
+    id: 'reportes', name: 'Reportes', icon: '📊',
+    generalPermiso: 'reportes:ver',
+    permisos: [
+      { id: 'reportes:ver', label: 'Ver reportes' },
+      { id: 'reportes:ventas', label: 'Reportes de ventas' },
+      { id: 'reportes:inventario', label: 'Reportes de inventario' },
+      { id: 'reportes:clientes', label: 'Reportes de clientes' },
+      { id: 'reportes:financiero', label: 'Reporte financiero' },
+    ]
+  },
+  {
+    id: 'notificaciones', name: 'Notificaciones', icon: '🔔',
+    generalPermiso: 'notif:enviar',
+    permisos: [
+      { id: 'notif:enviar', label: 'Enviar notificaciones' },
+    ]
+  },
+  {
+    id: 'tienda', name: 'Tienda Online (cliente)', icon: '🏪',
+    generalPermiso: 'tienda:ver',
+    permisos: [
+      { id: 'tienda:ver', label: 'Ver tienda' },
+      { id: 'tienda:comprar', label: 'Realizar compras' },
+      { id: 'tienda:carrito', label: 'Gestionar carrito' },
+    ]
+  },
 ];
 
 const PREEXISTENTES = ['admin', 'cliente', 'client'];
@@ -86,34 +130,43 @@ const getRolIcon = (nombre: string) => {
   return '👤';
 };
 
-
 interface PermisosEditorProps {
   arr: string[];
   onToggle: (id: string) => void;
-  onToggleModulo: (perms: { id: string }[]) => void;
+  onToggleModulo: (perms: { id: string }[], generalPermiso?: string) => void;
 }
 
 const PermisosEditor: React.FC<PermisosEditorProps> = ({ arr, onToggle, onToggleModulo }) => (
-  <div className="space-y-3">
-    {MODULOS.map(({ id, name, permisos }) => {
+  <div className="space-y-4">
+    {MODULOS.map(({ id, name, icon, permisos, generalPermiso }) => {
       const allSel = permisos.every(p => arr.includes(p.id));
       const someSel = permisos.some(p => arr.includes(p.id));
       return (
-        <div key={id} className="border border-gray-200 rounded-lg p-4">
-          <div className="flex items-center gap-3 mb-3">
-            <input
-              type="checkbox"
-              checked={allSel}
-              ref={el => { if (el) el.indeterminate = someSel && !allSel; }}
-              onChange={() => onToggleModulo(permisos)}
-              id={`mod-${id}`}
-              className="w-4 h-4 cursor-pointer accent-[#d65391]"
-            />
-            <label htmlFor={`mod-${id}`} style={{ fontFamily: 'Inter, sans-serif' }} className="text-base font-semibold text-gray-900 cursor-pointer">
-              {name}
-            </label>
+        <div key={id} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+          {/* Header del módulo */}
+          <div className="bg-gray-50 px-5 py-3 border-b border-gray-100">
+            <div className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                checked={allSel}
+                ref={el => { if (el) el.indeterminate = someSel && !allSel; }}
+                onChange={() => onToggleModulo(permisos, generalPermiso)}
+                id={`mod-${id}`}
+                className="w-4 h-4 cursor-pointer accent-[#d65391]"
+              />
+              <label htmlFor={`mod-${id}`} style={{ fontFamily: 'Inter, sans-serif' }}
+                className="text-sm font-semibold text-gray-800 cursor-pointer">
+                {icon} {name}
+              </label>
+              {allSel && (
+                <span className="ml-auto text-xs bg-[#d65391] text-white px-2 py-0.5 rounded-full" style={{ fontFamily: 'Inter, sans-serif' }}>
+                  Acceso completo
+                </span>
+              )}
+            </div>
           </div>
-          <div className="space-y-2 pl-6">
+          {/* Subpermisos */}
+          <div className="px-5 py-3 space-y-2">
             {permisos.map(p => (
               <div key={p.id} className="flex items-center gap-3">
                 <input
@@ -123,9 +176,11 @@ const PermisosEditor: React.FC<PermisosEditorProps> = ({ arr, onToggle, onToggle
                   id={`perm-${p.id}`}
                   className="w-4 h-4 cursor-pointer accent-[#d65391]"
                 />
-                <label htmlFor={`perm-${p.id}`} style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-700 cursor-pointer">
+                <label htmlFor={`perm-${p.id}`} style={{ fontFamily: 'Inter, sans-serif' }}
+                  className="text-sm text-gray-700 cursor-pointer flex-1">
                   {p.label}
                 </label>
+                <span className="text-xs text-gray-300 font-mono">{p.id}</span>
               </div>
             ))}
           </div>
@@ -194,11 +249,18 @@ export const RolesView: React.FC = () => {
   const getPermissionIDs = (nombres: string[]) =>
     allPermisos.filter(p => nombres.includes(p.nombre)).map(p => p.permissionID);
 
+  const handleToggle = (id: string) =>
+    setPermisosArr(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
 
+  const handleToggleCreate = (id: string) =>
+    setCreatePermisosArr(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+
+  const handleToggleModulo = (perms: { id: string }[], _?: string, arr: string[], setArr: (v: string[]) => void = () => {}) => {
+    const all = perms.every(p => arr.includes(p.id));
+    setArr(all ? arr.filter(x => !perms.find(p => p.id === x)) : [...new Set([...arr, ...perms.map(p => p.id)])]);
+  };
 
   const handleEditarPermisos = (role: ApiRole) => {
-    console.log('[Permisos del rol]', role.nombre, role.permisos);
-    console.log('[Permisos valores]', JSON.stringify(role.permisos));
     setSelectedRole(role);
     setPermisosArr([...role.permisos]);
     setPermisosOpen(true);
@@ -277,8 +339,6 @@ export const RolesView: React.FC = () => {
     finally { setSaving(false); }
   };
 
-
-
   if (loading) return (
     <div className="flex items-center justify-center min-h-screen">
       <Loader2 className="w-8 h-8 animate-spin text-[#d65391]" />
@@ -288,7 +348,6 @@ export const RolesView: React.FC = () => {
 
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
-      {/* Breadcrumb */}
       <div className="flex items-center gap-2 mb-4">
         <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-500">Dashboard</span>
         <ChevronRight className="w-4 h-4 text-gray-400" />
@@ -300,13 +359,11 @@ export const RolesView: React.FC = () => {
       <h1 style={{ fontFamily: 'Playfair Display, serif' }} className="text-4xl text-gray-900 mb-6">Gestión de Roles</h1>
 
       <div className="space-y-6">
-        {/* Barra búsqueda */}
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex flex-col lg:flex-row gap-4">
           <div className="flex-1 relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input type="text" placeholder="Buscar por nombre o descripción..." value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              style={{ fontFamily: 'Inter, sans-serif' }}
+              onChange={e => setSearchQuery(e.target.value)} style={{ fontFamily: 'Inter, sans-serif' }}
               className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391]" />
           </div>
           <div className="flex gap-3">
@@ -315,20 +372,19 @@ export const RolesView: React.FC = () => {
               <RefreshCw className="w-5 h-5" />
             </button>
             {puedeCrear && (
-            <button onClick={handleCreate} style={{ fontFamily: 'Inter, sans-serif' }}
-              className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 flex items-center gap-2 transition-colors">
-              <Plus className="w-5 h-5" /> Nuevo Rol
-            </button>
+              <button onClick={handleCreate} style={{ fontFamily: 'Inter, sans-serif' }}
+                className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 flex items-center gap-2 transition-colors">
+                <Plus className="w-5 h-5" /> Nuevo Rol
+              </button>
             )}
           </div>
         </div>
 
-        {/* Tabla */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                {['NOMBRE DEL ROL', 'DESCRIPCIÓN', 'USUARIOS', 'ESTADO', 'ACCIONES'].map(h => (
+                {['NOMBRE DEL ROL', 'DESCRIPCIÓN', 'PERMISOS', 'ESTADO', 'ACCIONES'].map(h => (
                   <th key={h} className="px-6 py-4 text-left">
                     <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs font-semibold uppercase tracking-wider text-gray-500">{h}</span>
                   </th>
@@ -370,16 +426,16 @@ export const RolesView: React.FC = () => {
                         <Eye className="w-5 h-5" />
                       </button>
                       {puedePermisos && (
-                      <button onClick={() => handleEditarPermisos(role)}
-                        className="p-2 text-gray-500 hover:bg-purple-50 hover:text-purple-600 rounded-lg transition-colors" title="Configurar permisos">
-                        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
-                      </button>
+                        <button onClick={() => handleEditarPermisos(role)}
+                          className="p-2 text-gray-500 hover:bg-purple-50 hover:text-purple-600 rounded-lg transition-colors" title="Configurar permisos">
+                          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
+                        </button>
                       )}
                       {puedeEditar && (
-                      <button onClick={() => handleEdit(role)}
-                        className="p-2 text-gray-500 hover:bg-yellow-50 hover:text-yellow-600 rounded-lg transition-colors" title="Editar rol">
-                        <Edit className="w-5 h-5" />
-                      </button>
+                        <button onClick={() => handleEdit(role)}
+                          className="p-2 text-gray-500 hover:bg-yellow-50 hover:text-yellow-600 rounded-lg transition-colors" title="Editar rol">
+                          <Edit className="w-5 h-5" />
+                        </button>
                       )}
                       {puedeEliminar && (isPreexistente(role.nombre) ? (
                         <button disabled className="p-2 text-gray-300 cursor-not-allowed rounded-lg" title="No eliminable">
@@ -406,132 +462,182 @@ export const RolesView: React.FC = () => {
         </div>
       </div>
 
-      {/* Ver detalles */}
+      {/* ═══ VER DETALLES ═══ */}
       <Dialog open={viewOpen} onOpenChange={setViewOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl">Detalles del Rol</DialogTitle>
-            <DialogDescription style={{ fontFamily: 'Inter, sans-serif' }}>Información completa del rol y sus permisos</DialogDescription>
+        <DialogContent className="max-w-2xl h-auto flex flex-col p-0 gap-0">
+          <DialogHeader className="px-8 pt-6 pb-4 border-b border-gray-200 flex-shrink-0">
+            <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl">
+              {getRolIcon(selectedRole?.nombre || '')} {selectedRole?.nombre?.toUpperCase()}
+            </DialogTitle>
+            <DialogDescription style={{ fontFamily: 'Inter, sans-serif' }}>
+              {selectedRole?.descripcion || 'Sin descripción'}
+            </DialogDescription>
           </DialogHeader>
           {selectedRole && (
-            <div className="space-y-4 py-2">
-              <div className="flex items-center gap-4">
-                <span className="text-4xl">{getRolIcon(selectedRole.nombre)}</span>
-                <div>
-                  <h3 style={{ fontFamily: 'Inter, sans-serif' }} className="text-xl font-bold text-gray-900">{selectedRole.nombre.toUpperCase()}</h3>
-                  <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-500">{selectedRole.descripcion || 'Sin descripción'}</p>
-                </div>
-              </div>
-              <div>
-                <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs font-semibold text-gray-400 uppercase mb-2">Permisos asignados ({selectedRole.permisos.length})</p>
-                <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto">
-                  {selectedRole.permisos.length === 0
-                    ? <span className="text-sm text-gray-400" style={{ fontFamily: 'Inter, sans-serif' }}>Sin permisos asignados</span>
-                    : selectedRole.permisos.map(p => (
-                      <span key={p} className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-mono">{p}</span>
-                    ))
-                  }
+            <div className="flex-1 overflow-y-auto">
+              <div className="space-y-6 py-6 px-8">
+                <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                  <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                    <h3 style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-gray-800 text-base">🔐 Permisos asignados ({selectedRole.permisos.length})</h3>
+                  </div>
+                  <div className="p-6">
+                    {selectedRole.permisos.length === 0 ? (
+                      <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-400">Sin permisos asignados</p>
+                    ) : (
+                      <div className="space-y-4">
+                        {MODULOS.filter(m => m.permisos.some(p => selectedRole.permisos.includes(p.id))).map(m => (
+                          <div key={m.id}>
+                            <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs font-semibold text-gray-500 uppercase mb-2">{m.icon} {m.name}</p>
+                            <div className="flex flex-wrap gap-2">
+                              {m.permisos.filter(p => selectedRole.permisos.includes(p.id)).map(p => (
+                                <span key={p.id} style={{ fontFamily: 'Inter, sans-serif' }}
+                                  className="px-2 py-1 bg-purple-100 text-purple-700 rounded-lg text-xs font-medium">
+                                  {p.label}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
           )}
-          <DialogFooter>
-            <button onClick={() => setViewOpen(false)} style={{ fontFamily: 'Inter, sans-serif' }} className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">Cerrar</button>
+          <DialogFooter className="gap-2 px-8 py-5 border-t border-gray-200 flex-shrink-0">
+            <button onClick={() => setViewOpen(false)} style={{ fontFamily: 'Inter, sans-serif' }}
+              className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">Cerrar</button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Configurar permisos */}
+      {/* ═══ CONFIGURAR PERMISOS ═══ */}
       <Dialog open={permisosOpen} onOpenChange={setPermisosOpen}>
-        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-xl">
-              Configurar Permisos — {selectedRole?.nombre?.toUpperCase()}
+        <DialogContent className="max-w-2xl h-auto flex flex-col p-0 gap-0">
+          <DialogHeader className="px-8 pt-6 pb-4 border-b border-gray-200 flex-shrink-0">
+            <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl">
+              Configurar Permisos
             </DialogTitle>
             <DialogDescription style={{ fontFamily: 'Inter, sans-serif' }}>
-              Selecciona los módulos y permisos que deseas asignar a este rol
+              Rol: <strong>{selectedRole?.nombre?.toUpperCase()}</strong> — Selecciona el módulo completo o permisos individuales
             </DialogDescription>
           </DialogHeader>
-          <PermisosEditor
-              arr={permisosArr}
-              onToggle={(id) => setPermisosArr(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])}
-              onToggleModulo={(perms) => setPermisosArr(prev => { const all = perms.every(p => prev.includes(p.id)); return all ? prev.filter(x => !perms.find(p => p.id === x)) : [...new Set([...prev, ...perms.map(p => p.id)])]; })}
-            />
-          <DialogFooter className="gap-2 pt-2">
-            <button onClick={() => setPermisosOpen(false)} style={{ fontFamily: 'Inter, sans-serif' }} className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">Cancelar</button>
-            <button onClick={savePermisos} disabled={saving} style={{ fontFamily: 'Inter, sans-serif' }} className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 flex items-center gap-2 transition-colors">
+          <div className="flex-1 overflow-y-auto max-h-[65vh]">
+            <div className="space-y-4 py-6 px-8">
+              <PermisosEditor
+                arr={permisosArr}
+                onToggle={handleToggle}
+                onToggleModulo={(perms) => {
+                  const all = perms.every(p => permisosArr.includes(p.id));
+                  setPermisosArr(all ? permisosArr.filter(x => !perms.find(p => p.id === x)) : [...new Set([...permisosArr, ...perms.map(p => p.id)])]);
+                }}
+              />
+            </div>
+          </div>
+          <DialogFooter className="gap-2 px-8 py-5 border-t border-gray-200 flex-shrink-0">
+            <button onClick={() => setPermisosOpen(false)} style={{ fontFamily: 'Inter, sans-serif' }}
+              className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">Cancelar</button>
+            <button onClick={savePermisos} disabled={saving} style={{ fontFamily: 'Inter, sans-serif' }}
+              className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 flex items-center gap-2 transition-colors">
               {saving && <Loader2 className="w-4 h-4 animate-spin" />} Guardar Permisos
             </button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Editar rol */}
+      {/* ═══ EDITAR ROL ═══ */}
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
+        <DialogContent className="max-w-2xl h-auto flex flex-col p-0 gap-0">
+          <DialogHeader className="px-8 pt-6 pb-4 border-b border-gray-200 flex-shrink-0">
             <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl">Editar Rol</DialogTitle>
+            <DialogDescription style={{ fontFamily: 'Inter, sans-serif' }}>Modifica el nombre y descripción del rol</DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-2">
-            <div>
-              <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-700 mb-1 block">Nombre del Rol *</Label>
-              <Input value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })} placeholder="Ej: Vendedor" />
-              {formErrors.nombre && <p className="text-red-500 text-xs mt-1">{formErrors.nombre}</p>}
-            </div>
-            <div>
-              <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-700 mb-1 block">Descripción</Label>
-              <textarea value={form.descripcion} onChange={e => setForm({ ...form, descripcion: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391] text-sm min-h-[70px] resize-none"
-                style={{ fontFamily: 'Inter, sans-serif' }} placeholder="Descripción del rol..." />
+          <div className="flex-1 overflow-y-auto">
+            <div className="space-y-6 py-6 px-8">
+              <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                  <h3 style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-gray-800 text-base">📋 Información del Rol</h3>
+                </div>
+                <div className="p-6 flex flex-col gap-5">
+                  <div className="flex flex-col gap-2">
+                    <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">Nombre del Rol <span className="text-red-500">*</span></Label>
+                    <Input value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })} placeholder="Ej: Vendedor" className="h-10 border-gray-300" />
+                    {formErrors.nombre && <p className="text-red-500 text-xs">{formErrors.nombre}</p>}
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">Descripción</Label>
+                    <textarea value={form.descripcion} onChange={e => setForm({ ...form, descripcion: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391] text-sm min-h-[80px] resize-none"
+                      style={{ fontFamily: 'Inter, sans-serif' }} placeholder="Descripción del rol..." />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-          <DialogFooter className="gap-2">
-            <button onClick={() => setEditOpen(false)} style={{ fontFamily: 'Inter, sans-serif' }} className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">Cancelar</button>
-            <button onClick={saveEdit} disabled={saving} style={{ fontFamily: 'Inter, sans-serif' }} className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 flex items-center gap-2 transition-colors">
+          <DialogFooter className="gap-2 px-8 py-5 border-t border-gray-200 flex-shrink-0">
+            <button onClick={() => setEditOpen(false)} style={{ fontFamily: 'Inter, sans-serif' }}
+              className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">Cancelar</button>
+            <button onClick={saveEdit} disabled={saving} style={{ fontFamily: 'Inter, sans-serif' }}
+              className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 flex items-center gap-2 transition-colors">
               {saving && <Loader2 className="w-4 h-4 animate-spin" />} Guardar
             </button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Crear rol */}
+      {/* ═══ CREAR ROL ═══ */}
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
+        <DialogContent className="max-w-2xl h-auto flex flex-col p-0 gap-0">
+          <DialogHeader className="px-8 pt-6 pb-4 border-b border-gray-200 flex-shrink-0">
             <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl">Nuevo Rol</DialogTitle>
             <DialogDescription style={{ fontFamily: 'Inter, sans-serif' }}>Crea un nuevo rol y asigna sus permisos</DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-2">
-            <div>
-              <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-700 mb-1 block">Nombre del Rol *</Label>
-              <Input value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })} placeholder="Ej: Vendedor" />
-              {formErrors.nombre && <p className="text-red-500 text-xs mt-1">{formErrors.nombre}</p>}
-            </div>
-            <div>
-              <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-700 mb-1 block">Descripción</Label>
-              <textarea value={form.descripcion} onChange={e => setForm({ ...form, descripcion: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391] text-sm min-h-[70px] resize-none"
-                style={{ fontFamily: 'Inter, sans-serif' }} placeholder="Descripción del rol..." />
-            </div>
-            <div>
-              <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-semibold text-gray-700 mb-2">Permisos del rol</p>
-              <PermisosEditor
-                arr={createPermisosArr}
-                onToggle={(id) => setCreatePermisosArr(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])}
-                onToggleModulo={(perms) => setCreatePermisosArr(prev => { const all = perms.every(p => prev.includes(p.id)); return all ? prev.filter(x => !perms.find(p => p.id === x)) : [...new Set([...prev, ...perms.map(p => p.id)])]; })}
-              />
+          <div className="flex-1 overflow-y-auto max-h-[75vh]">
+            <div className="space-y-6 py-6 px-8">
+              <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                  <h3 style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-gray-800 text-base">📋 Información del Rol</h3>
+                </div>
+                <div className="p-6 flex flex-col gap-5">
+                  <div className="flex flex-col gap-2">
+                    <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">Nombre del Rol <span className="text-red-500">*</span></Label>
+                    <Input value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })} placeholder="Ej: Vendedor" className="h-10 border-gray-300" />
+                    {formErrors.nombre && <p className="text-red-500 text-xs">{formErrors.nombre}</p>}
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">Descripción</Label>
+                    <textarea value={form.descripcion} onChange={e => setForm({ ...form, descripcion: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391] text-sm min-h-[80px] resize-none"
+                      style={{ fontFamily: 'Inter, sans-serif' }} placeholder="Descripción del rol..." />
+                  </div>
+                </div>
+              </div>
+              <div>
+                <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-semibold text-gray-700 mb-4">🔐 Asignar Permisos</p>
+                <PermisosEditor
+                  arr={createPermisosArr}
+                  onToggle={handleToggleCreate}
+                  onToggleModulo={(perms) => {
+                    const all = perms.every(p => createPermisosArr.includes(p.id));
+                    setCreatePermisosArr(all ? createPermisosArr.filter(x => !perms.find(p => p.id === x)) : [...new Set([...createPermisosArr, ...perms.map(p => p.id)])]);
+                  }}
+                />
+              </div>
             </div>
           </div>
-          <DialogFooter className="gap-2 pt-2">
-            <button onClick={() => setCreateOpen(false)} style={{ fontFamily: 'Inter, sans-serif' }} className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">Cancelar</button>
-            <button onClick={saveCreate} disabled={saving} style={{ fontFamily: 'Inter, sans-serif' }} className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 flex items-center gap-2 transition-colors">
+          <DialogFooter className="gap-2 px-8 py-5 border-t border-gray-200 flex-shrink-0">
+            <button onClick={() => setCreateOpen(false)} style={{ fontFamily: 'Inter, sans-serif' }}
+              className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">Cancelar</button>
+            <button onClick={saveCreate} disabled={saving} style={{ fontFamily: 'Inter, sans-serif' }}
+              className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 flex items-center gap-2 transition-colors">
               {saving && <Loader2 className="w-4 h-4 animate-spin" />} Crear Rol
             </button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Eliminar */}
+      {/* ═══ ELIMINAR ═══ */}
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>

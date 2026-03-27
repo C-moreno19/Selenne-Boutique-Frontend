@@ -4,6 +4,7 @@ import { DashboardHeader } from './DashboardHeader';
 import { DashboardHome } from '../pages/DashboardHome';
 import { EmpleadoHome } from '../pages/EmpleadoHome';
 import { VentasView } from '../pages/VentasView';
+import { HistorialVentasView } from '../pages/HistorialVentasView';
 import { ClientesView } from '../pages/ClientesView';
 import { NuevaCompraView } from '../pages/NuevaCompraView';
 import { NuevaVentaView } from '../pages/NuevaVentaView';
@@ -12,6 +13,7 @@ import { RolesView } from '../pages/RolesView';
 import { UsuariosView } from '../pages/UsuariosView';
 import { ProveedoresView } from '../pages/ProveedoresView';
 import { ComprasView } from '../pages/ComprasView';
+import { HistorialComprasView } from '../pages/HistorialComprasView';
 import { PerfilView } from '../pages/PerfilView';
 import { ProductosView } from '../pages/ProductosView';
 import { CategoriasView } from '../pages/CategoriasView';
@@ -38,12 +40,14 @@ export type DashboardSection =
   | 'roles'
   | 'usuarios'
   | 'ventas'
+  | 'historial-ventas'
   | 'nueva-venta'
   | 'pedidos'
   | 'clientes'
   | 'nueva-compra'
   | 'proveedores'
   | 'compras'
+  | 'historial-compras'
   | 'perfil'
   | 'mi-cuenta'
   | 'notificaciones';
@@ -56,9 +60,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onLogout }) => {
   const { user } = useAuth();
   const { canAccessSection } = usePermisos();
   const { isOpen } = useSidebar();
-  const [currentSection, setCurrentSection] = useState<DashboardSection>(
-    user?.role === 'Empleado' ? 'productos' : 'home'
-  );
+  const [currentSection, setCurrentSectionState] = useState<DashboardSection>(() => {
+    const saved = localStorage.getItem('currentSection') as DashboardSection;
+    if (saved) return saved;
+    return user?.role === 'Empleado' ? 'productos' : 'home';
+  });
+
+  const setCurrentSection = (section: DashboardSection) => {
+    setCurrentSectionState(section);
+    localStorage.setItem('currentSection', section);
+  };
 
   const renderContent = () => {
     // Verificar permisos antes de renderizar
@@ -100,7 +111,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onLogout }) => {
       case 'usuarios':
         return <UsuariosView />;
       case 'ventas':
-        return <VentasView onNavigateToNuevaVenta={() => setCurrentSection('nueva-venta')} />;
+        return <VentasView onNavigateToHistorial={() => setCurrentSection('historial-ventas')} />;
+      case 'historial-ventas':
+        return <HistorialVentasView onBack={() => setCurrentSection('ventas')} />;
       case 'nueva-venta':
         return <NuevaVentaView onBack={() => setCurrentSection('ventas')} onSuccess={() => setCurrentSection('ventas')} />;
       case 'pedidos':
@@ -112,7 +125,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onLogout }) => {
       case 'proveedores':
         return <ProveedoresView />;
       case 'compras':
-        return <ComprasView onNavigateToNuevaCompra={() => setCurrentSection('nueva-compra')} />;
+        return <ComprasView onNavigateToHistorial={() => setCurrentSection('historial-compras')} />;
+      case 'historial-compras':
+        return <HistorialComprasView onBack={() => setCurrentSection('compras')} />;
       case 'perfil':
       case 'mi-cuenta':
         return <PerfilView />;

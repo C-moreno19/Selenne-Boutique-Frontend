@@ -50,10 +50,8 @@ function MainApp() {
 
   return (
     <div className="relative min-h-screen">
-      {/* Toaster for notifications */}
       <Toaster position="top-center" richColors />
       
-      {/* Alert Container */}
       {alert && (
         <div className="fixed top-8 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4">
           <CustomAlert
@@ -64,7 +62,6 @@ function MainApp() {
         </div>
       )}
 
-      {/* Main Content */}
         {currentView === 'landing' ? (
           <LandingView
             onNavigateToLogin={() => setCurrentView('login')}
@@ -93,7 +90,6 @@ function MainApp() {
         />
       )}
 
-      {/* Recover Password Modal */}
       <RecoverPasswordModal
         isOpen={isRecoverModalOpen}
         onClose={() => setIsRecoverModalOpen(false)}

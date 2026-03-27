@@ -73,11 +73,11 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
       ]
     },
     { 
-      label: 'Ventas', 
+      label: 'Gestión de Ventas', 
       icon: <ShoppingCart className="w-5 h-5" />,
       subItems: [
-        { id: 'ventas', label: 'Gestión de Ventas' },
         { id: 'pedidos', label: 'Pedidos' },
+        { id: 'ventas', label: 'Ventas' },
         { id: 'clientes', label: 'Clientes' }
       ]
     },
@@ -99,16 +99,30 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
     }
   ];
 
+  const isAdmin = (user?.role || '').toLowerCase().includes('admin');
+
   const visibleMenuItems = menuItems.filter(item => {
+    // Admin ve todo
+    if (isAdmin) return true;
+    // Items sin restricción
     if (!item.requiredPermissions) return true;
-    // Para items sin id específico, revisar si alguno de sus subitems tiene acceso
+    // Si tiene subitems, mostrar solo si tiene acceso a al menos uno
     if (!item.id && item.subItems) {
       return item.subItems.some(subItem => {
         if (subItem.id) return canAccessSection(subItem.id);
-        return true;
+        return false;
       });
     }
-    return item.id ? canAccessSection(item.id) : true;
+    return item.id ? canAccessSection(item.id) : false;
+  }).map(item => {
+    // Filtrar subitems también
+    if (isAdmin || !item.subItems) return item;
+    return {
+      ...item,
+      subItems: item.subItems.filter(subItem =>
+        !subItem.id || canAccessSection(subItem.id)
+      )
+    };
   });
 
   // expandExclusive removed — la apertura exclusiva ahora ocurre solo al hacer click (gestión en `toggleMenu`).

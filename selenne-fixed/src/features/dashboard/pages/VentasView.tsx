@@ -1,448 +1,355 @@
-﻿import React, { useState } from 'react';
-import { Search, Eye, ChevronRight, Download } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../../../components/ui/dialog';
-import { toast } from 'sonner';
-import { usePermisos } from '../../../shared/contexts/PermisosContext';
-import { usePedidosAdmin } from '../../../shared/contexts/PedidosAdminContext';
+﻿import React, { useState, useEffect, useCallback } from 'react';
+import { Search, Eye, Archive, Plus, ChevronRight, Loader2, RefreshCw, Trash2, X, Package } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '../../../components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../../../components/ui/alert-dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../components/ui/select';
+import { Input } from '../../../components/ui/input';
+import { Label } from '../../../components/ui/label';
+import { postJson } from '../../../services/api';
+import { toast } from 'sonner';
+import { getJson } from '../../../services/api';
+import api from '../../../services/api';
+import { useAuth } from '../../../shared/contexts/AuthContext';
 
-interface VentasViewProps {
-  onNavigateToNuevaVenta?: () => void;
+interface PedidoDetalle { productoNombre: string; cantidad: number; precioUnitario: number; subtotal: number; talla?: string; color?: string; }
+interface Pedido {
+  pedidoID: number; nombreCliente: string; emailCliente: string; telefonoCliente: string;
+  direccionEnvio: string; ciudad: string; metodoPago: string;
+  subtotal: number; descuento: number; envio: number; total: number;
+  estado: string; fechaPedido: string; notas?: string; comprobantePago?: string;
+  detalles: PedidoDetalle[];
 }
 
-export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToNuevaVenta }) => {
-  const { canDelete } = usePermisos();
-  const { pedidos } = usePedidosAdmin();
+const ESTADOS_ACTIVOS = ['Aprobado'];
+const ESTADOS_CAMBIO = ['Completado', 'Cancelado'];
+const fmt = (n: number) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n);
+const estadoColor = (e: string) => {
+  if (e === 'Aprobado') return 'bg-blue-100 text-blue-700';
+  if (e === 'Completado') return 'bg-green-100 text-green-700';
+  return 'bg-red-100 text-red-700';
+};
+
+interface VentasViewProps { onNavigateToHistorial?: () => void; }
+
+export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial }) => {
+  const { hasPermission } = useAuth();
+  const puedeAdmin = hasPermission('admin:dashboard');
+
+  const [pedidos, setPedidos] = useState<Pedido[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterEstado, setFilterEstado] = useState<'Todos' | 'Aprobada' | 'Pendiente' | 'Completada' | 'Rechazada'>('Todos');
-  const [viewModalOpen, setViewModalOpen] = useState(false);
-  const [selectedPedido, setSelectedPedido] = useState<any>(null);
+  const [saving, setSaving] = useState(false);
+  const [selectedPedido, setSelectedPedido] = useState<Pedido | null>(null);
+  const [viewOpen, setViewOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [nuevaVentaOpen, setNuevaVentaOpen] = useState(false);
+  const [nombreCliente, setNombreCliente] = useState('');
+  const [emailCliente, setEmailCliente] = useState('');
+  const [telefonoCliente, setTelefonoCliente] = useState('');
+  const [metodoPago, setMetodoPago] = useState('Transferencia');
+  const [notasVenta, setNotasVenta] = useState('');
 
-  // Filtrar pedidos por estado seleccionado
-  const filteredByEstado = filterEstado === 'Todos' 
-    ? pedidos 
-    : pedidos.filter(p => p.estado === filterEstado);
+  const loadData = useCallback(async () => {
+    try {
+      const res = await getJson('/api/pedidos');
+      const all = (res?.data || res || []).map((p: any): Pedido => ({
+        pedidoID: p.pedidoID, nombreCliente: p.nombreCliente ?? '',
+        emailCliente: p.emailCliente ?? '', telefonoCliente: p.telefonoCliente ?? '',
+        direccionEnvio: p.direccionEnvio ?? '', ciudad: p.ciudad ?? '',
+        metodoPago: p.metodoPago ?? '', subtotal: p.subtotal ?? 0,
+        descuento: p.descuento ?? 0, envio: p.envio ?? 0, total: p.total ?? 0,
+        estado: p.estado ?? '', fechaPedido: p.fechaPedido ?? '',
+        notas: p.notas ?? '', comprobantePago: p.comprobantePago ?? '',
+        detalles: (p.detalles ?? []).map((d: any) => ({
+          productoNombre: d.productoNombre ?? '', cantidad: d.cantidad ?? 0,
+          precioUnitario: d.precioUnitario ?? 0, subtotal: d.subtotal ?? 0,
+          talla: d.talla ?? '', color: d.color ?? '',
+        })),
+      }));
+      setPedidos(all.filter((p: Pedido) => ESTADOS_ACTIVOS.includes(p.estado)));
+    } catch { toast.error('Error cargando ventas'); }
+    finally { setLoading(false); }
+  }, []);
 
-  const filteredVentas = filteredByEstado.filter(pedido => {
-    const searchLower = searchQuery.toLowerCase();
-    return (
-      pedido.id.toLowerCase().includes(searchLower) ||
-      (pedido.email ? pedido.email.toLowerCase().includes(searchLower) : false) ||
-      (pedido.cliente ? pedido.cliente.toLowerCase().includes(searchLower) : false) ||
-      (pedido.estado ? pedido.estado.toLowerCase().includes(searchLower) : false)
-    );
+  useEffect(() => { loadData(); }, [loadData]);
+
+  const filtered = pedidos.filter(p => {
+    const q = searchQuery.toLowerCase();
+    return p.nombreCliente.toLowerCase().includes(q) || p.emailCliente.toLowerCase().includes(q);
   });
 
-  const handleView = (pedido: any) => {
-    setSelectedPedido(pedido);
-    setViewModalOpen(true);
+  const cambiarEstado = async (pedido: Pedido, estado: string) => {
+    setSaving(true);
+    try {
+      await api.fetchWithAuth(`/api/pedidos/${pedido.pedidoID}/estado`, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ NuevoEstado: estado }),
+      });
+      toast.success(`Venta marcada como ${estado}`);
+      loadData();
+    } catch { toast.error('Error cambiando estado'); }
+    finally { setSaving(false); }
   };
 
-  const getEstadoColor = (estado: string) => {
-    switch (estado) {
-      case 'Completada': return 'bg-green-100 text-green-800';
-      case 'Aprobada': return 'bg-blue-100 text-blue-800';
-      case 'Pendiente': return 'bg-yellow-100 text-yellow-800';
-      case 'Rechazada': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
+  const eliminar = async () => {
+    if (!selectedPedido) return;
+    setSaving(true);
+    try {
+      await api.fetchWithAuth(`/api/pedidos/${selectedPedido.pedidoID}`, { method: 'DELETE' });
+      toast.success('Pedido eliminado');
+      setDeleteOpen(false); loadData();
+    } catch { toast.error('Error eliminando pedido'); }
+    finally { setSaving(false); }
   };
 
-  const formatPrecio = (precio: number) => `$'{precio.toLocaleString('es-CO')}`;
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-screen">
+      <Loader2 className="w-8 h-8 animate-spin text-[#d65391]" />
+    </div>
+  );
 
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
-      {/* Breadcrumb */}
       <div className="flex items-center gap-2 mb-4">
-        <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-500">
-          Dashboard
-        </span>
+        <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-500">Dashboard</span>
         <ChevronRight className="w-4 h-4 text-gray-400" />
-        <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-900">
-          Gestión de Ventas
-        </span>
+        <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-900">Gestión de Ventas</span>
       </div>
+      <h1 style={{ fontFamily: 'Playfair Display, serif' }} className="text-4xl text-gray-900 mb-6">Gestión de Ventas</h1>
 
-      {/* Header */}
-      <div className="mb-6">
-        <div className="flex items-center gap-3 mb-2">
-          <h1 style={{ fontFamily: 'Playfair Display, serif' }} className="text-[36px] text-gray-900">
-            Gestión de Ventas
-          </h1>
-          <span className="px-3 py-1 bg-[#d65391] text-white rounded-full text-sm" style={{ fontFamily: 'Inter, sans-serif' }}>
-            {filteredVentas.length}
-          </span>
+      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex gap-4 mb-6">
+        <div className="flex-1 relative">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <input type="text" placeholder="Buscar por cliente o email..." value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)} style={{ fontFamily: 'Inter, sans-serif' }}
+            className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391]" />
         </div>
-        <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-600">
-          Administra tus ventas y transacciones
-        </p>
-      </div>
-
-      {/* Layout Tabla */}
-      <div className="space-y-6">
-        {/* Barra de Herramientas */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Buscar pedidos..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  style={{ fontFamily: 'Inter, sans-serif' }}
-                  className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391] focus:border-transparent transition-all"
-                />
-              </div>
-            </div>
-
-            <Select value={filterEstado} onValueChange={(value: any) => setFilterEstado(value)}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Filtrar por estado" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Todos">Todos los estados</SelectItem>
-                <SelectItem value="Aprobada">Aprobada</SelectItem>
-                <SelectItem value="Pendiente">Pendiente</SelectItem>
-                <SelectItem value="Completada">Completada</SelectItem>
-                <SelectItem value="Rechazada">Rechazada</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <button
-              onClick={() => toast.success('Exportando pedidos...')}
-              style={{ fontFamily: 'Inter, sans-serif' }}
-              className="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2 whitespace-nowrap"
-              title="Descargar pedidos"
-            >
-              <Download className="w-5 h-5" />
-              Exportar
+        <div className="flex gap-3">
+          <button onClick={() => { setLoading(true); loadData(); }} className="px-4 py-3 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+            <RefreshCw className="w-5 h-5" />
+          </button>
+          <button onClick={onNavigateToHistorial} style={{ fontFamily: 'Inter, sans-serif' }}
+            className="px-4 py-3 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 flex items-center gap-2 transition-colors">
+            <Archive className="w-5 h-5" /> Historial de Ventas
+          </button>
+          {puedeAdmin && (
+            <button onClick={() => setNuevaVentaOpen(true)} style={{ fontFamily: 'Inter, sans-serif' }}
+              className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 flex items-center gap-2 transition-colors">
+              <Plus className="w-5 h-5" /> Nueva Venta
             </button>
-          </div>
+          )}
         </div>
+      </div>
 
-        {/* Tabla */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
-                <tr>
-                  <th className="px-6 py-4 text-left" style={{ fontFamily: 'Inter, sans-serif' }}>
-                    <span className="text-xs uppercase tracking-wider text-gray-600">ID PEDIDO</span>
-                  </th>
-                  <th className="px-6 py-4 text-left" style={{ fontFamily: 'Inter, sans-serif' }}>
-                    <span className="text-xs uppercase tracking-wider text-gray-600">CLIENTE</span>
-                  </th>
-                  <th className="px-6 py-4 text-left" style={{ fontFamily: 'Inter, sans-serif' }}>
-                    <span className="text-xs uppercase tracking-wider text-gray-600">ESTADO</span>
-                  </th>
-                  <th className="px-6 py-4 text-left" style={{ fontFamily: 'Inter, sans-serif' }}>
-                    <span className="text-xs uppercase tracking-wider text-gray-600">ACCIONES</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {filteredVentas.map((pedido) => (
-                  <tr key={pedido.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4">
-                      <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-900">
-                        {pedido.id}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div>
-                        <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-900 font-medium block">
-                          {pedido.cliente}
-                        </span>
-                        <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">
-                          {pedido.email}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs $'{getEstadoColor(pedido.estado)}`}
-                        style={{ fontFamily: 'Inter, sans-serif' }}
-                      >
-                        {pedido.estado}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => handleView(pedido)}
-                          className="p-2 text-gray-600 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
-                          title="Ver detalles"
-                        >
-                          <Eye className="w-5 h-5" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <div className="px-6 py-4 bg-white border-t border-gray-100">
-            <div className="text-sm text-gray-600" style={{ fontFamily: 'Inter, sans-serif' }}>
-              Mostrando <span className="text-gray-900">{filteredVentas.length}</span> de {pedidos.length} pedidos {filterEstado !== 'Todos' && `en estado "${filterEstado}"`}
-            </div>
-          </div>
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <table className="w-full">
+          <thead className="bg-gray-50 border-b border-gray-200">
+            <tr>
+              {['#', 'CLIENTE', 'FECHA', 'TOTAL', 'ESTADO', 'ACCIONES'].map(h => (
+                <th key={h} className="px-6 py-4 text-left">
+                  <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs font-semibold uppercase tracking-wider text-gray-500">{h}</span>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {filtered.map(p => (
+              <tr key={p.pedidoID} className="hover:bg-gray-50 transition-colors">
+                <td className="px-6 py-4"><span style={{ fontFamily: 'Inter, sans-serif' }} className="font-medium text-gray-900">#{p.pedidoID}</span></td>
+                <td className="px-6 py-4">
+                  <p style={{ fontFamily: 'Inter, sans-serif' }} className="font-medium text-gray-900">{p.nombreCliente}</p>
+                  <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">{p.emailCliente}</p>
+                </td>
+                <td className="px-6 py-4"><span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-600">{new Date(p.fechaPedido).toLocaleDateString('es-CO')}</span></td>
+                <td className="px-6 py-4"><span style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold">{fmt(p.total)}</span></td>
+                <td className="px-6 py-4">
+                  {puedeAdmin ? (
+                    <Select value={p.estado} onValueChange={v => cambiarEstado(p, v)}>
+                      <SelectTrigger className={`h-8 w-36 text-xs font-medium rounded-full border-0 ${estadoColor(p.estado)}`}>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Aprobado">Aprobado</SelectItem>
+                        {ESTADOS_CAMBIO.map(e => <SelectItem key={e} value={e}>{e}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${estadoColor(p.estado)}`} style={{ fontFamily: 'Inter, sans-serif' }}>{p.estado}</span>
+                  )}
+                </td>
+                <td className="px-6 py-4">
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => { setSelectedPedido(p); setViewOpen(true); }}
+                      className="p-2 text-gray-500 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors" title="Ver detalles">
+                      <Eye className="w-5 h-5" />
+                    </button>
+                    {puedeAdmin && (
+                      <button onClick={() => { setSelectedPedido(p); setDeleteOpen(true); }}
+                        className="p-2 text-gray-500 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors" title="Eliminar">
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            ))}
+            {filtered.length === 0 && (
+              <tr><td colSpan={6} className="px-6 py-12 text-center text-gray-400" style={{ fontFamily: 'Inter, sans-serif' }}>No hay ventas aprobadas</td></tr>
+            )}
+          </tbody>
+        </table>
+        <div className="px-6 py-4 border-t border-gray-100">
+          <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-500">
+            <span className="font-medium text-gray-800">{filtered.length}</span> ventas aprobadas
+          </span>
         </div>
       </div>
 
       {/* Modal Ver Detalles */}
-      <Dialog open={viewModalOpen} onOpenChange={setViewModalOpen}>
-        <DialogContent className="!max-w-5xl">
-          <DialogHeader className="sticky top-0 bg-white z-10 pb-4 border-b -mx-6 px-6 pt-0">
-            <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl">
-              Detalles del Pedido #{selectedPedido?.numeroComprobante}
-            </DialogTitle>
-            <DialogDescription style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-600">
-              Información completa del pedido - {selectedPedido?.fecha}
-            </DialogDescription>
+      <Dialog open={viewOpen} onOpenChange={setViewOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-200">
+            <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl">Detalles Venta #{selectedPedido?.pedidoID}</DialogTitle>
           </DialogHeader>
           {selectedPedido && (
-            <div className="space-y-4">
-              {/* Estado y Monto */}
-              <div className="grid grid-cols-3 gap-3">
-                <div className="bg-blue-50 rounded-lg p-3">
-                  <label style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-blue-600 uppercase tracking-wide font-semibold block mb-1">
-                    Estado
-                  </label>
-                  <p className={`text-base font-semibold ${
-                    selectedPedido.estado === 'Completada' ? 'text-green-600' : 
-                    selectedPedido.estado === 'Aprobada' ? 'text-blue-600' :
-                    selectedPedido.estado === 'Pendiente' ? 'text-yellow-600' : 'text-red-600'
-                  }`}>
-                    {selectedPedido.estado}
-                  </p>
+            <div className="p-6 space-y-5">
+              <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                <div className="bg-gray-50 px-5 py-3 border-b border-gray-200">
+                  <p style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-sm text-gray-700">👤 Cliente</p>
                 </div>
-                <div className="bg-green-50 rounded-lg p-3">
-                  <label style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-green-600 uppercase tracking-wide font-semibold block mb-1">
-                    Monto Total
-                  </label>
-                  <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-base font-semibold text-green-700">
-                    ${selectedPedido.monto?.toLocaleString('es-CO') || '0'}
-                  </p>
-                </div>
-                <div className="bg-purple-50 rounded-lg p-3">
-                  <label style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-purple-600 uppercase tracking-wide font-semibold block mb-1">
-                    Método Pago
-                  </label>
-                  <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-semibold text-purple-700">
-                    {selectedPedido.metodoPago}
-                  </p>
+                <div className="p-5 grid grid-cols-2 gap-3">
+                  {[['Nombre', selectedPedido.nombreCliente], ['Email', selectedPedido.emailCliente],
+                    ['Teléfono', selectedPedido.telefonoCliente], ['Ciudad', selectedPedido.ciudad],
+                    ['Dirección', selectedPedido.direccionEnvio], ['Método de pago', selectedPedido.metodoPago],
+                  ].map(([label, value]) => (
+                    <div key={label}>
+                      <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">{label}</p>
+                      <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-900">{value}</p>
+                    </div>
+                  ))}
                 </div>
               </div>
-
-              {/* Información del Cliente */}
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-200">
-                <h3 style={{ fontFamily: 'Playfair Display, serif' }} className="text-base font-semibold mb-3 text-blue-900">
-                  👤 Información Completa del Cliente
-                </h3>
-                <div className="grid grid-cols-2 gap-3">
-                  {/* Fila 1: Nombre y Documento */}
-                  <div className="bg-white rounded p-3 shadow-sm">
-                    <label style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-600 uppercase font-semibold block mb-1">
-                      📛 Nombre
-                    </label>
-                    <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-bold text-gray-900">
-                      {selectedPedido.cliente}
-                    </p>
+              {selectedPedido.detalles.length > 0 && (
+                <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                  <div className="bg-gray-50 px-5 py-3 border-b border-gray-200">
+                    <p style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-sm text-gray-700">📦 Productos</p>
                   </div>
-                  <div className="bg-white rounded p-3 shadow-sm">
-                    <label style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-600 uppercase font-semibold block mb-1">
-                      🆔 Documento
-                    </label>
-                    <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-bold text-gray-900">
-                      {selectedPedido.numeroDocumento || 'N/A'}
-                    </p>
-                  </div>
-
-                  {/* Fila 2: Email y Teléfono */}
-                  <div className="bg-white rounded p-3 shadow-sm">
-                    <label style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-600 uppercase font-semibold block mb-1">
-                      ✉️ Email
-                    </label>
-                    <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs font-semibold text-gray-900 break-all">
-                      {selectedPedido.email}
-                    </p>
-                  </div>
-                  <div className="bg-white rounded p-3 shadow-sm">
-                    <label style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-600 uppercase font-semibold block mb-1">
-                      📞 Teléfono
-                    </label>
-                    <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-bold text-gray-900">
-                      {selectedPedido.telefono || 'N/A'}
-                    </p>
-                  </div>
-
-                  {/* Fila 3: Ciudad y Dirección */}
-                  <div className="bg-white rounded p-3 shadow-sm">
-                    <label style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-600 uppercase font-semibold block mb-1">
-                      🏙️ Ciudad
-                    </label>
-                    <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-bold text-gray-900">
-                      {selectedPedido.ciudad || 'N/A'}
-                    </p>
-                  </div>
-                  <div className="bg-white rounded p-3 shadow-sm">
-                    <label style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-600 uppercase font-semibold block mb-1">
-                      📍 Barrio/Zona
-                    </label>
-                    <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-bold text-gray-900">
-                      {selectedPedido.barrio || selectedPedido.zona || 'No especificado'}
-                    </p>
-                  </div>
-
-                  {/* Dirección completa - full width */}
-                  <div className="bg-white rounded p-3 shadow-sm col-span-2">
-                    <label style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-600 uppercase font-semibold block mb-1">
-                      🏠 Dirección Completa
-                    </label>
-                    <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-semibold text-gray-900 leading-relaxed">
-                      {selectedPedido.direccion || 'No especificada'}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Items Comprados */}
-              {selectedPedido.items && selectedPedido.items.length > 0 && (
-                <div className="border-t pt-3 max-h-[40vh] overflow-y-auto">
-                  <h3 style={{ fontFamily: 'Playfair Display, serif' }} className="text-base font-semibold mb-2 sticky top-0 bg-white pb-2">
-                    🛍️ Productos ({selectedPedido.items.length})
-                  </h3>
-                  <div className="space-y-2">
-                    {selectedPedido.items.map((item: any, idx: number) => (
-                      <div key={idx} className="bg-gradient-to-r from-gray-50 to-white rounded-lg p-3 border border-gray-200 hover:shadow-md transition">
-                        <div className="flex gap-3">
-                          {/* Imagen del Producto */}
-                          <div className="flex-shrink-0">
-                            {item.imagen ? (
-                              <img
-                                src={item.imagen}
-                                alt={item.nombre}
-                                className="w-20 h-20 object-cover rounded border border-gray-300"
-                              />
-                            ) : (
-                              <div className="w-20 h-20 bg-gray-300 rounded border border-gray-300 flex items-center justify-center">
-                                <span className="text-xs text-gray-600">Sin imagen</span>
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Información del Producto */}
-                          <div className="flex-1 grid grid-cols-2 gap-2">
-                            {/* Nombre y Atributos */}
-                            <div className="col-span-2">
-                              <p style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-gray-900 text-sm">
-                                {item.nombre}
-                              </p>
-                              <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-600 mt-0.5">
-                                {item.tallaSeleccionada && `Talla: ${item.tallaSeleccionada}`}
-                                {item.colorSeleccionado && ` • ${item.colorSeleccionado}`}
-                              </p>
-                            </div>
-
-                            {/* Precio */}
-                            <div>
-                              <label style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 uppercase font-semibold block mb-0.5">
-                                Precio
-                              </label>
-                              <p className="font-semibold text-gray-900 text-sm">
-                                ${item.precio?.toLocaleString('es-CO')}
-                              </p>
-                            </div>
-
-                            {/* Cantidad */}
-                            <div>
-                              <label style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 uppercase font-semibold block mb-0.5">
-                                Cantidad
-                              </label>
-                              <p className="font-semibold text-gray-900 text-sm">{item.cantidad}x</p>
-                            </div>
-
-                            {/* Subtotal */}
-                            <div className="col-span-2 pt-1 border-t border-gray-200">
-                              <div className="flex justify-between items-center">
-                                <label style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-600 font-semibold">
-                                  Subtotal:
-                                </label>
-                                <p className="font-bold text-green-700 text-sm">
-                                  ${(item.cantidad * item.precio)?.toLocaleString('es-CO')}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
+                  <div className="p-5 space-y-2">
+                    {selectedPedido.detalles.map((d, i) => (
+                      <div key={i} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                        <div>
+                          <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium">{d.productoNombre}</p>
+                          <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">
+                            {d.cantidad} x {fmt(d.precioUnitario)} {d.talla && `• Talla: ${d.talla}`} {d.color && `• Color: ${d.color}`}
+                          </p>
                         </div>
+                        <p style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-sm">{fmt(d.subtotal)}</p>
                       </div>
                     ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Información de Pago (Transferencia) */}
-              {selectedPedido.metodoPago === 'Transferencia' && (
-                <div className="border-t pt-3 bg-yellow-50 rounded-lg p-3">
-                  <h3 style={{ fontFamily: 'Playfair Display, serif' }} className="text-base font-semibold mb-2 text-yellow-900">
-                    💳 Transferencia
-                  </h3>
-                  <div className="grid grid-cols-3 gap-2 mb-2">
-                    <div className="bg-white rounded p-2">
-                      <label style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-600 uppercase block">
-                        Banco
-                      </label>
-                      <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-semibold text-gray-900">
-                        {selectedPedido.banco || 'N/A'}
-                      </p>
-                    </div>
-                    <div className="bg-white rounded p-2 col-span-2">
-                      <label style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-600 uppercase block">
-                        Número de Cuenta
-                      </label>
-                      <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-semibold text-gray-900">
-                        {selectedPedido.cuenta || 'N/A'}
-                      </p>
+                    <div className="flex justify-between pt-2 border-t border-gray-200">
+                      <p style={{ fontFamily: 'Inter, sans-serif' }} className="font-bold">Total</p>
+                      <p style={{ fontFamily: 'Inter, sans-serif' }} className="font-bold text-[#d65391] text-lg">{fmt(selectedPedido.total)}</p>
                     </div>
                   </div>
-                  {selectedPedido.comprobante && (
-                    <div className="bg-white rounded p-2">
-                      <label style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-600 uppercase block mb-1">
-                        Comprobante
-                      </label>
-                      {selectedPedido.comprobante.startsWith('data:') || selectedPedido.comprobante.includes('base64') ? (
-                        <img
-                          src={selectedPedido.comprobante}
-                          alt="Comprobante"
-                          className="max-w-full h-auto border border-gray-200 rounded"
-                        />
-                      ) : (
-                        <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-600">
-                          {selectedPedido.comprobante}
-                        </p>
-                      )}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Notas */}
-              {selectedPedido.notas && (
-                <div className="border-t pt-3 bg-blue-50 rounded-lg p-3">
-                  <h3 style={{ fontFamily: 'Playfair Display, serif' }} className="text-base font-semibold mb-1 text-blue-900">
-                    📝 Notas
-                  </h3>
-                  <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-900 whitespace-pre-wrap">
-                    {selectedPedido.notas}
-                  </p>
                 </div>
               )}
             </div>
           )}
+          <DialogFooter className="px-6 pb-6">
+            <button onClick={() => setViewOpen(false)} style={{ fontFamily: 'Inter, sans-serif' }}
+              className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">Cerrar</button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal Eliminar */}
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle style={{ fontFamily: 'Playfair Display, serif' }}>¿Eliminar venta?</AlertDialogTitle>
+            <AlertDialogDescription style={{ fontFamily: 'Inter, sans-serif' }}>
+              Vas a eliminar la venta #{selectedPedido?.pedidoID} de <strong>{selectedPedido?.nombreCliente}</strong>. Esta acción no se puede deshacer.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel style={{ fontFamily: 'Inter, sans-serif' }}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={eliminar} disabled={saving}
+              className="bg-red-600 hover:bg-red-700 flex items-center gap-2" style={{ fontFamily: 'Inter, sans-serif' }}>
+              {saving && <Loader2 className="w-4 h-4 animate-spin" />} Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      {/* Modal Nueva Venta Manual */}
+      <Dialog open={nuevaVentaOpen} onOpenChange={setNuevaVentaOpen}>
+        <DialogContent className="max-w-2xl h-auto flex flex-col p-0 gap-0">
+          <DialogHeader className="px-8 pt-6 pb-4 border-b border-gray-200 flex-shrink-0">
+            <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl">Nueva Venta Manual</DialogTitle>
+            <DialogDescription style={{ fontFamily: 'Inter, sans-serif' }}>Registra una venta directamente sin pasar por el checkout del cliente</DialogDescription>
+          </DialogHeader>
+          <div className="flex-1 overflow-y-auto p-8 space-y-6">
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+              <div className="bg-gray-50 px-6 py-3 border-b border-gray-200">
+                <p style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-sm text-gray-700">👤 Datos del Cliente</p>
+              </div>
+              <div className="p-6 grid grid-cols-2 gap-4">
+                <div className="flex flex-col gap-2">
+                  <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">Nombre <span className="text-red-500">*</span></Label>
+                  <Input value={nombreCliente} onChange={e => setNombreCliente(e.target.value)} placeholder="Nombre del cliente" className="h-10 border-gray-300" />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">Email</Label>
+                  <Input type="email" value={emailCliente} onChange={e => setEmailCliente(e.target.value)} placeholder="email@ejemplo.com" className="h-10 border-gray-300" />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">Teléfono</Label>
+                  <Input value={telefonoCliente} onChange={e => setTelefonoCliente(e.target.value)} placeholder="+57 300 123 4567" className="h-10 border-gray-300" />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">Método de Pago</Label>
+                  <Select value={metodoPago} onValueChange={setMetodoPago}>
+                    <SelectTrigger className="h-10 border-gray-300"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Transferencia">Transferencia</SelectItem>
+                      <SelectItem value="Efectivo">Efectivo</SelectItem>
+                      <SelectItem value="Tarjeta">Tarjeta</SelectItem>
+                      <SelectItem value="Contra Entrega">Contra Entrega</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex flex-col gap-2 col-span-2">
+                  <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">Notas</Label>
+                  <Input value={notasVenta} onChange={e => setNotasVenta(e.target.value)} placeholder="Observaciones de la venta..." className="h-10 border-gray-300" />
+                </div>
+              </div>
+            </div>
+          </div>
+          <DialogFooter className="px-8 py-5 border-t border-gray-200 flex-shrink-0 gap-2">
+            <button onClick={() => { setNuevaVentaOpen(false); setNombreCliente(''); setEmailCliente(''); setTelefonoCliente(''); setNotasVenta(''); }}
+              style={{ fontFamily: 'Inter, sans-serif' }} className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">Cancelar</button>
+            <button onClick={async () => {
+              if (!nombreCliente.trim()) { toast.error('El nombre es obligatorio'); return; }
+              setSaving(true);
+              try {
+                await postJson('/api/pedidos', {
+                  NombreCliente: nombreCliente,
+                  EmailCliente: emailCliente || 'sin-email@selenne.com',
+                  TelefonoCliente: telefonoCliente || 'N/A',
+                  DireccionEnvio: 'Venta presencial',
+                  Ciudad: 'N/A',
+                  MetodoPago: metodoPago,
+                  Notas: notasVenta,
+                  Items: [],
+                });
+                toast.error('Para registrar una venta manual necesitas agregar productos. Esta función estará disponible próximamente.');
+              } catch (e: any) {
+                toast.error(e?.data?.message || 'Error registrando venta');
+              } finally { setSaving(false); }
+            }} disabled={saving} style={{ fontFamily: 'Inter, sans-serif' }}
+              className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 flex items-center gap-2 transition-colors">
+              {saving && <Loader2 className="w-4 h-4 animate-spin" />} Registrar Venta
+            </button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

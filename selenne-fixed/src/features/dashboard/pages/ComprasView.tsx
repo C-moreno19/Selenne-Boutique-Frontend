@@ -1,917 +1,530 @@
-import React, { useState, useEffect } from 'react';
-import { Plus, Search, Eye, Trash2, ChevronRight, Package, Tag, Shirt, Ruler, Palette } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Plus, Search, Eye, Edit, Trash2, ChevronRight, Loader2, RefreshCw, X, Package, Archive } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '../../../components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../../../components/ui/alert-dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../components/ui/select';
-import { toast } from 'sonner@2.0.3';
-// pagination removed — reverted to original listing
-import { usePermisos } from '../../../shared/contexts/PermisosContext';
-import { useComprasAdmin, type Compra as CompraType } from '../../../shared/contexts/ComprasAdminContext';
+import { Input } from '../../../components/ui/input';
+import { Label } from '../../../components/ui/label';
+import { toast } from 'sonner';
 import { useAuth } from '../../../shared/contexts/AuthContext';
+import { getJson, postJson } from '../../../services/api';
+import api from '../../../services/api';
 
-interface ProductoComprado {
-  id?: string;
-  nombre: string;
-  cantidad: number;
-  precio: number;
-  precioUnitario: number;
-  // Especificaciones del producto
-  categoria: string;
-  marca: string;
-  talla: string;
-  color: string;
-  material: string;
-  tipoProducto: string;
-  sku: string;
+interface Proveedor { proveedorID: number; nombre: string; }
+interface Producto { productoID: number; nombre: string; codigo: string; precioVenta: number; }
+interface DetalleCompra { productoID: number; nombreProducto: string; cantidad: number; precioUnitario: number; total: number; }
+interface Compra {
+  compraID: number; proveedorID: number; proveedorNombre?: string;
+  ordenFactura: string; fecha: string; total: number; estado: string; notas?: string;
+  detalles?: DetalleCompra[];
 }
 
-// Usar el tipo Compra del contexto pero redefinir con ProductoComprado para compatibilidad
-interface Compra extends CompraType {
-  productos: ProductoComprado[];
-}
+const ESTADOS = ['Pendiente', 'En Proceso', 'Completado', 'Cancelado'];
+const ESTADOS_ACTIVOS = ['Pendiente', 'En Proceso'];
+const fmt = (n: number) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n);
+const estadoColor = (e: string) => {
+  if (e === 'Pendiente') return 'bg-yellow-100 text-yellow-700';
+  if (e === 'En Proceso') return 'bg-blue-100 text-blue-700';
+  if (e === 'Completado') return 'bg-green-100 text-green-700';
+  return 'bg-red-100 text-red-700';
+};
 
-interface ComprasViewProps {
-  onNavigateToNuevaCompra?: () => void;
-}
+interface ComprasViewProps { onNavigateToHistorial?: () => void; }
 
-export const ComprasView: React.FC<ComprasViewProps> = ({ onNavigateToNuevaCompra }) => {
-  const { canDelete } = usePermisos();
+export const ComprasView: React.FC<ComprasViewProps> = ({ onNavigateToHistorial }) => {
   const { hasPermission } = useAuth();
-  const puedeCrear = hasPermission('admin:dashboard');
-  const puedeEliminar = hasPermission('admin:dashboard');
-  const { compras, proveedores, anularCompra } = useComprasAdmin();
-  
+  const puedeAdmin = hasPermission('admin:dashboard');
+
+  const [compras, setCompras] = useState<Compra[]>([]);
+  const [proveedores, setProveedores] = useState<Proveedor[]>([]);
+  const [productos, setProductos] = useState<Producto[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [viewModalOpen, setViewModalOpen] = useState(false);
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+
+  const [nuevaOpen, setNuevaOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [viewOpen, setViewOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [estadoOpen, setEstadoOpen] = useState(false);
   const [selectedCompra, setSelectedCompra] = useState<Compra | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [nuevoEstado, setNuevoEstado] = useState('');
 
-  const [formData, setFormData] = useState<Partial<Compra>>({
-    proveedor: '',
-    total: 0,
-    productos: [],
+  const [proveedorID, setProveedorID] = useState('');
+  const [ordenFactura, setOrdenFactura] = useState('');
+  const [fecha, setFecha] = useState(new Date().toISOString().split('T')[0]);
+  const [notas, setNotas] = useState('');
+  const [detalles, setDetalles] = useState<DetalleCompra[]>([]);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
+  const loadData = useCallback(async () => {
+    try {
+      const [comprasRes, provRes, prodRes] = await Promise.allSettled([
+        getJson('/api/compras'), getJson('/api/proveedores'), getJson('/api/productos?estado=activo'),
+      ]);
+      
+      if (provRes.status === 'fulfilled') {
+        const provData = provRes.value?.data || provRes.value || [];
+        setProveedores(Array.isArray(provData) ? provData.map((p: any) => ({
+          proveedorID: p.proveedorID ?? p.ProveedorID,
+          nombre: p.nombre ?? p.Nombre ?? '',
+        })) : []);
+      }
+
+      if (prodRes.status === 'fulfilled') {
+        const prodData = prodRes.value?.data || prodRes.value || [];
+        setProductos(Array.isArray(prodData) ? prodData.map((p: any) => ({
+          productoID: p.productoID ?? p.ProductoID,
+          nombre: p.nombre ?? p.Nombre ?? '',
+          codigo: p.codigo ?? p.Codigo ?? '',
+          precioVenta: p.precioVenta ?? p.PrecioVenta ?? 0,
+        })) : []);
+      }
+
+      if (comprasRes.status === 'fulfilled') {
+        const comprasData = comprasRes.value?.data || comprasRes.value || [];
+        setCompras(Array.isArray(comprasData) ? comprasData.map((c: any): Compra => ({
+          compraID: c.compraID ?? c.CompraID,
+          proveedorID: c.proveedorID ?? c.ProveedorID,
+          proveedorNombre: c.proveedor?.nombre ?? '',
+          ordenFactura: c.ordenFactura ?? '',
+          fecha: c.fecha ?? '',
+          total: c.total ?? 0,
+          estado: c.estado ?? 'Pendiente',
+          notas: c.notas ?? '',
+          detalles: (c.detalles ?? []).map((d: any) => ({
+            productoID: d.productoID,
+            nombreProducto: d.nombreProducto ?? '',
+            cantidad: d.cantidad ?? 0,
+            precioUnitario: d.precioUnitario ?? 0,
+            total: d.total ?? 0,
+          })),
+        })).filter((c: Compra) => ESTADOS_ACTIVOS.includes(c.estado)) : []);
+      }
+    } catch { }
+    finally { setLoading(false); }
+  }, []);
+
+  useEffect(() => { loadData(); }, [loadData]);
+
+  const filtered = compras.filter(c => {
+    const q = searchQuery.toLowerCase();
+    return c.ordenFactura.toLowerCase().includes(q) || (c.proveedorNombre || '').toLowerCase().includes(q);
   });
 
-  const filteredCompras = compras.filter(compra => {
-    const query = searchQuery.toLowerCase().trim();
-    if (!query) return true;
-    return (
-      compra.ordenFactura.toLowerCase().includes(query) ||
-      compra.proveedor.toLowerCase().includes(query) ||
-      compra.fecha.includes(query) ||
-      compra.total.toString().includes(query) ||
-      compra.productos.some(p => 
-        p.nombre.toLowerCase().includes(query) ||
-        p.categoria.toLowerCase().includes(query) ||
-        (p.marca?.toLowerCase().includes(query) ?? false) ||
-        p.sku.toLowerCase().includes(query)
-      )
-    );
-  });
-
-  // pagination removed — show full filtered list
-
-  const handleView = (compra: Compra) => {
-    setSelectedCompra(compra);
-    setViewModalOpen(true);
+  const resetForm = () => {
+    setProveedorID(''); setOrdenFactura(''); setFecha(new Date().toISOString().split('T')[0]);
+    setNotas(''); setDetalles([]); setFormErrors({});
   };
 
-  const handleEdit = (compra: Compra) => {
-    setSelectedCompra(compra);
-    setFormData({ ...compra });
-    setEditModalOpen(true);
+  const openEdit = (c: Compra) => {
+    setSelectedCompra(c);
+    setProveedorID(String(c.proveedorID));
+    setOrdenFactura(c.ordenFactura);
+    setFecha(c.fecha.split('T')[0]);
+    setNotas(c.notas || '');
+    setDetalles(c.detalles || []);
+    setFormErrors({});
+    setEditOpen(true);
   };
 
-  const handleDelete = (compra: Compra) => {
-    if (!canDelete()) {
-      toast.error('No tienes permisos para anular compras');
-      return;
-    }
-    setSelectedCompra(compra);
-    setDeleteModalOpen(true);
+  const agregarDetalle = () => {
+    if (productos.length === 0) { toast.error('No hay productos registrados'); return; }
+    const p = productos[0];
+    setDetalles(prev => [...prev, { productoID: p.productoID, nombreProducto: p.nombre, cantidad: 1, precioUnitario: p.precioVenta, total: p.precioVenta }]);
   };
 
-  const confirmDelete = () => {
-    if (selectedCompra) {
-      anularCompra(selectedCompra.id);
-      toast.success('Compra anulada correctamente');
-      setDeleteModalOpen(false);
-      setSelectedCompra(null);
-    }
-  };
-
-  const handleSaveEdit = () => {
-    if (selectedCompra) {
-      toast.success('Compra actualizada correctamente');
-      setEditModalOpen(false);
-    }
-  };
-
-  const handleCreateCompra = () => {
-    if (!formData.proveedor || !formData.productos || formData.productos.length === 0) {
-      toast.error('Debes completar los campos obligatorios y agregar al menos un producto');
-      return;
-    }
-
-    const totalCalculado = formData.productos.reduce((sum, p) => sum + p.precio, 0);
-    const nuevaCompra: Compra = {
-      id: String(compras.length + 1),
-      ordenFactura: `OF-2024-${String(compras.length + 1).padStart(3, '0')}`,
-      proveedor: formData.proveedor || '',
-      fecha: formData.fecha || new Date().toISOString().split('T')[0],
-      total: totalCalculado,
-      estado: 'Activa',
-      productos: formData.productos
-    };
-
-    setCompras(prev => [...prev, nuevaCompra]);
-    setFormData({
-      proveedor: '',
-      total: 0,
-      productos: [],
+  const actualizarDetalle = (idx: number, field: string, value: any) => {
+    setDetalles(prev => {
+      const updated = [...prev];
+      if (field === 'productoID') {
+        const prod = productos.find(p => p.productoID === Number(value));
+        if (prod) updated[idx] = { ...updated[idx], productoID: prod.productoID, nombreProducto: prod.nombre, precioUnitario: prod.precioVenta, total: updated[idx].cantidad * prod.precioVenta };
+      } else if (field === 'cantidad') {
+        updated[idx] = { ...updated[idx], cantidad: Number(value), total: Number(value) * updated[idx].precioUnitario };
+      } else if (field === 'precioUnitario') {
+        updated[idx] = { ...updated[idx], precioUnitario: Number(value), total: updated[idx].cantidad * Number(value) };
+      }
+      return updated;
     });
-    toast.success('Compra creada correctamente');
   };
 
-  const formatPrecio = (precio?: number) => {
-    if (precio === undefined || precio === null) return '$0';
-    return `$${precio.toLocaleString('es-CO')}`;
+  const totalCompra = detalles.reduce((s, d) => s + d.total, 0);
+
+  const validate = () => {
+    const errors: Record<string, string> = {};
+    if (!proveedorID) errors.proveedor = 'El proveedor es obligatorio';
+    if (!ordenFactura.trim()) errors.ordenFactura = 'La orden de factura es obligatoria';
+    if (detalles.length === 0) errors.detalles = 'Agrega al menos un producto';
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
-  return (
-    <div className="p-8 bg-gray-50 min-h-screen">
-      {/* Breadcrumb */}
-      <div className="flex items-center gap-2 mb-4">
-        <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-500">
-          Dashboard
-        </span>
-        <ChevronRight className="w-4 h-4 text-gray-400" />
-        <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-900">
-          Gestión de Compras
-        </span>
-      </div>
+  const guardarCompra = async () => {
+    if (!validate()) return;
+    setSaving(true);
+    try {
+      await postJson('/api/compras', { ProveedorID: Number(proveedorID), OrdenFactura: ordenFactura, Fecha: fecha, Total: totalCompra, Notas: notas });
+      toast.success('Compra registrada');
+      setNuevaOpen(false); resetForm(); loadData();
+    } catch (e: any) { toast.error(e?.data?.message || 'Error registrando compra'); }
+    finally { setSaving(false); }
+  };
 
-      {/* Header */}
-      <div className="mb-6">
-        <div className="flex items-center gap-3 mb-2">
-          <h1 style={{ fontFamily: 'Playfair Display, serif' }} className="text-[36px] text-gray-900">
-            Gestión de Compras
-          </h1>
-          <span className="px-3 py-1 bg-[#d65391] text-white rounded-full text-sm" style={{ fontFamily: 'Inter, sans-serif' }}>
-            {filteredCompras.length}
-          </span>
+  const actualizarCompra = async () => {
+    if (!validate() || !selectedCompra) return;
+    setSaving(true);
+    try {
+      await api.fetchWithAuth(`/api/compras/${selectedCompra.compraID}`, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ProveedorID: Number(proveedorID), OrdenFactura: ordenFactura, Fecha: fecha, Total: totalCompra, Notas: notas }),
+      });
+      toast.success('Compra actualizada');
+      setEditOpen(false); resetForm(); loadData();
+    } catch { toast.error('Error actualizando compra'); }
+    finally { setSaving(false); }
+  };
+
+  const eliminarCompra = async () => {
+    if (!selectedCompra) return;
+    setSaving(true);
+    try {
+      await api.fetchWithAuth(`/api/compras/${selectedCompra.compraID}`, { method: 'DELETE' });
+      toast.success('Compra eliminada');
+      setDeleteOpen(false);
+      loadData();
+    } catch { toast.error('Error eliminando compra'); }
+    finally { setSaving(false); }
+  };
+
+  const cambiarEstado = async (compra: Compra, estado: string) => {
+    setSaving(true);
+    try {
+      const res = await fetch(`http://localhost:5000/api/compras/${compra.compraID}/estado`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ Estado: estado }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      toast.success(`Estado cambiado a ${estado}`);
+      loadData();
+    } catch (e: any) { toast.error(`Error: ${e.message}`); }
+    finally { setSaving(false); }
+  };
+
+  const FormBody = () => (
+    <div className="space-y-6 py-6 px-8">
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+          <h3 style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-gray-800 text-base">📋 Información de la Compra</h3>
         </div>
-        <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-600">
-          Administra las compras a proveedores
-        </p>
+        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="flex flex-col gap-2">
+            <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">Proveedor <span className="text-red-500">*</span></Label>
+            <Select value={proveedorID} onValueChange={v => setProveedorID(v)}>
+              <SelectTrigger className={`h-10 ${formErrors.proveedor ? 'border-red-500' : 'border-gray-300'}`}>
+                <SelectValue placeholder="Selecciona un proveedor..." />
+              </SelectTrigger>
+              <SelectContent>
+                {proveedores.length === 0
+                  ? <SelectItem value="none" disabled>No hay proveedores registrados</SelectItem>
+                  : proveedores.map(p => <SelectItem key={p.proveedorID} value={String(p.proveedorID)}>{p.nombre}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            {formErrors.proveedor && <p className="text-red-500 text-xs">{formErrors.proveedor}</p>}
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">Orden / N° Factura <span className="text-red-500">*</span></Label>
+            <Input value={ordenFactura} onChange={e => setOrdenFactura(e.target.value)}
+              placeholder="Ej: FAC-2024-001" className={`h-10 ${formErrors.ordenFactura ? 'border-red-500' : 'border-gray-300'}`} />
+            {formErrors.ordenFactura && <p className="text-red-500 text-xs">{formErrors.ordenFactura}</p>}
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">Fecha de Compra</Label>
+            <Input type="date" value={fecha} onChange={e => setFecha(e.target.value)} className="h-10 border-gray-300" />
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">Notas (opcional)</Label>
+            <Input value={notas} onChange={e => setNotas(e.target.value)} placeholder="Observaciones..." className="h-10 border-gray-300" />
+          </div>
+        </div>
       </div>
 
-      {/* Layout Principal */}
-      <div className="space-y-6">
-          {/* Barra de Herramientas */}
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="flex-1">
-                <div className="relative">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="Buscar compras..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    style={{ fontFamily: 'Inter, sans-serif' }}
-                    className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391] focus:border-transparent transition-all"
-                  />
-                </div>
-              </div>
-
-              {puedeCrear && (
-              <button
-                onClick={() => onNavigateToNuevaCompra?.()}
-                style={{ fontFamily: 'Inter, sans-serif' }}
-                className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2 whitespace-nowrap"
-              >
-                <Plus className="w-5 h-5" />
-                Nueva Compra
-              </button>
-              )}
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div className="bg-gray-50 px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+          <h3 style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-gray-800 text-base">📦 Productos <span className="text-red-500">*</span></h3>
+          <button onClick={agregarDetalle} style={{ fontFamily: 'Inter, sans-serif' }}
+            className="px-4 py-2 bg-[#d65391] text-white rounded-lg hover:bg-[#c14a7f] text-sm flex items-center gap-2 transition-colors font-medium">
+            <Plus className="w-4 h-4" /> Agregar producto
+          </button>
+        </div>
+        <div className="p-6">
+          {formErrors.detalles && <p className="text-red-500 text-sm mb-4">⚠️ {formErrors.detalles}</p>}
+          {detalles.length === 0 ? (
+            <div className="text-center py-10 text-gray-400 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
+              <Package className="w-12 h-12 mx-auto mb-3 opacity-30" />
+              <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium">Aún no has agregado productos</p>
+              <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs mt-1">Haz clic en "Agregar producto" para comenzar</p>
             </div>
-          </div>
-
-          {/* Tabla */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50 border-b border-gray-200">
-                  <tr>
-                    <th className="px-6 py-4 text-left" style={{ fontFamily: 'Inter, sans-serif' }}>
-                      <span className="text-xs uppercase tracking-wider text-gray-600">ORDEN DE FACTURA</span>
-                    </th>
-                    <th className="px-6 py-4 text-left" style={{ fontFamily: 'Inter, sans-serif' }}>
-                      <span className="text-xs uppercase tracking-wider text-gray-600">PROVEEDOR</span>
-                    </th>
-                    <th className="px-6 py-4 text-left" style={{ fontFamily: 'Inter, sans-serif' }}>
-                      <span className="text-xs uppercase tracking-wider text-gray-600">FECHA</span>
-                    </th>
-                    <th className="px-6 py-4 text-left" style={{ fontFamily: 'Inter, sans-serif' }}>
-                      <span className="text-xs uppercase tracking-wider text-gray-600">TOTAL</span>
-                    </th>
-                    <th className="px-6 py-4 text-left" style={{ fontFamily: 'Inter, sans-serif' }}>
-                      <span className="text-xs uppercase tracking-wider text-gray-600">ESTADO</span>
-                    </th>
-                    <th className="px-6 py-4 text-left" style={{ fontFamily: 'Inter, sans-serif' }}>
-                      <span className="text-xs uppercase tracking-wider text-gray-600">ACCIONES</span>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {filteredCompras.map((compra) => (
-                    <tr key={compra.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4">
-                        <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-900">
-                          {compra.ordenFactura}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-900">
-                          {compra.proveedor}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-600">
-                          {new Date(compra.fecha).toLocaleDateString('es-CO')}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-900">
-                          {formatPrecio(compra.total)}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        {compra.estado === 'Activa' ? (
-                          <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm" style={{ fontFamily: 'Inter, sans-serif' }}>
-                            ✓ Activa
-                          </span>
-                        ) : (
-                          <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm" style={{ fontFamily: 'Inter, sans-serif' }}>
-                            ✕ Anulada
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => handleView(compra)}
-                            className="p-2 text-gray-600 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
-                            title="Ver detalles"
-                          >
-                            <Eye className="w-5 h-5" />
-                          </button>
-                          {puedeEliminar && (
-                          <button
-                            onClick={() => handleDelete(compra)}
-                            disabled={compra.estado === 'Anulada'}
-                            className={`p-2 rounded-lg transition-colors ${
-                              compra.estado === 'Anulada'
-                                ? 'text-gray-300 cursor-not-allowed'
-                                : 'text-gray-600 hover:bg-red-50 hover:text-red-600'
-                            }`}
-                            title={compra.estado === 'Anulada' ? 'Esta compra ya está anulada' : 'Anular compra'}
-                          >
-                            <Trash2 className="w-5 h-5" />
-                          </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            <div className="px-6 py-4 bg-white border-t border-gray-100">
-              <div className="text-sm text-gray-600" style={{ fontFamily: 'Inter, sans-serif' }}>
-                Mostrando <span className="text-gray-900">{filteredCompras.length}</span> compras
-              </div>
-            </div>
-          </div>
-      </div>
-
-      {/* Modal Ver Detalles */}
-      <Dialog open={viewModalOpen} onOpenChange={setViewModalOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl">
-              Detalles de la Compra
-            </DialogTitle>
-            <DialogDescription style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-600">
-              Consulta toda la información de esta compra
-            </DialogDescription>
-          </DialogHeader>
-          {selectedCompra && (
-            <div className="space-y-6">
-              {/* Información General */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-600 block mb-1">
-                    Orden de Factura
-                  </label>
-                  <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-lg text-gray-900">
-                    {selectedCompra.ordenFactura}
-                  </p>
-                </div>
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-600 block mb-1">
-                    Proveedor
-                  </label>
-                  <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-lg text-gray-900">
-                    {selectedCompra.proveedor}
-                  </p>
-                </div>
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-600 block mb-1">
-                    Fecha
-                  </label>
-                  <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-lg text-gray-900">
-                    {new Date(selectedCompra.fecha).toLocaleDateString('es-CO')}
-                  </p>
-                </div>
-              </div>
-
-              {/* Productos Comprados */}
-              <div>
-                <div className="flex items-center gap-2 mb-4">
-                  <Package className="w-5 h-5 text-[#d65391]" />
-                  <h3 style={{ fontFamily: 'Playfair Display, serif' }} className="text-xl text-gray-900">
-                    Productos Comprados
-                  </h3>
-                </div>
-                <div className="space-y-4">
-                  {selectedCompra.productos.map((prod, idx) => (
-                    <div key={idx} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-                      {/* Cabecera del Producto */}
-                      <div className="flex justify-between items-start mb-4 pb-4 border-b border-gray-100">
-                        <div>
-                          <h4 style={{ fontFamily: 'Playfair Display, serif' }} className="text-lg text-gray-900 mb-1">
-                            {prod.nombre}
-                          </h4>
-                          <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-500">
-                            SKU: {prod.sku}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-600">
-                            Cantidad: {prod.cantidad}
-                          </p>
-                          <p style={{ fontFamily: 'Playfair Display, serif' }} className="text-xl text-[#d65391]">
-                            {formatPrecio(prod.precio)}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Especificaciones del Producto */}
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        <div className="flex items-start gap-3">
-                          <div className="w-10 h-10 bg-[#d65391] bg-opacity-10 rounded-lg flex items-center justify-center flex-shrink-0">
-                            <Tag className="w-5 h-5 text-[#d65391]" />
-                          </div>
-                          <div>
-                            <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 mb-0.5">
-                              Categoría
-                            </p>
-                            <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-900">
-                              {prod.categoria}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="flex items-start gap-3">
-                          <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
-                            <Package className="w-5 h-5 text-blue-600" />
-                          </div>
-                          <div>
-                            <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 mb-0.5">
-                              Tipo
-                            </p>
-                            <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-900">
-                              {prod.tipoProducto}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="flex items-start gap-3">
-                          <div className="w-10 h-10 bg-purple-50 rounded-lg flex items-center justify-center flex-shrink-0">
-                            <Shirt className="w-5 h-5 text-purple-600" />
-                          </div>
-                          <div>
-                            <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 mb-0.5">
-                              Marca
-                            </p>
-                            <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-900">
-                              {prod.marca}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="flex items-start gap-3">
-                          <div className="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center flex-shrink-0">
-                            <Ruler className="w-5 h-5 text-green-600" />
-                          </div>
-                          <div>
-                            <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 mb-0.5">
-                              Talla
-                            </p>
-                            <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-900">
-                              {prod.talla}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="flex items-start gap-3">
-                          <div className="w-10 h-10 bg-yellow-50 rounded-lg flex items-center justify-center flex-shrink-0">
-                            <Palette className="w-5 h-5 text-yellow-600" />
-                          </div>
-                          <div>
-                            <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 mb-0.5">
-                              Color
-                            </p>
-                            <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-900">
-                              {prod.color}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="flex items-start gap-3">
-                          <div className="w-10 h-10 bg-orange-50 rounded-lg flex items-center justify-center flex-shrink-0">
-                            <Package className="w-5 h-5 text-orange-600" />
-                          </div>
-                          <div>
-                            <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 mb-0.5">
-                              Material
-                            </p>
-                            <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-900">
-                              {prod.material}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Precios Desglosados */}
-                      <div className="mt-4 pt-4 border-t border-gray-100">
-                        <div className="flex justify-between items-center">
-                          <div>
-                            <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">
-                              Precio Unitario
-                            </p>
-                            <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-900">
-                              {formatPrecio(prod.precioUnitario)}
-                            </p>
-                          </div>
-                          <div className="text-center">
-                            <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">
-                              Cantidad
-                            </p>
-                            <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-900">
-                              × {prod.cantidad}
-                            </p>
-                          </div>
-                          <div className="text-right">
-                            <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">
-                              Subtotal
-                            </p>
-                            <p style={{ fontFamily: 'Playfair Display, serif' }} className="text-lg text-[#d65391]">
-                              {formatPrecio(prod.precio)}
-                            </p>
-                          </div>
-                        </div>
+          ) : (
+            <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
+              {detalles.map((d, idx) => (
+                <div key={idx} className="bg-gray-50 rounded-xl p-5 border border-gray-200">
+                  <div className="flex justify-between items-center mb-4">
+                    <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Producto #{idx + 1}</span>
+                    <button onClick={() => setDetalles(prev => prev.filter((_, i) => i !== idx))}
+                      className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-1">
+                      <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">Producto</Label>
+                      <Select value={String(d.productoID)} onValueChange={v => actualizarDetalle(idx, 'productoID', v)}>
+                        <SelectTrigger className="h-10 bg-white border-gray-300"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {productos.map(p => <SelectItem key={p.productoID} value={String(p.productoID)}>{p.nombre} ({p.codigo})</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">Cantidad</Label>
+                      <Input type="number" min="1" value={d.cantidad} onChange={e => actualizarDetalle(idx, 'cantidad', e.target.value)} className="h-10 bg-white border-gray-300" />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">Precio Unit.</Label>
+                      <Input type="number" min="0" value={d.precioUnitario} onChange={e => actualizarDetalle(idx, 'precioUnitario', e.target.value)} className="h-10 bg-white border-gray-300" />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">Total</Label>
+                      <div className="h-10 flex items-center px-3 bg-pink-50 border border-pink-200 rounded-lg">
+                        <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-bold text-[#d65391]">{fmt(d.total)}</p>
                       </div>
                     </div>
-                  ))}
+                  </div>
                 </div>
-              </div>
-
-              {/* Resumen de Total */}
-              <div className="bg-gradient-to-r from-[#d65391] to-[#f8a9c5] rounded-lg p-6 text-white">
-                <div className="flex justify-between items-center mb-2">
-                  <span style={{ fontFamily: 'Playfair Display, serif' }} className="text-xl">Total de la Compra</span>
-                  <span style={{ fontFamily: 'Playfair Display, serif' }} className="text-3xl">{formatPrecio(selectedCompra.total)}</span>
-                </div>
-                <div className="flex justify-between items-center text-white/80 text-sm">
-                  <span style={{ fontFamily: 'Inter, sans-serif' }}>
-                    {selectedCompra.productos.reduce((sum, p) => sum + p.cantidad, 0)} productos
-                  </span>
+              ))}
+              <div className="flex justify-end pt-3 border-t border-gray-200 mt-2">
+                <div className="text-right">
+                  <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 mb-1">Total de la compra</p>
+                  <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-2xl font-bold text-[#d65391]">{fmt(totalCompra)}</p>
                 </div>
               </div>
             </div>
           )}
-          <DialogFooter>
-            <button
-              onClick={() => setViewModalOpen(false)}
-              style={{ fontFamily: 'Inter, sans-serif' }}
-              className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
-            >
-              Cerrar
+        </div>
+      </div>
+    </div>
+  );
+
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-screen">
+      <Loader2 className="w-8 h-8 animate-spin text-[#d65391]" />
+    </div>
+  );
+
+  return (
+    <div className="p-8 bg-gray-50 min-h-screen">
+      <div className="flex items-center gap-2 mb-4">
+        <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-500">Dashboard</span>
+        <ChevronRight className="w-4 h-4 text-gray-400" />
+        <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-900">Gestión de Compras</span>
+      </div>
+      <h1 style={{ fontFamily: 'Playfair Display, serif' }} className="text-4xl text-gray-900 mb-6">Gestión de Compras</h1>
+
+      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex flex-col lg:flex-row gap-4 mb-6">
+        <div className="flex-1 relative">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <input type="text" placeholder="Buscar por orden o proveedor..." value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)} style={{ fontFamily: 'Inter, sans-serif' }}
+            className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391]" />
+        </div>
+        <div className="flex gap-3">
+          <button onClick={() => { setLoading(true); loadData(); }} className="px-4 py-3 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+            <RefreshCw className="w-5 h-5" />
+          </button>
+          <button onClick={onNavigateToHistorial} style={{ fontFamily: 'Inter, sans-serif' }}
+            className="px-4 py-3 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 flex items-center gap-2 transition-colors">
+            <Archive className="w-5 h-5" /> Compras Finalizadas
+          </button>
+          {puedeAdmin && (
+            <button onClick={() => { resetForm(); setNuevaOpen(true); }} style={{ fontFamily: 'Inter, sans-serif' }}
+              className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 flex items-center gap-2 transition-colors">
+              <Plus className="w-5 h-5" /> Nueva Compra
+            </button>
+          )}
+        </div>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <table className="w-full">
+          <thead className="bg-gray-50 border-b border-gray-200">
+            <tr>
+              {['ORDEN FACTURA', 'PROVEEDOR', 'FECHA', 'TOTAL', 'ESTADO', 'ACCIONES'].map(h => (
+                <th key={h} className="px-6 py-4 text-left">
+                  <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs font-semibold uppercase tracking-wider text-gray-500">{h}</span>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {filtered.map(compra => (
+              <tr key={compra.compraID} className="hover:bg-gray-50 transition-colors">
+                <td className="px-6 py-4"><span style={{ fontFamily: 'Inter, sans-serif' }} className="font-medium text-gray-900">{compra.ordenFactura}</span></td>
+                <td className="px-6 py-4"><span style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-700">{compra.proveedorNombre || '—'}</span></td>
+                <td className="px-6 py-4"><span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-600">{new Date(compra.fecha).toLocaleDateString('es-CO')}</span></td>
+                <td className="px-6 py-4"><span style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-gray-900">{fmt(compra.total)}</span></td>
+                <td className="px-6 py-4">
+                  {puedeAdmin ? (
+                    <Select value={compra.estado} onValueChange={v => cambiarEstado(compra, v)}>
+                      <SelectTrigger className={`h-8 w-36 text-xs font-medium rounded-full border-0 ${estadoColor(compra.estado)}`}>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {ESTADOS.map(e => <SelectItem key={e} value={e}>{e}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${estadoColor(compra.estado)}`} style={{ fontFamily: 'Inter, sans-serif' }}>
+                      {compra.estado}
+                    </span>
+                  )}
+                </td>
+                <td className="px-6 py-4">
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => { setSelectedCompra(compra); setViewOpen(true); }}
+                      className="p-2 text-gray-500 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors" title="Ver detalles">
+                      <Eye className="w-5 h-5" />
+                    </button>
+                    {puedeAdmin && (
+                      <>
+                        <button onClick={() => openEdit(compra)}
+                          className="p-2 text-gray-500 hover:bg-yellow-50 hover:text-yellow-600 rounded-lg transition-colors" title="Editar">
+                          <Edit className="w-5 h-5" />
+                        </button>
+                        <button onClick={() => { setSelectedCompra(compra); setDeleteOpen(true); }}
+                          className="p-2 text-gray-500 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors" title="Eliminar">
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            ))}
+            {filtered.length === 0 && (
+              <tr><td colSpan={6} className="px-6 py-12 text-center text-gray-400" style={{ fontFamily: 'Inter, sans-serif' }}>No hay compras activas</td></tr>
+            )}
+          </tbody>
+        </table>
+        <div className="px-6 py-4 border-t border-gray-100">
+          <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-500">
+            Mostrando <span className="font-medium text-gray-800">{filtered.length}</span> de <span className="font-medium text-gray-800">{compras.length}</span> compras activas
+          </span>
+        </div>
+      </div>
+
+      {/* Modal Nueva Compra */}
+      <Dialog open={nuevaOpen} onOpenChange={v => { setNuevaOpen(v); if (!v) resetForm(); }}>
+        <DialogContent className="max-w-3xl h-auto flex flex-col p-0 gap-0">
+          <DialogHeader className="px-8 pt-6 pb-4 border-b border-gray-200 flex-shrink-0">
+            <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl">Nueva Compra</DialogTitle>
+            <DialogDescription style={{ fontFamily: 'Inter, sans-serif' }}>Registra una nueva compra a proveedor</DialogDescription>
+          </DialogHeader>
+          <div className="flex-1 overflow-y-auto max-h-[75vh]">
+            <FormBody />
+          </div>
+          <DialogFooter className="gap-2 px-8 py-5 border-t border-gray-200 flex-shrink-0">
+            <button onClick={() => { setNuevaOpen(false); resetForm(); }} style={{ fontFamily: 'Inter, sans-serif' }}
+              className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">Cancelar</button>
+            <button onClick={guardarCompra} disabled={saving} style={{ fontFamily: 'Inter, sans-serif' }}
+              className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 flex items-center gap-2 transition-colors">
+              {saving && <Loader2 className="w-4 h-4 animate-spin" />} Registrar Compra
             </button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Modal Editar */}
-      <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl">
-              Editar Compra
-            </DialogTitle>
-            <DialogDescription style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-600">
-              Modifica los datos de la compra y gestiona los productos
-            </DialogDescription>
+      {/* Modal Editar Compra */}
+      <Dialog open={editOpen} onOpenChange={v => { setEditOpen(v); if (!v) resetForm(); }}>
+        <DialogContent className="max-w-3xl h-auto flex flex-col p-0 gap-0">
+          <DialogHeader className="px-8 pt-6 pb-4 border-b border-gray-200 flex-shrink-0">
+            <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl">Editar Compra</DialogTitle>
+            <DialogDescription style={{ fontFamily: 'Inter, sans-serif' }}>Modifica los datos de la compra</DialogDescription>
           </DialogHeader>
-          <div className="space-y-6">
-            {/* Información de la Compra */}
-            <div>
-              <h3 style={{ fontFamily: 'Playfair Display, serif' }} className="text-lg text-gray-900 mb-4">
-                Información General
-              </h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="edit-id-compra" style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-700 block mb-2">
-                    Orden de Factura
-                  </label>
-                  <input
-                    id="edit-id-compra"
-                    type="text"
-                    value={formData.ordenFactura}
-                    onChange={(e) => setFormData({ ...formData, ordenFactura: e.target.value })}
-                    style={{ fontFamily: 'Inter, sans-serif' }}
-                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391] bg-gray-50"
-                    placeholder="OF-2024-001"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="edit-proveedor" style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-700 block mb-2">
-                    Proveedor *
-                  </label>
-                  <input
-                    id="edit-proveedor"
-                    type="text"
-                    value={formData.proveedor}
-                    onChange={(e) => setFormData({ ...formData, proveedor: e.target.value })}
-                    style={{ fontFamily: 'Inter, sans-serif' }}
-                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391]"
-                    placeholder="Nombre del proveedor"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="edit-fecha" style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-700 block mb-2">
-                    Fecha *
-                  </label>
-                  <input
-                    id="edit-fecha"
-                    type="date"
-                    value={formData.fecha}
-                    onChange={(e) => setFormData({ ...formData, fecha: e.target.value })}
-                    style={{ fontFamily: 'Inter, sans-serif' }}
-                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391]"
-                  />
-                </div>
-              </div>
-            </div>
+          <div className="flex-1 overflow-y-auto max-h-[75vh]">
+            <FormBody />
+          </div>
+          <DialogFooter className="gap-2 px-8 py-5 border-t border-gray-200 flex-shrink-0">
+            <button onClick={() => { setEditOpen(false); resetForm(); }} style={{ fontFamily: 'Inter, sans-serif' }}
+              className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">Cancelar</button>
+            <button onClick={actualizarCompra} disabled={saving} style={{ fontFamily: 'Inter, sans-serif' }}
+              className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 flex items-center gap-2 transition-colors">
+              {saving && <Loader2 className="w-4 h-4 animate-spin" />} Guardar Cambios
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
-            {/* Productos de la Compra */}
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <h3 style={{ fontFamily: 'Playfair Display, serif' }} className="text-lg text-gray-900">
-                  Productos de la Compra
-                </h3>
-                <button
-                  onClick={() => {
-                    const newProducto: ProductoComprado = {
-                      nombre: '',
-                      cantidad: 1,
-                      precio: 0,
-                      precioUnitario: 0,
-                      categoria: '',
-                      marca: '',
-                      talla: '',
-                      color: '',
-                      material: '',
-                      tipoProducto: '',
-                      sku: ''
-                    };
-                    setFormData({
-                      ...formData,
-                      productos: [...(formData.productos || []), newProducto]
-                    });
-                  }}
-                  style={{ fontFamily: 'Inter, sans-serif' }}
-                  className="px-4 py-2 bg-[#d65391] text-white rounded-lg hover:bg-[#c44880] transition-colors flex items-center gap-2 text-sm"
-                >
-                  <Plus className="w-4 h-4" />
-                  Agregar Producto
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                {formData.productos && formData.productos.map((producto, idx) => (
-                  <div key={idx} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                    <div className="flex items-center justify-between mb-3">
-                      <h4 style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-900">
-                        Producto {idx + 1}
-                      </h4>
-                      <button
-                        onClick={() => {
-                          const newProductos = formData.productos?.filter((_, i) => i !== idx);
-                          setFormData({ ...formData, productos: newProductos });
-                        }}
-                        className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                        title="Eliminar producto"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="col-span-2">
-                        <label style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-600 block mb-1">
-                          Nombre del Producto
-                        </label>
-                        <input
-                          type="text"
-                          value={producto.nombre}
-                          onChange={(e) => {
-                            const newProductos = [...(formData.productos || [])];
-                            newProductos[idx] = { ...newProductos[idx], nombre: e.target.value };
-                            setFormData({ ...formData, productos: newProductos });
-                          }}
-                          style={{ fontFamily: 'Inter, sans-serif' }}
-                          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391]"
-                          placeholder="Ej: Telas de Seda"
-                        />
-                      </div>
-
-                      <div>
-                        <label style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-600 block mb-1">
-                          SKU
-                        </label>
-                        <input
-                          type="text"
-                          value={producto.sku}
-                          onChange={(e) => {
-                            const newProductos = [...(formData.productos || [])];
-                            newProductos[idx] = { ...newProductos[idx], sku: e.target.value };
-                            setFormData({ ...formData, productos: newProductos });
-                          }}
-                          style={{ fontFamily: 'Inter, sans-serif' }}
-                          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391]"
-                          placeholder="TEL1001"
-                        />
-                      </div>
-
-                      <div>
-                        <label style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-600 block mb-1">
-                          Categoría
-                        </label>
-                        <input
-                          type="text"
-                          value={producto.categoria}
-                          onChange={(e) => {
-                            const newProductos = [...(formData.productos || [])];
-                            newProductos[idx] = { ...newProductos[idx], categoria: e.target.value };
-                            setFormData({ ...formData, productos: newProductos });
-                          }}
-                          style={{ fontFamily: 'Inter, sans-serif' }}
-                          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391]"
-                          placeholder="Materiales"
-                        />
-                      </div>
-
-                      <div>
-                        <label style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-600 block mb-1">
-                          Tipo
-                        </label>
-                        <input
-                          type="text"
-                          value={producto.tipoProducto}
-                          onChange={(e) => {
-                            const newProductos = [...(formData.productos || [])];
-                            newProductos[idx] = { ...newProductos[idx], tipoProducto: e.target.value };
-                            setFormData({ ...formData, productos: newProductos });
-                          }}
-                          style={{ fontFamily: 'Inter, sans-serif' }}
-                          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391]"
-                          placeholder="Tela"
-                        />
-                      </div>
-
-                      <div>
-                        <label style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-600 block mb-1">
-                          Marca
-                        </label>
-                        <input
-                          type="text"
-                          value={producto.marca}
-                          onChange={(e) => {
-                            const newProductos = [...(formData.productos || [])];
-                            newProductos[idx] = { ...newProductos[idx], marca: e.target.value };
-                            setFormData({ ...formData, productos: newProductos });
-                          }}
-                          style={{ fontFamily: 'Inter, sans-serif' }}
-                          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391]"
-                          placeholder="Premium Textil"
-                        />
-                      </div>
-
-                      <div>
-                        <label style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-600 block mb-1">
-                          Talla
-                        </label>
-                        <input
-                          type="text"
-                          value={producto.talla}
-                          onChange={(e) => {
-                            const newProductos = [...(formData.productos || [])];
-                            newProductos[idx] = { ...newProductos[idx], talla: e.target.value };
-                            setFormData({ ...formData, productos: newProductos });
-                          }}
-                          style={{ fontFamily: 'Inter, sans-serif' }}
-                          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391]"
-                          placeholder="N/A"
-                        />
-                      </div>
-
-                      <div>
-                        <label style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-600 block mb-1">
-                          Color
-                        </label>
-                        <input
-                          type="text"
-                          value={producto.color}
-                          onChange={(e) => {
-                            const newProductos = [...(formData.productos || [])];
-                            newProductos[idx] = { ...newProductos[idx], color: e.target.value };
-                            setFormData({ ...formData, productos: newProductos });
-                          }}
-                          style={{ fontFamily: 'Inter, sans-serif' }}
-                          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391]"
-                          placeholder="Varios"
-                        />
-                      </div>
-
-                      <div>
-                        <label style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-600 block mb-1">
-                          Material
-                        </label>
-                        <input
-                          type="text"
-                          value={producto.material}
-                          onChange={(e) => {
-                            const newProductos = [...(formData.productos || [])];
-                            newProductos[idx] = { ...newProductos[idx], material: e.target.value };
-                            setFormData({ ...formData, productos: newProductos });
-                          }}
-                          style={{ fontFamily: 'Inter, sans-serif' }}
-                          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391]"
-                          placeholder="Seda"
-                        />
-                      </div>
-
-                      <div>
-                        <label style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-600 block mb-1">
-                          Cantidad
-                        </label>
-                        <input
-                          type="number"
-                          value={producto.cantidad}
-                          onChange={(e) => {
-                            const newProductos = [...(formData.productos || [])];
-                            const raw = e.target.value;
-                            const sanitized = raw.replace(/\D+/g, '');
-                            const cantidad = Number(sanitized || 0);
-                            newProductos[idx] = {
-                              ...newProductos[idx],
-                              cantidad,
-                              precio: newProductos[idx].precioUnitario * cantidad
-                            };
-                            setFormData({ ...formData, productos: newProductos });
-                          }}
-                          style={{ fontFamily: 'Inter, sans-serif' }}
-                          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391]"
-                          placeholder="1"
-                          min="1"
-                        />
-                      </div>
-
-                      <div>
-                        <label style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-600 block mb-1">
-                          Precio Unitario ($)
-                        </label>
-                        <input
-                          type="number"
-                          value={producto.precioUnitario}
-                          onChange={(e) => {
-                            const newProductos = [...(formData.productos || [])];
-                            const raw = e.target.value;
-                            const sanitized = raw.replace(/[^0-9.]/g, '');
-                            const precioUnitario = Number(sanitized || 0);
-                            const cantidad = newProductos[idx].cantidad;
-                            newProductos[idx] = {
-                              ...newProductos[idx],
-                              precioUnitario,
-                              precio: precioUnitario * cantidad
-                            };
-                            setFormData({ ...formData, productos: newProductos });
-                          }}
-                          style={{ fontFamily: 'Inter, sans-serif' }}
-                          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391]"
-                          placeholder="0"
-                        />
-                      </div>
-
-                      <div className="bg-[#d65391] bg-opacity-10 rounded-lg p-2 flex items-center justify-between">
-                        <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-600">
-                          Subtotal:
-                        </span>
-                        <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-[#d65391]">
-                          {formatPrecio(producto.precio)}
-                        </span>
-                      </div>
-                    </div>
+      {/* Modal Ver Detalles */}
+      <Dialog open={viewOpen} onOpenChange={setViewOpen}>
+        <DialogContent className="max-w-2xl h-auto flex flex-col p-0 gap-0">
+          <DialogHeader className="px-8 pt-6 pb-4 border-b border-gray-200 flex-shrink-0">
+            <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl">Detalles de Compra</DialogTitle>
+          </DialogHeader>
+          {selectedCompra && (
+            <div className="flex-1 overflow-y-auto">
+              <div className="space-y-6 py-6 px-8">
+                <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                  <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                    <h3 style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-gray-800 text-base">📋 Información General</h3>
                   </div>
-                ))}
-
-                {(!formData.productos || formData.productos.length === 0) && (
-                  <div className="text-center py-8 bg-gray-50 rounded-lg border border-gray-200 border-dashed">
-                    <Package className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                    <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-500">
-                      No hay productos agregados
-                    </p>
-                    <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-400 mt-1">
-                      Haz clic en "Agregar Producto" para comenzar
-                    </p>
+                  <div className="p-6 grid grid-cols-2 gap-6">
+                    <div className="flex flex-col gap-1"><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 font-medium uppercase">Orden / Factura</p><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-semibold text-gray-900">{selectedCompra.ordenFactura}</p></div>
+                    <div className="flex flex-col gap-1"><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 font-medium uppercase">Proveedor</p><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-semibold text-gray-900">{selectedCompra.proveedorNombre}</p></div>
+                    <div className="flex flex-col gap-1"><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 font-medium uppercase">Fecha</p><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-semibold text-gray-900">{new Date(selectedCompra.fecha).toLocaleDateString('es-CO')}</p></div>
+                    <div className="flex flex-col gap-1"><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 font-medium uppercase">Estado</p><span className={`px-3 py-1 rounded-full text-xs font-medium w-fit ${estadoColor(selectedCompra.estado)}`}>{selectedCompra.estado}</span></div>
+                    <div className="flex flex-col gap-1 col-span-2"><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 font-medium uppercase">Total</p><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-2xl font-bold text-[#d65391]">{fmt(selectedCompra.total)}</p></div>
+                    {selectedCompra.notas && <div className="flex flex-col gap-1 col-span-2"><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 font-medium uppercase">Notas</p><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-700">{selectedCompra.notas}</p></div>}
+                  </div>
+                </div>
+                {selectedCompra.detalles && selectedCompra.detalles.length > 0 && (
+                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                      <h3 style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-gray-800 text-base">📦 Productos</h3>
+                    </div>
+                    <div className="p-6 space-y-3">
+                      {selectedCompra.detalles.map((d, i) => (
+                        <div key={i} className="flex justify-between items-center p-4 bg-gray-50 rounded-xl">
+                          <div><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-semibold text-gray-900">{d.nombreProducto}</p><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 mt-0.5">{d.cantidad} x {fmt(d.precioUnitario)}</p></div>
+                          <p style={{ fontFamily: 'Inter, sans-serif' }} className="font-bold text-gray-900">{fmt(d.total)}</p>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
             </div>
-
-            {/* Resumen Total */}
-            {formData.productos && formData.productos.length > 0 && (
-              <div className="bg-gradient-to-r from-[#d65391] to-[#f8a9c5] rounded-lg p-4 text-white">
-                <div className="flex justify-between items-center">
-                  <span style={{ fontFamily: 'Playfair Display, serif' }} className="text-lg">
-                    Total Calculado
-                  </span>
-                  <span style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl">
-                    {formatPrecio(formData.productos.reduce((sum, p) => sum + p.precio, 0))}
-                  </span>
-                </div>
-              </div>
-            )}
-          </div>
-          <DialogFooter className="gap-2">
-            <button
-              onClick={() => setEditModalOpen(false)}
-              style={{ fontFamily: 'Inter, sans-serif' }}
-              className="px-6 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
-            >
-              Cancelar
-            </button>
-            <button
-              onClick={handleSaveEdit}
-              style={{ fontFamily: 'Inter, sans-serif' }}
-              className="px-6 py-2.5 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
-            >
-              Guardar Cambios
-            </button>
+          )}
+          <DialogFooter className="gap-2 px-8 py-5 border-t border-gray-200 flex-shrink-0">
+            <button onClick={() => setViewOpen(false)} style={{ fontFamily: 'Inter, sans-serif' }} className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">Cerrar</button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {/* Modal Anular */}
-      <AlertDialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
+      {/* Modal Eliminar */}
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle style={{ fontFamily: 'Playfair Display, serif' }}>
-              ¿Anular compra?
-            </AlertDialogTitle>
+            <AlertDialogTitle style={{ fontFamily: 'Playfair Display, serif' }}>¿Eliminar compra?</AlertDialogTitle>
             <AlertDialogDescription style={{ fontFamily: 'Inter, sans-serif' }}>
-              {selectedCompra && (
-                <>
-                  ¿Estás seguro de anular la compra {selectedCompra.ordenFactura}?
-                  <span className="block mt-2">Esta acción cambiará el estado a anulada.</span>
-                </>
-              )}
+              Vas a eliminar la compra <strong>{selectedCompra?.ordenFactura}</strong>. Esta acción no se puede deshacer.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel style={{ fontFamily: 'Inter, sans-serif' }}>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmDelete}
-              style={{ fontFamily: 'Inter, sans-serif' }}
-              className="bg-orange-600 hover:bg-orange-700"
-            >
-              Anular
+            <AlertDialogAction onClick={eliminarCompra} disabled={saving}
+              className="bg-red-600 hover:bg-red-700 flex items-center gap-2" style={{ fontFamily: 'Inter, sans-serif' }}>
+              {saving && <Loader2 className="w-4 h-4 animate-spin" />} Eliminar
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -14,6 +14,7 @@ import {
 } from '../../components/ui/select';
 import { useTienda } from '../../shared/contexts/TiendaContext';
 import { usePedidosAdmin } from '../../shared/contexts/PedidosAdminContext';
+import { postJson, postForm } from '../../services/api';
 import { useAuth } from '../../shared/contexts/AuthContext';
 import { useMensajes } from '../../shared/contexts/MensajesContext';
 import { generarContraseñaTemporal } from '../../shared/utils/credentialGenerator';
@@ -282,313 +283,64 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
     }));
   };
 
-  const handleFinalizarCompra = () => {
+  const handleFinalizarCompra = async () => {
     console.log('🛒 handleFinalizarCompra iniciado');
-    console.log('Datos envío:', datosEnvio);
-    console.log('Método pago:', metodoPago);
-    console.log('Total carrito:', getTotalCarrito());
     
-    // Validar carrito no esté vacío
-    if (carritoItems.length === 0) {
-      toast.error('Tu carrito está vacío. Agrega productos antes de finalizar.');
-      return;
-    }
-    
-    // Validar campos requeridos con mensajes específicos
-    if (!datosEnvio.nombre || datosEnvio.nombre.trim() === '') {
-      toast.error('Por favor completa tu nombre completo.');
-      return;
-    }
-    if (!datosEnvio.documento || datosEnvio.documento.trim() === '') {
-      toast.error('Por favor ingresa tu documento de identificación.');
-      return;
-    }
-    if (!datosEnvio.email || datosEnvio.email.trim() === '') {
-      toast.error('Por favor ingresa tu correo electrónico.');
-      return;
-    }
-    if (!datosEnvio.direccion || datosEnvio.direccion.trim() === '') {
-      toast.error('Por favor ingresa tu dirección completa.');
-      return;
-    }
-    if (!datosEnvio.ciudad || datosEnvio.ciudad.trim() === '') {
-      toast.error('Por favor selecciona tu ciudad.');
-      return;
-    }
-    if (!datosEnvio.telefono || datosEnvio.telefono.trim() === '') {
-      toast.error('Por favor ingresa tu número de teléfono.');
+    if (carritoItems.length === 0) { toast.error('Tu carrito está vacío.'); return; }
+    if (!datosEnvio.nombre?.trim()) { toast.error('Por favor completa tu nombre completo.'); return; }
+    if (!datosEnvio.documento?.trim()) { toast.error('Por favor ingresa tu documento.'); return; }
+    if (!datosEnvio.email?.trim()) { toast.error('Por favor ingresa tu correo.'); return; }
+    if (!datosEnvio.direccion?.trim()) { toast.error('Por favor ingresa tu dirección.'); return; }
+    if (!datosEnvio.ciudad?.trim()) { toast.error('Por favor selecciona tu ciudad.'); return; }
+    if (!datosEnvio.telefono?.trim()) { toast.error('Por favor ingresa tu teléfono.'); return; }
+
+    if (metodoPago === 'transferencia' && !comprobante) {
+      toast.error('Por favor sube el comprobante de pago.');
       return;
     }
 
-    if (metodoPago === 'transferencia') {
-      if (!comprobante) {
-        toast.error('Por favor sube el comprobante de pago para continuar.');
-        return;
-      }
-      console.log('💳 Procesando pedido por transferencia');
-      const monto = getTotalCarrito();
-      
-      if (monto <= 0) {
-        toast.error('El monto del pedido debe ser mayor a $0.');
-        return;
-      }
-      
-      // Agregar pedido a tienda
-      agregarPedido(datosEnvio, metodoPago);
-      
-      // Crear pedido en administrador para verificación de pago
-      const idVenta = `venta-${Date.now()}`;
-      const numeroPedido = `CPB-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`;
-      console.log('📋 Creando pedido admin:', { idVenta, numeroPedido, monto });
-      crearPedido({
-        id: idVenta,
-        numeroComprobante: numeroPedido,
-        cliente: datosEnvio.nombre,
-        email: datosEnvio.email,
-        telefono: datosEnvio.telefono,
-        direccion: datosEnvio.direccion,
-        ciudad: datosEnvio.ciudad,
-        numeroDocumento: datosEnvio.documento,
-        monto: monto,
-        fecha: new Date().toISOString().split('T')[0],
-        estado: 'Pendiente' as const,
-        comprobante: comprobantePreview || '',
-        banco: 'Transferencia bancaria',
-        cuenta: 'Pendiente de verificación',
-        metodoPago: 'Transferencia',
-        idVenta: idVenta,
-        items: carritoItems.map(item => ({
-          id: item.id,
-          nombre: item.nombre,
-          precio: item.precio,
-          cantidad: item.cantidad,
-          tallaSeleccionada: item.tallaSeleccionada,
-          colorSeleccionado: item.colorSeleccionado
+    const total = getTotalCarrito();
+    if (total <= 0) { toast.error('El monto debe ser mayor a $0.'); return; }
+
+    try {
+      // 1. Crear pedido en la API
+      const pedidoRes = await postJson('/api/pedidos', {
+        NombreCliente: datosEnvio.nombre,
+        DocumentoCliente: datosEnvio.documento || '',
+        EmailCliente: datosEnvio.email,
+        TelefonoCliente: datosEnvio.telefono,
+        DireccionEnvio: datosEnvio.direccion,
+        Ciudad: datosEnvio.ciudad,
+        CodigoPostal: datosEnvio.codigoPostal || '',
+        MetodoPago: metodoPago === 'transferencia' ? 'Transferencia' : 'Contra Entrega',
+        Notas: datosEnvio.notas || '',
+        Items: carritoItems.map(item => ({
+          ProductoID: item.id,
+          Cantidad: item.cantidad,
+          TallaID: null,
+          ColorID: null,
+          TallaNombre: item.tallaSeleccionada || null,
+          ColorNombre: item.colorSeleccionado || null,
         })),
-        notas: datosEnvio.notas
       });
 
-      // Si el cliente no existía, crear cliente y usuario Cliente automáticamente
-      try {
-        const clientesRaw = localStorage.getItem('selenne_clientes');
-        const clientes = clientesRaw ? JSON.parse(clientesRaw) : [];
-        const existeCliente = clientes.find((c: any) => c.email && datosEnvio.email && c.email.toLowerCase() === datosEnvio.email.toLowerCase());
-        if (!existeCliente) {
-          const nuevoCliente = {
-            id: `c-${Date.now()}`,
-            nombre: datosEnvio.nombre,
-            documento: datosEnvio.documento,
-            numeroDocumento: datosEnvio.documento,
-            email: datosEnvio.email,
-            telefono: datosEnvio.telefono,
-            direccion: datosEnvio.direccion,
-            fechaRegistro: new Date().toLocaleDateString()
-          };
-          clientes.push(nuevoCliente);
-          localStorage.setItem('selenne_clientes', JSON.stringify(clientes));
-        }
+      const pedidoID = pedidoRes?.data?.pedidoId || pedidoRes?.pedidoId;
 
-        // Crear usuario en selene_users si no existe
-        const usersRaw = localStorage.getItem('selenne_users');
-        const users = usersRaw ? JSON.parse(usersRaw) : [];
-        const existeUser = users.find((u: any) => u.email && datosEnvio.email && u.email.toLowerCase() === datosEnvio.email.toLowerCase());
-        if (!existeUser && datosEnvio.email) {
-          // 🔐 Generar contraseña temporal para nueva cuenta
-          const contraseñaTemporal = generarContraseñaTemporal();
-          
-          const nuevoUser = { 
-            id: `u-${Date.now()}`,
-            nombre: datosEnvio.nombre,
-            cargo: 'Cliente Regular',
-            tipo: 'CLIENTE',
-            email: datosEnvio.email.toLowerCase(),
-            estado: 'Activo',
-            fechaRegistro: new Date().toLocaleDateString(),
-            telefono: datosEnvio.telefono,
-            direccion: datosEnvio.direccion,
-            passwordTemporal: datosEnvio.password ? null : contraseñaTemporal,
-            passwordFinal: datosEnvio.password || null,
-            primerAcceso: datosEnvio.password ? false : true
-          };
-          users.push(nuevoUser);
-          localStorage.setItem('selenne_users', JSON.stringify(users));
-          
-          // 📧 Enviar correo de bienvenida con credenciales
-          crearMensaje({
-            idVenta: idVenta,
-            emailCliente: datosEnvio.email,
-            emailAdmin: 'admin@seleneboutique.com',
-            remitente: 'sistema',
-            tipo: 'bienvenida',
-            contenido: `
-¡Bienvenido a Selenne Boutique!
-
-Tu cuenta ha sido creada exitosamente. Aquí están tus credenciales:
-
-📧 Email: ${datosEnvio.email}
-🔐 Contraseña Temporal: ${contraseñaTemporal}
-
-Por seguridad, deberás cambiar esta contraseña en tu primer acceso.
-
-Tu Pedido:
-- Número: ${numeroPedido}
-- Monto: $${monto.toLocaleString('es-CO')}
-- Estado: Pendiente de confirmación de pago
-- Método: Transferencia Bancaria
-
-Próximos pasos:
-1. Completa tu pago usando los datos proporcionados
-2. Sube el comprobante de pago
-3. El administrador verificará tu pago en 24 horas
-4. Recibirás un correo de confirmación
-
-¿Dudas? Contacta a admin@seleneboutique.com
-
-Gracias por tu compra,
-Selenne Boutique
-            `,
-            destinatarios: ['cliente']
-          });
-          
-          toast.success(`✈️ Cuenta creada - Correo de bienvenida enviado a ${datosEnvio.email}`);
-        }
-      } catch (e) {
-        console.error('Error creando cuenta:', e);
+      // 2. Si hay comprobante, subirlo
+      if (comprobante && pedidoID) {
+        const formData = new FormData();
+        formData.append('archivo', comprobante);
+        await postForm(`/api/pedidos/${pedidoID}/comprobante`, formData);
       }
 
-      // Pedido pendiente de confirmación
-      toast.success('¡Pedido registrado con éxito! Tu pago está pendiente de confirmación por el administrador. Te notificaremos cuando sea aprobado.');
+      // 3. Limpiar carrito y mostrar éxito
       limpiarCarrito();
-      setTimeout(() => {
-        onBack();
-      }, 2000);
-    } else {
-      // Pago contra entrega - confirmación inmediata
-      console.log('🚚 Procesando pedido contra entrega');
-      const idVenta = `venta-${Date.now()}`;
-      const montoContra = getTotalCarrito();
-      
-      if (montoContra <= 0) {
-        toast.error('El monto del pedido debe ser mayor a $0.');
-        return;
-      }
-      
-      agregarPedido(datosEnvio, metodoPago);
-      
-      // Crear pedido en administrador
-      const numeroPedido = `CPB-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`;
-      console.log('📋 Creando pedido admin contra entrega:', { idVenta, numeroPedido, monto: montoContra });
-      crearPedido({
-        id: idVenta,
-        numeroComprobante: numeroPedido,
-        cliente: datosEnvio.nombre,
-        email: datosEnvio.email,
-        telefono: datosEnvio.telefono,
-        direccion: datosEnvio.direccion,
-        ciudad: datosEnvio.ciudad,
-        numeroDocumento: datosEnvio.documento,
-        monto: montoContra,
-        fecha: new Date().toISOString().split('T')[0],
-        estado: 'Aprobada' as const,
-        comprobante: '',
-        banco: 'Contra Entrega',
-        cuenta: 'N/A',
-        metodoPago: 'Contra Entrega',
-        idVenta: idVenta,
-        items: carritoItems.map(item => ({
-          id: item.id,
-          nombre: item.nombre,
-          precio: item.precio,
-          cantidad: item.cantidad,
-          tallaSeleccionada: item.tallaSeleccionada,
-          colorSeleccionado: item.colorSeleccionado
-        })),
-        notas: datosEnvio.notas
-      });
-      
-      // En contra entrega también crear cuenta si no existe
-      try {
-        const clientesRaw = localStorage.getItem('selenne_clientes');
-        const clientes = clientesRaw ? JSON.parse(clientesRaw) : [];
-        const existeCliente = clientes.find((c: any) => c.email && datosEnvio.email && c.email.toLowerCase() === datosEnvio.email.toLowerCase());
-        if (!existeCliente) {
-          clientes.push({ id: `c-${Date.now()}`, nombre: datosEnvio.nombre, documento: datosEnvio.documento, numeroDocumento: datosEnvio.documento, email: datosEnvio.email, telefono: datosEnvio.telefono, direccion: datosEnvio.direccion, fechaRegistro: new Date().toLocaleDateString() });
-          localStorage.setItem('selenne_clientes', JSON.stringify(clientes));
-        }
-        const usersRaw = localStorage.getItem('selenne_users');
-        const users = usersRaw ? JSON.parse(usersRaw) : [];
-        const existeUser = users.find((u: any) => u.email && datosEnvio.email && u.email.toLowerCase() === datosEnvio.email.toLowerCase());
-        if (!existeUser && datosEnvio.email) {
-          // 🔐 Generar contraseña temporal para nueva cuenta
-          const contraseñaTemporal = generarContraseñaTemporal();
-          
-          const nuevoUser = { 
-            id: `u-${Date.now()}`,
-            nombre: datosEnvio.nombre,
-            cargo: 'Cliente Regular',
-            tipo: 'CLIENTE',
-            email: datosEnvio.email.toLowerCase(),
-            estado: 'Activo',
-            fechaRegistro: new Date().toLocaleDateString(),
-            telefono: datosEnvio.telefono,
-            direccion: datosEnvio.direccion,
-            passwordTemporal: datosEnvio.password ? null : contraseñaTemporal,
-            passwordFinal: datosEnvio.password || null,
-            primerAcceso: datosEnvio.password ? false : true
-          };
-          users.push(nuevoUser);
-          localStorage.setItem('selenne_users', JSON.stringify(users));
-          
-          // 📧 Enviar correo de bienvenida con credenciales
-          const numeroPedido = `CPB-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`;
-          crearMensaje({
-            idVenta: idVenta,
-            emailCliente: datosEnvio.email,
-            emailAdmin: 'admin@seleneboutique.com',
-            remitente: 'sistema',
-            tipo: 'bienvenida',
-            contenido: `
-¡Bienvenido a Selenne Boutique!
+      toast.success('¡Pedido registrado con éxito! El administrador revisará tu pedido.');
+      setTimeout(() => { onBack(); }, 2000);
 
-Tu cuenta ha sido creada exitosamente. Aquí están tus credenciales:
-
-📧 Email: ${datosEnvio.email}
-🔐 Contraseña Temporal: ${contraseñaTemporal}
-
-Por seguridad, deberás cambiar esta contraseña en tu primer acceso.
-
-Tu Pedido:
-- Número: ${numeroPedido}
-- Monto: $${montoContra.toLocaleString('es-CO')}
-- Estado: Aprobada ✓
-- Método: Contra Entrega
-
-Próximos pasos:
-1. Prepárate para pagar contra entrega
-2. Recibirás un correo de seguimiento con detalles de envío
-3. Paga cuando recibas tu pedido
-
-Tu pedido será enviado en 2-3 días hábiles.
-
-¿Dudas? Contacta a admin@seleneboutique.com
-
-Gracias por tu compra,
-Selenne Boutique
-            `,
-            destinatarios: ['cliente']
-          });
-          
-          toast.success(`✈️ Cuenta creada - Correo de bienvenida enviado a ${datosEnvio.email}`);
-        }
-      } catch (e) {
-        console.error('Error creando cuenta:', e);
-      }
-
-      toast.success('¡Pedido confirmado! Pagarás contra entrega. Revisa tu correo para acceder a tu cuenta.');
-      limpiarCarrito();
-      setTimeout(() => {
-        onBack();
-      }, 2000);
+    } catch (e: any) {
+      console.error('Error creando pedido:', e);
+      toast.error(e?.data?.message || 'Error al procesar el pedido. Intenta de nuevo.');
     }
   };
 
