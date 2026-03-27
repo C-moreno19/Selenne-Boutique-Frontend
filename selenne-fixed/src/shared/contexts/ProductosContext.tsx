@@ -5,10 +5,12 @@ export interface ProductoAdmin {
   id: string;
   codigo: string;
   nombre: string;
-  categoria: string;       // CategoriaNombre  (ej: "Damas", "Caballeros")
-  categoriaMain: string;   // deducida para filtros de tienda: "mujer"|"accesorios"|"sale"
+  categoria: string;
+  categoriaMain: string;
   marca: string;
-  precio: number;
+  precio: number;          // precioVenta
+  precioCompra?: number;   // precio de costo
+  precioOferta?: number;   // precio en oferta
   precioOriginal?: number;
   stock: number;
   activo: boolean;
@@ -23,7 +25,7 @@ export interface ProductoAdmin {
   agotado: boolean;
   agotadoGeneral: boolean;
   materiales: string[];
-  tipoProducto: string;    // TipoNombre  (ej: "Camisa de cuello")
+  tipoProducto: string;
   descripcion: string;
   categoriaPrincipalID?: number;
   tipoProductoID?: number;
@@ -86,6 +88,8 @@ function mapProducto(p: any): ProductoAdmin {
     categoriaMain: deducirCategoriaMain(categoriaNombre, isSale),
     marca: p.marcaNombre ?? p.MarcaNombre ?? p.marca ?? '',
     precio: Number(p.precioVenta ?? p.PrecioVenta ?? p.precio ?? 0),
+    precioCompra: p.precioCompra != null ? Number(p.precioCompra) : p.PrecioCompra != null ? Number(p.PrecioCompra) : undefined,
+    precioOferta: p.precioOferta != null ? Number(p.precioOferta) : p.PrecioOferta != null ? Number(p.PrecioOferta) : undefined,
     precioOriginal: p.precioOferta ? Number(p.precioOferta) : undefined,
     stock: Number(p.stock ?? p.Stock ?? 0),
     activo: activoVal,

@@ -1,8 +1,11 @@
 ﻿import React, { useState, useEffect, useCallback } from 'react';
-import { Search, Eye, Archive, ChevronRight, Loader2, RefreshCw, Trash2 } from 'lucide-react';
+import { Search, Eye, Archive, Plus, ChevronRight, Loader2, RefreshCw, Trash2, X, Package } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '../../../components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../../../components/ui/alert-dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../components/ui/select';
+import { Input } from '../../../components/ui/input';
+import { Label } from '../../../components/ui/label';
+import { postJson } from '../../../services/api';
 import { toast } from 'sonner';
 import { getJson } from '../../../services/api';
 import api from '../../../services/api';
@@ -39,6 +42,12 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
   const [selectedPedido, setSelectedPedido] = useState<Pedido | null>(null);
   const [viewOpen, setViewOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [nuevaVentaOpen, setNuevaVentaOpen] = useState(false);
+  const [nombreCliente, setNombreCliente] = useState('');
+  const [emailCliente, setEmailCliente] = useState('');
+  const [telefonoCliente, setTelefonoCliente] = useState('');
+  const [metodoPago, setMetodoPago] = useState('Transferencia');
+  const [notasVenta, setNotasVenta] = useState('');
 
   const loadData = useCallback(async () => {
     try {
@@ -123,6 +132,12 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
             className="px-4 py-3 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 flex items-center gap-2 transition-colors">
             <Archive className="w-5 h-5" /> Historial de Ventas
           </button>
+          {puedeAdmin && (
+            <button onClick={() => setNuevaVentaOpen(true)} style={{ fontFamily: 'Inter, sans-serif' }}
+              className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 flex items-center gap-2 transition-colors">
+              <Plus className="w-5 h-5" /> Nueva Venta
+            </button>
+          )}
         </div>
       </div>
 
@@ -265,6 +280,78 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      {/* Modal Nueva Venta Manual */}
+      <Dialog open={nuevaVentaOpen} onOpenChange={setNuevaVentaOpen}>
+        <DialogContent className="max-w-2xl h-auto flex flex-col p-0 gap-0">
+          <DialogHeader className="px-8 pt-6 pb-4 border-b border-gray-200 flex-shrink-0">
+            <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl">Nueva Venta Manual</DialogTitle>
+            <DialogDescription style={{ fontFamily: 'Inter, sans-serif' }}>Registra una venta directamente sin pasar por el checkout del cliente</DialogDescription>
+          </DialogHeader>
+          <div className="flex-1 overflow-y-auto p-8 space-y-6">
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+              <div className="bg-gray-50 px-6 py-3 border-b border-gray-200">
+                <p style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-sm text-gray-700">👤 Datos del Cliente</p>
+              </div>
+              <div className="p-6 grid grid-cols-2 gap-4">
+                <div className="flex flex-col gap-2">
+                  <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">Nombre <span className="text-red-500">*</span></Label>
+                  <Input value={nombreCliente} onChange={e => setNombreCliente(e.target.value)} placeholder="Nombre del cliente" className="h-10 border-gray-300" />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">Email</Label>
+                  <Input type="email" value={emailCliente} onChange={e => setEmailCliente(e.target.value)} placeholder="email@ejemplo.com" className="h-10 border-gray-300" />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">Teléfono</Label>
+                  <Input value={telefonoCliente} onChange={e => setTelefonoCliente(e.target.value)} placeholder="+57 300 123 4567" className="h-10 border-gray-300" />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">Método de Pago</Label>
+                  <Select value={metodoPago} onValueChange={setMetodoPago}>
+                    <SelectTrigger className="h-10 border-gray-300"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Transferencia">Transferencia</SelectItem>
+                      <SelectItem value="Efectivo">Efectivo</SelectItem>
+                      <SelectItem value="Tarjeta">Tarjeta</SelectItem>
+                      <SelectItem value="Contra Entrega">Contra Entrega</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex flex-col gap-2 col-span-2">
+                  <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">Notas</Label>
+                  <Input value={notasVenta} onChange={e => setNotasVenta(e.target.value)} placeholder="Observaciones de la venta..." className="h-10 border-gray-300" />
+                </div>
+              </div>
+            </div>
+          </div>
+          <DialogFooter className="px-8 py-5 border-t border-gray-200 flex-shrink-0 gap-2">
+            <button onClick={() => { setNuevaVentaOpen(false); setNombreCliente(''); setEmailCliente(''); setTelefonoCliente(''); setNotasVenta(''); }}
+              style={{ fontFamily: 'Inter, sans-serif' }} className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">Cancelar</button>
+            <button onClick={async () => {
+              if (!nombreCliente.trim()) { toast.error('El nombre es obligatorio'); return; }
+              setSaving(true);
+              try {
+                await postJson('/api/pedidos', {
+                  NombreCliente: nombreCliente,
+                  EmailCliente: emailCliente || 'sin-email@selenne.com',
+                  TelefonoCliente: telefonoCliente || 'N/A',
+                  DireccionEnvio: 'Venta presencial',
+                  Ciudad: 'N/A',
+                  MetodoPago: metodoPago,
+                  Notas: notasVenta,
+                  Items: [],
+                });
+                toast.error('Para registrar una venta manual necesitas agregar productos. Esta función estará disponible próximamente.');
+              } catch (e: any) {
+                toast.error(e?.data?.message || 'Error registrando venta');
+              } finally { setSaving(false); }
+            }} disabled={saving} style={{ fontFamily: 'Inter, sans-serif' }}
+              className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 flex items-center gap-2 transition-colors">
+              {saving && <Loader2 className="w-4 h-4 animate-spin" />} Registrar Venta
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

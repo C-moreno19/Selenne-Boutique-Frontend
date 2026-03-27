@@ -1,1715 +1,767 @@
 import React, { useMemo, useState } from 'react';
-import { Plus, Search, ChevronRight, Eye, Edit, Trash2, CheckCircle2, Circle, Tag, Shirt, Ruler, Palette, Package, X, Upload } from 'lucide-react';
+import { Search, Eye, Edit, Trash2, ChevronRight, Package, X, Loader2, Plus, Upload, Image as ImageIcon } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '../../../components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../../../components/ui/alert-dialog';
 import { Input } from '../../../components/ui/input';
 import { Label } from '../../../components/ui/label';
-import { Badge } from '../../../components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../components/ui/select';
 import { Textarea } from '../../../components/ui/textarea';
 import { toast } from 'sonner';
-import { useProductos, ProductoAdmin } from '../../../shared/contexts/ProductosContext';
+import { useProductos, ProductoAdmin, CreateProductoPayload } from '../../../shared/contexts/ProductosContext';
 import { useSubcategorias } from '../../../shared/contexts/SubcategoriasContext';
 import { useProductosAdmin } from '../../../shared/data/useProductosAdmin';
 import { useAuth } from '../../../shared/contexts/AuthContext';
+import { postForm } from '../../../services/api';
 
-interface Product extends ProductoAdmin {}
+const fmt = (n?: number) => n != null ? new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n) : '—';
+const stockColor = (stock: number) => {
+  if (stock === 0) return 'text-red-600 bg-red-50';
+  if (stock < 5) return 'text-orange-600 bg-orange-50';
+  return 'text-green-700 bg-green-50';
+};
+
+interface Variante { tallaNombre: string; colorNombre: string; stock: number; }
+interface FormData {
+  nombre: string; codigo: string; descripcion: string;
+  categoriaPrincipalID: string; tipoProductoID: string; marcaID: string;
+  precioCompra: string; precioVenta: string; precioOferta: string;
+  stock: string; imagenPrincipal: string;
+  tallasSeleccionadas: string[]; coloresSeleccionados: string[]; materialesSeleccionados: string[];
+  variantes: Variante[];
+}
+const EMPTY: FormData = {
+  nombre: '', codigo: '', descripcion: '',
+  categoriaPrincipalID: '', tipoProductoID: '', marcaID: '',
+  precioCompra: '', precioVenta: '', precioOferta: '',
+  stock: '0', imagenPrincipal: '',
+  tallasSeleccionadas: [], coloresSeleccionados: [], materialesSeleccionados: [], variantes: [],
+};
 
 export const ProductosView: React.FC = () => {
   const { crearProducto, actualizarProducto, eliminarProducto } = useProductos();
-  const { colores, tallas, materiales, marcas, categorias, categoriasRopa, tiposProducto } = useSubcategorias();
+  const { colores, tallas, marcas, categorias, tiposProducto, materiales } = useSubcategorias();
   const todosLosProductos = useProductosAdmin();
   const { hasPermission } = useAuth();
   const puedeEditar = hasPermission('productos:editar');
   const puedeEliminar = hasPermission('productos:eliminar');
   const puedeCrear = hasPermission('productos:crear');
+
   const [searchQuery, setSearchQuery] = useState('');
-  const [precioMin, setPrecioMin] = useState<number | ''>('');
-  const [precioMax, setPrecioMax] = useState<number | ''>('');
-  const [estadoFiltro, setEstadoFiltro] = useState<'todos' | 'activo' | 'inactivo'>('todos');
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [editForm, setEditForm] = useState<Partial<Product>>({});
-  const [createForm, setCreateForm] = useState<Partial<Product>>({
-    nombre: '',
-    codigo: '',
-    categoria: '',
-    categoriaMain: '',
-    marca: '',
-    precio: 0,
-    precioOriginal: 0,
-    stock: 0,
-    activo: true,
-    isSale: false,
-    imagen: '',
-    imagenes: [],
-    imagenesPorColor: {},
-    variantes: [],
-    tallas: [],
-    colores: [],
-    materiales: [],
-    tipoProducto: '',
-    descripcion: ''
-  });
-  const [editImageUrl, setEditImageUrl] = useState('');
-  const [createImageUrl, setCreateImageUrl] = useState('');
-  const [createErrors, setCreateErrors] = useState<{[key: string]: string}>({});
-  const [editErrors, setEditErrors] = useState<{[key: string]: string}>({});
-  const [editColorSelection, setEditColorSelection] = useState<{ color: string; imageUrl: string }>({ color: '', imageUrl: '' });
-  const [createColorSelection, setCreateColorSelection] = useState<{ color: string; imageUrl: string }>({ color: '', imageUrl: '' });
+  const [categoriaFiltro, setCategoriaFiltro] = useState('todas');
+  const [estadoFiltro, setEstadoFiltro] = useState('todos');
+  const [selectedProduct, setSelectedProduct] = useState<ProductoAdmin | null>(null);
+  const [viewOpen, setViewOpen] = useState(false);
+  const [formOpen, setFormOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [uploadingImg, setUploadingImg] = useState(false);
+  const [form, setForm] = useState<FormData>(EMPTY);
+  const [activeTab, setActiveTab] = useState<'info' | 'variantes' | 'imagen'>('info');
 
-  // Los productos ahora vienen de useProductosAdmin que combina productos locales + del contexto
+  const categorias_unicas = useMemo(() =>
+    [...new Set(todosLosProductos.map(p => p.categoria))].filter(Boolean),
+    [todosLosProductos]
+  );
 
-  const filteredProducts = useMemo(() => {
-    let filtered = todosLosProductos;
-
-    // Filtro de búsqueda
-    const q = searchQuery.trim().toLowerCase();
-    if (q) {
-      filtered = filtered.filter(p => (
-        p.nombre.toLowerCase().includes(q) ||
-        p.codigo.toLowerCase().includes(q) ||
-        p.categoria.toLowerCase().includes(q)
-      ));
+  const filtered = useMemo(() => {
+    let list = todosLosProductos;
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      list = list.filter(p => p.nombre.toLowerCase().includes(q) || p.codigo.toLowerCase().includes(q));
     }
+    if (categoriaFiltro !== 'todas') list = list.filter(p => p.categoria === categoriaFiltro);
+    if (estadoFiltro === 'publicado') list = list.filter(p => p.activo);
+    if (estadoFiltro === 'no_publicado') list = list.filter(p => !p.activo);
+    if (estadoFiltro === 'agotado') list = list.filter(p => p.stock === 0);
+    return list;
+  }, [todosLosProductos, searchQuery, categoriaFiltro, estadoFiltro]);
 
-    // Filtro de precio mínimo
-    if (precioMin !== '') {
-      filtered = filtered.filter(p => p.precio >= precioMin);
-    }
-
-    // Filtro de precio máximo
-    if (precioMax !== '') {
-      filtered = filtered.filter(p => p.precio <= precioMax);
-    }
-
-    // Filtro de estado
-    if (estadoFiltro === 'activo') {
-      filtered = filtered.filter(p => p.activo);
-    } else if (estadoFiltro === 'inactivo') {
-      filtered = filtered.filter(p => !p.activo);
-    }
-
-    return filtered;
-  }, [todosLosProductos, searchQuery, precioMin, precioMax, estadoFiltro]);
-
-  // pagination removed — show full filtered list
-
-  const handleToggleActivo = (id: string) => {
-    const product = todosLosProductos.find(p => p.id === id);
-    if (product) {
-      actualizarProducto(id, { activo: !product.activo });
-    }
-    toast.success('Estado del producto actualizado');
+  const toggleEstado = async (p: ProductoAdmin) => {
+    if (!puedeEditar) return;
+    try {
+      await actualizarProducto(p.id, { Estado: p.activo ? 'inactivo' : 'activo' });
+      toast.success(p.activo ? 'Producto despublicado' : 'Producto publicado');
+    } catch { toast.error('Error cambiando estado'); }
   };
 
-  const handleView = (product: Product) => {
-    setSelectedProduct(product);
-    setIsViewModalOpen(true);
+  const openCreate = () => { setForm(EMPTY); setIsEditing(false); setActiveTab('info'); setFormOpen(true); };
+
+  const openEdit = (p: ProductoAdmin) => {
+    setSelectedProduct(p);
+    setForm({
+      nombre: p.nombre, codigo: p.codigo, descripcion: p.descripcion || '',
+      categoriaPrincipalID: String(p.categoriaPrincipalID || ''),
+      tipoProductoID: String(p.tipoProductoID || ''),
+      marcaID: String(p.marcaID || ''),
+      precioCompra: p.precioCompra != null ? String(p.precioCompra) : '',
+      precioVenta: String(p.precio),
+      precioOferta: p.precioOferta != null ? String(p.precioOferta) : '',
+      stock: String(p.stock),
+      imagenPrincipal: p.imagen || '',
+      tallasSeleccionadas: p.tallas || [],
+      coloresSeleccionados: p.colores || [],
+      materialesSeleccionados: p.materiales || [],
+      variantes: p.variantes?.map(v => ({ tallaNombre: v.tallaNombre || '', colorNombre: v.colorNombre || '', stock: v.stock })) || [],
+    });
+    setIsEditing(true); setActiveTab('info'); setFormOpen(true);
   };
 
-  const handleEdit = (product: Product) => {
-    setSelectedProduct(product);
-    console.log('[handleEdit] tallas:', product.tallas, 'colores:', product.colores);
-    // Mantener imagenesPorColor como está — no mezclar con imagenes generales
-    const imagenesPorColor = product.imagenesPorColor || {};
-    setEditForm({ ...product, categoriaMain: product.categoria || product.categoriaMain, imagenesPorColor, variantes: product.variantes || [] });
-    setEditErrors({});
-    setEditColorSelection({ color: '', imageUrl: '' });
-    setIsEditModalOpen(true);
+  const toggleTalla = (nombre: string) => {
+    if (form.tallasSeleccionadas.includes(nombre)) {
+      setForm(f => ({ ...f, tallasSeleccionadas: f.tallasSeleccionadas.filter(t => t !== nombre), variantes: f.variantes.filter(v => v.tallaNombre !== nombre) }));
+    } else {
+      setForm(f => {
+        const newVariantes = [...f.variantes];
+        f.coloresSeleccionados.forEach(color => {
+          if (!newVariantes.find(v => v.tallaNombre === nombre && v.colorNombre === color))
+            newVariantes.push({ tallaNombre: nombre, colorNombre: color, stock: 0 });
+        });
+        return { ...f, tallasSeleccionadas: [...f.tallasSeleccionadas, nombre], variantes: newVariantes };
+      });
+    }
   };
 
-  const handleCreate = () => {
-    setCreateErrors({});
-    setIsCreateModalOpen(true);
+  const toggleColor = (nombre: string) => {
+    if (form.coloresSeleccionados.includes(nombre)) {
+      setForm(f => ({ ...f, coloresSeleccionados: f.coloresSeleccionados.filter(c => c !== nombre), variantes: f.variantes.filter(v => v.colorNombre !== nombre) }));
+    } else {
+      setForm(f => {
+        const newVariantes = [...f.variantes];
+        f.tallasSeleccionadas.forEach(talla => {
+          if (!newVariantes.find(v => v.tallaNombre === talla && v.colorNombre === nombre))
+            newVariantes.push({ tallaNombre: talla, colorNombre: nombre, stock: 0 });
+        });
+        return { ...f, coloresSeleccionados: [...f.coloresSeleccionados, nombre], variantes: newVariantes };
+      });
+    }
   };
 
-  const handleDelete = (product: Product) => {
-    setSelectedProduct(product);
-    setIsDeleteModalOpen(true);
+  const updateStock = (tallaNombre: string, colorNombre: string, stock: number) => {
+    setForm(f => ({ ...f, variantes: f.variantes.map(v => v.tallaNombre === tallaNombre && v.colorNombre === colorNombre ? { ...v, stock } : v) }));
+  };
+
+  const guardar = async () => {
+    if (!form.nombre.trim()) { toast.error('El nombre es obligatorio'); return; }
+    if (!form.precioVenta || Number(form.precioVenta) <= 0) { toast.error('El precio de venta es obligatorio'); return; }
+    if (!form.categoriaPrincipalID) { toast.error('Selecciona una categoría'); return; }
+    setSaving(true);
+    try {
+      const payload: any = {
+        Codigo: form.codigo, Nombre: form.nombre, Descripcion: form.descripcion,
+        CategoriaPrincipalID: Number(form.categoriaPrincipalID),
+        TipoProductoID: Number(form.tipoProductoID) || 1,
+        MarcaID: Number(form.marcaID) || 1,
+        PrecioVenta: Number(form.precioVenta),
+        PrecioOferta: form.precioOferta ? Number(form.precioOferta) : undefined,
+        PrecioCompra: form.precioCompra ? Number(form.precioCompra) : undefined,
+        Stock: Number(form.stock) || 0,
+        ImagenPrincipal: form.imagenPrincipal || undefined,
+        variantes: form.variantes,
+      };
+      let ok: boolean;
+      if (isEditing && selectedProduct) {
+        ok = await actualizarProducto(selectedProduct.id, payload, form.tallasSeleccionadas, form.coloresSeleccionados, tallas, colores, form.imagenPrincipal ? [form.imagenPrincipal] : undefined, form.materialesSeleccionados, materiales);
+      } else {
+        ok = await crearProducto(payload, form.tallasSeleccionadas, form.coloresSeleccionados, tallas, colores, form.imagenPrincipal ? [form.imagenPrincipal] : undefined, form.materialesSeleccionados, materiales);
+      }
+      if (ok) { toast.success(isEditing ? 'Producto actualizado' : 'Producto creado'); setFormOpen(false); }
+      else toast.error('Error guardando producto');
+    } catch (e: any) { toast.error(e?.data?.message || 'Error guardando producto'); }
+    finally { setSaving(false); }
   };
 
   const confirmDelete = async () => {
-    if (selectedProduct) {
-      await eliminarProducto(selectedProduct.id);
-      toast.success('Producto eliminado exitosamente');
-      setIsDeleteModalOpen(false);
-      setSelectedProduct(null);
-    }
-  };
-
-  // Funciones para manejar archivos
-  // Nota: fileToBase64 eliminado — siempre subimos al servidor para obtener URL real
-
-  // Manejo de imágenes por color
-  const addColorToForm = (color: string, isEdit: boolean = false) => {
-    if (!color || !color.trim()) return;
-    if (isEdit) {
-      const current = editForm.colores || [];
-      if (!current.includes(color)) {
-        updateEditForm('colores', [...current, color]);
-        const imgs = editForm.imagenesPorColor || {};
-        updateEditForm('imagenesPorColor', { ...imgs, [color]: imgs[color] || [] });
-        // auto-seleccionar el color recién agregado
-        setEditColorSelection({ ...editColorSelection, color });
-      }
-    } else {
-      const current = createForm.colores || [];
-      if (!current.includes(color)) {
-        updateCreateForm('colores', [...current, color]);
-        const imgs = createForm.imagenesPorColor || {};
-        updateCreateForm('imagenesPorColor', { ...imgs, [color]: imgs[color] || [] });
-        // auto-seleccionar el color recién agregado
-        setCreateColorSelection({ ...createColorSelection, color });
-      }
-    }
-  };
-
-  const handleFileUploadForColor = async (files: FileList, color: string, isEdit: boolean = false) => {
-    if (!color) {
-      toast.error('Selecciona primero un color');
-      return;
-    }
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      try {
-        toast.loading(`Subiendo "${file.name}"...`, { id: `color-upload-${i}` });
-        const url = await uploadImageToServer(file);
-        if (url) {
-          if (isEdit) {
-            const imgsMap = editForm.imagenesPorColor || {};
-            const arr = imgsMap[color] || [];
-            updateEditForm('imagenesPorColor', { ...imgsMap, [color]: [...arr, url] });
-          } else {
-            const imgsMap = createForm.imagenesPorColor || {};
-            const arr = imgsMap[color] || [];
-            updateCreateForm('imagenesPorColor', { ...imgsMap, [color]: [...arr, url] });
-          }
-          toast.success(`Imagen subida para color ${color}`, { id: `color-upload-${i}` });
-        } else {
-          toast.dismiss(`color-upload-${i}`);
-        }
-      } catch (error) {
-        toast.error(`Error al subir "${file.name}"`, { id: `color-upload-${i}` });
-      }
-    }
-  };
-
-  const addImageUrlForColor = (url: string, color: string, isEdit: boolean = false) => {
-    if (!url.trim()) {
-      toast.error('Por favor ingresa una URL válida');
-      return;
-    }
-    if (!color) {
-      toast.error('Selecciona primero un color');
-      return;
-    }
-    if (isEdit) {
-      const imgsMap = editForm.imagenesPorColor || {};
-      const arr = imgsMap[color] || [];
-      updateEditForm('imagenesPorColor', { ...imgsMap, [color]: [...arr, url] });
-    } else {
-      const imgsMap = createForm.imagenesPorColor || {};
-      const arr = imgsMap[color] || [];
-      updateCreateForm('imagenesPorColor', { ...imgsMap, [color]: [...arr, url] });
-    }
-    toast.success('Imagen agregada');
-  };
-
-  const removeImageByColor = (color: string, index: number, isEdit: boolean = false) => {
-    if (isEdit) {
-      const imgsMap = editForm.imagenesPorColor || {};
-      const arr = imgsMap[color] || [];
-      updateEditForm('imagenesPorColor', { ...imgsMap, [color]: arr.filter((_, i) => i !== index) });
-    } else {
-      const imgsMap = createForm.imagenesPorColor || {};
-      const arr = imgsMap[color] || [];
-      updateCreateForm('imagenesPorColor', { ...imgsMap, [color]: arr.filter((_, i) => i !== index) });
-    }
-    toast.success('Imagen eliminada');
-  };
-
-  const uploadImageToServer = async (file: File): Promise<string | null> => {
-    try {
-      const token = localStorage.getItem('accessToken');
-      const formData = new FormData();
-      formData.append('file', file);
-      const res = await fetch('http://localhost:5000/api/upload/imagen', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
-      });
-      if (!res.ok) {
-        const err = await res.json();
-        toast.error(err?.message || 'Error al subir imagen');
-        return null;
-      }
-      const data = await res.json();
-      return data?.data?.url ?? null;
-    } catch {
-      toast.error('No se pudo conectar con el servidor para subir la imagen');
-      return null;
-    }
-  };
-
-  const handleFileUpload = async (files: FileList, isEdit: boolean = false) => {
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      try {
-        toast.loading(`Subiendo "${file.name}"...`, { id: `upload-${i}` });
-        const url = await uploadImageToServer(file);
-        if (url) {
-          if (isEdit) {
-            const currentImages = editForm.imagenes || [];
-            updateEditForm('imagenes', [...currentImages, url]);
-          } else {
-            const currentImages = createForm.imagenes || [];
-            updateCreateForm('imagenes', [...currentImages, url]);
-          }
-          toast.success(`Imagen "${file.name}" subida`, { id: `upload-${i}` });
-        } else {
-          toast.dismiss(`upload-${i}`);
-        }
-      } catch (error) {
-        toast.error(`Error al subir "${file.name}"`, { id: `upload-${i}` });
-      }
-    }
-  };
-
-  const addImageUrl = (url: string, isEdit: boolean = false) => {
-    if (!url.trim()) {
-      toast.error('Por favor ingresa una URL válida');
-      return;
-    }
-    if (isEdit) {
-      const currentImages = editForm.imagenes || [];
-      updateEditForm('imagenes', [...currentImages, url]);
-      setEditImageUrl('');
-    } else {
-      const currentImages = createForm.imagenes || [];
-      updateCreateForm('imagenes', [...currentImages, url]);
-      setCreateImageUrl('');
-    }
-    toast.success('Imagen agregada');
-  };
-
-  const removeImage = (index: number, isEdit: boolean = false) => {
-    if (isEdit) {
-      const currentImages = editForm.imagenes || [];
-      updateEditForm('imagenes', currentImages.filter((_, i) => i !== index));
-    } else {
-      const currentImages = createForm.imagenes || [];
-      updateCreateForm('imagenes', currentImages.filter((_, i) => i !== index));
-    }
-    toast.success('Imagen eliminada');
-  };
-
-  const handleSaveEdit = async () => {
-    if (Object.values(editErrors).some(error => error !== '')) {
-      toast.error('Por favor, corrige los errores antes de guardar');
-      return;
-    }
-    if (!selectedProduct || !editForm.nombre) {
-      toast.error('El nombre es obligatorio');
-      return;
-    }
-
-    // Resolver IDs desde los nombres seleccionados
-    const categoriaPrincipalEditObj = categorias.find(c => c.nombre === editForm.categoriaMain);
-    const marcaObj = marcas.find(m => m.nombre === editForm.marca);
-    const tipoObj = tiposProducto.find(t => t.nombre === editForm.tipoProducto);
-
-    const catID = categoriaPrincipalEditObj ? Number(categoriaPrincipalEditObj.id) : selectedProduct.categoriaPrincipalID ?? 1;
-    const marcID = marcaObj ? Number(marcaObj.id) : selectedProduct.marcaID ?? 1;
-    const tipID = tipoObj ? Number(tipoObj.id) : selectedProduct.tipoProductoID ?? 1;
-
-    // Nunca guardar base64 — solo URLs reales
-    let imagenEdit = editForm.imagen || '';
-    if (imagenEdit.startsWith('data:')) {
-      // Subir al servidor si es base64
-      const blob = await fetch(imagenEdit).then(r => r.blob());
-      const file = new File([blob], 'imagen-principal.jpg', { type: blob.type });
-      const uploaded = await uploadImageToServer(file);
-      imagenEdit = uploaded || '';
-    }
-
-    const payload = {
-      Nombre: editForm.nombre,
-      Descripcion: editForm.descripcion,
-      CategoriaPrincipalID: catID,
-      TipoProductoID: tipID,
-      MarcaID: marcID,
-      PrecioVenta: editForm.precio ?? 0,
-      PrecioOferta: (editForm.precioOriginal && editForm.precioOriginal > 0 && editForm.precioOriginal > (editForm.precio ?? 0)) ? editForm.precioOriginal : undefined,
-      Stock: Math.max(0, editForm.stock ?? 0),
-      ImagenPrincipal: imagenEdit || undefined,
-      Estado: editForm.activo ? 'activo' : 'inactivo',
-    };
-
-    // Imágenes generales (sin color asignado)
-    const imagenesEditUrls: string[] = (editForm.imagenes || []).filter((u: string) => u && !u.startsWith('data:'));
-    // Pasar imagenesPorColor en el payload para que se envíe con ColorNombre
-    const payloadConImagenes = { ...payload, imagenesPorColor: editForm.imagenesPorColor || {}, variantes: editForm.variantes || [] };
-    console.log('[Edit] imagenesEditUrls:', imagenesEditUrls, 'imagenesPorColor:', editForm.imagenesPorColor);
-    const ok = await actualizarProducto(selectedProduct.id, payloadConImagenes, editForm.tallas || [], editForm.colores || [], tallas, colores, imagenesEditUrls, editForm.materiales || [], materiales);
-    if (ok) {
-      toast.success('Producto actualizado exitosamente');
-      setIsEditModalOpen(false);
-      setSelectedProduct(null);
-      setEditForm({});
-      setEditErrors({});
-    } else {
-      toast.error('Error al actualizar el producto');
-    }
-  };
-
-  const handleSaveCreate = async () => {
-    if (Object.values(createErrors).some(error => error !== '')) {
-      toast.error('Por favor, corrige los errores antes de guardar');
-      return;
-    }
-    if (!createForm.nombre) {
-      toast.error('El nombre del producto es obligatorio');
-      return;
-    }
-    if (!createForm.categoriaMain) {
-      toast.error('Selecciona una Categoría Principal');
-      return;
-    }
-    // Auto-generar código si está vacío
-    if (!createForm.codigo) {
-      updateCreateForm('codigo', `PROD-${Date.now()}`);
-    }
-
-    // Resolver IDs desde los nombres seleccionados
-    const categoriaPrincipalObj = categorias.find(c => c.nombre === createForm.categoriaMain);
-    const marcaObj = marcas.find(m => m.nombre === createForm.marca);
-    const tipoObj = tiposProducto.find(t => t.nombre === createForm.tipoProducto);
-
-    if (!categoriaPrincipalObj) { toast.error('Selecciona una Categoría Principal'); return; }
-    // Marca y tipo usan fallback al primero disponible si no se seleccionó
-    const marcaFinal = marcaObj ?? marcas[0];
-    const tipoFinal = tipoObj ?? tiposProducto[0];
-    if (!marcaFinal) { toast.error('No hay marcas disponibles, crea una primero'); return; }
-    if (!tipoFinal) { toast.error('No hay tipos de producto disponibles'); return; }
-
-    // Nunca guardar base64 — solo URLs reales
-    const imagen = (createForm.imagen || '').startsWith('data:') ? '' : (createForm.imagen || '');
-
-    const payload = {
-      Codigo: createForm.codigo || `PROD-${Date.now()}`,
-      Nombre: createForm.nombre,
-      Descripcion: createForm.descripcion ?? '',
-      CategoriaPrincipalID: Number(categoriaPrincipalObj.id),
-      TipoProductoID: Number(tipoFinal.id),
-      MarcaID: Number(marcaFinal.id),
-      PrecioVenta: createForm.precio ?? 0,
-      PrecioOferta: (createForm.precioOriginal && createForm.precioOriginal > 0 && createForm.precioOriginal > (createForm.precio ?? 0)) ? createForm.precioOriginal : undefined,
-      Stock: Math.max(0, createForm.stock ?? 0),
-      ImagenPrincipal: imagen || undefined,
-    };
-
-    const imagenesUrls: string[] = (createForm.imagenes || []).filter((u: string) => u && !u.startsWith('data:'));
-    const payloadConImagenes = { ...payload, imagenesPorColor: createForm.imagenesPorColor || {}, variantes: createForm.variantes || [] };
-    console.log('[Create] imagenesUrls:', imagenesUrls, 'imagenesPorColor:', createForm.imagenesPorColor);
-    const ok = await crearProducto(payloadConImagenes, createForm.tallas || [], createForm.colores || [], tallas, colores, imagenesUrls, createForm.materiales || [], materiales);
-    if (ok) {
-      toast.success('Producto creado exitosamente');
-      setIsCreateModalOpen(false);
-      setCreateForm({
-        nombre: '', codigo: '', categoria: '', categoriaMain: '', marca: '',
-        precio: 0, precioOriginal: 0, stock: 0, activo: true, isSale: false,
-        imagen: '', imagenes: [], imagenesPorColor: {}, tallas: [], colores: [],
-        materiales: [], tipoProducto: '', descripcion: ''
-      });
-      setCreateImageUrl('');
-      setCreateErrors({});
-      setCreateColorSelection({ color: '', imageUrl: '' });
-    } else {
-      toast.error('Error al crear el producto. Verifica que el código no esté duplicado.');
-    }
-  };
-
-  const updateEditForm = (field: string, value: any) => {
-    setEditForm(prev => ({ ...prev, [field]: value }));
-  };
-
-  const updateCreateForm = (field: string, value: any) => {
-    setCreateForm(prev => ({ ...prev, [field]: value }));
-  };
-
-  const formatPrecio = (precio: number) => {
-    return `$${precio.toLocaleString('es-CO')}`;
-  };
-
-  const calcularDescuento = (precio: number, precioOriginal: number) => {
-    if (!precioOriginal) return 0;
-    const descuento = ((precioOriginal - precio) / precioOriginal) * 100;
-    return Math.round(descuento);
+    if (!selectedProduct) return;
+    setSaving(true);
+    try { await eliminarProducto(selectedProduct.id); toast.success('Producto eliminado'); setDeleteOpen(false); }
+    catch { toast.error('Error eliminando producto'); }
+    finally { setSaving(false); }
   };
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="p-8 bg-gray-50 min-h-screen">
       <div className="flex items-center gap-2 mb-4">
-        <span className="text-sm text-gray-500">Dashboard</span>
+        <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-500">Dashboard</span>
         <ChevronRight className="w-4 h-4 text-gray-400" />
-        <span className="text-sm text-gray-900">Gestión de Productos</span>
+        <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-900">Inventario</span>
       </div>
-
-      <div className="mb-6 flex items-center gap-4">
-        <h1 className="text-2xl font-bold text-gray-900">Productos</h1>
-        <div className="ml-auto flex items-center gap-2">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <input
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              placeholder="Buscar productos..."
-              className="pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#d65391] focus:border-transparent"
-            />
-          </div>
-          {puedeCrear && (
-            <button 
-              onClick={handleCreate}
-              className="px-4 py-2 bg-[#d65391] text-white rounded-md hover:bg-[#c84a8f] transition-colors flex items-center gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              Nuevo Producto
-            </button>
-          )}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 style={{ fontFamily: 'Playfair Display, serif' }} className="text-4xl text-gray-900">Inventario de Productos</h1>
+          <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-500 text-sm mt-1">{todosLosProductos.length} productos en total</p>
         </div>
-      </div>
-
-      {/* Grid de Productos */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {filteredProducts.map(product => (
-          <div key={product.id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
-            {/* Imagen del Producto */}
-            <div className="relative">
-              <img 
-                src={product.imagen} 
-                alt={product.nombre} 
-                className="w-full h-48 object-cover"
-              />
-              {product.precioOriginal && (
-                <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-medium">
-                  -{calcularDescuento(product.precio, product.precioOriginal)}%
-                </div>
-              )}
-              <div className={`absolute top-2 left-2 px-2 py-1 rounded text-xs font-medium ${
-                product.activo ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
-              }`}>
-                {product.activo ? 'Activo' : 'Inactivo'}
-              </div>
-            </div>
-
-            {/* Información del Producto */}
-            <div className="p-4">
-              <div className="mb-2">
-                <h3 className="font-semibold text-gray-900 text-lg mb-1">{product.nombre}</h3>
-                <p className="text-sm text-gray-600">{product.codigo}</p>
-              </div>
-
-              {/* Precios */}
-              <div className="mb-3">
-                <div className="flex items-center gap-2">
-                  <span className="text-xl font-bold text-[#d65391]">{formatPrecio(product.precio)}</span>
-                  {product.precioOriginal && (
-                    <span className="text-sm text-gray-500 line-through">{formatPrecio(product.precioOriginal)}</span>
-                  )}
-                </div>
-                <p className="text-sm text-gray-600">Stock: {product.stock} unidades</p>
-              </div>
-
-              {/* Especificaciones del Producto */}
-              <div className="grid grid-cols-2 gap-2 mb-4 text-xs">
-                <div className="flex items-center gap-2">
-                  <Tag className="w-4 h-4 text-[#d65391]" />
-                  <span className="text-gray-600">{product.categoria}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Tag className="w-4 h-4 text-pink-600" />
-                  <span className="text-gray-600">{product.categoriaMain}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Shirt className="w-4 h-4 text-purple-600" />
-                  <span className="text-gray-600">{product.marca}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Ruler className="w-4 h-4 text-green-600" />
-                  <span className="text-gray-600">{product.tallas.join(', ')}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Palette className="w-4 h-4 text-yellow-600" />
-                  <span className="text-gray-600">{product.colores.join(', ')}</span>
-                </div>
-              </div>
-
-              {/* Acciones */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1">
-                  <button 
-                    onClick={() => handleView(product)}
-                    className="p-2 text-gray-600 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
-                    title="Ver detalles"
-                  >
-                    <Eye className="w-4 h-4" />
-                  </button>
-                  {puedeEditar && (
-                    <button 
-                      onClick={() => handleEdit(product)}
-                      className="p-2 text-gray-600 hover:bg-yellow-50 hover:text-yellow-600 rounded-lg transition-colors"
-                      title="Editar producto"
-                    >
-                      <Edit className="w-4 h-4" />
-                    </button>
-                  )}
-                  {puedeEliminar && (
-                    <button 
-                      onClick={() => handleDelete(product)}
-                      className="p-2 text-gray-600 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors"
-                      title="Eliminar producto"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-                <button
-                  onClick={() => handleToggleActivo(product.id)}
-                  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                    product.activo 
-                      ? 'bg-green-100 text-green-700 hover:bg-green-200' 
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                  title={product.activo ? 'Desactivar producto' : 'Activar producto'}
-                >
-                  {product.activo ? 'Activo' : 'Inactivo'}
-                </button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {filteredProducts.length === 0 && (
-        <div className="text-center py-12">
-          <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <p className="text-gray-500 mb-4">No se encontraron productos</p>
-          <button className="px-4 py-2 bg-[#d65391] text-white rounded-md hover:bg-[#c84a8f] transition-colors">
-            Agregar primer producto
+        {puedeCrear && (
+          <button onClick={openCreate} style={{ fontFamily: 'Inter, sans-serif' }}
+            className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 flex items-center gap-2 transition-colors">
+            <Plus className="w-5 h-5" /> Nuevo Producto
           </button>
-        </div>
-      )}
+        )}
+      </div>
 
-      {/* Modal de Ver Detalles */}
-      <Dialog open={isViewModalOpen} onOpenChange={setIsViewModalOpen}>
-        <DialogContent className="max-w-5xl">
-          <DialogHeader>
-            <DialogTitle>Detalles del Producto</DialogTitle>
+      {/* Filtros */}
+      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex flex-wrap gap-4 mb-6">
+        <div className="flex-1 min-w-[200px] relative">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <input type="text" placeholder="Buscar por nombre o código..." value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)} style={{ fontFamily: 'Inter, sans-serif' }}
+            className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391]" />
+        </div>
+        <Select value={categoriaFiltro} onValueChange={setCategoriaFiltro}>
+          <SelectTrigger className="w-48 h-12 border-gray-200"><SelectValue placeholder="Categoría" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="todas">Todas las categorías</SelectItem>
+            {categorias_unicas.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        <Select value={estadoFiltro} onValueChange={setEstadoFiltro}>
+          <SelectTrigger className="w-44 h-12 border-gray-200"><SelectValue placeholder="Estado" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="todos">Todos</SelectItem>
+            <SelectItem value="publicado">Publicado</SelectItem>
+            <SelectItem value="no_publicado">No publicado</SelectItem>
+            <SelectItem value="agotado">Agotado</SelectItem>
+          </SelectContent>
+        </Select>
+        {(searchQuery || categoriaFiltro !== 'todas' || estadoFiltro !== 'todos') && (
+          <button onClick={() => { setSearchQuery(''); setCategoriaFiltro('todas'); setEstadoFiltro('todos'); }}
+            className="px-4 py-3 text-gray-400 hover:text-gray-600 flex items-center gap-1 text-sm">
+            <X className="w-4 h-4" /> Limpiar
+          </button>
+        )}
+        <span style={{ fontFamily: 'Inter, sans-serif' }} className="ml-auto self-center text-sm text-gray-500">
+          Mostrando <strong>{filtered.length}</strong> de <strong>{todosLosProductos.length}</strong> productos
+        </span>
+      </div>
+
+      {/* Tabla */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50 border-b border-gray-200">
+              <tr>
+                <th className="px-6 py-4 text-left w-16"></th>
+                {['PRODUCTO', 'CATEGORÍA', 'P. COSTO', 'P. VENTA', 'P. OFERTA', 'STOCK', 'PUBLICADO', 'ACCIONES'].map(h => (
+                  <th key={h} className="px-6 py-4 text-left">
+                    <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs font-semibold uppercase tracking-wider text-gray-500">{h}</span>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {filtered.map(p => (
+                <tr key={p.id} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-6 py-4">
+                    {p.imagen ? (
+                      <img src={p.imagen} alt={p.nombre} className="w-12 h-12 object-cover rounded-lg border border-gray-200" />
+                    ) : (
+                      <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                        <Package className="w-5 h-5 text-gray-300" />
+                      </div>
+                    )}
+                  </td>
+                  <td className="px-6 py-4">
+                    <p style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-gray-900">{p.nombre}</p>
+                    <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-400 mt-0.5">{p.codigo}</p>
+                  </td>
+                  <td className="px-6 py-4"><span style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-600">{p.categoria}</span></td>
+                  <td className="px-6 py-4"><span style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-500 text-sm">{fmt(p.precioCompra)}</span></td>
+                  <td className="px-6 py-4"><span style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-gray-900">{fmt(p.precio)}</span></td>
+                  <td className="px-6 py-4">
+                    {p.precioOferta ? (
+                      <span style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-[#d65391]">{fmt(p.precioOferta)}</span>
+                    ) : <span className="text-gray-300">—</span>}
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className={`inline-flex items-center px-3 py-1 rounded-lg text-xs font-semibold ${stockColor(p.stock)}`}>
+                      {p.stock === 0 ? 'Agotado' : `${p.stock} uds`}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <button onClick={() => toggleEstado(p)} disabled={!puedeEditar}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${p.activo ? 'bg-[#d65391]' : 'bg-gray-200'} ${!puedeEditar ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
+                      <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${p.activo ? 'translate-x-6' : 'translate-x-1'}`} />
+                    </button>
+                    <p style={{ fontFamily: 'Inter, sans-serif' }} className={`text-xs mt-1 ${p.activo ? 'text-[#d65391]' : 'text-gray-400'}`}>
+                      {p.activo ? 'Publicado' : 'No publicado'}
+                    </p>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-2">
+                      <button onClick={() => { setSelectedProduct(p); setViewOpen(true); }}
+                        className="p-2 text-gray-500 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors" title="Ver">
+                        <Eye className="w-5 h-5" />
+                      </button>
+                      {puedeEditar && (
+                        <button onClick={() => openEdit(p)}
+                          className="p-2 text-gray-500 hover:bg-yellow-50 hover:text-yellow-600 rounded-lg transition-colors" title="Editar">
+                          <Edit className="w-5 h-5" />
+                        </button>
+                      )}
+                      {puedeEliminar && (
+                        <button onClick={() => { setSelectedProduct(p); setDeleteOpen(true); }}
+                          className="p-2 text-gray-500 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors" title="Eliminar">
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {filtered.length === 0 && (
+                <tr><td colSpan={9} className="px-6 py-16 text-center">
+                  <Package className="w-12 h-12 text-gray-200 mx-auto mb-3" />
+                  <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-400">No se encontraron productos</p>
+                </td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+        <div className="px-6 py-4 border-t border-gray-100">
+          <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-500">
+            Mostrando <span className="font-medium text-gray-800">{filtered.length}</span> de <span className="font-medium text-gray-800">{todosLosProductos.length}</span> productos
+          </span>
+        </div>
+      </div>
+
+      {/* ═══ MODAL VER ═══ */}
+      <Dialog open={viewOpen} onOpenChange={setViewOpen}>
+        <DialogContent className="max-w-2xl h-auto flex flex-col p-0 gap-0">
+          <DialogHeader className="px-8 pt-6 pb-4 border-b border-gray-200 flex-shrink-0">
+            <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl">{selectedProduct?.nombre}</DialogTitle>
+            <DialogDescription style={{ fontFamily: 'Inter, sans-serif' }}>Código: {selectedProduct?.codigo}</DialogDescription>
           </DialogHeader>
           {selectedProduct && (
-            <div className="space-y-6">
-              <div className="flex gap-6">
-                <img 
-                  src={selectedProduct.imagen} 
-                  alt={selectedProduct.nombre} 
-                  className="w-40 h-40 object-cover rounded-lg"
-                />
-                <div className="flex-1">
-                  <h3 className="text-2xl font-semibold">{selectedProduct.nombre}</h3>
-                  <p className="text-gray-600 text-lg">{selectedProduct.codigo}</p>
-                  <div className="flex items-center gap-4 mt-4">
-                    <p className="text-2xl font-bold text-[#d65391]">{formatPrecio(selectedProduct.precio)}</p>
-                    {selectedProduct.precioOriginal && (
-                      <p className="text-lg text-gray-500 line-through">{formatPrecio(selectedProduct.precioOriginal)}</p>
-                    )}
+            <div className="flex-1 overflow-y-auto">
+              <div className="space-y-6 py-6 px-8">
+
+                {/* Imagen + precios */}
+                <div className="flex gap-6 items-start">
+                  {selectedProduct.imagen ? (
+                    <img src={selectedProduct.imagen} alt={selectedProduct.nombre}
+                      className="w-32 h-32 object-cover rounded-xl border border-gray-200 flex-shrink-0" />
+                  ) : (
+                    <div className="w-32 h-32 bg-gray-100 rounded-xl flex items-center justify-center flex-shrink-0 border border-gray-200">
+                      <Package className="w-8 h-8 text-gray-300" />
+                    </div>
+                  )}
+                  <div className="flex-1 grid grid-cols-3 gap-4">
+                    {[
+                      ['Precio de Costo', fmt(selectedProduct.precioCompra), 'text-gray-900'],
+                      ['Precio de Venta', fmt(selectedProduct.precio), 'text-gray-900'],
+                      ['Precio Oferta', selectedProduct.precioOferta ? fmt(selectedProduct.precioOferta) : 'Sin oferta', selectedProduct.precioOferta ? 'text-[#d65391]' : 'text-gray-300'],
+                    ].map(([label, value, cls]) => (
+                      <div key={label} className="bg-gray-50 rounded-xl p-4">
+                        <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 mb-2 uppercase tracking-wide">{label}</p>
+                        <p style={{ fontFamily: 'Inter, sans-serif' }} className={`text-base font-bold ${cls}`}>{value}</p>
+                      </div>
+                    ))}
                   </div>
-                  <p className="text-lg text-gray-600 mt-2">Stock: {selectedProduct.stock} unidades</p>
-                  <div className="flex items-center gap-2 mt-3">
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      selectedProduct.activo ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
-                    }`}>
-                      {selectedProduct.activo ? 'Activo' : 'Inactivo'}
-                    </span>
+                </div>
+
+                {/* Info general */}
+                <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                  <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                    <h3 style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-gray-800 text-base">📋 Información General</h3>
+                  </div>
+                  <div className="p-6 grid grid-cols-2 gap-6">
+                    {[
+                      ['Categoría', selectedProduct.categoria],
+                      ['Marca', selectedProduct.marca],
+                      ['Tipo', selectedProduct.tipoProducto],
+                      ['Stock Total', `${selectedProduct.stock} unidades`],
+                      ['Estado', selectedProduct.activo ? '✅ Publicado' : '⭕ No publicado'],
+                      ['Materiales', selectedProduct.materiales?.join(', ') || '—'],
+                    ].map(([label, value]) => (
+                      <div key={label} className="flex flex-col gap-1">
+                        <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 font-medium uppercase">{label}</p>
+                        <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-semibold text-gray-900">{value}</p>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              </div>
-              
-              <div className="grid grid-cols-3 gap-4 text-sm">
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <strong className="text-gray-700 block mb-1">Categoría:</strong>
-                  <span className="text-gray-900">{selectedProduct.categoria}</span>
-                </div>
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <strong className="text-gray-700 block mb-1">Categoría Principal:</strong>
-                  <span className="text-gray-900">{selectedProduct.categoriaMain}</span>
-                </div>
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <strong className="text-gray-700 block mb-1">Marca:</strong>
-                  <span className="text-gray-900">{selectedProduct.marca}</span>
-                </div>
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <strong className="text-gray-700 block mb-1">Tallas:</strong>
-                  <span className="text-gray-900">{selectedProduct.tallas.join(', ')}</span>
-                </div>
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <strong className="text-gray-700 block mb-1">Colores:</strong>
-                  <span className="text-gray-900">{selectedProduct.colores.join(', ')}</span>
-                </div>
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <strong className="text-gray-700 block mb-1">Materiales:</strong>
-                  <span className="text-gray-900">{Array.isArray(selectedProduct.materiales) ? selectedProduct.materiales.join(', ') : selectedProduct.materiales}</span>
-                </div>
-                <div className="bg-gray-50 p-3 rounded-lg col-span-3">
-                  <strong className="text-gray-700 block mb-1">Descripción:</strong>
-                  <p className="text-gray-900 leading-relaxed">{selectedProduct.descripcion}</p>
-                </div>
+
+                {/* Stock variantes */}
+                {selectedProduct.variantes?.length > 0 && (
+                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                      <h3 style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-gray-800 text-base">📦 Stock por Talla y Color</h3>
+                    </div>
+                    <div className="p-6">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b border-gray-100">
+                            <th className="pb-3 text-left text-xs text-gray-500 uppercase font-semibold">Talla</th>
+                            <th className="pb-3 text-left text-xs text-gray-500 uppercase font-semibold">Color</th>
+                            <th className="pb-3 text-right text-xs text-gray-500 uppercase font-semibold">Stock</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-50">
+                          {selectedProduct.variantes.map((v, i) => (
+                            <tr key={i}>
+                              <td className="py-3 text-gray-700">{v.tallaNombre || '—'}</td>
+                              <td className="py-3 text-gray-700">{v.colorNombre || '—'}</td>
+                              <td className="py-3 text-right">
+                                <span className={`px-2 py-1 rounded-lg text-xs font-semibold ${stockColor(v.stock)}`}>
+                                  {v.stock === 0 ? 'Agotado' : v.stock}
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+
+                {/* Descripción */}
+                {selectedProduct.descripcion && (
+                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                      <h3 style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-gray-800 text-base">📝 Descripción</h3>
+                    </div>
+                    <div className="p-6">
+                      <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-700 leading-relaxed">{selectedProduct.descripcion}</p>
+                    </div>
+                  </div>
+                )}
+
               </div>
             </div>
           )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Modal de Editar */}
-      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Editar Producto</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-6">
-            {/* PASO 1: Información Básica */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h3 className="font-semibold text-gray-900 mb-3">Paso 1: Información Básica</h3>
-              <div className="space-y-3">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="edit-nombre">Nombre *</Label>
-                    <Input
-                      id="edit-nombre"
-                      value={editForm.nombre || ''}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        updateEditForm('nombre', value);
-                        if (!/^[a-zA-Z\s]+$/.test(value)) {
-                          setEditErrors({...editErrors, nombre: 'Solo se permiten letras y espacios'});
-                        } else {
-                          setEditErrors({...editErrors, nombre: ''});
-                        }
-                      }}
-                      placeholder="Nombre del producto"
-                    />
-                    {editErrors.nombre && <p className="text-red-500 text-sm">{editErrors.nombre}</p>}
-                  </div>
-                  <div>
-                    <Label htmlFor="edit-codigo">Código *</Label>
-                    <Input
-                      id="edit-codigo"
-                      value={editForm.codigo || ''}
-                      onChange={(e) => updateEditForm('codigo', e.target.value)}
-                      placeholder="Código único"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="edit-categoria">Categoría *</Label>
-                    <Select value={editForm.categoria || ''} onValueChange={(value) => updateEditForm('categoria', value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccionar categoría" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categoriasRopa.map((categoria) => (
-                          <SelectItem key={categoria.id} value={categoria.nombre}>{categoria.nombre}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="edit-categoriaMain">Categoría Principal *</Label>
-                    <Select value={editForm.categoriaMain || ''} onValueChange={(value) => updateEditForm('categoriaMain', value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccionar categoría principal" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categorias.map((cat) => (
-                          <SelectItem key={cat.id} value={cat.nombre}>{cat.nombre}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="edit-marca">Marca</Label>
-                    <Select value={editForm.marca || ''} onValueChange={(value) => updateEditForm('marca', value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccionar marca" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {marcas.map((marca) => (
-                          <SelectItem key={marca.id} value={marca.nombre}>
-                            {marca.nombre}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {editErrors.marca && <p className="text-red-500 text-sm">{editErrors.marca}</p>}
-                  </div>
-                  <div>
-                    <Label htmlFor="edit-tipoProducto">Tipo de Producto</Label>
-                    <Select value={editForm.tipoProducto || ''} onValueChange={(value) => updateEditForm('tipoProducto', value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccionar tipo" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {tiposProducto.map((tipo) => (
-                          <SelectItem key={tipo.id} value={tipo.nombre}>{tipo.nombre}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </div>
-
-              {/* Imagen Principal */}
-              <div className="mt-3">
-                <Label htmlFor="edit-imagen">Imagen Principal</Label>
-                <div className="flex gap-2 mt-1">
-                  <Input
-                    id="edit-imagen"
-                    value={editForm.imagen || ''}
-                    onChange={(e) => updateEditForm('imagen', e.target.value)}
-                    placeholder="https://... pega URL o sube desde PC"
-                  />
-                  {editForm.imagen && !editForm.imagen.startsWith('data:') && (
-                    <img src={editForm.imagen} alt="preview" className="w-12 h-12 object-cover rounded border" />
-                  )}
-                </div>
-                <div className="flex items-center gap-2 mt-2">
-                  <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs px-3 py-1.5 rounded border border-gray-300 flex items-center gap-1">
-                    <Upload className="w-3 h-3" />
-                    Subir desde PC
-                    <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
-                      if (e.target.files?.[0]) {
-                        toast.loading('Subiendo imagen...', { id: 'main-img-edit' });
-                        const url = await uploadImageToServer(e.target.files[0]);
-                        if (url) { updateEditForm('imagen', url); toast.success('Imagen subida', { id: 'main-img-edit' }); }
-                        else toast.dismiss('main-img-edit');
-                        e.target.value = '';
-                      }
-                    }} />
-                  </label>
-                  <span className="text-xs text-gray-400">o pega una URL arriba</span>
-                </div>
-              </div>
-            </div>
-
-            {/* PASO 2: Especificaciones (Colores, Tallas, Materiales) */}
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-              <h3 className="font-semibold text-gray-900 mb-3">Paso 2: Especificaciones</h3>
-              <div className="space-y-4">
-                {/* COLORES - PRIMERO */}
-                <div>
-                  <Label className="font-medium mb-2 block">Colores Disponibles</Label>
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    {colores.map(color => (
-                      <button
-                        key={color.id}
-                        type="button"
-                        onClick={() => {
-                          const currentColores = editForm.colores || [];
-                          const newColores = currentColores.includes(color.nombre)
-                            ? currentColores.filter(c => c !== color.nombre)
-                            : [...currentColores, color.nombre];
-                          updateEditForm('colores', newColores);
-                        }}
-                        className={`px-3 py-1 border rounded font-medium transition-all ${
-                          (editForm.colores || []).includes(color.nombre)
-                            ? 'bg-[#d65391] text-white border-[#d65391]'
-                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                        }`}
-                      >
-                        {color.nombre}
-                      </button>
-                    ))}
-                  </div>
-                  {editForm.colores && editForm.colores.length > 0 && (
-                    <div className="bg-white border border-green-300 rounded p-3">
-                      <p className="text-sm text-gray-600 mb-1">Colores seleccionados:</p>
-                      <div className="flex gap-2 flex-wrap">
-                        {editForm.colores.map(c => (
-                          <Badge key={c} className="bg-[#d65391]">{c}</Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Tallas */}
-                <div>
-                  <Label className="font-medium mb-2 block">Tallas</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {tallas.map(talla => (
-                      <button
-                        key={talla.id}
-                        type="button"
-                        onClick={() => {
-                          const currentTallas = editForm.tallas || [];
-                          const newTallas = currentTallas.includes(talla.nombre)
-                            ? currentTallas.filter(t => t !== talla.nombre)
-                            : [...currentTallas, talla.nombre];
-                          updateEditForm('tallas', newTallas);
-                        }}
-                        className={`px-3 py-1 border rounded ${
-                          (editForm.tallas || []).includes(talla.nombre)
-                            ? 'bg-[#d65391] text-white border-[#d65391]'
-                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                        }`}
-                      >
-                        {talla.nombre}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Materiales */}
-                <div>
-                  <Label className="font-medium mb-2 block">Materiales</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {materiales.map(material => (
-                      <button
-                        key={material.id}
-                        type="button"
-                        onClick={() => {
-                          const currentMateriales = editForm.materiales || [];
-                          const newMateriales = currentMateriales.includes(material.nombre)
-                            ? currentMateriales.filter(m => m !== material.nombre)
-                            : [...currentMateriales, material.nombre];
-                          updateEditForm('materiales', newMateriales);
-                        }}
-                        className={`px-3 py-1 border rounded ${
-                          (editForm.materiales || []).includes(material.nombre)
-                            ? 'bg-[#d65391] text-white border-[#d65391]'
-                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                        }`}
-                      >
-                        {material.nombre}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* PASO 3: Precios y Stock */}
-            <div className="bg-white border-2 border-gray-100 rounded-lg p-5 shadow-sm">
-              <h3 style={{ fontFamily: 'Playfair Display, serif' }} className="font-semibold text-gray-900 mb-4 text-lg">💰 Paso 3: Precios y Stock</h3>
-              <div className="space-y-4">
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <Label htmlFor="edit-precio">Precio *</Label>
-                    <Input
-                      id="edit-precio"
-                      type="number"
-                      value={editForm.precio ?? ''}
-                      onChange={(e) => updateEditForm('precio', e.target.value ? parseInt(e.target.value) : null)}
-                      placeholder="Ingresa el precio"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="edit-precio-original">Precio Tachado (si hay oferta)</Label>
-                    <Input
-                      id="edit-precio-original"
-                      type="number"
-                      value={editForm.precioOriginal ?? ''}
-                      onChange={(e) => updateEditForm('precioOriginal', e.target.value ? parseInt(e.target.value) : null)}
-                      placeholder="Ingresa el precio"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="edit-stock">Stock</Label>
-                    <Input
-                      id="edit-stock"
-                      type="number"
-                      value={editForm.stock ?? ''}
-                      onChange={(e) => updateEditForm('stock', e.target.value ? Math.max(0, parseInt(e.target.value)) : 0)}
-                      placeholder="Ingresa el stock"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-4">
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      id="edit-activo"
-                      checked={editForm.activo || false}
-                      onChange={(e) => updateEditForm('activo', e.target.checked)}
-                      className="rounded"
-                    />
-                    <Label htmlFor="edit-activo">Producto activo</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      id="edit-issale"
-                      checked={editForm.isSale ?? false}
-                      onChange={(e) => updateEditForm('isSale', e.target.checked)}
-                      className="rounded"
-                    />
-                    <Label htmlFor="edit-issale">Marcar como SALE</Label>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* PASO 3.5: Stock por Talla y Color (Variantes) */}
-            {(editForm.tallas?.length > 0 && editForm.colores?.length > 0) && (
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                <h3 className="font-semibold text-gray-900 mb-1 flex items-center gap-2">
-                  📦 Stock por Talla / Color
-                </h3>
-                <p className="text-xs text-gray-500 mb-3">
-                  Define cuántas unidades hay de cada combinación. Deja en 0 para marcar como agotado esa variante.
-                </p>
-                <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
-                  {(() => {
-                    const tallasEdit: string[] = editForm.tallas || [];
-                    const coloresEdit: string[] = editForm.colores || [];
-                    const variantes: any[] = editForm.variantes || [];
-                    const getStock = (t: string, c: string) => {
-                      const v = variantes.find((x: any) => x.tallaNombre === t && x.colorNombre === c);
-                      return v?.stock ?? 0;
-                    };
-                    const setStock = (t: string, c: string, val: number) => {
-                      const current = [...(editForm.variantes || [])];
-                      const idx = current.findIndex((x: any) => x.tallaNombre === t && x.colorNombre === c);
-                      if (idx >= 0) current[idx] = { ...current[idx], stock: val };
-                      else current.push({ tallaNombre: t, colorNombre: c, stock: val });
-                      updateEditForm('variantes', current);
-                    };
-                    return tallasEdit.flatMap((talla: string) =>
-                      coloresEdit.map((color: string) => {
-                        const stock = getStock(talla, color);
-                        return (
-                          <div key={`${talla}-${color}`} className="flex items-center justify-between bg-white rounded border border-gray-200 px-3 py-2">
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs font-medium text-gray-700 w-12">{talla}</span>
-                              <span className="text-xs text-gray-400">—</span>
-                              <span className="text-xs text-gray-600">{color}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              {stock === 0 && <span className="text-[10px] text-red-500 font-semibold">Agotado</span>}
-                              <input
-                                type="number"
-                                min={0}
-                                value={stock === 0 ? '' : stock}
-                                placeholder="0"
-                                onChange={e => {
-                                  const raw = e.target.value;
-                                  if (raw === '') { setStock(talla, color, 0); return; }
-                                  const val = parseInt(raw);
-                                  if (!isNaN(val) && val >= 0) setStock(talla, color, val);
-                                }}
-                                className="w-16 text-center text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:border-[#d65391]"
-                              />
-                            </div>
-                          </div>
-                        );
-                      })
-                    );
-                  })()}
-                </div>
-              </div>
+          <DialogFooter className="gap-2 px-8 py-5 border-t border-gray-200 flex-shrink-0">
+            {puedeEditar && selectedProduct && (
+              <button onClick={() => { setViewOpen(false); openEdit(selectedProduct); }}
+                style={{ fontFamily: 'Inter, sans-serif' }}
+                className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors">Editar</button>
             )}
-
-            {/* PASO 4: Imágenes por Color */}
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-              <h3 className="font-semibold text-gray-900 mb-3">Paso 4: Imágenes por Color</h3>
-              {!editForm.colores || editForm.colores.length === 0 ? (
-                <div className="bg-yellow-50 border border-yellow-300 rounded p-3 mb-4">
-                  <p className="text-sm text-yellow-800">⚠️ Primero selecciona al menos un color en el Paso 2 para poder agregar imágenes</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {/* Selector de Color - VISIBLE */}
-                  <div>
-                    <Label className="font-medium mb-2 block">Selecciona color para las imágenes:</Label>
-                    <Select value={editColorSelection.color || ''} onValueChange={(v)=> setEditColorSelection({ ...editColorSelection, color: v })}>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Elige un color..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {(editForm.colores || []).map((c:any) => (
-                          <SelectItem key={c} value={c}>{c}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {editColorSelection.color && (
-                    <>
-                      {/* Cargar desde archivo */}
-                      <div className="border-2 border-dashed border-amber-300 rounded-lg p-4 bg-white">
-                        <div className="flex items-center gap-2 mb-3">
-                          <Upload className="w-5 h-5 text-amber-600" />
-                          <span className="text-sm text-gray-700 font-medium">Sube imágenes para el color <span className="text-[#d65391] font-bold">{editColorSelection.color}</span></span>
-                        </div>
-                        <input
-                          type="file"
-                          multiple
-                          accept="image/*"
-                          onChange={(e) => {
-                            if (e.target.files) {
-                              handleFileUploadForColor(e.target.files, editColorSelection.color || '', true);
-                              e.target.value = '';
-                            }
-                          }}
-                          className="w-full cursor-pointer"
-                        />
-                      </div>
-
-                      {/* Agregar URL */}
-                      <div className="flex gap-2">
-                        <Input
-                          placeholder={`Pegar URL de imagen para ${editColorSelection.color}...`}
-                          value={editColorSelection.imageUrl || ''}
-                          onChange={(e) => setEditColorSelection({ ...editColorSelection, imageUrl: e.target.value })}
-                          onKeyPress={(e) => {
-                            if (e.key === 'Enter') {
-                              addImageUrlForColor(editColorSelection.imageUrl || '', editColorSelection.color || '', true);
-                              setEditColorSelection({ ...editColorSelection, imageUrl: '' });
-                            }
-                          }}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => {
-                            addImageUrlForColor(editColorSelection.imageUrl || '', editColorSelection.color || '', true);
-                            setEditColorSelection({ ...editColorSelection, imageUrl: '' });
-                          }}
-                          className="px-4 py-2 bg-[#d65391] text-white rounded-md hover:bg-[#c84a8f] whitespace-nowrap"
-                        >
-                          Agregar URL
-                        </button>
-                      </div>
-                    </>
-                  )}
-
-                  {/* Galería por Color */}
-                  {/* Imágenes por color — muestra cada color con sus imágenes */}
-                  {editForm.imagenesPorColor && Object.keys(editForm.imagenesPorColor).some((c: any) => (editForm.imagenesPorColor||{})[c]?.length > 0) && (
-                    <div className="mt-4">
-                      <Label className="font-medium mb-2 block text-gray-800">📸 Imágenes guardadas por color:</Label>
-                      {Object.keys(editForm.imagenesPorColor).map((c: any) => {
-                        const imgs = (editForm.imagenesPorColor||{})[c] || [];
-                        if (imgs.length === 0) return null;
-                        return (
-                          <div key={c} className="mb-3 bg-white p-3 rounded-lg border border-gray-200">
-                            <p className="text-sm font-semibold text-gray-800 mb-2">{c} <span className="text-xs font-normal text-gray-500">({imgs.length} imagen{imgs.length !== 1 ? 'es' : ''})</span></p>
-                            <div className="flex flex-wrap gap-3">
-                              {imgs.map((img: string, idx: number) => (
-                                <div key={idx} className="relative w-20 h-20 flex-shrink-0">
-                                  <img src={img} alt={`${c} ${idx+1}`} className="w-full h-full object-cover rounded-lg border-2 border-gray-200" />
-                                  <button
-                                    type="button"
-                                    onClick={() => removeImageByColor(c, idx, true)}
-                                    className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center shadow-md transition-all hover:scale-110 z-10"
-                                    title="Eliminar imagen"
-                                  >
-                                    <X className="w-3 h-3" />
-                                  </button>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* PASO 5: Descripción */}
-            <div>
-              <Label htmlFor="edit-descripcion" className="font-medium">Descripción del Producto</Label>
-              <Textarea
-                id="edit-descripcion"
-                value={editForm.descripcion || ''}
-                onChange={(e) => updateEditForm('descripcion', e.target.value)}
-                placeholder="Describe el producto aquí..."
-                rows={3}
-                className="mt-2"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <button 
-              onClick={() => setIsEditModalOpen(false)}
-              className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
-            >
-              Cancelar
-            </button>
-            <button 
-              onClick={handleSaveEdit}
-              className="px-4 py-2 bg-[#d65391] text-white rounded-md hover:bg-[#c84a8f]"
-            >
-              Guardar Cambios
-            </button>
+            <button onClick={() => setViewOpen(false)} style={{ fontFamily: 'Inter, sans-serif' }}
+              className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">Cerrar</button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Modal de Crear Producto */}
-      <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl">Crear Nuevo Producto</DialogTitle>
+      {/* ═══ MODAL CREAR / EDITAR ═══ */}
+      <Dialog open={formOpen} onOpenChange={setFormOpen}>
+        <DialogContent className="max-w-3xl h-auto flex flex-col p-0 gap-0">
+          <DialogHeader className="px-8 pt-6 pb-4 border-b border-gray-200 flex-shrink-0">
+            <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl">
+              {isEditing ? 'Editar Producto' : 'Nuevo Producto'}
+            </DialogTitle>
             <DialogDescription style={{ fontFamily: 'Inter, sans-serif' }}>
-              Completa todos los pasos para agregar un nuevo producto al catálogo
+              {isEditing ? 'Modifica la información del producto' : 'Completa los datos para registrar un nuevo producto'}
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-6 bg-gradient-to-b from-white to-gray-50 p-6 rounded-lg">
-            {/* PASO 1: Información Básica */}
-            <div className="bg-white border-2 border-gray-100 rounded-lg p-5 shadow-sm">
-              <h3 style={{ fontFamily: 'Playfair Display, serif' }} className="font-semibold text-gray-900 mb-4 text-lg">📦 Paso 1: Información Básica</h3>
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="create-nombre">Nombre *</Label>
-                    <Input
-                      id="create-nombre"
-                      value={createForm.nombre || ''}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        updateCreateForm('nombre', value);
-                        if (!/^[a-zA-Z\s]+$/.test(value)) {
-                          setCreateErrors({...createErrors, nombre: 'Solo se permiten letras y espacios'});
-                        } else {
-                          setCreateErrors({...createErrors, nombre: ''});
-                        }
-                      }}
-                      placeholder="Nombre del producto"
-                    />
-                    {createErrors.nombre && <p className="text-red-500 text-sm">{createErrors.nombre}</p>}
-                  </div>
-                  <div>
-                    <Label htmlFor="create-codigo">Código *</Label>
-                    <Input
-                      id="create-codigo"
-                      value={createForm.codigo || ''}
-                      onChange={(e) => updateCreateForm('codigo', e.target.value)}
-                      placeholder="Código único"
-                    />
-                  </div>
-                </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="create-categoria">Categoría *</Label>
-                    <Select value={createForm.categoria || ''} onValueChange={(value) => updateCreateForm('categoria', value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccionar categoría" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categoriasRopa.map((categoria) => (
-                          <SelectItem key={categoria.id} value={categoria.nombre}>{categoria.nombre}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="create-categoriaMain">Categoría Principal *</Label>
-                    <Select value={createForm.categoriaMain || ''} onValueChange={(value) => updateCreateForm('categoriaMain', value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccionar categoría principal" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categorias.map((cat) => (
-                          <SelectItem key={cat.id} value={cat.nombre}>{cat.nombre}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
+          {/* Tabs */}
+          <div className="flex border-b border-gray-200 px-8 flex-shrink-0">
+            {[
+              { key: 'info', label: '📋 Información' },
+              { key: 'variantes', label: '📦 Tallas, Colores y Stock' },
+              { key: 'imagen', label: '🖼 Imagen' },
+            ].map(tab => (
+              <button key={tab.key} onClick={() => setActiveTab(tab.key as any)}
+                style={{ fontFamily: 'Inter, sans-serif' }}
+                className={`px-5 py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === tab.key ? 'border-[#d65391] text-[#d65391]' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
+                {tab.label}
+              </button>
+            ))}
+          </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="create-marca">Marca</Label>
-                    <Select value={createForm.marca || ''} onValueChange={(value) => updateCreateForm('marca', value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccionar marca" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {marcas.map((marca) => (
-                          <SelectItem key={marca.id} value={marca.nombre}>
-                            {marca.nombre}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {createErrors.marca && <p className="text-red-500 text-sm">{createErrors.marca}</p>}
-                  </div>
-                  <div>
-                    <Label htmlFor="create-tipoProducto">Tipo de Producto</Label>
-                    <Select value={createForm.tipoProducto || ''} onValueChange={(value) => updateCreateForm('tipoProducto', value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccionar tipo" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {tiposProducto.map((tipo) => (
-                          <SelectItem key={tipo.id} value={tipo.nombre}>{tipo.nombre}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div className="flex-1 overflow-y-auto max-h-[65vh]">
+            <div className="space-y-6 py-6 px-8">
 
-                          {/* Imagen Principal */}
-              <div className="mt-4 px-5 pb-5">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Imagen Principal
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={createForm.imagen || ''}
-                    onChange={(e) => updateCreateForm('imagen', e.target.value)}
-                    placeholder="https://... pega URL o sube desde PC"
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#d65391]"
-                  />
-                  {createForm.imagen && !createForm.imagen.startsWith('data:') && (
-                    <img src={createForm.imagen} alt="preview" className="w-12 h-12 object-cover rounded border flex-shrink-0" />
-                  )}
-                </div>
-              </div>
-
-            {/* PASO 2: Especificaciones (Colores, Tallas, Materiales) */}
-            <div className="bg-white border-2 border-gray-100 rounded-lg p-5 shadow-sm">
-              <h3 style={{ fontFamily: 'Playfair Display, serif' }} className="font-semibold text-gray-900 mb-4 text-lg">🎨 Paso 2: Especificaciones</h3>
-              <div className="space-y-5">
-                {/* COLORES - PRIMERO */}
-                <div>
-                  <Label className="font-medium mb-2 block">Colores Disponibles</Label>
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    {colores.map(color => (
-                      <button
-                        key={color.id}
-                        type="button"
-                        onClick={() => {
-                          const currentColores = createForm.colores || [];
-                          const newColores = currentColores.includes(color.nombre)
-                            ? currentColores.filter(c => c !== color.nombre)
-                            : [...currentColores, color.nombre];
-                          updateCreateForm('colores', newColores);
-                        }}
-                        className={`px-3 py-1 border rounded font-medium transition-all ${
-                          (createForm.colores || []).includes(color.nombre)
-                            ? 'bg-[#d65391] text-white border-[#d65391]'
-                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                        }`}
-                      >
-                        {color.nombre}
-                      </button>
-                    ))}
-                  </div>
-                  {createForm.colores && createForm.colores.length > 0 && (
-                    <div className="bg-white border border-green-300 rounded p-3">
-                      <p className="text-sm text-gray-600 mb-1">Colores seleccionados:</p>
-                      <div className="flex gap-2 flex-wrap">
-                        {createForm.colores.map(c => (
-                          <Badge key={c} className="bg-[#d65391]">{c}</Badge>
-                        ))}
+              {/* ── INFO ── */}
+              {activeTab === 'info' && (
+                <>
+                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                      <h3 style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-gray-800 text-base">📋 Datos Básicos</h3>
+                    </div>
+                    <div className="p-6 grid grid-cols-2 gap-6">
+                      <div className="flex flex-col gap-2 col-span-2">
+                        <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">Nombre <span className="text-red-500">*</span></Label>
+                        <Input value={form.nombre} onChange={e => setForm(f => ({ ...f, nombre: e.target.value }))}
+                          placeholder="Ej: Vestido Floral Verano" className="h-10 border-gray-300" />
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">Código / Referencia</Label>
+                        <Input value={form.codigo} onChange={e => setForm(f => ({ ...f, codigo: e.target.value }))}
+                          placeholder="Ej: VES-001" className="h-10 border-gray-300" />
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">Categoría <span className="text-red-500">*</span></Label>
+                        <Select value={form.categoriaPrincipalID} onValueChange={v => setForm(f => ({ ...f, categoriaPrincipalID: v }))}>
+                          <SelectTrigger className="h-10 border-gray-300"><SelectValue placeholder="Selecciona categoría..." /></SelectTrigger>
+                          <SelectContent>
+                            {categorias.map((c: any) => <SelectItem key={c.id} value={String(c.id)}>{c.nombre}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">Tipo de Producto</Label>
+                        <Select value={form.tipoProductoID} onValueChange={v => setForm(f => ({ ...f, tipoProductoID: v }))}>
+                          <SelectTrigger className="h-10 border-gray-300"><SelectValue placeholder="Selecciona tipo..." /></SelectTrigger>
+                          <SelectContent>
+                            {tiposProducto.map((t: any) => <SelectItem key={t.id} value={String(t.id)}>{t.nombre}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">Marca</Label>
+                        <Select value={form.marcaID} onValueChange={v => setForm(f => ({ ...f, marcaID: v }))}>
+                          <SelectTrigger className="h-10 border-gray-300"><SelectValue placeholder="Selecciona marca..." /></SelectTrigger>
+                          <SelectContent>
+                            {marcas.map((m: any) => <SelectItem key={m.id} value={String(m.id)}>{m.nombre}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="flex flex-col gap-2 col-span-2">
+                        <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">Descripción</Label>
+                        <Textarea value={form.descripcion} onChange={e => setForm(f => ({ ...f, descripcion: e.target.value }))}
+                          placeholder="Descripción del producto..." className="border-gray-300 resize-none" rows={3} />
                       </div>
                     </div>
-                  )}
-                </div>
-
-                {/* Tallas */}
-                <div>
-                  <Label className="font-medium mb-2 block">Tallas</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {tallas.map(talla => (
-                      <button
-                        key={talla.id}
-                        type="button"
-                        onClick={() => {
-                          const currentTallas = createForm.tallas || [];
-                          const newTallas = currentTallas.includes(talla.nombre)
-                            ? currentTallas.filter(t => t !== talla.nombre)
-                            : [...currentTallas, talla.nombre];
-                          updateCreateForm('tallas', newTallas);
-                        }}
-                        className={`px-3 py-1 border rounded ${
-                          (createForm.tallas || []).includes(talla.nombre)
-                            ? 'bg-[#d65391] text-white border-[#d65391]'
-                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                        }`}
-                      >
-                        {talla.nombre}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Materiales */}
-                <div>
-                  <Label className="font-medium mb-2 block">Materiales</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {materiales.map(material => (
-                      <button
-                        key={material.id}
-                        type="button"
-                        onClick={() => {
-                          const currentMateriales = createForm.materiales || [];
-                          const newMateriales = currentMateriales.includes(material.nombre)
-                            ? currentMateriales.filter(m => m !== material.nombre)
-                            : [...currentMateriales, material.nombre];
-                          updateCreateForm('materiales', newMateriales);
-                        }}
-                        className={`px-3 py-1 border rounded ${
-                          (createForm.materiales || []).includes(material.nombre)
-                            ? 'bg-[#d65391] text-white border-[#d65391]'
-                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                        }`}
-                      >
-                        {material.nombre}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-              </div>
-            </div>
-
-            {/* PASO 3: Precios y Stock */}
-            <div className="bg-white border-2 border-gray-100 rounded-lg p-5 shadow-sm">
-              <h3 style={{ fontFamily: 'Playfair Display, serif' }} className="font-semibold text-gray-900 mb-4 text-lg">💰 Paso 3: Precios y Stock</h3>
-              <div className="space-y-4">
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <Label htmlFor="create-precio">Precio *</Label>
-                    <Input
-                      id="create-precio"
-                      type="number"
-                      value={createForm.precio ?? ''}
-                      onChange={(e) => updateCreateForm('precio', e.target.value ? parseInt(e.target.value) : null)}
-                      placeholder="Ingresa el precio"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="create-precio-original">Precio Tachado (si hay oferta)</Label>
-                    <Input
-                      id="create-precio-original"
-                      type="number"
-                      value={createForm.precioOriginal ?? ''}
-                      onChange={(e) => updateCreateForm('precioOriginal', e.target.value ? parseInt(e.target.value) : null)}
-                      placeholder="Ingresa el precio"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="create-stock">Stock</Label>
-                    <Input
-                      id="create-stock"
-                      type="number"
-                      value={createForm.stock ?? ''}
-                      onChange={(e) => updateCreateForm('stock', e.target.value ? Math.max(0, parseInt(e.target.value)) : 0)}
-                      placeholder="Ingresa el stock"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-4">
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      id="create-activo"
-                      checked={createForm.activo ?? true}
-                      onChange={(e) => updateCreateForm('activo', e.target.checked)}
-                      className="rounded"
-                    />
-                    <Label htmlFor="create-activo">Producto activo</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      id="create-issale"
-                      checked={createForm.isSale ?? false}
-                      onChange={(e) => updateCreateForm('isSale', e.target.checked)}
-                      className="rounded"
-                    />
-                    <Label htmlFor="create-issale">Marcar como SALE</Label>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* PASO 3.5: Stock por Talla y Color (Variantes) */}
-            {(editForm.tallas?.length > 0 && editForm.colores?.length > 0) && (
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                <h3 className="font-semibold text-gray-900 mb-1 flex items-center gap-2">
-                  📦 Stock por Talla / Color
-                </h3>
-                <p className="text-xs text-gray-500 mb-3">
-                  Define cuántas unidades hay de cada combinación. Deja en 0 para marcar como agotado esa variante.
-                </p>
-                <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
-                  {(() => {
-                    const tallasEdit: string[] = editForm.tallas || [];
-                    const coloresEdit: string[] = editForm.colores || [];
-                    const variantes: any[] = editForm.variantes || [];
-                    const getStock = (t: string, c: string) => {
-                      const v = variantes.find((x: any) => x.tallaNombre === t && x.colorNombre === c);
-                      return v?.stock ?? 0;
-                    };
-                    const setStock = (t: string, c: string, val: number) => {
-                      const current = [...(editForm.variantes || [])];
-                      const idx = current.findIndex((x: any) => x.tallaNombre === t && x.colorNombre === c);
-                      if (idx >= 0) current[idx] = { ...current[idx], stock: val };
-                      else current.push({ tallaNombre: t, colorNombre: c, stock: val });
-                      updateEditForm('variantes', current);
-                    };
-                    return tallasEdit.flatMap((talla: string) =>
-                      coloresEdit.map((color: string) => {
-                        const stock = getStock(talla, color);
-                        return (
-                          <div key={`${talla}-${color}`} className="flex items-center justify-between bg-white rounded border border-gray-200 px-3 py-2">
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs font-medium text-gray-700 w-12">{talla}</span>
-                              <span className="text-xs text-gray-400">—</span>
-                              <span className="text-xs text-gray-600">{color}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              {stock === 0 && <span className="text-[10px] text-red-500 font-semibold">Agotado</span>}
-                              <input
-                                type="number"
-                                min={0}
-                                value={stock === 0 ? '' : stock}
-                                placeholder="0"
-                                onChange={e => {
-                                  const raw = e.target.value;
-                                  if (raw === '') { setStock(talla, color, 0); return; }
-                                  const val = parseInt(raw);
-                                  if (!isNaN(val) && val >= 0) setStock(talla, color, val);
-                                }}
-                                className="w-16 text-center text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:border-[#d65391]"
-                              />
-                            </div>
-                          </div>
-                        );
-                      })
-                    );
-                  })()}
-                </div>
-              </div>
-            )}
-
-            {/* PASO 3.5: Stock por Talla y Color */}
-            {(createForm.tallas?.length > 0 && createForm.colores?.length > 0) && (
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                <h3 className="font-semibold text-gray-900 mb-1">📦 Stock por Talla / Color</h3>
-                <p className="text-xs text-gray-500 mb-3">Define cuántas unidades hay de cada combinación. Deja en 0 para agotado.</p>
-                <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
-                  {(() => {
-                    const tallasC: string[] = createForm.tallas || [];
-                    const coloresC: string[] = createForm.colores || [];
-                    const variantes: any[] = createForm.variantes || [];
-                    const getStock = (t: string, c: string) => variantes.find((x: any) => x.tallaNombre === t && x.colorNombre === c)?.stock ?? 0;
-                    const setStock = (t: string, c: string, val: number) => {
-                      const cur = [...(createForm.variantes || [])];
-                      const idx = cur.findIndex((x: any) => x.tallaNombre === t && x.colorNombre === c);
-                      if (idx >= 0) cur[idx] = { ...cur[idx], stock: val };
-                      else cur.push({ tallaNombre: t, colorNombre: c, stock: val });
-                      updateCreateForm('variantes', cur);
-                    };
-                    return tallasC.flatMap((talla: string) =>
-                      coloresC.map((color: string) => {
-                        const stock = getStock(talla, color);
-                        return (
-                          <div key={`${talla}-${color}`} className="flex items-center justify-between bg-white rounded border border-gray-200 px-3 py-2">
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs font-medium text-gray-700 w-12">{talla}</span>
-                              <span className="text-xs text-gray-400">—</span>
-                              <span className="text-xs text-gray-600">{color}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              {stock === 0 && <span className="text-[10px] text-red-500 font-semibold">Agotado</span>}
-                              <input
-                                type="number"
-                                min={0}
-                                value={stock === 0 ? '' : stock}
-                                placeholder="0"
-                                onChange={e => {
-                                  const raw = e.target.value;
-                                  if (raw === '') { setStock(talla, color, 0); return; }
-                                  const val = parseInt(raw);
-                                  if (!isNaN(val) && val >= 0) setStock(talla, color, val);
-                                }}
-                                className="w-16 text-center text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:border-[#d65391]"
-                              />
-                            </div>
-                          </div>
-                        );
-                      })
-                    );
-                  })()}
-                </div>
-              </div>
-            )}
-
-            {/* PASO 4: Imágenes por Color */}
-            <div className="bg-white border-2 border-gray-100 rounded-lg p-5 shadow-sm">
-              <h3 style={{ fontFamily: 'Playfair Display, serif' }} className="font-semibold text-gray-900 mb-4 text-lg">🖼️ Paso 4: Imágenes por Color</h3>
-              {!createForm.colores || createForm.colores.length === 0 ? (
-                <div className="bg-blue-50 border border-blue-300 rounded p-4 mb-4">
-                  <p className="text-sm text-blue-800">ℹ️ Primero selecciona al menos un color en el Paso 2 para poder agregar imágenes</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {/* Selector de Color - VISIBLE */}
-                  <div>
-                    <Label className="font-medium mb-2 block">Selecciona color para las imágenes:</Label>
-                    <Select value={createColorSelection.color || ''} onValueChange={(v)=> setCreateColorSelection({ ...createColorSelection, color: v })}>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Elige un color..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {(createForm.colores || []).map((c:any) => (
-                          <SelectItem key={c} value={c}>{c}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
                   </div>
 
-                  {createColorSelection.color && (
-                    <>
-                      {/* Cargar desde archivo */}
-                      <div className="border-2 border-dashed border-amber-300 rounded-lg p-4 bg-white">
-                        <div className="flex items-center gap-2 mb-3">
-                          <Upload className="w-5 h-5 text-amber-600" />
-                          <span className="text-sm text-gray-700 font-medium">Sube imágenes para el color <span className="text-[#d65391] font-bold">{createColorSelection.color}</span></span>
+                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                      <h3 style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-gray-800 text-base">💰 Precios y Stock</h3>
+                    </div>
+                    <div className="p-6 grid grid-cols-2 gap-6">
+                      <div className="flex flex-col gap-2">
+                        <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">Precio de Costo</Label>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
+                          <Input type="number" min="0" value={form.precioCompra}
+                            onChange={e => setForm(f => ({ ...f, precioCompra: e.target.value }))}
+                            placeholder="0" className="h-10 border-gray-300 pl-7" />
                         </div>
-                        <input
-                          type="file"
-                          multiple
-                          accept="image/*"
-                          onChange={(e) => {
-                            if (e.target.files) {
-                              handleFileUploadForColor(e.target.files, createColorSelection.color || '', false);
-                              e.target.value = '';
-                            }
-                          }}
-                          className="w-full cursor-pointer"
-                        />
                       </div>
+                      <div className="flex flex-col gap-2">
+                        <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">Precio de Venta <span className="text-red-500">*</span></Label>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
+                          <Input type="number" min="0" value={form.precioVenta}
+                            onChange={e => setForm(f => ({ ...f, precioVenta: e.target.value }))}
+                            placeholder="0" className="h-10 border-gray-300 pl-7" />
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">Precio de Oferta <span className="text-gray-400 font-normal text-xs">(opcional)</span></Label>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
+                          <Input type="number" min="0" value={form.precioOferta}
+                            onChange={e => setForm(f => ({ ...f, precioOferta: e.target.value }))}
+                            placeholder="Sin oferta" className="h-10 border-gray-300 pl-7" />
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">Stock General</Label>
+                        <Input type="number" min="0" value={form.stock}
+                          onChange={e => setForm(f => ({ ...f, stock: e.target.value }))}
+                          className="h-10 border-gray-300" />
+                      </div>
+                    </div>
+                  </div>
 
-                      {/* Agregar URL */}
-                      <div className="flex gap-2">
-                        <Input
-                          placeholder={`Pegar URL de imagen para ${createColorSelection.color}...`}
-                          value={createColorSelection.imageUrl || ''}
-                          onChange={(e) => setCreateColorSelection({ ...createColorSelection, imageUrl: e.target.value })}
-                          onKeyPress={(e) => {
-                            if (e.key === 'Enter') {
-                              addImageUrlForColor(createColorSelection.imageUrl || '', createColorSelection.color || '', false);
-                              setCreateColorSelection({ ...createColorSelection, imageUrl: '' });
-                            }
-                          }}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => {
-                            addImageUrlForColor(createColorSelection.imageUrl || '', createColorSelection.color || '', false);
-                            setCreateColorSelection({ ...createColorSelection, imageUrl: '' });
-                          }}
-                          className="px-4 py-2 bg-[#d65391] text-white rounded-md hover:bg-[#c84a8f] whitespace-nowrap"
-                        >
-                          Agregar URL
+                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                      <h3 style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-gray-800 text-base">🧵 Materiales</h3>
+                    </div>
+                    <div className="p-6 flex flex-wrap gap-3">
+                      {materiales.map((m: any) => (
+                        <button key={m.id} onClick={() => setForm(f => ({
+                          ...f,
+                          materialesSeleccionados: f.materialesSeleccionados.includes(m.nombre)
+                            ? f.materialesSeleccionados.filter(x => x !== m.nombre)
+                            : [...f.materialesSeleccionados, m.nombre]
+                        }))} style={{ fontFamily: 'Inter, sans-serif' }}
+                          className={`px-4 py-2 rounded-lg text-sm border transition-colors ${form.materialesSeleccionados.includes(m.nombre) ? 'bg-[#d65391] text-white border-[#d65391]' : 'bg-white text-gray-600 border-gray-200 hover:border-[#d65391]'}`}>
+                          {m.nombre}
+                        </button>
+                      ))}
+                      {materiales.length === 0 && <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-400">No hay materiales registrados</p>}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* ── VARIANTES ── */}
+              {activeTab === 'variantes' && (
+                <>
+                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                      <h3 style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-gray-800 text-base">📏 Tallas disponibles</h3>
+                    </div>
+                    <div className="p-6 flex flex-wrap gap-3">
+                      {tallas.map((t: any) => (
+                        <button key={t.id} onClick={() => toggleTalla(t.nombre)}
+                          style={{ fontFamily: 'Inter, sans-serif' }}
+                          className={`px-5 py-2 rounded-lg text-sm border font-medium transition-colors ${form.tallasSeleccionadas.includes(t.nombre) ? 'bg-black text-white border-black' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'}`}>
+                          {t.nombre}
+                        </button>
+                      ))}
+                      {tallas.length === 0 && <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-400">No hay tallas registradas</p>}
+                    </div>
+                  </div>
+
+                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                      <h3 style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-gray-800 text-base">🎨 Colores disponibles</h3>
+                    </div>
+                    <div className="p-6 flex flex-wrap gap-3">
+                      {colores.map((c: any) => (
+                        <button key={c.id} onClick={() => toggleColor(c.nombre)}
+                          style={{ fontFamily: 'Inter, sans-serif' }}
+                          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm border transition-colors ${form.coloresSeleccionados.includes(c.nombre) ? 'border-[#d65391] bg-pink-50 text-[#d65391]' : 'bg-white border-gray-200 text-gray-600 hover:border-gray-400'}`}>
+                          {c.codigoHex && <span className="w-4 h-4 rounded-full border border-gray-200 flex-shrink-0" style={{ background: c.codigoHex }} />}
+                          {c.nombre}
+                        </button>
+                      ))}
+                      {colores.length === 0 && <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-400">No hay colores registrados</p>}
+                    </div>
+                  </div>
+
+                  {form.variantes.length > 0 ? (
+                    <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                      <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                        <h3 style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-gray-800 text-base">📦 Stock por combinación</h3>
+                      </div>
+                      <div className="p-6">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="border-b border-gray-100">
+                              <th className="pb-3 text-left text-xs text-gray-500 uppercase font-semibold">Talla</th>
+                              <th className="pb-3 text-left text-xs text-gray-500 uppercase font-semibold">Color</th>
+                              <th className="pb-3 text-right text-xs text-gray-500 uppercase font-semibold">Stock (unidades)</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-gray-50">
+                            {form.variantes.map((v, i) => (
+                              <tr key={i}>
+                                <td className="py-3 font-medium text-gray-700">{v.tallaNombre || '—'}</td>
+                                <td className="py-3 text-gray-700">{v.colorNombre || '—'}</td>
+                                <td className="py-3">
+                                  <Input type="number" min="0" value={v.stock}
+                                    onChange={e => updateStock(v.tallaNombre, v.colorNombre, Number(e.target.value))}
+                                    className="h-8 w-24 ml-auto border-gray-300 text-center text-sm" />
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+                      <Package className="w-10 h-10 mx-auto mb-2 text-gray-300" />
+                      <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-400">Selecciona tallas y colores para configurar el stock por variante</p>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* ── IMAGEN ── */}
+              {activeTab === 'imagen' && (
+                <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                  <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                    <h3 style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-gray-800 text-base">🖼 Imagen Principal</h3>
+                  </div>
+                  <div className="p-6 flex gap-6 items-start">
+                    {form.imagenPrincipal ? (
+                      <div className="relative flex-shrink-0">
+                        <img src={form.imagenPrincipal.startsWith('http') ? form.imagenPrincipal : `http://localhost:5000${form.imagenPrincipal}`}
+                          alt="Principal" className="w-36 h-36 object-cover rounded-xl border border-gray-200" />
+                        <button onClick={() => setForm(f => ({ ...f, imagenPrincipal: '' }))}
+                          className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors">
+                          <X className="w-3 h-3" />
                         </button>
                       </div>
-                    </>
-                  )}
-
-                  {/* Galería por Color */}
-                  {createForm.imagenesPorColor && Object.keys(createForm.imagenesPorColor).length > 0 && (
-                    <div className="mt-4">
-                      <Label className="font-medium mb-2 block">Imágenes agregadas:</Label>
-                      {(Object.keys(createForm.imagenesPorColor) || []).map((c:any) => (
-                        <div key={c} className="mb-4 bg-white p-3 rounded border border-gray-200">
-                          <p className="text-sm font-medium text-gray-900 mb-2">{c} ({(createForm.imagenesPorColor||{})[c]?.length || 0} imágenes)</p>
-                          <div className="grid grid-cols-6 gap-2">
-                            {((createForm.imagenesPorColor||{})[c] || []).map((img:string, idx:number) => (
-                              <div key={idx} className="relative group">
-                                <img src={img} alt={`${c} ${idx}`} className="w-full h-16 object-cover rounded border border-gray-200" />
-                                <span className="absolute left-1 top-1 bg-black bg-opacity-70 text-white text-xs px-1 rounded">{c}</span>
-                                <button type="button" onClick={()=> removeImageByColor(c, idx, false)} className="absolute -top-2 -right-2 bg-gradient-to-br from-red-600 to-red-700 text-white rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-200 w-5 h-5 flex items-center justify-center" title="Eliminar imagen"> <X className="w-3 h-3" /> </button>
-                              </div>
-                            ))}
+                    ) : (
+                      <div className="w-36 h-36 bg-gray-100 rounded-xl flex flex-col items-center justify-center flex-shrink-0 border-2 border-dashed border-gray-200">
+                        <ImageIcon className="w-8 h-8 text-gray-300 mb-1" />
+                        <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-400">Sin imagen</p>
+                      </div>
+                    )}
+                    <div className="flex-1 flex flex-col gap-3">
+                      {isEditing ? (
+                        <label className={`flex flex-col items-center justify-center w-full h-36 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${uploadingImg ? 'border-[#d65391] bg-pink-50' : 'border-gray-200 hover:border-[#d65391] hover:bg-pink-50'}`}>
+                          <div className="flex flex-col items-center pointer-events-none">
+                            {uploadingImg ? (
+                              <Loader2 className="w-8 h-8 text-[#d65391] animate-spin mb-2" />
+                            ) : (
+                              <Upload className="w-8 h-8 text-gray-400 mb-2" />
+                            )}
+                            <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-600 font-medium">
+                              {uploadingImg ? 'Subiendo imagen...' : 'Haz clic para seleccionar'}
+                            </p>
+                            <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-400 mt-1">JPG, PNG, WEBP · Máx 5MB</p>
                           </div>
+                          <input type="file" accept="image/jpeg,image/jpg,image/png,image/webp" className="hidden"
+                            disabled={!isEditing || uploadingImg}
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (!file || !selectedProduct) return;
+                              if (file.size > 5 * 1024 * 1024) { toast.error('La imagen no puede superar 5MB'); return; }
+                              setUploadingImg(true);
+                              try {
+                                const fd = new FormData();
+                                fd.append('archivo', file);
+                                const res = await postForm(`/api/productos/${selectedProduct.id}/upload-imagen`, fd);
+                                const url = res?.data?.url || res?.url;
+                                if (url) { setForm(f => ({ ...f, imagenPrincipal: url })); toast.success('Imagen subida correctamente'); }
+                                else toast.error('Error subiendo imagen');
+                              } catch { toast.error('Error subiendo imagen'); }
+                              finally { setUploadingImg(false); e.target.value = ''; }
+                            }} />
+                        </label>
+                      ) : (
+                        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+                          <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-yellow-700">
+                            ⚠️ Primero crea el producto, luego edítalo para subir la imagen.
+                          </p>
                         </div>
-                      ))}
+                      )}
                     </div>
-                  )}
+                  </div>
                 </div>
               )}
-            </div>
 
-            {/* PASO 5: Descripción */}
-            <div className="bg-white border-2 border-gray-100 rounded-lg p-5 shadow-sm">
-              <h3 style={{ fontFamily: 'Playfair Display, serif' }} className="font-semibold text-gray-900 mb-4 text-lg">📝 Paso 5: Descripción</h3>
-              <Label htmlFor="create-descripcion" className="font-medium">Descripción del Producto</Label>
-              <Textarea
-                id="create-descripcion"
-                value={createForm.descripcion || ''}
-                onChange={(e) => updateCreateForm('descripcion', e.target.value)}
-                placeholder="Describe el producto aquí..."
-                rows={3}
-                className="mt-2"
-              />
             </div>
           </div>
-          <DialogFooter>
-            <button 
-              onClick={() => setIsCreateModalOpen(false)}
-              className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
-            >
-              Cancelar
-            </button>
-            <button 
-              onClick={handleSaveCreate}
-              className="px-4 py-2 bg-[#d65391] text-white rounded-md hover:bg-[#c84a8f]"
-            >
-              Crear Producto
+
+          <DialogFooter className="gap-2 px-8 py-5 border-t border-gray-200 flex-shrink-0">
+            <button onClick={() => setFormOpen(false)} style={{ fontFamily: 'Inter, sans-serif' }}
+              className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">Cancelar</button>
+            <button onClick={guardar} disabled={saving} style={{ fontFamily: 'Inter, sans-serif' }}
+              className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 flex items-center gap-2 transition-colors">
+              {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+              {isEditing ? 'Guardar Cambios' : 'Crear Producto'}
             </button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <AlertDialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+
+      {/* ═══ MODAL ELIMINAR ═══ */}
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>¿Eliminar producto?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Esta acción no se puede deshacer. El producto "{selectedProduct?.nombre}" será eliminado permanentemente.
+            <AlertDialogTitle style={{ fontFamily: 'Playfair Display, serif' }}>¿Eliminar producto?</AlertDialogTitle>
+            <AlertDialogDescription style={{ fontFamily: 'Inter, sans-serif' }}>
+              Vas a eliminar <strong>{selectedProduct?.nombre}</strong>. Esta acción no se puede deshacer.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
-              Eliminar
+            <AlertDialogCancel style={{ fontFamily: 'Inter, sans-serif' }}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} disabled={saving}
+              className="bg-red-600 hover:bg-red-700 flex items-center gap-2" style={{ fontFamily: 'Inter, sans-serif' }}>
+              {saving && <Loader2 className="w-4 h-4 animate-spin" />} Eliminar
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
     </div>
   );
 };
-
-export default ProductosView;

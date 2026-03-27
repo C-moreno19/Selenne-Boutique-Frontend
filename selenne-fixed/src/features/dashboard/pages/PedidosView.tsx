@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Search, Eye, CheckCircle, XCircle, ChevronRight, Loader2, RefreshCw } from 'lucide-react';
+import { Search, Eye, CheckCircle, XCircle, ChevronRight, Loader2, RefreshCw, Package, User, MapPin, CreditCard, Image } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '../../../components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../../../components/ui/alert-dialog';
 import { Textarea } from '../../../components/ui/textarea';
@@ -33,34 +33,24 @@ export const PedidosView: React.FC = () => {
   const [aprobarOpen, setAprobarOpen] = useState(false);
   const [rechazarOpen, setRechazarOpen] = useState(false);
   const [razonRechazo, setRazonRechazo] = useState('');
+  const [comprobanteOpen, setComprobanteOpen] = useState(false);
 
   const loadData = useCallback(async () => {
     try {
       const res = await getJson('/api/pedidos');
       const all = (res?.data || res || []).map((p: any): Pedido => ({
-        pedidoID: p.pedidoID,
-        clienteID: p.clienteID,
-        nombreCliente: p.nombreCliente ?? '',
-        emailCliente: p.emailCliente ?? '',
-        telefonoCliente: p.telefonoCliente ?? '',
-        direccionEnvio: p.direccionEnvio ?? '',
-        ciudad: p.ciudad ?? '',
-        metodoPago: p.metodoPago ?? '',
-        subtotal: p.subtotal ?? 0,
-        descuento: p.descuento ?? 0,
-        envio: p.envio ?? 0,
-        total: p.total ?? 0,
-        estado: p.estado ?? 'Pendiente',
-        fechaPedido: p.fechaPedido ?? '',
-        notas: p.notas ?? '',
-        comprobantePago: p.comprobantePago ?? '',
+        pedidoID: p.pedidoID, clienteID: p.clienteID,
+        nombreCliente: p.nombreCliente ?? '', emailCliente: p.emailCliente ?? '',
+        telefonoCliente: p.telefonoCliente ?? '', direccionEnvio: p.direccionEnvio ?? '',
+        ciudad: p.ciudad ?? '', metodoPago: p.metodoPago ?? '',
+        subtotal: p.subtotal ?? 0, descuento: p.descuento ?? 0,
+        envio: p.envio ?? 0, total: p.total ?? 0,
+        estado: p.estado ?? 'Pendiente', fechaPedido: p.fechaPedido ?? '',
+        notas: p.notas ?? '', comprobantePago: p.comprobantePago ?? '',
         detalles: (p.detalles ?? []).map((d: any) => ({
-          productoNombre: d.productoNombre ?? '',
-          cantidad: d.cantidad ?? 0,
-          precioUnitario: d.precioUnitario ?? 0,
-          subtotal: d.subtotal ?? 0,
-          talla: d.talla ?? '',
-          color: d.color ?? '',
+          productoNombre: d.productoNombre ?? '', cantidad: d.cantidad ?? 0,
+          precioUnitario: d.precioUnitario ?? 0, subtotal: d.subtotal ?? 0,
+          talla: d.talla ?? d.Talla ?? '', color: d.color ?? d.Color ?? '',
         })),
       }));
       setPedidos(all.filter((p: Pedido) => p.estado === 'Pendiente'));
@@ -83,7 +73,7 @@ export const PedidosView: React.FC = () => {
         body: JSON.stringify({ NuevoEstado: estado, Notas: notas }),
       });
       toast.success(`Pedido ${estado.toLowerCase()} correctamente`);
-      setAprobarOpen(false); setRechazarOpen(false); setRazonRechazo('');
+      setAprobarOpen(false); setRechazarOpen(false); setViewOpen(false); setRazonRechazo('');
       loadData();
     } catch { toast.error('Error cambiando estado'); }
     finally { setSaving(false); }
@@ -140,10 +130,10 @@ export const PedidosView: React.FC = () => {
                 <td className="px-6 py-4"><span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-600">{p.metodoPago}</span></td>
                 <td className="px-6 py-4">
                   {p.comprobantePago ? (
-                    <a href={`http://localhost:5000${p.comprobantePago}`} target="_blank" rel="noreferrer"
-                      style={{ fontFamily: 'Inter, sans-serif' }} className="text-[#d65391] text-sm underline hover:text-[#c14a7f]">
-                      Ver comprobante
-                    </a>
+                    <button onClick={() => { setSelectedPedido(p); setComprobanteOpen(true); }}
+                      style={{ fontFamily: 'Inter, sans-serif' }} className="text-[#d65391] text-sm underline hover:text-[#c14a7f] flex items-center gap-1">
+                      <Image className="w-4 h-4" /> Ver
+                    </button>
                   ) : <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-400">Sin comprobante</span>}
                 </td>
                 <td className="px-6 py-4">
@@ -180,89 +170,160 @@ export const PedidosView: React.FC = () => {
         </div>
       </div>
 
-      {/* Modal Ver Detalles */}
+      {/* Modal Ver Detalles Completo */}
       <Dialog open={viewOpen} onOpenChange={setViewOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-200">
-            <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl">Detalles del Pedido #{selectedPedido?.pedidoID}</DialogTitle>
+        <DialogContent className="max-w-2xl h-auto flex flex-col p-0 gap-0">
+          <DialogHeader className="px-8 pt-6 pb-4 border-b border-gray-200 flex-shrink-0">
+            <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl">
+              Pedido #{selectedPedido?.pedidoID}
+            </DialogTitle>
+            <DialogDescription style={{ fontFamily: 'Inter, sans-serif' }}>
+              {new Date(selectedPedido?.fechaPedido || '').toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' })}
+            </DialogDescription>
           </DialogHeader>
-          {selectedPedido && (
-            <div className="p-6 space-y-5">
-              <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-                <div className="bg-gray-50 px-5 py-3 border-b border-gray-200">
-                  <p style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-sm text-gray-700">👤 Cliente</p>
-                </div>
-                <div className="p-5 grid grid-cols-2 gap-3">
-                  {[
-                    ['Nombre', selectedPedido.nombreCliente],
-                    ['Email', selectedPedido.emailCliente],
-                    ['Teléfono', selectedPedido.telefonoCliente],
-                    ['Ciudad', selectedPedido.ciudad],
-                    ['Dirección', selectedPedido.direccionEnvio],
-                    ['Método de pago', selectedPedido.metodoPago],
-                  ].map(([label, value]) => (
-                    <div key={label}>
-                      <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">{label}</p>
-                      <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-900">{value}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
 
-              {selectedPedido.detalles.length > 0 && (
-                <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-                  <div className="bg-gray-50 px-5 py-3 border-b border-gray-200">
-                    <p style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-sm text-gray-700">📦 Productos</p>
+          <div className="flex-1 overflow-y-auto">
+            <div className="space-y-6 py-6 px-8">
+            {selectedPedido && (
+              <>
+                {/* Sección Cliente */}
+                <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                  <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                    <h3 style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-gray-800 text-base">👤 Información del Cliente</h3>
                   </div>
-                  <div className="p-5 space-y-2">
-                    {selectedPedido.detalles.map((d, i) => (
-                      <div key={i} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                        <div>
-                          <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium">{d.productoNombre}</p>
-                          <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">
-                            {d.cantidad} x {fmt(d.precioUnitario)} {d.talla && `• Talla: ${d.talla}`} {d.color && `• Color: ${d.color}`}
-                          </p>
-                        </div>
-                        <p style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-sm">{fmt(d.subtotal)}</p>
+                  <div className="p-6 grid grid-cols-3 gap-6">
+                    {[
+                      ['Nombre', selectedPedido.nombreCliente],
+                      ['Email', selectedPedido.emailCliente],
+                      ['Teléfono', selectedPedido.telefonoCliente],
+                    ].map(([label, value]) => (
+                      <div key={label}>
+                        <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 font-medium uppercase">{label}</p>
+                        <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-semibold text-gray-900">{value}</p>
                       </div>
                     ))}
-                    <div className="flex justify-between pt-2 border-t border-gray-200">
-                      <p style={{ fontFamily: 'Inter, sans-serif' }} className="font-bold text-gray-900">Total</p>
-                      <p style={{ fontFamily: 'Inter, sans-serif' }} className="font-bold text-[#d65391] text-lg">{fmt(selectedPedido.total)}</p>
-                    </div>
                   </div>
                 </div>
-              )}
 
-              {selectedPedido.comprobantePago && (
-                <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-                  <div className="bg-gray-50 px-5 py-3 border-b border-gray-200">
-                    <p style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-sm text-gray-700">🧾 Comprobante de Pago</p>
+                {/* Sección Envío */}
+                <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                  <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                    <h3 style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-gray-800 text-base">📍 Dirección de Envío</h3>
                   </div>
-                  <div className="p-5">
-                    <img src={`http://localhost:5000${selectedPedido.comprobantePago}`} alt="Comprobante"
-                      className="max-w-full rounded-lg border border-gray-200" />
+                  <div className="p-6 grid grid-cols-2 gap-6">
+                    {[
+                      ['Dirección', selectedPedido.direccionEnvio],
+                      ['Ciudad', selectedPedido.ciudad],
+                    ].map(([label, value]) => (
+                      <div key={label}>
+                        <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 font-medium uppercase">{label}</p>
+                        <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-semibold text-gray-900">{value}</p>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              )}
+
+                {/* Sección Pago */}
+                <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                  <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                    <h3 style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-gray-800 text-base">💳 Método de Pago</h3>
+                  </div>
+                  <div className="p-6 flex items-center justify-between">
+                    <div>
+                      <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 mb-1">Método</p>
+                      <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-900">{selectedPedido.metodoPago}</p>
+                    </div>
+                    {selectedPedido.comprobantePago && (
+                      <button onClick={() => setComprobanteOpen(true)}
+                        style={{ fontFamily: 'Inter, sans-serif' }}
+                        className="px-4 py-2 bg-[#d65391] text-white rounded-lg hover:bg-[#c14a7f] text-sm flex items-center gap-2 transition-colors">
+                        <Image className="w-4 h-4" /> Ver Comprobante
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Sección Productos */}
+                <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                  <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                    <h3 style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-gray-800 text-base">📦 Productos Pedidos</h3>
+                  </div>
+                  <div className="p-6">
+                    {selectedPedido.detalles.length === 0 ? (
+                      <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-400 text-center py-4">Sin detalles de productos</p>
+                    ) : (
+                      <div className="space-y-3">
+                        {selectedPedido.detalles.map((d, i) => (
+                          <div key={i} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100">
+                            <div className="flex-1">
+                              <p style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-gray-900">{d.productoNombre}</p>
+                              <div className="flex gap-4 mt-1">
+                                <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">Cantidad: <span className="font-medium text-gray-700">{d.cantidad}</span></p>
+                                {d.talla && <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">Talla: <span className="font-medium text-gray-700">{d.talla}</span></p>}
+                                {d.color && <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">Color: <span className="font-medium text-gray-700">{d.color}</span></p>}
+                                <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">Precio unit: <span className="font-medium text-gray-700">{fmt(d.precioUnitario)}</span></p>
+                              </div>
+                            </div>
+                            <p style={{ fontFamily: 'Inter, sans-serif' }} className="font-bold text-[#d65391] text-lg ml-4">{fmt(d.subtotal)}</p>
+                          </div>
+                        ))}
+                        <div className="flex justify-between items-center pt-3 border-t border-gray-200 mt-2">
+                          <p style={{ fontFamily: 'Inter, sans-serif' }} className="font-bold text-gray-900 text-lg">Total del Pedido</p>
+                          <p style={{ fontFamily: 'Inter, sans-serif' }} className="font-bold text-[#d65391] text-2xl">{fmt(selectedPedido.total)}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {selectedPedido.notas && (
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+                    <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs font-semibold text-yellow-700 mb-1">Notas del cliente</p>
+                    <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-yellow-800">{selectedPedido.notas}</p>
+                  </div>
+                )}
+              </>
+            )}
             </div>
-          )}
-          <DialogFooter className="px-6 pb-6 gap-2">
+          </div>
+
+          <DialogFooter className="gap-2 px-8 py-5 border-t border-gray-200 flex-shrink-0">
             {puedeAdmin && (
               <>
                 <button onClick={() => { setViewOpen(false); setAprobarOpen(true); }}
                   style={{ fontFamily: 'Inter, sans-serif' }}
-                  className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-                  Aprobar
+                  className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2 transition-colors">
+                  <CheckCircle className="w-4 h-4" /> Aprobar
                 </button>
                 <button onClick={() => { setViewOpen(false); setRechazarOpen(true); }}
                   style={{ fontFamily: 'Inter, sans-serif' }}
-                  className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
-                  Rechazar
+                  className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center gap-2 transition-colors">
+                  <XCircle className="w-4 h-4" /> Rechazar
                 </button>
               </>
             )}
             <button onClick={() => setViewOpen(false)} style={{ fontFamily: 'Inter, sans-serif' }}
+              className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">Cerrar</button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal Comprobante */}
+      <Dialog open={comprobanteOpen} onOpenChange={setComprobanteOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-200">
+            <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-xl">Comprobante de Pago</DialogTitle>
+          </DialogHeader>
+          <div className="p-6">
+            {selectedPedido?.comprobantePago ? (
+              <img src={`http://localhost:5000${selectedPedido.comprobantePago}`} alt="Comprobante"
+                className="w-full rounded-xl border border-gray-200 shadow-sm" />
+            ) : (
+              <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-center text-gray-400">Sin comprobante</p>
+            )}
+          </div>
+          <DialogFooter className="px-6 pb-6">
+            <button onClick={() => setComprobanteOpen(false)} style={{ fontFamily: 'Inter, sans-serif' }}
               className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">Cerrar</button>
           </DialogFooter>
         </DialogContent>
@@ -274,7 +335,7 @@ export const PedidosView: React.FC = () => {
           <AlertDialogHeader>
             <AlertDialogTitle style={{ fontFamily: 'Playfair Display, serif' }}>¿Aprobar pedido?</AlertDialogTitle>
             <AlertDialogDescription style={{ fontFamily: 'Inter, sans-serif' }}>
-              El pedido #{selectedPedido?.pedidoID} de <strong>{selectedPedido?.nombreCliente}</strong> pasará a Gestión de Ventas.
+              El pedido #{selectedPedido?.pedidoID} de <strong>{selectedPedido?.nombreCliente}</strong> pasará a Ventas.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -298,9 +359,7 @@ export const PedidosView: React.FC = () => {
             </DialogDescription>
           </DialogHeader>
           <div className="p-6">
-            <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700 mb-2 block">
-              Razón del rechazo (opcional)
-            </Label>
+            <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700 mb-2 block">Razón del rechazo (opcional)</Label>
             <Textarea value={razonRechazo} onChange={e => setRazonRechazo(e.target.value)}
               placeholder="Ej: Comprobante ilegible, pago insuficiente..."
               className="border-gray-300 resize-none" rows={3} />

@@ -444,31 +444,60 @@ export const UsuariosView: React.FC = () => {
         </div>
       </div>
 
-      {/* Ver Detalles */}
+      {/* Ver Detalles — estilo Proveedores */}
       <Dialog open={viewOpen} onOpenChange={setViewOpen}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle style={{ fontFamily: "Playfair Display, serif" }} className="text-2xl">Detalles del Usuario</DialogTitle>
+        <DialogContent className="max-w-2xl h-auto flex flex-col p-0 gap-0">
+          <DialogHeader className="px-8 pt-6 pb-4 border-b border-gray-200 flex-shrink-0">
+            <DialogTitle style={{ fontFamily: "Playfair Display, serif" }} className="text-2xl">
+              {selectedUser?.nombreCompleto}
+            </DialogTitle>
+            <DialogDescription style={{ fontFamily: "Inter, sans-serif" }}>
+              {(selectedUser?.rolNombre || "Sin rol").toUpperCase()} — {selectedUser?.cargo || "Sin cargo"}
+            </DialogDescription>
           </DialogHeader>
           {selectedUser && (
-            <div className="space-y-4">
-              <div className="flex items-center gap-4">
-                <div className={`w-16 h-16 bg-gradient-to-br ${getAvatarColor(selectedUser.rolNombre)} rounded-full flex items-center justify-center`}>
-                  <span className="text-white text-xl font-medium">{getInitials(selectedUser.nombreCompleto)}</span>
-                </div>
-                <div>
-                  <h3 style={{ fontFamily: "Inter, sans-serif" }} className="text-lg font-semibold text-gray-900">{selectedUser.nombreCompleto}</h3>
-                  <p style={{ fontFamily: "Inter, sans-serif" }} className="text-sm text-gray-500">{selectedUser.cargo || "Sin cargo"}</p>
-                  <span className={`inline-block mt-1 px-2 py-0.5 rounded-full text-xs ${getRolColor(selectedUser.rolNombre)}`}>{(selectedUser.rolNombre||"SIN ROL").toUpperCase()}</span>
+            <div className="flex-1 overflow-y-auto">
+              <div className="space-y-6 py-6 px-8">
+                <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                  <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                    <h3 style={{ fontFamily: "Inter, sans-serif" }} className="font-semibold text-gray-800 text-base">👤 Información del Usuario</h3>
+                  </div>
+                  <div className="p-6 grid grid-cols-2 gap-6">
+                    <div className="flex flex-col gap-1">
+                      <p style={{ fontFamily: "Inter, sans-serif" }} className="text-xs text-gray-500 font-medium uppercase">Nombre</p>
+                      <p style={{ fontFamily: "Inter, sans-serif" }} className="text-sm font-semibold text-gray-900">{selectedUser.nombreCompleto}</p>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <p style={{ fontFamily: "Inter, sans-serif" }} className="text-xs text-gray-500 font-medium uppercase">Teléfono</p>
+                      <p style={{ fontFamily: "Inter, sans-serif" }} className="text-sm font-semibold text-gray-900">{selectedUser.telefono || "—"}</p>
+                    </div>
+                    <div className="flex flex-col gap-1 col-span-2">
+                      <p style={{ fontFamily: "Inter, sans-serif" }} className="text-xs text-gray-500 font-medium uppercase">Correo</p>
+                      <p style={{ fontFamily: "Inter, sans-serif" }} className="text-sm font-semibold text-gray-900 break-all">{selectedUser.email}</p>
+                    </div>
+                    {selectedUser.direccion && (
+                      <div className="flex flex-col gap-1 col-span-2">
+                        <p style={{ fontFamily: "Inter, sans-serif" }} className="text-xs text-gray-500 font-medium uppercase">Dirección</p>
+                        <p style={{ fontFamily: "Inter, sans-serif" }} className="text-sm font-semibold text-gray-900">{selectedUser.direccion}</p>
+                      </div>
+                    )}
+                    <div className="flex flex-col gap-1">
+                      <p style={{ fontFamily: "Inter, sans-serif" }} className="text-xs text-gray-500 font-medium uppercase">Estado</p>
+                      <span className={`inline-flex w-fit px-3 py-1 rounded-full text-xs font-semibold ${selectedUser.estado === "activo" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"}`}>
+                        {selectedUser.estado === "activo" ? "Activo" : "Inactivo"}
+                      </span>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <p style={{ fontFamily: "Inter, sans-serif" }} className="text-xs text-gray-500 font-medium uppercase">Fecha Registro</p>
+                      <p style={{ fontFamily: "Inter, sans-serif" }} className="text-sm font-semibold text-gray-900">{fmtDate(selectedUser.fechaRegistro)}</p>
+                    </div>
+                  </div>
                 </div>
               </div>
-              {[["Correo", selectedUser.email], ["Teléfono", selectedUser.telefono], ["Dirección", selectedUser.direccion], ["Estado", selectedUser.estado === "activo" ? "Activo" : "Inactivo"], ["Registro", fmtDate(selectedUser.fechaRegistro)]].filter(([,v]) => v).map(([l, v]) => (
-                <div key={l}><p style={{ fontFamily: "Inter, sans-serif" }} className="text-xs text-gray-500 mb-0.5">{l}</p><p style={{ fontFamily: "Inter, sans-serif" }} className="text-sm text-gray-800">{v}</p></div>
-              ))}
             </div>
           )}
-          <DialogFooter>
-            <button onClick={() => setViewOpen(false)} className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200" style={{ fontFamily: "Inter, sans-serif" }}>Cerrar</button>
+          <DialogFooter className="gap-2 px-8 py-5 border-t border-gray-200 flex-shrink-0">
+            <button onClick={() => setViewOpen(false)} className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors" style={{ fontFamily: "Inter, sans-serif" }}>Cerrar</button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -213,7 +213,7 @@ export const ComprasView: React.FC<ComprasViewProps> = ({ onNavigateToHistorial 
   };
 
   const FormBody = () => (
-    <div className="space-y-8 py-6 px-6">
+    <div className="space-y-6 py-6 px-8">
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
         <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
           <h3 style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-gray-800 text-base">📋 Información de la Compra</h3>
@@ -426,12 +426,12 @@ export const ComprasView: React.FC<ComprasViewProps> = ({ onNavigateToHistorial 
 
       {/* Modal Nueva Compra */}
       <Dialog open={nuevaOpen} onOpenChange={v => { setNuevaOpen(v); if (!v) resetForm(); }}>
-        <DialogContent className="max-w-5xl h-[92vh] flex flex-col p-0 gap-0">
+        <DialogContent className="max-w-3xl h-auto flex flex-col p-0 gap-0">
           <DialogHeader className="px-8 pt-6 pb-4 border-b border-gray-200 flex-shrink-0">
             <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl">Nueva Compra</DialogTitle>
             <DialogDescription style={{ fontFamily: 'Inter, sans-serif' }}>Registra una nueva compra a proveedor</DialogDescription>
           </DialogHeader>
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto max-h-[75vh]">
             <FormBody />
           </div>
           <DialogFooter className="gap-2 px-8 py-5 border-t border-gray-200 flex-shrink-0">
@@ -447,12 +447,12 @@ export const ComprasView: React.FC<ComprasViewProps> = ({ onNavigateToHistorial 
 
       {/* Modal Editar Compra */}
       <Dialog open={editOpen} onOpenChange={v => { setEditOpen(v); if (!v) resetForm(); }}>
-        <DialogContent className="max-w-5xl h-[92vh] flex flex-col p-0 gap-0">
+        <DialogContent className="max-w-3xl h-auto flex flex-col p-0 gap-0">
           <DialogHeader className="px-8 pt-6 pb-4 border-b border-gray-200 flex-shrink-0">
             <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl">Editar Compra</DialogTitle>
             <DialogDescription style={{ fontFamily: 'Inter, sans-serif' }}>Modifica los datos de la compra</DialogDescription>
           </DialogHeader>
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto max-h-[75vh]">
             <FormBody />
           </div>
           <DialogFooter className="gap-2 px-8 py-5 border-t border-gray-200 flex-shrink-0">
@@ -468,38 +468,45 @@ export const ComprasView: React.FC<ComprasViewProps> = ({ onNavigateToHistorial 
 
       {/* Modal Ver Detalles */}
       <Dialog open={viewOpen} onOpenChange={setViewOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-200">
+        <DialogContent className="max-w-2xl h-auto flex flex-col p-0 gap-0">
+          <DialogHeader className="px-8 pt-6 pb-4 border-b border-gray-200 flex-shrink-0">
             <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl">Detalles de Compra</DialogTitle>
           </DialogHeader>
           {selectedCompra && (
-            <div className="p-6 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">Orden / Factura</p><p style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold">{selectedCompra.ordenFactura}</p></div>
-                <div><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">Proveedor</p><p style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold">{selectedCompra.proveedorNombre}</p></div>
-                <div><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">Fecha</p><p style={{ fontFamily: 'Inter, sans-serif' }}>{new Date(selectedCompra.fecha).toLocaleDateString('es-CO')}</p></div>
-                <div><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">Estado</p>
-                  <span className={`px-2 py-0.5 rounded-full text-xs ${estadoColor(selectedCompra.estado)}`}>{selectedCompra.estado}</span>
-                </div>
-                <div className="col-span-2"><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">Total</p><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xl font-bold text-[#d65391]">{fmt(selectedCompra.total)}</p></div>
-                {selectedCompra.notas && <div className="col-span-2"><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">Notas</p><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm">{selectedCompra.notas}</p></div>}
-              </div>
-              {selectedCompra.detalles && selectedCompra.detalles.length > 0 && (
-                <div>
-                  <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs font-semibold text-gray-500 uppercase mb-2">Productos</p>
-                  <div className="space-y-2">
-                    {selectedCompra.detalles.map((d, i) => (
-                      <div key={i} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                        <div><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium">{d.nombreProducto}</p><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">{d.cantidad} x {fmt(d.precioUnitario)}</p></div>
-                        <p style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-sm">{fmt(d.total)}</p>
-                      </div>
-                    ))}
+            <div className="flex-1 overflow-y-auto">
+              <div className="space-y-6 py-6 px-8">
+                <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                  <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                    <h3 style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-gray-800 text-base">📋 Información General</h3>
+                  </div>
+                  <div className="p-6 grid grid-cols-2 gap-6">
+                    <div className="flex flex-col gap-1"><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 font-medium uppercase">Orden / Factura</p><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-semibold text-gray-900">{selectedCompra.ordenFactura}</p></div>
+                    <div className="flex flex-col gap-1"><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 font-medium uppercase">Proveedor</p><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-semibold text-gray-900">{selectedCompra.proveedorNombre}</p></div>
+                    <div className="flex flex-col gap-1"><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 font-medium uppercase">Fecha</p><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-semibold text-gray-900">{new Date(selectedCompra.fecha).toLocaleDateString('es-CO')}</p></div>
+                    <div className="flex flex-col gap-1"><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 font-medium uppercase">Estado</p><span className={`px-3 py-1 rounded-full text-xs font-medium w-fit ${estadoColor(selectedCompra.estado)}`}>{selectedCompra.estado}</span></div>
+                    <div className="flex flex-col gap-1 col-span-2"><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 font-medium uppercase">Total</p><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-2xl font-bold text-[#d65391]">{fmt(selectedCompra.total)}</p></div>
+                    {selectedCompra.notas && <div className="flex flex-col gap-1 col-span-2"><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 font-medium uppercase">Notas</p><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-700">{selectedCompra.notas}</p></div>}
                   </div>
                 </div>
-              )}
+                {selectedCompra.detalles && selectedCompra.detalles.length > 0 && (
+                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                      <h3 style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-gray-800 text-base">📦 Productos</h3>
+                    </div>
+                    <div className="p-6 space-y-3">
+                      {selectedCompra.detalles.map((d, i) => (
+                        <div key={i} className="flex justify-between items-center p-4 bg-gray-50 rounded-xl">
+                          <div><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-semibold text-gray-900">{d.nombreProducto}</p><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 mt-0.5">{d.cantidad} x {fmt(d.precioUnitario)}</p></div>
+                          <p style={{ fontFamily: 'Inter, sans-serif' }} className="font-bold text-gray-900">{fmt(d.total)}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           )}
-          <DialogFooter className="px-6 pb-6">
+          <DialogFooter className="gap-2 px-8 py-5 border-t border-gray-200 flex-shrink-0">
             <button onClick={() => setViewOpen(false)} style={{ fontFamily: 'Inter, sans-serif' }} className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">Cerrar</button>
           </DialogFooter>
         </DialogContent>
