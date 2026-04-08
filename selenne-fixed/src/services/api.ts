@@ -32,9 +32,11 @@ async function ensureRefreshed(): Promise<boolean> {
       });
       if (!res.ok) { clearTokens(); return false; }
       const data = await res.json();
-      if (data?.accessToken) setAccessToken(data.accessToken);
+      // El backend retorna ApiResponse<string> → el token está en data.data
+      const newToken = data?.accessToken || data?.data;
+      if (newToken) setAccessToken(newToken);
       if (data?.refreshToken) setRefreshToken(data.refreshToken);
-      return true;
+      return !!newToken;
     } catch (e) {
       clearTokens(); return false;
     } finally {
@@ -45,7 +47,7 @@ async function ensureRefreshed(): Promise<boolean> {
   return refreshingPromise;
 }
 
-async function fetchWithAuth(input: string, options: RequestInit = {}, retry = true) {
+export async function fetchWithAuth(input: string, options: RequestInit = {}, retry = true) {
   const url = `${apiBase}${input}`;
   const headers: Record<string, string> = { ...(options.headers as Record<string, string> || {}) };
   const token = getAccessToken();

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, ReactNode } from 'react';
+import { useAuth } from './AuthContext';
 
 interface PermisosContextType {
   canAccessSection: (section: string) => boolean;
@@ -15,6 +16,7 @@ const PermisosContext = createContext<PermisosContextType | undefined>(undefined
 
 // Mapeo de sección del sidebar → permiso requerido en BD
 const sectionToPermiso: { [key: string]: string } = {
+  'home':           'admin:dashboard',
   'productos':      'productos:ver',
   'categorias':     'productos:ver',
   'tallas':         'productos:ver',
@@ -24,59 +26,47 @@ const sectionToPermiso: { [key: string]: string } = {
   'tipos-producto': 'productos:ver',
   'ventas':         'ventas:ver',
   'pedidos':        'ventas:ver',
-  'clientes':       'ventas:ver',
-  'compras':        'usuarios:ver',
+  'historial-ventas': 'ventas:ver',
+  'clientes':       'clientes:ver',
+  'compras':        'compras:ver',
+  'historial-compras': 'compras:ver',
+  'proveedores':    'compras:ver',
   'usuarios':       'usuarios:ver',
   'roles':          'roles:ver',
-  'reportes':       'reportes:ver',
+  'reportes':       'reportes:ventas',
   'configuracion':  'admin:dashboard',
 };
 
-const getUser = () => {
-  try {
-    const stored = localStorage.getItem('currentUser');
-    return stored ? JSON.parse(stored) : null;
-  } catch { return null; }
-};
-
-const getUserPermisos = (): string[] => {
-  const user = getUser();
-  return user?.permisos || [];
-};
-
-const isAdmin = (): boolean => {
-  const user = getUser();
-  const role = (user?.role || '').toLowerCase();
-  return role.includes('admin');
-};
-
 export const PermisosProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const { user } = useAuth();
+
+  const userPermisos: string[] = user?.permisos || [];
+  const esAdmin = (user?.role || '').toLowerCase().includes('admin');
 
   const hasPermiso = (permiso: string): boolean => {
-    if (isAdmin()) return true;
-    return getUserPermisos().includes(permiso);
+    if (esAdmin) return true;
+    return userPermisos.includes(permiso);
   };
 
   const canAccessSection = (section: string): boolean => {
-    if (isAdmin()) return true;
-    // Secciones siempre accesibles
-    if (['home', 'perfil', 'mi-cuenta', 'dashboard'].includes(section)) return true;
+    if (esAdmin) return true;
+    // Secciones siempre accesibles (perfil personal)
+    if (['perfil', 'mi-cuenta'].includes(section)) return true;
 
     const permiso = sectionToPermiso[section];
     if (!permiso) return false;
-    return getUserPermisos().includes(permiso);
+    return userPermisos.includes(permiso);
   };
 
-  const canDelete = (): boolean => isAdmin();
+  const canDelete = (): boolean => esAdmin;
 
   // Legacy methods for backward compatibility
   const getPermisos = (_roleName: string) => [];
   const setPermisos = (_roleName: string, _permisos: any[]) => {};
   const tienePermiso = (_roleName: string, permisoId: string) => hasPermiso(permisoId);
   const tieneModuloActivo = (_roleName: string, moduleId: string) => {
-    if (isAdmin()) return true;
-    const permisos = getUserPermisos();
-    return permisos.some(p => p.startsWith(moduleId + ':'));
+    if (esAdmin) return true;
+    return userPermisos.some(p => p.startsWith(moduleId + ':'));
   };
 
   return (

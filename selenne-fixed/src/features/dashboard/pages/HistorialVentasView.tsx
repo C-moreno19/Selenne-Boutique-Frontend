@@ -25,7 +25,7 @@ interface HistorialVentasViewProps { onBack?: () => void; }
 
 export const HistorialVentasView: React.FC<HistorialVentasViewProps> = ({ onBack }) => {
   const { hasPermission } = useAuth();
-  const puedeAdmin = hasPermission('admin:dashboard');
+  const puedeAdmin = hasPermission('ventas:eliminar');
 
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
   const [loading, setLoading] = useState(true);

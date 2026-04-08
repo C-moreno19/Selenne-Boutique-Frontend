@@ -10,7 +10,7 @@ import { useAuth } from '../../../shared/contexts/AuthContext';
 
 export const ColoresView: React.FC = () => {
   const { hasPermission } = useAuth();
-  const puedeAdmin = hasPermission('admin:dashboard');
+  const puedeAdmin = hasPermission('productos:editar');
   const { colores, agregarColor, eliminarColor } = useSubcategorias();
 
   const [searchQuery, setSearchQuery] = useState('');

@@ -104,16 +104,17 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
   const visibleMenuItems = menuItems.filter(item => {
     // Admin ve todo
     if (isAdmin) return true;
-    // Items sin restricción
-    if (!item.requiredPermissions) return true;
-    // Si tiene subitems, mostrar solo si tiene acceso a al menos uno
-    if (!item.id && item.subItems) {
-      return item.subItems.some(subItem => {
-        if (subItem.id) return canAccessSection(subItem.id);
-        return false;
-      });
+    // Item directo sin subitems (ej: Dashboard)
+    if (item.id && !item.subItems) {
+      return canAccessSection(item.id);
     }
-    return item.id ? canAccessSection(item.id) : false;
+    // Item con subitems: visible si al menos uno es accesible
+    if (item.subItems) {
+      return item.subItems.some(subItem =>
+        subItem.id ? canAccessSection(subItem.id) : false
+      );
+    }
+    return false;
   }).map(item => {
     // Filtrar subitems también
     if (isAdmin || !item.subItems) return item;

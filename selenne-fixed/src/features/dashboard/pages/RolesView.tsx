@@ -29,14 +29,19 @@ interface PermModule {
   permisos: { id: string; label: string }[];
 }
 
-// Orden del menú: Dashboard, Productos, Compras, Gestión de Ventas, Usuarios, Configuración
+// Orden del menú: Dashboard, Productos, Compras, Clientes, Inventario, Ventas, Usuarios, Roles, Reportes, Notificaciones, Configuración, Tienda
 const MODULOS: PermModule[] = [
   {
     id: 'administracion', name: 'Dashboard / Administración', icon: '⚙️',
     generalPermiso: 'admin:dashboard',
     permisos: [
-      { id: 'admin:dashboard', label: 'Acceso al dashboard de administración' },
+      { id: 'admin:dashboard', label: 'Acceso al panel de administración' },
+      { id: 'config:sistema', label: 'Configuración del sistema' },
+      { id: 'config:empresa', label: 'Configuración de la empresa' },
+      { id: 'config:email', label: 'Configuración de correo' },
+      { id: 'config:integraciones', label: 'Gestionar integraciones' },
       { id: 'config:auditoria', label: 'Ver auditoría del sistema' },
+      { id: 'config:backup', label: 'Gestionar copias de seguridad' },
     ]
   },
   {
@@ -55,9 +60,32 @@ const MODULOS: PermModule[] = [
     generalPermiso: 'compras:ver',
     permisos: [
       { id: 'compras:ver', label: 'Ver listado de compras' },
-      { id: 'compras:crear', label: 'Crear compras' },
-      { id: 'compras:editar', label: 'Editar compras' },
+      { id: 'compras:crear', label: 'Registrar nuevas compras' },
+      { id: 'compras:editar', label: 'Editar compras y cambiar estado' },
       { id: 'compras:eliminar', label: 'Eliminar compras' },
+    ]
+  },
+  {
+    id: 'clientes', name: 'Clientes', icon: '🧑‍🤝‍🧑',
+    generalPermiso: 'clientes:ver',
+    permisos: [
+      { id: 'clientes:ver', label: 'Ver listado de clientes' },
+      { id: 'clientes:crear', label: 'Registrar clientes' },
+      { id: 'clientes:editar', label: 'Editar información de clientes' },
+      { id: 'clientes:eliminar', label: 'Eliminar clientes' },
+      { id: 'clientes:bloquear', label: 'Bloquear / activar clientes' },
+      { id: 'clientes:historial', label: 'Ver historial de compras del cliente' },
+    ]
+  },
+  {
+    id: 'inventario', name: 'Inventario', icon: '🏬',
+    generalPermiso: 'inventario:ver',
+    permisos: [
+      { id: 'inventario:ver', label: 'Ver inventario' },
+      { id: 'inventario:actualizar', label: 'Actualizar stock de productos' },
+      { id: 'inventario:ajustes', label: 'Realizar ajustes de inventario' },
+      { id: 'inventario:alertas', label: 'Gestionar alertas de stock bajo' },
+      { id: 'inventario:reportes', label: 'Ver reportes de inventario' },
     ]
   },
   {
@@ -65,8 +93,11 @@ const MODULOS: PermModule[] = [
     generalPermiso: 'ventas:ver',
     permisos: [
       { id: 'ventas:ver', label: 'Ver pedidos y ventas' },
-      { id: 'ventas:editar', label: 'Editar / aprobar ventas' },
+      { id: 'ventas:crear', label: 'Registrar ventas manuales' },
+      { id: 'ventas:editar', label: 'Editar, aprobar y cambiar estado de ventas' },
       { id: 'ventas:eliminar', label: 'Eliminar / anular ventas' },
+      { id: 'ventas:devoluciones', label: 'Gestionar devoluciones' },
+      { id: 'ventas:reportes', label: 'Ver reportes de ventas' },
     ]
   },
   {
@@ -77,36 +108,32 @@ const MODULOS: PermModule[] = [
       { id: 'usuarios:crear', label: 'Crear usuarios' },
       { id: 'usuarios:editar', label: 'Editar usuarios' },
       { id: 'usuarios:eliminar', label: 'Eliminar usuarios' },
-      { id: 'usuarios:bloquear', label: 'Bloquear/activar usuarios' },
+      { id: 'usuarios:bloquear', label: 'Bloquear / activar usuarios' },
+      { id: 'usuarios:resetear_pass', label: 'Restablecer contraseñas' },
     ]
   },
   {
-    id: 'roles', name: 'Configuración — Roles', icon: '🔐',
+    id: 'roles', name: 'Roles y Permisos', icon: '🔐',
     generalPermiso: 'roles:ver',
     permisos: [
       { id: 'roles:ver', label: 'Ver roles' },
       { id: 'roles:crear', label: 'Crear roles' },
       { id: 'roles:editar', label: 'Editar roles' },
       { id: 'roles:eliminar', label: 'Eliminar roles' },
-      { id: 'roles:permisos', label: 'Gestionar permisos' },
+      { id: 'roles:permisos', label: 'Gestionar permisos de un rol' },
+      { id: 'roles:asignar', label: 'Asignar roles a usuarios' },
     ]
   },
   {
     id: 'reportes', name: 'Reportes', icon: '📊',
-    generalPermiso: 'reportes:ver',
+    generalPermiso: 'reportes:ventas',
     permisos: [
-      { id: 'reportes:ver', label: 'Ver reportes' },
       { id: 'reportes:ventas', label: 'Reportes de ventas' },
       { id: 'reportes:inventario', label: 'Reportes de inventario' },
       { id: 'reportes:clientes', label: 'Reportes de clientes' },
       { id: 'reportes:financiero', label: 'Reporte financiero' },
-    ]
-  },
-  {
-    id: 'notificaciones', name: 'Notificaciones', icon: '🔔',
-    generalPermiso: 'notif:enviar',
-    permisos: [
-      { id: 'notif:enviar', label: 'Enviar notificaciones' },
+      { id: 'reportes:descargar', label: 'Descargar reportes' },
+      { id: 'reportes:customizar', label: 'Personalizar reportes' },
     ]
   },
   {
@@ -116,6 +143,8 @@ const MODULOS: PermModule[] = [
       { id: 'tienda:ver', label: 'Ver tienda' },
       { id: 'tienda:comprar', label: 'Realizar compras' },
       { id: 'tienda:carrito', label: 'Gestionar carrito' },
+      { id: 'tienda:pedidos', label: 'Ver historial de pedidos propios' },
+      { id: 'tienda:ofertas', label: 'Ver ofertas especiales' },
     ]
   },
 ];
@@ -191,7 +220,7 @@ const PermisosEditor: React.FC<PermisosEditorProps> = ({ arr, onToggle, onToggle
 );
 
 export const RolesView: React.FC = () => {
-  const { hasPermission } = useAuth();
+  const { hasPermission, refreshPermisos } = useAuth();
   const puedeCrear = hasPermission('roles:crear');
   const puedeEditar = hasPermission('roles:editar');
   const puedeEliminar = hasPermission('roles:eliminar');
@@ -292,7 +321,8 @@ export const RolesView: React.FC = () => {
       });
       toast.success('Permisos guardados correctamente');
       setPermisosOpen(false);
-      loadRoles();
+      await loadRoles();
+      await refreshPermisos();
     } catch { toast.error('Error guardando permisos'); }
     finally { setSaving(false); }
   };
@@ -523,7 +553,7 @@ export const RolesView: React.FC = () => {
               Rol: <strong>{selectedRole?.nombre?.toUpperCase()}</strong> — Selecciona el módulo completo o permisos individuales
             </DialogDescription>
           </DialogHeader>
-          <div className="flex-1 overflow-y-auto max-h-[65vh]">
+          <div className="flex-1 overflow-y-auto">
             <div className="space-y-4 py-6 px-8">
               <PermisosEditor
                 arr={permisosArr}
@@ -593,7 +623,7 @@ export const RolesView: React.FC = () => {
             <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl">Nuevo Rol</DialogTitle>
             <DialogDescription style={{ fontFamily: 'Inter, sans-serif' }}>Crea un nuevo rol y asigna sus permisos</DialogDescription>
           </DialogHeader>
-          <div className="flex-1 overflow-y-auto max-h-[75vh]">
+          <div className="flex-1 overflow-y-auto">
             <div className="space-y-6 py-6 px-8">
               <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
                 <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">

@@ -10,7 +10,7 @@ import { useAuth } from '../../../shared/contexts/AuthContext';
 
 export const MarcasView: React.FC = () => {
   const { hasPermission } = useAuth();
-  const puedeAdmin = hasPermission('admin:dashboard');
+  const puedeAdmin = hasPermission('productos:editar');
   const { marcas, agregarMarca, editarMarca, eliminarMarca } = useSubcategorias();
 
   const [searchQuery, setSearchQuery] = useState('');

@@ -504,63 +504,72 @@ export const UsuariosView: React.FC = () => {
 
       {/* Crear / Editar */}
       <Dialog open={createOpen || editOpen} onOpenChange={o => { if (!o) { setCreateOpen(false); setEditOpen(false); } }}>
-        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
+        <DialogContent className="max-w-2xl h-auto flex flex-col p-0 gap-0">
+          <DialogHeader className="px-8 pt-6 pb-4 border-b border-gray-200 flex-shrink-0">
             <DialogTitle style={{ fontFamily: "Playfair Display, serif" }} className="text-2xl">{editOpen ? "Editar Usuario" : "Nuevo Usuario"}</DialogTitle>
             <DialogDescription style={{ fontFamily: "Inter, sans-serif" }}>{editOpen ? "Modifica la información del usuario" : "Completa los datos para registrar un nuevo usuario"}</DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-2">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label className="text-sm text-gray-700 mb-1 block">Nombre Completo *</Label>
-                <Input value={form.nombreCompleto} onChange={e => setForm({...form, nombreCompleto: e.target.value})} placeholder="Juan Pérez" />
-                {formErrors.nombreCompleto && <p className="text-red-500 text-xs mt-1">{formErrors.nombreCompleto}</p>}
+          <div className="flex-1 overflow-y-auto">
+            <div className="space-y-6 py-6 px-8">
+              <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                  <h3 style={{ fontFamily: "Inter, sans-serif" }} className="font-semibold text-gray-800 text-base">👤 Información del Usuario</h3>
+                </div>
+                <div className="p-6 space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-sm text-gray-700 mb-1 block">Nombre Completo *</Label>
+                      <Input value={form.nombreCompleto} onChange={e => setForm({...form, nombreCompleto: e.target.value})} placeholder="Juan Pérez" />
+                      {formErrors.nombreCompleto && <p className="text-red-500 text-xs mt-1">{formErrors.nombreCompleto}</p>}
+                    </div>
+                    <div>
+                      <Label className="text-sm text-gray-700 mb-1 block">Cargo</Label>
+                      <Input value={form.cargo} onChange={e => setForm({...form, cargo: e.target.value})} placeholder="Vendedor" />
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-sm text-gray-700 mb-1 block">Correo Electrónico *</Label>
+                    <Input type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} placeholder="correo@ejemplo.com" disabled={editOpen} className={editOpen ? "bg-gray-50 text-gray-500" : ""} />
+                    {editOpen && <p className="text-xs text-gray-400 mt-1">El correo no se puede cambiar</p>}
+                    {formErrors.email && <p className="text-red-500 text-xs mt-1">{formErrors.email}</p>}
+                  </div>
+                  {!editOpen && (
+                    <div>
+                      <Label className="text-sm text-gray-700 mb-1 block">Contraseña *</Label>
+                      <Input type="password" value={form.contrasena} onChange={e => setForm({...form, contrasena: e.target.value})} placeholder="Mínimo 6 caracteres" />
+                      {formErrors.contrasena && <p className="text-red-500 text-xs mt-1">{formErrors.contrasena}</p>}
+                    </div>
+                  )}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-sm text-gray-700 mb-1 block">Rol *</Label>
+                      <select value={form.roleID} onChange={e => setForm({...form, roleID: e.target.value})} className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391] text-sm" style={{ fontFamily: "Inter, sans-serif" }}>
+                        <option value="">Selecciona un rol</option>
+                        {roles.map(r => <option key={r.roleID} value={r.roleID}>{r.nombre}</option>)}
+                      </select>
+                      {formErrors.roleID && <p className="text-red-500 text-xs mt-1">{formErrors.roleID}</p>}
+                    </div>
+                    <div>
+                      <Label className="text-sm text-gray-700 mb-1 block">Estado</Label>
+                      <select value={form.estado} onChange={e => setForm({...form, estado: e.target.value})} className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391] text-sm" style={{ fontFamily: "Inter, sans-serif" }}>
+                        <option value="activo">Activo</option>
+                        <option value="inactivo">Inactivo</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-sm text-gray-700 mb-1 block">Teléfono</Label>
+                    <Input type="tel" value={form.telefono} onChange={e => setForm({...form, telefono: e.target.value.replace(/\D/g,"")})} placeholder="3001234567" />
+                  </div>
+                  <div>
+                    <Label className="text-sm text-gray-700 mb-1 block">Dirección</Label>
+                    <textarea value={form.direccion} onChange={e => setForm({...form, direccion: e.target.value})} className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391] text-sm min-h-[70px] resize-none" style={{ fontFamily: "Inter, sans-serif" }} placeholder="Calle 123 #45-67, Ciudad" />
+                  </div>
+                </div>
               </div>
-              <div>
-                <Label className="text-sm text-gray-700 mb-1 block">Cargo</Label>
-                <Input value={form.cargo} onChange={e => setForm({...form, cargo: e.target.value})} placeholder="Vendedor" />
-              </div>
-            </div>
-            <div>
-              <Label className="text-sm text-gray-700 mb-1 block">Correo Electrónico *</Label>
-              <Input type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} placeholder="correo@ejemplo.com" disabled={editOpen} className={editOpen ? "bg-gray-50 text-gray-500" : ""} />
-              {editOpen && <p className="text-xs text-gray-400 mt-1">El correo no se puede cambiar</p>}
-              {formErrors.email && <p className="text-red-500 text-xs mt-1">{formErrors.email}</p>}
-            </div>
-            {!editOpen && (
-              <div>
-                <Label className="text-sm text-gray-700 mb-1 block">Contraseña *</Label>
-                <Input type="password" value={form.contrasena} onChange={e => setForm({...form, contrasena: e.target.value})} placeholder="Mínimo 6 caracteres" />
-                {formErrors.contrasena && <p className="text-red-500 text-xs mt-1">{formErrors.contrasena}</p>}
-              </div>
-            )}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label className="text-sm text-gray-700 mb-1 block">Rol *</Label>
-                <select value={form.roleID} onChange={e => setForm({...form, roleID: e.target.value})} className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391] text-sm" style={{ fontFamily: "Inter, sans-serif" }}>
-                  <option value="">Selecciona un rol</option>
-                  {roles.map(r => <option key={r.roleID} value={r.roleID}>{r.nombre}</option>)}
-                </select>
-                {formErrors.roleID && <p className="text-red-500 text-xs mt-1">{formErrors.roleID}</p>}
-              </div>
-              <div>
-                <Label className="text-sm text-gray-700 mb-1 block">Estado</Label>
-                <select value={form.estado} onChange={e => setForm({...form, estado: e.target.value})} className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391] text-sm" style={{ fontFamily: "Inter, sans-serif" }}>
-                  <option value="activo">Activo</option>
-                  <option value="inactivo">Inactivo</option>
-                </select>
-              </div>
-            </div>
-            <div>
-              <Label className="text-sm text-gray-700 mb-1 block">Teléfono</Label>
-              <Input type="tel" value={form.telefono} onChange={e => setForm({...form, telefono: e.target.value.replace(/\D/g,"")})} placeholder="3001234567" />
-            </div>
-            <div>
-              <Label className="text-sm text-gray-700 mb-1 block">Dirección</Label>
-              <textarea value={form.direccion} onChange={e => setForm({...form, direccion: e.target.value})} className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391] text-sm min-h-[70px] resize-none" style={{ fontFamily: "Inter, sans-serif" }} placeholder="Calle 123 #45-67, Ciudad" />
             </div>
           </div>
-          <DialogFooter className="gap-2 pt-2">
+          <DialogFooter className="gap-2 px-8 py-5 border-t border-gray-200 flex-shrink-0">
             <button onClick={() => { setCreateOpen(false); setEditOpen(false); }} className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200" style={{ fontFamily: "Inter, sans-serif" }}>Cancelar</button>
             <button onClick={editOpen ? saveEdit : saveCreate} disabled={saving} className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 flex items-center gap-2" style={{ fontFamily: "Inter, sans-serif" }}>
               {saving && <Loader2 className="w-4 h-4 animate-spin" />}
@@ -590,42 +599,44 @@ export const UsuariosView: React.FC = () => {
 
       {/* Permisos */}
       <Dialog open={permisosOpen} onOpenChange={setPermisosOpen}>
-        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle style={{ fontFamily: "Playfair Display, serif" }} className="text-xl">
-              Configurar Permisos — {selectedRole?.nombre?.toUpperCase()}
+        <DialogContent className="max-w-2xl h-auto flex flex-col p-0 gap-0">
+          <DialogHeader className="px-8 pt-6 pb-4 border-b border-gray-200 flex-shrink-0">
+            <DialogTitle style={{ fontFamily: "Playfair Display, serif" }} className="text-2xl">
+              Configurar Permisos
             </DialogTitle>
             <DialogDescription style={{ fontFamily: "Inter, sans-serif" }}>
-              Selecciona los permisos que tendrá el rol de {selectedUser?.nombreCompleto}
+              Rol: {selectedRole?.nombre?.toUpperCase()} — {selectedUser?.nombreCompleto}
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-3 py-2">
-            {MODULOS_PERMISOS.map(({ modulo, icon, permisos }) => {
-              const allSel = permisos.every(p => permisosSet.has(p.nombre));
-              const someSel = permisos.some(p => permisosSet.has(p.nombre));
-              return (
-                <div key={modulo} className="border border-gray-200 rounded-lg overflow-hidden">
-                  <button onClick={() => toggleModulo(permisos)} className="w-full flex items-center gap-3 px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors text-left">
-                    <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors ${allSel ? "bg-[#d65391] border-[#d65391]" : someSel ? "bg-pink-200 border-[#d65391]" : "border-gray-300"}`}>
-                      {(allSel || someSel) && <span className="text-white text-xs font-bold">✓</span>}
+          <div className="flex-1 overflow-y-auto">
+            <div className="space-y-3 py-6 px-8">
+              {MODULOS_PERMISOS.map(({ modulo, icon, permisos }) => {
+                const allSel = permisos.every(p => permisosSet.has(p.nombre));
+                const someSel = permisos.some(p => permisosSet.has(p.nombre));
+                return (
+                  <div key={modulo} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <button onClick={() => toggleModulo(permisos)} className="w-full flex items-center gap-3 px-6 py-4 bg-gray-50 hover:bg-gray-100 transition-colors text-left border-b border-gray-200">
+                      <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors ${allSel ? "bg-[#d65391] border-[#d65391]" : someSel ? "bg-pink-200 border-[#d65391]" : "border-gray-300"}`}>
+                        {(allSel || someSel) && <span className="text-white text-xs font-bold">✓</span>}
+                      </div>
+                      <span style={{ fontFamily: "Inter, sans-serif" }} className="font-semibold text-gray-800">{icon} Módulo {modulo}</span>
+                    </button>
+                    <div className="px-6 py-3 space-y-1 bg-white">
+                      {permisos.map(p => (
+                        <label key={p.nombre} className="flex items-center gap-3 cursor-pointer py-1" onClick={() => togglePermiso(p.nombre)}>
+                          <div className={`w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors ${permisosSet.has(p.nombre) ? "bg-[#d65391] border-[#d65391]" : "border-gray-300 hover:border-[#d65391]"}`}>
+                            {permisosSet.has(p.nombre) && <span className="text-white text-xs font-bold">✓</span>}
+                          </div>
+                          <span style={{ fontFamily: "Inter, sans-serif" }} className="text-sm text-gray-700">{p.label}</span>
+                        </label>
+                      ))}
                     </div>
-                    <span style={{ fontFamily: "Inter, sans-serif" }} className="font-semibold text-gray-800">{icon} Módulo {modulo}</span>
-                  </button>
-                  <div className="px-4 py-2 space-y-1 bg-white">
-                    {permisos.map(p => (
-                      <label key={p.nombre} className="flex items-center gap-3 cursor-pointer py-1" onClick={() => togglePermiso(p.nombre)}>
-                        <div className={`w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors ${permisosSet.has(p.nombre) ? "bg-[#d65391] border-[#d65391]" : "border-gray-300 hover:border-[#d65391]"}`}>
-                          {permisosSet.has(p.nombre) && <span className="text-white text-xs font-bold">✓</span>}
-                        </div>
-                        <span style={{ fontFamily: "Inter, sans-serif" }} className="text-sm text-gray-700">{p.label}</span>
-                      </label>
-                    ))}
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
-          <DialogFooter className="gap-2 pt-2">
+          <DialogFooter className="gap-2 px-8 py-5 border-t border-gray-200 flex-shrink-0">
             <button onClick={() => setPermisosOpen(false)} className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200" style={{ fontFamily: "Inter, sans-serif" }}>Cancelar</button>
             <button onClick={savePermisos} disabled={savingPermisos} className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 flex items-center gap-2" style={{ fontFamily: "Inter, sans-serif" }}>
               {savingPermisos && <Loader2 className="w-4 h-4 animate-spin" />} Guardar Permisos

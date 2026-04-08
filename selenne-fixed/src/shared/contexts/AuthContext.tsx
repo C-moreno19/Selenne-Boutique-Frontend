@@ -20,6 +20,7 @@ interface AuthContextType {
   logout: () => void;
   isAuthenticated: boolean;
   refreshUser: () => Promise<void>;
+  refreshPermisos: () => Promise<void>;
   hasPermission: (permiso: string) => boolean;
 }
 
@@ -99,6 +100,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const refreshPermisos = async () => {
+    if (!user) return;
+    try {
+      const res = await api.getJson('/api/auth/permisos');
+      const permisos: string[] = res?.data || res || [];
+      const updatedUser = { ...user, permisos };
+      setUser(updatedUser);
+      localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+    } catch (e) {
+      console.warn('refreshPermisos failed', e);
+    }
+  };
+
   const hasPermission = (permiso: string): boolean => {
     if (!user?.permisos) return false;
     return user.permisos.includes(permiso);
@@ -117,6 +131,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       logout,
       isAuthenticated: !!user,
       refreshUser,
+      refreshPermisos,
       hasPermission,
     }}>
       {children}

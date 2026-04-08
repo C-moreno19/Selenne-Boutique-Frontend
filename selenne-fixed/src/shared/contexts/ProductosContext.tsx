@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { getJson, apiBase } from '../../services/api';
+import { getJson, apiBase, fetchWithAuth } from '../../services/api';
+import { toast } from 'sonner';
 
 export interface ProductoAdmin {
   id: string;
@@ -48,7 +49,7 @@ export interface CreateProductoPayload {
 interface ProductosContextType {
   productos: ProductoAdmin[];
   loading: boolean;
-  crearProducto: (payload: CreateProductoPayload, tallas?: string[], colores?: string[], tallasCtx?: any[], coloresCtx?: any[], imagenes?: string[], materiales?: string[], materialesCtx?: any[]) => Promise<boolean>;
+  crearProducto: (payload: CreateProductoPayload, tallas?: string[], colores?: string[], tallasCtx?: any[], coloresCtx?: any[], imagenes?: string[], materiales?: string[], materialesCtx?: any[]) => Promise<number | false>;
   actualizarProducto: (id: string, payload: Partial<CreateProductoPayload & { Estado: string }>, tallas?: string[], colores?: string[], tallasCtx?: any[], coloresCtx?: any[], imagenes?: string[], materiales?: string[], materialesCtx?: any[]) => Promise<boolean>;
   eliminarProducto: (id: string) => Promise<void>;
   obtenerProducto: (id: string) => ProductoAdmin | undefined;
@@ -140,8 +141,13 @@ function mapProducto(p: any): ProductoAdmin {
     })(),
     agotado: (() => {
       const v = p.variantes ?? p.Variantes ?? [];
-      if (Array.isArray(v) && v.length > 0) return v.reduce((s: number, x: any) => s + (x?.stock ?? x?.Stock ?? 0), 0) <= 0;
-      return (p.stock ?? p.Stock ?? 0) <= 0;
+      const stockGeneral = Number(p.stock ?? p.Stock ?? 0);
+      if (Array.isArray(v) && v.length > 0) {
+        const totalVariantes = v.reduce((s: number, x: any) => s + (x?.stock ?? x?.Stock ?? 0), 0);
+        // Agotado solo si TANTO variantes como stock general son 0
+        return totalVariantes <= 0 && stockGeneral <= 0;
+      }
+      return stockGeneral <= 0;
     })(),
     agotadoGeneral: p.agotadoGeneral ?? p.AgotadoGeneral ?? (p.stock ?? p.Stock ?? 0) <= 0,
     colores: (() => {
@@ -221,43 +227,27 @@ async function cargarTodosDesdeApi(): Promise<ProductoAdmin[]> {
 
 async function mutarProductoConId(method: string, path: string, body?: object): Promise<{ok: boolean, id?: number}> {
   try {
-    const token = localStorage.getItem('accessToken');
-    const res = await fetch(apiBase + path, {
+    const data = await fetchWithAuth(path, {
       method,
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: body ? JSON.stringify(body) : undefined,
     });
-    console.log(`[Productos] ${method} → ${res.status}`);
-    if (!res.ok) {
-      const err = await res.text();
-      console.error(`[Productos] ${method} → ${res.status}:`, err);
-      return { ok: false };
-    }
-    const data = await res.json();
     const id = data?.data?.productoID ?? data?.data?.ProductoID;
     return { ok: true, id };
-  } catch (e) { console.error(e); return { ok: false }; }
+  } catch (e: any) {
+    console.error(`[Productos] ${method} ${path} error:`, e);
+    return { ok: false };
+  }
 }
 
 async function mutarProducto(method: string, path: string, body?: object): Promise<boolean> {
   try {
-    const token = localStorage.getItem('accessToken');
-    console.log(`[Productos] ${method} ${apiBase + path}`, JSON.stringify(body));
-
-    const res = await fetch(apiBase + path, {
+    await fetchWithAuth(path, {
       method,
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
       body: body ? JSON.stringify(body) : undefined,
     });
-
-    const text = await res.text();
-    console.log(`[Productos] ${method} → ${res.status}:`, text);
-    return res.ok;
-  } catch (e) {
-    console.error(`[Productos] ${method} error:`, e);
+    return true;
+  } catch (e: any) {
+    console.error(`[Productos] ${method} ${path} error:`, e?.status, e?.data);
     return false;
   }
 }
@@ -320,8 +310,11 @@ export const ProductosProvider: React.FC<{ children: ReactNode }> = ({ children 
     console.log('[Sync] colorIDs a enviar:', colorIDs);
 
     // Siempre sincronizar (incluso array vacío para limpiar)
-    await mutarProducto('POST', `/api/productos/${id}/tallas`, { Tallas: tallaIDs });
-    await mutarProducto('POST', `/api/productos/${id}/colores`, { ColorIDs: colorIDs });
+    const okTallas = await mutarProducto('POST', `/api/productos/${id}/tallas`, { Tallas: tallaIDs });
+    const okColores = await mutarProducto('POST', `/api/productos/${id}/colores`, { ColorIDs: colorIDs });
+    if (!okTallas || !okColores) {
+      toast.error('Error guardando tallas/colores. Verifica tu sesión e inténtalo de nuevo.');
+    }
   };
 
   const sincronizarImagenes = async (
@@ -372,7 +365,7 @@ export const ProductosProvider: React.FC<{ children: ReactNode }> = ({ children 
     imagenes?: string[],
     materiales?: string[],
     materialesCtx?: any[]
-  ): Promise<boolean> => {
+  ): Promise<number | false> => {
     const res = await mutarProductoConId('POST', '/api/productos', payload);
     if (res.ok && res.id) {
       await sincronizarTallasColores(String(res.id), tallas || [], colores || [], tallasCtx || [], coloresCtx || []);
@@ -380,7 +373,7 @@ export const ProductosProvider: React.FC<{ children: ReactNode }> = ({ children 
       if ((payload as any).variantes?.length) await sincronizarVariantes(String(res.id), (payload as any).variantes);
       if (materiales?.length && materialesCtx?.length) await sincronizarMateriales(String(res.id), materiales, materialesCtx);
       await cargarProductos();
-      return true;
+      return res.id;
     }
     return false;
   };
@@ -398,7 +391,8 @@ export const ProductosProvider: React.FC<{ children: ReactNode }> = ({ children 
   ): Promise<boolean> => {
     const ok = await mutarProducto('PUT', `/api/productos/${id}`, payload);
     if (ok) {
-      await sincronizarTallasColores(id, tallas || [], colores || [], tallasCtx || [], coloresCtx || []);
+      // Only sync if explicitly provided (undefined means "don't touch")
+      if (tallas !== undefined) await sincronizarTallasColores(id, tallas, colores || [], tallasCtx || [], coloresCtx || []);
       if (imagenes !== undefined) await sincronizarImagenes(id, imagenes, (payload as any).imagenesPorColor);
       if ((payload as any).variantes !== undefined) await sincronizarVariantes(id, (payload as any).variantes);
       if (materiales !== undefined && materialesCtx?.length) await sincronizarMateriales(id, materiales, materialesCtx);
@@ -408,13 +402,12 @@ export const ProductosProvider: React.FC<{ children: ReactNode }> = ({ children 
   };
 
   const eliminarProducto = async (id: string) => {
-    const ok = await mutarProducto('DELETE', `/api/productos/${id}`);
-    if (ok) {
-      // Reload from API to get fresh state
+    try {
+      await fetchWithAuth(`/api/productos/${id}`, { method: 'DELETE' });
       await cargarProductos();
-    } else {
-      // Fallback: remove locally
-      setProductos(prev => prev.filter(p => p.id !== id));
+    } catch (e: any) {
+      const msg = e?.data?.message || e?.data?.error || 'No se puede eliminar este producto. Puede tener pedidos u órdenes asociadas.';
+      throw new Error(msg);
     }
   };
 

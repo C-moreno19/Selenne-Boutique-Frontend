@@ -10,7 +10,7 @@ import { useAuth } from '../../../shared/contexts/AuthContext';
 
 export const TallasView: React.FC = () => {
   const { hasPermission } = useAuth();
-  const puedeAdmin = hasPermission('admin:dashboard');
+  const puedeAdmin = hasPermission('productos:editar');
   const { tallas, agregarTalla, editarTalla, eliminarTalla } = useSubcategorias();
 
   const [searchQuery, setSearchQuery] = useState('');

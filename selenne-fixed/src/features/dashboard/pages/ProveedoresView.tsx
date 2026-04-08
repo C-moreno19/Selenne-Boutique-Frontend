@@ -21,7 +21,7 @@ interface Proveedor {
 
 export const ProveedoresView: React.FC = () => {
   const { hasPermission } = useAuth();
-  const puedeAdmin = hasPermission('admin:dashboard');
+  const puedeAdmin = hasPermission('compras:editar');
 
   const [proveedores, setProveedores] = useState<Proveedor[]>([]);
   const [loading, setLoading] = useState(true);

@@ -21,7 +21,7 @@ interface HistorialComprasViewProps { onBack?: () => void; }
 
 export const HistorialComprasView: React.FC<HistorialComprasViewProps> = ({ onBack }) => {
   const { hasPermission } = useAuth();
-  const puedeAdmin = hasPermission('admin:dashboard');
+  const puedeAdmin = hasPermission('compras:eliminar');
   const [compras, setCompras] = useState<Compra[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);

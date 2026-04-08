@@ -22,7 +22,7 @@ const fmt = (n: number) => new Intl.NumberFormat('es-CO', { style: 'currency', c
 
 export const PedidosView: React.FC = () => {
   const { hasPermission } = useAuth();
-  const puedeAdmin = hasPermission('admin:dashboard');
+  const puedeEditar = hasPermission('ventas:editar');
 
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
   const [loading, setLoading] = useState(true);
@@ -142,7 +142,7 @@ export const PedidosView: React.FC = () => {
                       className="p-2 text-gray-500 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors" title="Ver detalles">
                       <Eye className="w-5 h-5" />
                     </button>
-                    {puedeAdmin && (
+                    {puedeEditar && (
                       <>
                         <button onClick={() => { setSelectedPedido(p); setAprobarOpen(true); }}
                           className="p-2 text-gray-500 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors" title="Aprobar">
@@ -288,7 +288,7 @@ export const PedidosView: React.FC = () => {
           </div>
 
           <DialogFooter className="gap-2 px-8 py-5 border-t border-gray-200 flex-shrink-0">
-            {puedeAdmin && (
+            {puedeEditar && (
               <>
                 <button onClick={() => { setViewOpen(false); setAprobarOpen(true); }}
                   style={{ fontFamily: 'Inter, sans-serif' }}
