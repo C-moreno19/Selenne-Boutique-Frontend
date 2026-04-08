@@ -33,7 +33,9 @@ interface VentasViewProps { onNavigateToHistorial?: () => void; }
 
 export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial }) => {
   const { hasPermission } = useAuth();
-  const puedeAdmin = hasPermission('admin:dashboard');
+  const puedeCrear = hasPermission('ventas:crear');
+  const puedeEditar = hasPermission('ventas:editar');
+  const puedeEliminar = hasPermission('ventas:eliminar');
 
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
   const [loading, setLoading] = useState(true);
@@ -132,7 +134,7 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
             className="px-4 py-3 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 flex items-center gap-2 transition-colors">
             <Archive className="w-5 h-5" /> Historial de Ventas
           </button>
-          {puedeAdmin && (
+          {puedeCrear && (
             <button onClick={() => setNuevaVentaOpen(true)} style={{ fontFamily: 'Inter, sans-serif' }}
               className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 flex items-center gap-2 transition-colors">
               <Plus className="w-5 h-5" /> Nueva Venta
@@ -163,7 +165,7 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
                 <td className="px-6 py-4"><span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-600">{new Date(p.fechaPedido).toLocaleDateString('es-CO')}</span></td>
                 <td className="px-6 py-4"><span style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold">{fmt(p.total)}</span></td>
                 <td className="px-6 py-4">
-                  {puedeAdmin ? (
+                  {puedeEditar ? (
                     <Select value={p.estado} onValueChange={v => cambiarEstado(p, v)}>
                       <SelectTrigger className={`h-8 w-36 text-xs font-medium rounded-full border-0 ${estadoColor(p.estado)}`}>
                         <SelectValue />
@@ -183,7 +185,7 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
                       className="p-2 text-gray-500 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors" title="Ver detalles">
                       <Eye className="w-5 h-5" />
                     </button>
-                    {puedeAdmin && (
+                    {puedeEliminar && (
                       <button onClick={() => { setSelectedPedido(p); setDeleteOpen(true); }}
                         className="p-2 text-gray-500 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors" title="Eliminar">
                         <Trash2 className="w-5 h-5" />
@@ -207,55 +209,62 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
 
       {/* Modal Ver Detalles */}
       <Dialog open={viewOpen} onOpenChange={setViewOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-200">
-            <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl">Detalles Venta #{selectedPedido?.pedidoID}</DialogTitle>
+        <DialogContent className="max-w-2xl h-auto flex flex-col p-0 gap-0">
+          <DialogHeader className="px-8 pt-6 pb-4 border-b border-gray-200 flex-shrink-0">
+            <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl">
+              Detalles Venta #{selectedPedido?.pedidoID}
+            </DialogTitle>
+            <DialogDescription style={{ fontFamily: 'Inter, sans-serif' }}>
+              {selectedPedido?.nombreCliente} — {selectedPedido?.emailCliente}
+            </DialogDescription>
           </DialogHeader>
           {selectedPedido && (
-            <div className="p-6 space-y-5">
-              <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-                <div className="bg-gray-50 px-5 py-3 border-b border-gray-200">
-                  <p style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-sm text-gray-700">👤 Cliente</p>
-                </div>
-                <div className="p-5 grid grid-cols-2 gap-3">
-                  {[['Nombre', selectedPedido.nombreCliente], ['Email', selectedPedido.emailCliente],
-                    ['Teléfono', selectedPedido.telefonoCliente], ['Ciudad', selectedPedido.ciudad],
-                    ['Dirección', selectedPedido.direccionEnvio], ['Método de pago', selectedPedido.metodoPago],
-                  ].map(([label, value]) => (
-                    <div key={label}>
-                      <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">{label}</p>
-                      <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-900">{value}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              {selectedPedido.detalles.length > 0 && (
-                <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-                  <div className="bg-gray-50 px-5 py-3 border-b border-gray-200">
-                    <p style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-sm text-gray-700">📦 Productos</p>
+            <div className="flex-1 overflow-y-auto">
+              <div className="space-y-6 py-6 px-8">
+                <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                  <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                    <h3 style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-gray-800 text-base">👤 Cliente</h3>
                   </div>
-                  <div className="p-5 space-y-2">
-                    {selectedPedido.detalles.map((d, i) => (
-                      <div key={i} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                        <div>
-                          <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium">{d.productoNombre}</p>
-                          <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">
-                            {d.cantidad} x {fmt(d.precioUnitario)} {d.talla && `• Talla: ${d.talla}`} {d.color && `• Color: ${d.color}`}
-                          </p>
-                        </div>
-                        <p style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-sm">{fmt(d.subtotal)}</p>
+                  <div className="p-6 grid grid-cols-2 gap-6">
+                    {[['Nombre', selectedPedido.nombreCliente], ['Email', selectedPedido.emailCliente],
+                      ['Teléfono', selectedPedido.telefonoCliente], ['Ciudad', selectedPedido.ciudad],
+                      ['Dirección', selectedPedido.direccionEnvio], ['Método de pago', selectedPedido.metodoPago],
+                    ].map(([label, value]) => (
+                      <div key={label} className="flex flex-col gap-1">
+                        <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 font-medium uppercase">{label}</p>
+                        <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-semibold text-gray-900">{value}</p>
                       </div>
                     ))}
-                    <div className="flex justify-between pt-2 border-t border-gray-200">
-                      <p style={{ fontFamily: 'Inter, sans-serif' }} className="font-bold">Total</p>
-                      <p style={{ fontFamily: 'Inter, sans-serif' }} className="font-bold text-[#d65391] text-lg">{fmt(selectedPedido.total)}</p>
-                    </div>
                   </div>
                 </div>
-              )}
+                {selectedPedido.detalles.length > 0 && (
+                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                      <h3 style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-gray-800 text-base">📦 Productos</h3>
+                    </div>
+                    <div className="p-6 space-y-3">
+                      {selectedPedido.detalles.map((d, i) => (
+                        <div key={i} className="flex justify-between items-center p-4 bg-gray-50 rounded-xl">
+                          <div>
+                            <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-semibold text-gray-900">{d.productoNombre}</p>
+                            <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 mt-0.5">
+                              {d.cantidad} x {fmt(d.precioUnitario)} {d.talla && `• Talla: ${d.talla}`} {d.color && `• Color: ${d.color}`}
+                            </p>
+                          </div>
+                          <p style={{ fontFamily: 'Inter, sans-serif' }} className="font-bold text-gray-900">{fmt(d.subtotal)}</p>
+                        </div>
+                      ))}
+                      <div className="flex justify-between pt-3 border-t border-gray-200">
+                        <p style={{ fontFamily: 'Inter, sans-serif' }} className="font-bold text-gray-900 text-lg">Total</p>
+                        <p style={{ fontFamily: 'Inter, sans-serif' }} className="font-bold text-[#d65391] text-2xl">{fmt(selectedPedido.total)}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           )}
-          <DialogFooter className="px-6 pb-6">
+          <DialogFooter className="gap-2 px-8 py-5 border-t border-gray-200 flex-shrink-0">
             <button onClick={() => setViewOpen(false)} style={{ fontFamily: 'Inter, sans-serif' }}
               className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">Cerrar</button>
           </DialogFooter>

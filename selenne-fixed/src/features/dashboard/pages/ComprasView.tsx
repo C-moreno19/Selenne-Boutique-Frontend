@@ -33,7 +33,9 @@ interface ComprasViewProps { onNavigateToHistorial?: () => void; }
 
 export const ComprasView: React.FC<ComprasViewProps> = ({ onNavigateToHistorial }) => {
   const { hasPermission } = useAuth();
-  const puedeAdmin = hasPermission('admin:dashboard');
+  const puedeCrear = hasPermission('compras:crear');
+  const puedeEditar = hasPermission('compras:editar');
+  const puedeEliminar = hasPermission('compras:eliminar');
 
   const [compras, setCompras] = useState<Compra[]>([]);
   const [proveedores, setProveedores] = useState<Proveedor[]>([]);
@@ -347,7 +349,7 @@ export const ComprasView: React.FC<ComprasViewProps> = ({ onNavigateToHistorial 
             className="px-4 py-3 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 flex items-center gap-2 transition-colors">
             <Archive className="w-5 h-5" /> Compras Finalizadas
           </button>
-          {puedeAdmin && (
+          {puedeCrear && (
             <button onClick={() => { resetForm(); setNuevaOpen(true); }} style={{ fontFamily: 'Inter, sans-serif' }}
               className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 flex items-center gap-2 transition-colors">
               <Plus className="w-5 h-5" /> Nueva Compra
@@ -375,7 +377,7 @@ export const ComprasView: React.FC<ComprasViewProps> = ({ onNavigateToHistorial 
                 <td className="px-6 py-4"><span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-600">{new Date(compra.fecha).toLocaleDateString('es-CO')}</span></td>
                 <td className="px-6 py-4"><span style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-gray-900">{fmt(compra.total)}</span></td>
                 <td className="px-6 py-4">
-                  {puedeAdmin ? (
+                  {puedeEditar ? (
                     <Select value={compra.estado} onValueChange={v => cambiarEstado(compra, v)}>
                       <SelectTrigger className={`h-8 w-36 text-xs font-medium rounded-full border-0 ${estadoColor(compra.estado)}`}>
                         <SelectValue />
@@ -396,17 +398,17 @@ export const ComprasView: React.FC<ComprasViewProps> = ({ onNavigateToHistorial 
                       className="p-2 text-gray-500 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors" title="Ver detalles">
                       <Eye className="w-5 h-5" />
                     </button>
-                    {puedeAdmin && (
-                      <>
-                        <button onClick={() => openEdit(compra)}
-                          className="p-2 text-gray-500 hover:bg-yellow-50 hover:text-yellow-600 rounded-lg transition-colors" title="Editar">
-                          <Edit className="w-5 h-5" />
-                        </button>
-                        <button onClick={() => { setSelectedCompra(compra); setDeleteOpen(true); }}
-                          className="p-2 text-gray-500 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors" title="Eliminar">
-                          <Trash2 className="w-5 h-5" />
-                        </button>
-                      </>
+                    {puedeEditar && (
+                      <button onClick={() => openEdit(compra)}
+                        className="p-2 text-gray-500 hover:bg-yellow-50 hover:text-yellow-600 rounded-lg transition-colors" title="Editar">
+                        <Edit className="w-5 h-5" />
+                      </button>
+                    )}
+                    {puedeEliminar && (
+                      <button onClick={() => { setSelectedCompra(compra); setDeleteOpen(true); }}
+                        className="p-2 text-gray-500 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors" title="Eliminar">
+                        <Trash2 className="w-5 h-5" />
+                      </button>
                     )}
                   </div>
                 </td>

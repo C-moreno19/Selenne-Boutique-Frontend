@@ -10,7 +10,7 @@ import { useAuth } from '../../../shared/contexts/AuthContext';
 
 export const TiposProductoView: React.FC = () => {
   const { hasPermission } = useAuth();
-  const puedeAdmin = hasPermission('admin:dashboard');
+  const puedeAdmin = hasPermission('productos:editar');
   const { tiposProducto, agregarTipoProducto, editarTipoProducto, eliminarTipoProducto } = useSubcategorias();
 
   const [searchQuery, setSearchQuery] = useState('');

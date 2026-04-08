@@ -10,7 +10,7 @@ import { useAuth } from '../../../shared/contexts/AuthContext';
 
 export const MaterialesView: React.FC = () => {
   const { hasPermission } = useAuth();
-  const puedeAdmin = hasPermission('admin:dashboard');
+  const puedeAdmin = hasPermission('productos:editar');
   const { materiales, agregarMaterial, editarMaterial, eliminarMaterial } = useSubcategorias();
 
   const [searchQuery, setSearchQuery] = useState('');

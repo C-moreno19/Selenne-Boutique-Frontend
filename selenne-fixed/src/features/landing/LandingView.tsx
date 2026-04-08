@@ -158,6 +158,12 @@ export const LandingView: React.FC<LandingViewProps> = ({
   // Mantener la variable original por compatibilidad con código que la usa
   const tallasDelContexto = tallas;
 
+  // Solo contar/mostrar favoritos que existen en productosData (limpia IDs obsoletos)
+  const favoritosValidos = useMemo(
+    () => favoritos.filter(id => productosData.some(p => p.id === id)),
+    [favoritos, productosData]
+  );
+
   const coloresDisponibles = useMemo(() => {
     const set = new Set<string>();
     productosParaFiltros.forEach((p) => p.colores?.forEach((c) => set.add(c)));
@@ -374,9 +380,9 @@ export const LandingView: React.FC<LandingViewProps> = ({
                 <SheetTrigger asChild>
                   <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors relative">
                     <Heart className="w-6 h-6 text-gray-700" />
-                    {favoritos.length > 0 && (
+                    {favoritosValidos.length > 0 && (
                       <span className="absolute -top-1 -right-1 bg-[#d65391] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                        {favoritos.length}
+                        {favoritosValidos.length}
                       </span>
                     )}
                   </button>
@@ -388,7 +394,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                     </SheetTitle>
                   </SheetHeader>
                   <div className="mt-6">
-                    {favoritos.length === 0 ? (
+                    {favoritosValidos.length === 0 ? (
                       <div className="text-center py-12">
                         <Heart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                         <p className="text-gray-500 mb-4">No tienes productos en favoritos</p>
@@ -398,7 +404,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                       </div>
                     ) : (
                       <div className="space-y-4">
-                        {favoritos.map((id) => {
+                        {favoritosValidos.map((id) => {
                           const prod = productosData.find(p => p.id === id);
                           if (!prod) return null;
                           return (
@@ -837,14 +843,15 @@ export const LandingView: React.FC<LandingViewProps> = ({
                     <Button
                       onClick={() => {
                         setProductoSeleccionado(producto);
-                        console.log('[Modal] tallas:', producto.tallas, 'colores:', producto.colores, 'variantes:', producto.variantes?.slice(0,3));
-                        const colorIni = producto.colores?.[0] || '';
-                        const tallaIni = producto.tallas?.find((t: string) => {
-                          if (!producto.variantes?.length) return true;
-                          const v = producto.variantes.find((x: any) => x.tallaNombre === t && (!colorIni || x.colorNombre === colorIni));
+                        const colorIni = (producto as any).colores?.[0] || '';
+                        const tallasP: string[] = (producto as any).tallas || [];
+                        const variantesP: any[] = (producto as any).variantes || [];
+                        const tallaIni = tallasP.find((t: string) => {
+                          if (!variantesP.length) return true;
+                          const v = variantesP.find((x: any) => x.tallaNombre === t && (!colorIni || x.colorNombre === colorIni));
                           return v ? v.stock > 0 : true;
                         });
-                        setTallaSeleccionada(tallaIni || producto.tallas?.[0] || 'Única');
+                        setTallaSeleccionada(tallaIni || tallasP[0] || 'Única');
                         setColorSeleccionado(colorIni);
                         setCantidadSeleccionada(1);
                         setImagenActual(0);
@@ -1092,57 +1099,81 @@ export const LandingView: React.FC<LandingViewProps> = ({
                     )}
 
                     {/* SELECTOR DE TALLA */}
-                    {productoSeleccionado.tallas?.length > 0 && (
-                      <div>
-                        <label className="block text-xs font-semibold text-gray-900 mb-2">
-                          Selecciona tu talla:
-                        </label>
-                        <div className="flex flex-wrap gap-2">
-                          {productoSeleccionado.tallas.map((talla) => {
-                            // Stock por talla+color si hay variantes, sino stock general por talla
-                            const variantes = productoSeleccionado.variantes || [];
-                            let sinStock = false;
-                            let stockDisponible = 0;
-                            if (variantes.length > 0) {
-                              const colorEfectivo2 = colorSeleccionado || (productoSeleccionado.colores?.length === 1 ? productoSeleccionado.colores[0] : null);
-                              if (talla === productoSeleccionado.tallas?.[0]) console.log('[SinStock debug] talla:', talla, 'colorEfectivo2:', colorEfectivo2, 'variante sample:', variantes[0]);
-                              if (colorEfectivo2) {
-                                const v = variantes.find((x: any) => x.tallaNombre === talla && x.colorNombre === colorEfectivo2);
-                                stockDisponible = v?.stock ?? 0;
+                    {(() => {
+                      const tallasProducto: string[] = (productoSeleccionado as any).tallas || [];
+                      const variantes: any[] = (productoSeleccionado as any).variantes || [];
+                      const tallasConStock: any[] = (productoSeleccionado as any).tallasConStock || [];
+                      const stockGeneral: number = (productoSeleccionado as any).stock ?? 0;
+
+                      // Si no hay tallas configuradas pero hay stock, mostrar "Talla única"
+                      const tallasMostrar: string[] = tallasProducto.length > 0
+                        ? tallasProducto
+                        : (stockGeneral > 0 ? ['Única'] : []);
+
+                      if (tallasMostrar.length === 0) return null;
+
+                      // ¿Todos los variantes tienen stock 0? → usar tallasConStock como fallback
+                      const todosVariantesCero = variantes.length > 0 &&
+                        variantes.every((x: any) => (x.stock ?? 0) <= 0);
+
+                      return (
+                        <div>
+                          <label className="block text-xs font-semibold text-gray-900 mb-2">
+                            Selecciona tu talla:
+                          </label>
+                          <div className="flex flex-wrap gap-2">
+                            {tallasMostrar.map((talla) => {
+                              let sinStock = false;
+                              let stockDisponible = 0;
+
+                              if (talla === 'Única') {
+                                sinStock = stockGeneral <= 0;
+                                stockDisponible = stockGeneral;
+                              } else if (variantes.length > 0 && !todosVariantesCero) {
+                                // Hay variantes con stock real
+                                const colorEfectivo = colorSeleccionado || (productoSeleccionado.colores?.length === 1 ? productoSeleccionado.colores[0] : null);
+                                if (colorEfectivo) {
+                                  const v = variantes.find((x: any) => x.tallaNombre === talla && x.colorNombre === colorEfectivo);
+                                  stockDisponible = v?.stock ?? 0;
+                                } else {
+                                  stockDisponible = variantes.filter((x: any) => x.tallaNombre === talla).reduce((s: number, x: any) => s + (x.stock ?? 0), 0);
+                                }
+                                sinStock = stockDisponible <= 0;
                               } else {
-                                stockDisponible = variantes.filter((x: any) => x.tallaNombre === talla).reduce((s: number, x: any) => s + (x.stock ?? 0), 0);
+                                // Sin variantes (o todos en cero) → usar tallasConStock
+                                const tallaInfo = tallasConStock.find((t: any) => t.nombre === talla);
+                                const stockTalla = tallaInfo ? tallaInfo.stock : (stockGeneral > 0 ? stockGeneral : 10);
+                                sinStock = stockTalla <= 0;
+                                stockDisponible = stockTalla;
                               }
-                              sinStock = stockDisponible <= 0;
-                            } else {
-                              const tallaInfo = productoSeleccionado.tallasConStock?.find((t: any) => t.nombre === talla);
-                              sinStock = tallaInfo ? tallaInfo.stock <= 0 : false;
-                            }
-                            const seleccionada = tallaSeleccionada === talla;
-                            return (
-                              <button
-                                key={talla}
-                                type="button"
-                                disabled={sinStock}
-                                onClick={() => !sinStock && setTallaSeleccionada(talla)}
-                                className={`relative px-3 py-1.5 rounded-md border text-sm font-medium transition-all
-                                  ${sinStock
-                                    ? 'border-gray-200 text-gray-300 bg-gray-50 cursor-not-allowed line-through'
-                                    : seleccionada
-                                      ? 'border-[#d65391] bg-[#d65391] text-white shadow-sm'
-                                      : 'border-gray-300 text-gray-700 hover:border-[#d65391]'
-                                  }`}
-                                title={sinStock ? 'Agotado en esta talla' : `${talla}${variantes.length > 0 ? ` — ${stockDisponible} disponibles` : ''}`}
-                              >
-                                {talla}
-                                {sinStock && (
-                                  <span className="absolute -top-1 -right-1 bg-red-400 text-white text-[9px] px-1 rounded-full">✕</span>
-                                )}
-                              </button>
-                            );
-                          })}
+
+                              const seleccionada = tallaSeleccionada === talla;
+                              return (
+                                <button
+                                  key={talla}
+                                  type="button"
+                                  disabled={sinStock}
+                                  onClick={() => !sinStock && setTallaSeleccionada(talla)}
+                                  className={`relative px-3 py-1.5 rounded-md border text-sm font-medium transition-all
+                                    ${sinStock
+                                      ? 'border-gray-200 text-gray-300 bg-gray-50 cursor-not-allowed line-through'
+                                      : seleccionada
+                                        ? 'border-[#d65391] bg-[#d65391] text-white shadow-sm'
+                                        : 'border-gray-300 text-gray-700 hover:border-[#d65391]'
+                                    }`}
+                                  title={sinStock ? 'Agotado en esta talla' : `${talla}${stockDisponible > 0 ? ` — ${stockDisponible} disponibles` : ''}`}
+                                >
+                                  {talla}
+                                  {sinStock && (
+                                    <span className="absolute -top-1 -right-1 bg-red-400 text-white text-[9px] px-1 rounded-full">✕</span>
+                                  )}
+                                </button>
+                              );
+                            })}
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      );
+                    })()}
 
                     {/* CANTIDAD */}
                     <div>
@@ -1189,11 +1220,18 @@ export const LandingView: React.FC<LandingViewProps> = ({
                       </div>
                     ) : (
                       (() => {
-                          const variantes = productoSeleccionado.variantes || [];
+                          const variantes: any[] = (productoSeleccionado as any).variantes || [];
+                          const stockGeneral: number = (productoSeleccionado as any).stock ?? 0;
+                          const tallasConStock: any[] = (productoSeleccionado as any).tallasConStock || [];
+                          const todosVariantesCero = variantes.length > 0 && variantes.every((x: any) => (x.stock ?? 0) <= 0);
                           const colorEfectivo = colorSeleccionado || (productoSeleccionado.colores?.length === 1 ? productoSeleccionado.colores[0] : null);
-                          let texto = 'Selecciona una talla';
+                          let texto = tallaSeleccionada ? '' : 'Selecciona una talla';
                           let isAgotado = false;
-                          if (variantes.length > 0) {
+
+                          if (tallaSeleccionada === 'Única') {
+                            isAgotado = stockGeneral <= 0;
+                            texto = isAgotado ? 'Agotado' : `${stockGeneral} unidades disponibles`;
+                          } else if (variantes.length > 0 && !todosVariantesCero) {
                             if (tallaSeleccionada && colorEfectivo) {
                               const v = variantes.find((x: any) => x.tallaNombre === tallaSeleccionada && x.colorNombre === colorEfectivo);
                               const stockV = v?.stock ?? 0;
@@ -1209,7 +1247,9 @@ export const LandingView: React.FC<LandingViewProps> = ({
                               texto = isAgotado ? 'Color agotado' : `${total} unidades en ${colorEfectivo}`;
                             }
                           } else {
-                            const stockTotal = productoSeleccionado.stock ?? 0;
+                            // Sin variantes o todos en cero → usar tallasConStock o stock general
+                            const tallaInfo = tallaSeleccionada ? tallasConStock.find((t: any) => t.nombre === tallaSeleccionada) : null;
+                            const stockTotal = tallaInfo ? tallaInfo.stock : stockGeneral;
                             isAgotado = stockTotal <= 0;
                             texto = isAgotado ? 'Agotado' : `${stockTotal} unidades disponibles`;
                           }
@@ -1285,56 +1325,37 @@ export const LandingView: React.FC<LandingViewProps> = ({
         open={mostrarModalLoginPerfil}
         onOpenChange={setMostrarModalLoginPerfil}
       >
-        <DialogContent className="max-w-sm rounded-lg overflow-hidden">
-          <DialogHeader className="bg-gradient-to-r from-[#d65391] to-[#f8a9c5] text-white p-6 text-center">
-            <DialogTitle
-              style={{
-                fontFamily: "Playfair Display, serif",
-              }}
-              className="text-2xl"
-            >
-              Mi Perfil
-            </DialogTitle>
-            <DialogDescription>
-              Necesitas iniciar sesión para ver tu perfil
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4 px-6">
-            <p
-              style={{ fontFamily: "Inter, sans-serif" }}
-              className="text-center text-gray-600"
-            >
-              Para acceder a tu perfil, historial de compras y
-              configuración de cuenta, por favor inicia sesión.
-            </p>
-            <div className="space-y-2">
-              <Button
-                onClick={() => {
-                  setMostrarModalLoginPerfil(false);
-                  onNavigateToLogin();
-                }}
-                className="w-full bg-[#d65391] hover:bg-[#c14a7f] text-white h-11"
-                style={{
-                  fontFamily: "Inter, sans-serif",
-                }}
-              >
-                <LogIn className="w-5 h-5 mr-2" />
-                Iniciar Sesión
-              </Button>
-              <Button
-                onClick={() => {
-                  setMostrarModalLoginPerfil(false);
-                  onNavigateToRegister();
-                }}
-                variant="outline"
-                className="w-full border-[#d65391] text-[#d65391] hover:bg-[#d65391]/5 h-11"
-                style={{
-                  fontFamily: "Inter, sans-serif",
-                }}
-              >
-                Crear Cuenta
-              </Button>
+        <DialogContent className="max-w-xs w-[90vw] rounded-2xl p-6 text-center">
+          <DialogDescription className="sr-only">Iniciar sesión para ver tu perfil</DialogDescription>
+          <div className="flex justify-center mb-3">
+            <div className="w-12 h-12 rounded-full bg-[#d65391]/10 flex items-center justify-center">
+              <LogIn className="w-5 h-5 text-[#d65391]" />
             </div>
+          </div>
+          <DialogHeader className="mb-1">
+            <DialogTitle style={{ fontFamily: "Playfair Display, serif" }} className="text-xl text-gray-900">
+              Inicia sesión
+            </DialogTitle>
+          </DialogHeader>
+          <p style={{ fontFamily: "Inter, sans-serif" }} className="text-sm text-gray-500 mb-5">
+            Para ver tu perfil e historial de compras necesitas una cuenta.
+          </p>
+          <div className="space-y-2">
+            <Button
+              onClick={() => { setMostrarModalLoginPerfil(false); onNavigateToLogin(); }}
+              className="w-full bg-[#d65391] hover:bg-[#c14a7f] text-white h-10 text-sm"
+              style={{ fontFamily: "Inter, sans-serif" }}
+            >
+              Iniciar Sesión
+            </Button>
+            <Button
+              onClick={() => { setMostrarModalLoginPerfil(false); onNavigateToRegister(); }}
+              variant="outline"
+              className="w-full border-gray-200 text-gray-600 hover:bg-gray-50 h-10 text-sm"
+              style={{ fontFamily: "Inter, sans-serif" }}
+            >
+              Crear cuenta
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
