@@ -46,7 +46,8 @@ import { useProductosCombinados } from "../../shared/data/useProductosCombinados
 import { useTienda } from "../../shared/contexts/TiendaContext";
 import { useSubcategorias } from "../../shared/contexts/SubcategoriasContext";
 import { useAuth } from "../../shared/contexts/AuthContext";
-import { useMensajes } from "../../shared/contexts/MensajesContext";
+import { getJson } from "../../services/api";
+import { useNotificaciones } from "../../shared/hooks/useNotificaciones";
 import type { Producto } from "../../shared/contexts/TiendaContext";
 import { CheckoutView } from "./CheckoutView";
 import { PerfilView } from "./PerfilView";
@@ -63,6 +64,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
   onLogout,
 }) => {
   const [mostrarTelefono, setMostrarTelefono] = useState(false);
+  const [telefonoContacto, setTelefonoContacto] = useState('+57 304 292 8493');
   const [vistaActual, setVistaActual] =
     useState<Vista>("tienda");
   const [categoriaActiva, setCategoriaActiva] =
@@ -102,6 +104,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
   } = useTienda();
 
   const { user, logout } = useAuth();
+  const notifHook = useNotificaciones();
 
   // Obtener colores y tallas con sus hex
   const { colores, tallas } = useSubcategorias();
@@ -234,6 +237,15 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
 
   // Sincronizar el producto seleccionado cuando cambian los datos (nuevas imágenes, precios, etc)
   useEffect(() => {
+    getJson('/api/config/banco').then((d: any) => {
+      if (d?.data?.whatsapp) {
+        const n = d.data.whatsapp.replace(/\D/g, '');
+        setTelefonoContacto(`+${n.slice(0, 2)} ${n.slice(2, 5)} ${n.slice(5, 8)} ${n.slice(8)}`);
+      }
+    }).catch(() => {});
+  }, []);
+
+  useEffect(() => {
     if (productoSeleccionado) {
       const productoActualizado = productosData.find(p => p.id === productoSeleccionado.id);
       if (productoActualizado) {
@@ -353,12 +365,12 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                   setVistaActual("tienda");
                   setCategoriaActiva("mujer");
                 }}
-                className="rounded-lg px-3 py-2 hover:bg-gray-50 transition-colors"
-                title="Ir al inicio"
+                className="flex items-center justify-center hover:opacity-75 transition-opacity"
+                title="Selenne Boutique — Inicio"
               >
-                <h1 style={{ fontFamily: "Playfair Display, serif" }} className="text-3xl text-gray-900">
-                  Selenne <span className="text-[#d65391]">Boutique</span>
-                </h1>
+                <span className="text-2xl font-bold tracking-wide font-playfair drop-shadow-sm">
+                  Selenne <span className="text-[#d65391] italic">Boutique</span>
+                </span>
               </button>
             </div>
 
@@ -419,11 +431,16 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
               <button
                 onClick={() => setVistaActual("mensajes")}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors relative"
-                title="Mensajes"
+                title="Notificaciones"
               >
                 <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
+                {notifHook.noLeidas > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-[#d65391] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
+                    {notifHook.noLeidas > 9 ? '9+' : notifHook.noLeidas}
+                  </span>
+                )}
               </button>
               <button
                 onClick={() => setVistaActual("perfil")}
@@ -524,10 +541,11 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                         <div className="space-y-4">
                           {carritoItems.map((item) => (
                             <div
-                              key={`${item.id}-${item.tallaSeleccionada}`}
+                              key={`${item.carritoID}`}
                               className="flex gap-4 bg-gray-50 p-3 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
                               onClick={() => {
-                                setProductoSeleccionado(item);
+                                const fullProduct = productosData.find(p => p.id === item.id);
+                                setProductoSeleccionado(fullProduct || item);
                                 setTallaSeleccionada(item.tallaSeleccionada);
                                 setColorSeleccionado(item.colorSeleccionado || "");
                                 setCantidadSeleccionada(item.cantidad);
@@ -556,7 +574,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                                     onClick={(e: React.MouseEvent) => {
                                       e.stopPropagation();
                                       actualizarCantidad(
-                                        item.id,
+                                        item.carritoID,
                                         item.cantidad - 1,
                                       );
                                     }}
@@ -571,7 +589,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                                     onClick={(e: React.MouseEvent) => {
                                       e.stopPropagation();
                                       actualizarCantidad(
-                                        item.id,
+                                        item.carritoID,
                                         item.cantidad + 1,
                                       );
                                     }}
@@ -582,7 +600,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                                   <button
                                     onClick={(e: React.MouseEvent) => {
                                       e.stopPropagation();
-                                      removerDelCarrito(item.id);
+                                      removerDelCarrito(item.carritoID);
                                     }}
                                     className="ml-auto text-xs text-red-500 hover:text-red-700"
                                   >
@@ -719,7 +737,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
             onLogout={handleLogout}
           />
         ) : vistaActual === "mensajes" ? (
-          <MensajesClienteView onBack={() => setVistaActual("tienda")} />
+          <MensajesClienteView onBack={() => setVistaActual("tienda")} onVerPedidos={() => setVistaActual("perfil")} notifHook={notifHook} />
         ) : (
           <>
             {/* Barra de Búsqueda y Filtros */}
@@ -743,10 +761,10 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                   {/* Tipo de Producto */}
                   <Select value={filtroTipoProducto || "all"} onValueChange={setFiltroTipoProducto}>
                     <SelectTrigger className="flex-1 bg-white px-3 py-1 h-9 text-sm">
-                      <SelectValue placeholder="Todos" />
+                      <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">Todos</SelectItem>
+                      <SelectItem value="all">Tipo de producto</SelectItem>
                       {tiposProductoDisponibles.map((tipo) => (
                         <SelectItem key={tipo} value={tipo}>{tipo}</SelectItem>
                       ))}
@@ -756,10 +774,10 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                   {/* Categoría de Ropa */}
                   <Select value={filtroCategoriaRopa || "all"} onValueChange={setFiltroCategoriaRopa}>
                     <SelectTrigger className="flex-1 bg-white px-3 py-1 h-9 text-sm">
-                      <SelectValue placeholder="Todos" />
+                      <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">Todas</SelectItem>
+                      <SelectItem value="all">Categoría</SelectItem>
                       {categoriasRopaDisponibles.map((cat) => (
                         <SelectItem key={cat} value={cat}>{cat}</SelectItem>
                       ))}
@@ -769,26 +787,26 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                   {/* Rango de Precio */}
                   <Input
                     type="number"
-                    placeholder="Min"
+                    placeholder="Precio min"
                     value={filtroPrecioMin === null ? "" : filtroPrecioMin}
                     onChange={(e) => setFiltroPrecioMin(e.target.value === "" ? null : parseInt(e.target.value) || null)}
-                    className="bg-white w-20 px-2 py-1 h-9 text-sm"
+                    className="bg-white w-24 px-2 py-1 h-9 text-sm"
                   />
                   <Input
                     type="number"
-                    placeholder="Máx"
+                    placeholder="Precio máx"
                     value={filtroPrecioMax === null ? "" : filtroPrecioMax}
                     onChange={(e) => setFiltroPrecioMax(e.target.value === "" ? null : parseInt(e.target.value) || null)}
-                    className="bg-white w-20 px-2 py-1 h-9 text-sm"
+                    className="bg-white w-24 px-2 py-1 h-9 text-sm"
                   />
 
                   {/* Talla */}
                   <Select value={filtroTalla || "all"} onValueChange={setFiltroTalla}>
                     <SelectTrigger className="flex-1 bg-white px-3 py-1 h-9 text-sm">
-                      <SelectValue placeholder="Todas" />
+                      <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">Todas</SelectItem>
+                      <SelectItem value="all">Talla</SelectItem>
                       {tallasDisponibles.map((t) => (
                         <SelectItem key={t} value={t}>{t}</SelectItem>
                       ))}
@@ -798,10 +816,10 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                   {/* Ordenar por */}
                   <Select value={ordenar} onValueChange={setOrdenar}>
                     <SelectTrigger className="flex-1 bg-white px-3 py-1 h-9 text-sm">
-                      <SelectValue placeholder="Destacados" />
+                      <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="destacados">Destacados</SelectItem>
+                      <SelectItem value="destacados">Ordenar: Destacados</SelectItem>
                       <SelectItem value="precio-menor">Precio: Menor a Mayor</SelectItem>
                       <SelectItem value="precio-mayor">Precio: Mayor a Menor</SelectItem>
                       <SelectItem value="nombre">Nombre A-Z</SelectItem>
@@ -812,29 +830,40 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
             </div>
 
             {/* Banner de Categoría */}
-            <div className="bg-gradient-to-r from-[#d65391] to-[#f8a9c5] text-white py-12">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <h2
-                  style={{ fontFamily: "Playfair Display, serif" }}
-                  className="text-4xl md:text-5xl mb-2"
-                >
-                  {categoriaActiva === "mujer" && "Colección Mujer"}
-                  {categoriaActiva === "accesorios" && "Accesorios"}
-                  {categoriaActiva === "sale" && "Sale"}
-                </h2>
-                <p
-                  style={{ fontFamily: "Inter, sans-serif" }}
-                  className="text-lg opacity-90"
-                >
-                  {categoriaActiva === "mujer" &&
-                    "Descubre nuestra elegante colección de ropa femenina"}
-                  {categoriaActiva === "accesorios" &&
-                    "Complementa tu look con nuestros accesorios exclusivos"}
-                  {categoriaActiva === "sale" &&
-                    "Productos seleccionados con descuentos especiales"}
-                </p>
-              </div>
-            </div>
+            {(() => {
+              const banners: Record<string, { tag: string; title: string; subtitle: string; letter: string; from: string; to: string }> = {
+                mujer:      { tag: "Nueva Colección", title: "Colección Mujer",      subtitle: "Elegancia y estilo para cada ocasión",           letter: "M", from: "#c73d7f", to: "#f0a0c8" },
+                accesorios: { tag: "Exclusivos",      title: "Accesorios",           subtitle: "El detalle que completa tu look",                 letter: "A", from: "#b45309", to: "#f59e0b" },
+                sale:       { tag: "Ofertas",         title: "Sale",                 subtitle: "Descuentos especiales en productos seleccionados", letter: "S", from: "#b91c1c", to: "#f87171" },
+              };
+              const b = banners[categoriaActiva] || banners.mujer;
+              return (
+                <div className="relative overflow-hidden" style={{ background: `linear-gradient(120deg, ${b.from} 0%, ${b.to} 100%)` }}>
+                  {/* Patrón de puntos sutil */}
+                  <div className="absolute inset-0 opacity-10 pointer-events-none"
+                    style={{ backgroundImage: "radial-gradient(circle, white 1px, transparent 1px)", backgroundSize: "24px 24px" }} />
+                  {/* Letra decorativa */}
+                  <div className="absolute right-6 top-1/2 -translate-y-1/2 select-none pointer-events-none hidden md:block"
+                    style={{ fontFamily: "Playfair Display, serif", fontSize: "7rem", fontWeight: 900, color: "white", opacity: 0.12, lineHeight: 1 }}>
+                    {b.letter}
+                  </div>
+                  <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-7 flex flex-col justify-center">
+                    <span style={{ fontFamily: "Inter, sans-serif" }}
+                      className="inline-block text-[11px] font-bold uppercase tracking-[0.3em] text-white/70 mb-2">
+                      {b.tag}
+                    </span>
+                    <h2 style={{ fontFamily: "Playfair Display, serif" }}
+                      className="text-3xl md:text-4xl font-bold text-white leading-tight mb-1">
+                      {b.title}
+                    </h2>
+                    <p style={{ fontFamily: "Inter, sans-serif" }}
+                      className="text-sm text-white/80 tracking-wide">
+                      {b.subtitle}
+                    </p>
+                  </div>
+                </div>
+              );
+            })()}
 
       {/* Grid de Productos */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -1131,32 +1160,38 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                   </div>
 
                   {/* SELECTOR DE COLOR */}
-                  {productoSeleccionado.colores && productoSeleccionado.colores.length > 0 && (
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-900 mb-3">
-                        Color:
-                      </label>
-                      <div className="flex gap-4 flex-wrap mb-3">
-                        {productoSeleccionado.colores.map((color) => {
-                          const hexColor = getColorHex(color);
-                          return (
-                            <div key={color} className="flex flex-col items-center">
-                              <button
-                                onClick={() => setColorSeleccionado(color)}
-                                title={color}
-                                className={`w-10 h-10 rounded-full transition-all border-2 shadow-sm hover:shadow-md ${                                  colorSeleccionado === color
-                                    ? "border-[#d65391] ring-2 ring-[#d65391] ring-offset-2"
-                                    : "border-gray-300 hover:border-[#d65391]"
-                                }`}
-                                style={{ backgroundColor: hexColor }}
-                              />
-                              <p className="text-xs text-gray-600 mt-1">{color}</p>
-                            </div>
-                          );
-                        })}
+                  {(() => {
+                    const coloresProducto = productoSeleccionado.colores && productoSeleccionado.colores.length > 0
+                      ? productoSeleccionado.colores
+                      : colores.map((c: any) => c.nombre);
+                    if (coloresProducto.length === 0) return null;
+                    return (
+                      <div>
+                        <label className="block text-xs font-semibold text-gray-900 mb-3">
+                          Color:
+                        </label>
+                        <div className="flex gap-4 flex-wrap mb-3">
+                          {coloresProducto.map((color) => {
+                            const hexColor = getColorHex(color);
+                            return (
+                              <div key={color} className="flex flex-col items-center">
+                                <button
+                                  onClick={() => setColorSeleccionado(color)}
+                                  title={color}
+                                  className={`w-10 h-10 rounded-full transition-all border-2 shadow-sm hover:shadow-md ${colorSeleccionado === color
+                                      ? "border-[#d65391] ring-2 ring-[#d65391] ring-offset-2"
+                                      : "border-gray-300 hover:border-[#d65391]"
+                                  }`}
+                                  style={{ backgroundColor: hexColor }}
+                                />
+                                <p className="text-xs text-gray-600 mt-1">{color}</p>
+                              </div>
+                            );
+                          })}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    );
+                  })()}
 
                   {/* SELECTOR DE TALLA */}
                   <div>
@@ -1164,7 +1199,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                       Selecciona tu talla:
                     </label>
                     <SizeSelector
-                      sizes={productoSeleccionado.tallas}
+                      sizes={productoSeleccionado.tallas.length > 0 ? productoSeleccionado.tallas : tallas.map((t: any) => t.nombre)}
                       value={tallaSeleccionada}
                       onChange={setTallaSeleccionada}
                     />
@@ -1318,21 +1353,15 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
               </h4>
               <ul className="space-y-2 text-sm text-gray-400">
                 <li>
-                  <button
-                    onClick={() => setMostrarTelefono((s) => !s)}
-                    className="hover:text-[#f8a9c5] text-left"
-                    aria-expanded={mostrarTelefono}
+                  <a
+                    href={`https://wa.me/${telefonoContacto.replace(/\D/g, '')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-[#f8a9c5]"
                   >
                     Contacto
-                  </button>
+                  </a>
                 </li>
-                {mostrarTelefono && (
-                  <li className="text-sm text-gray-300 mt-2">
-                    <a href="tel:+573001234567" className="hover:text-[#f8a9c5]">
-                      +57 300 123 4567
-                    </a>
-                  </li>
-                )}
               </ul>
             </div>
             <div>
@@ -1344,18 +1373,8 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
               </h4>
               <ul className="space-y-2 text-sm text-gray-400">
                 <li>
-                  <a href="#" className="hover:text-[#f8a9c5]">
+                  <a href="https://www.instagram.com/selenne_boutique_?igsh=MWJtaXR0Zm85MW13ZQ==" target="_blank" rel="noopener noreferrer" className="hover:text-[#f8a9c5]">
                     Instagram
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-[#f8a9c5]">
-                    Facebook
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-[#f8a9c5]">
-                    Pinterest
                   </a>
                 </li>
               </ul>

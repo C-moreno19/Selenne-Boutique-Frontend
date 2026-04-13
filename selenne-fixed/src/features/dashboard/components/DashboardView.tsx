@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { DashboardSidebar } from './DashboardSidebar';
 import { DashboardHeader } from './DashboardHeader';
 import { DashboardHome } from '../pages/DashboardHome';
-import { EmpleadoHome } from '../pages/EmpleadoHome';
 import { VentasView } from '../pages/VentasView';
 import { HistorialVentasView } from '../pages/HistorialVentasView';
 import { ClientesView } from '../pages/ClientesView';
@@ -57,7 +56,7 @@ interface DashboardViewProps {
 }
 
 export const DashboardView: React.FC<DashboardViewProps> = ({ onLogout }) => {
-  const { user, refreshPermisos } = useAuth();
+  const { refreshPermisos } = useAuth();
   const { canAccessSection } = usePermisos();
   const { isOpen } = useSidebar();
 
@@ -68,7 +67,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onLogout }) => {
   const [currentSection, setCurrentSectionState] = useState<DashboardSection>(() => {
     const saved = localStorage.getItem('currentSection') as DashboardSection;
     if (saved) return saved;
-    return user?.role === 'Empleado' ? 'productos' : 'home';
+    return 'home';
   });
 
   const setCurrentSection = (section: DashboardSection) => {
@@ -99,7 +98,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onLogout }) => {
 
     switch (currentSection) {
       case 'home':
-        return user?.role === 'Empleado' ? <EmpleadoHome /> : <DashboardHome />;
+        return <DashboardHome />;
       case 'productos':
         return <ProductosView />;
       case 'categorias':

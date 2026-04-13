@@ -14,7 +14,7 @@ interface Proveedor { proveedorID: number; nombre: string; }
 interface Producto { productoID: number; nombre: string; codigo: string; precioVenta: number; }
 interface DetalleCompra { productoID: number; nombreProducto: string; cantidad: number; precioUnitario: number; total: number; }
 interface Compra {
-  compraID: number; proveedorID: number; proveedorNombre?: string;
+  compraID: number; proveedorID: number; proveedorNombre?: string; proveedorDocumento?: string;
   ordenFactura: string; fecha: string; total: number; estado: string; notas?: string;
   detalles?: DetalleCompra[];
 }
@@ -51,6 +51,7 @@ export const ComprasView: React.FC<ComprasViewProps> = ({ onNavigateToHistorial 
   const [selectedCompra, setSelectedCompra] = useState<Compra | null>(null);
   const [saving, setSaving] = useState(false);
   const [nuevoEstado, setNuevoEstado] = useState('');
+  const [loadingDetalle, setLoadingDetalle] = useState(false);
 
   const [proveedorID, setProveedorID] = useState('');
   const [ordenFactura, setOrdenFactura] = useState('');
@@ -88,7 +89,8 @@ export const ComprasView: React.FC<ComprasViewProps> = ({ onNavigateToHistorial 
         setCompras(Array.isArray(comprasData) ? comprasData.map((c: any): Compra => ({
           compraID: c.compraID ?? c.CompraID,
           proveedorID: c.proveedorID ?? c.ProveedorID,
-          proveedorNombre: c.proveedor?.nombre ?? '',
+          proveedorNombre: c.proveedor?.nombre ?? c.Proveedor?.Nombre ?? '',
+          proveedorDocumento: c.proveedor?.documento ?? c.Proveedor?.Documento ?? '',
           ordenFactura: c.ordenFactura ?? '',
           fecha: c.fecha ?? '',
           total: c.total ?? 0,
@@ -117,6 +119,28 @@ export const ComprasView: React.FC<ComprasViewProps> = ({ onNavigateToHistorial 
   const resetForm = () => {
     setProveedorID(''); setOrdenFactura(''); setFecha(new Date().toISOString().split('T')[0]);
     setNotas(''); setDetalles([]); setFormErrors({});
+  };
+
+  const openView = async (c: Compra) => {
+    setSelectedCompra(c);
+    setViewOpen(true);
+    setLoadingDetalle(true);
+    try {
+      const res = await getJson(`/api/compras/${c.compraID}`);
+      const data = res?.data || res;
+      setSelectedCompra({
+        ...c,
+        proveedorDocumento: data?.proveedor?.documento ?? c.proveedorDocumento ?? '',
+        detalles: (data?.detalles ?? []).map((d: any) => ({
+          productoID: d.productoID,
+          nombreProducto: d.nombreProducto ?? '',
+          cantidad: d.cantidad ?? 0,
+          precioUnitario: d.precioUnitario ?? 0,
+          total: d.total ?? 0,
+        })),
+      });
+    } catch { }
+    finally { setLoadingDetalle(false); }
   };
 
   const openEdit = (c: Compra) => {
@@ -166,7 +190,10 @@ export const ComprasView: React.FC<ComprasViewProps> = ({ onNavigateToHistorial 
     if (!validate()) return;
     setSaving(true);
     try {
-      await postJson('/api/compras', { ProveedorID: Number(proveedorID), OrdenFactura: ordenFactura, Fecha: fecha, Total: totalCompra, Notas: notas });
+      await postJson('/api/compras', {
+        ProveedorID: Number(proveedorID), OrdenFactura: ordenFactura, Fecha: fecha, Total: totalCompra, Notas: notas,
+        Detalles: detalles.map(d => ({ ProductoID: d.productoID, Cantidad: d.cantidad, PrecioUnitario: d.precioUnitario, Total: d.total }))
+      });
       toast.success('Compra registrada');
       setNuevaOpen(false); resetForm(); loadData();
     } catch (e: any) { toast.error(e?.data?.message || 'Error registrando compra'); }
@@ -214,7 +241,7 @@ export const ComprasView: React.FC<ComprasViewProps> = ({ onNavigateToHistorial 
     finally { setSaving(false); }
   };
 
-  const FormBody = () => (
+  const formBodyJSX = (
     <div className="space-y-6 py-6 px-8">
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
         <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
@@ -394,7 +421,7 @@ export const ComprasView: React.FC<ComprasViewProps> = ({ onNavigateToHistorial 
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-2">
-                    <button onClick={() => { setSelectedCompra(compra); setViewOpen(true); }}
+                    <button onClick={() => openView(compra)}
                       className="p-2 text-gray-500 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors" title="Ver detalles">
                       <Eye className="w-5 h-5" />
                     </button>
@@ -434,7 +461,7 @@ export const ComprasView: React.FC<ComprasViewProps> = ({ onNavigateToHistorial 
             <DialogDescription style={{ fontFamily: 'Inter, sans-serif' }}>Registra una nueva compra a proveedor</DialogDescription>
           </DialogHeader>
           <div className="flex-1 overflow-y-auto max-h-[75vh]">
-            <FormBody />
+            {formBodyJSX}
           </div>
           <DialogFooter className="gap-2 px-8 py-5 border-t border-gray-200 flex-shrink-0">
             <button onClick={() => { setNuevaOpen(false); resetForm(); }} style={{ fontFamily: 'Inter, sans-serif' }}
@@ -455,7 +482,7 @@ export const ComprasView: React.FC<ComprasViewProps> = ({ onNavigateToHistorial 
             <DialogDescription style={{ fontFamily: 'Inter, sans-serif' }}>Modifica los datos de la compra</DialogDescription>
           </DialogHeader>
           <div className="flex-1 overflow-y-auto max-h-[75vh]">
-            <FormBody />
+            {formBodyJSX}
           </div>
           <DialogFooter className="gap-2 px-8 py-5 border-t border-gray-200 flex-shrink-0">
             <button onClick={() => { setEditOpen(false); resetForm(); }} style={{ fontFamily: 'Inter, sans-serif' }}
@@ -482,29 +509,35 @@ export const ComprasView: React.FC<ComprasViewProps> = ({ onNavigateToHistorial 
                     <h3 style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-gray-800 text-base">📋 Información General</h3>
                   </div>
                   <div className="p-6 grid grid-cols-2 gap-6">
+                    <div className="flex flex-col gap-1"><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 font-medium uppercase">Doc. Proveedor</p><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-semibold text-gray-900">{selectedCompra.proveedorDocumento || '—'}</p></div>
                     <div className="flex flex-col gap-1"><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 font-medium uppercase">Orden / Factura</p><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-semibold text-gray-900">{selectedCompra.ordenFactura}</p></div>
                     <div className="flex flex-col gap-1"><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 font-medium uppercase">Proveedor</p><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-semibold text-gray-900">{selectedCompra.proveedorNombre}</p></div>
                     <div className="flex flex-col gap-1"><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 font-medium uppercase">Fecha</p><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-semibold text-gray-900">{new Date(selectedCompra.fecha).toLocaleDateString('es-CO')}</p></div>
                     <div className="flex flex-col gap-1"><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 font-medium uppercase">Estado</p><span className={`px-3 py-1 rounded-full text-xs font-medium w-fit ${estadoColor(selectedCompra.estado)}`}>{selectedCompra.estado}</span></div>
-                    <div className="flex flex-col gap-1 col-span-2"><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 font-medium uppercase">Total</p><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-2xl font-bold text-[#d65391]">{fmt(selectedCompra.total)}</p></div>
+                    <div className="flex flex-col gap-1"><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 font-medium uppercase">Total</p><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-2xl font-bold text-[#d65391]">{fmt(selectedCompra.total)}</p></div>
                     {selectedCompra.notas && <div className="flex flex-col gap-1 col-span-2"><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 font-medium uppercase">Notas</p><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-700">{selectedCompra.notas}</p></div>}
                   </div>
                 </div>
-                {selectedCompra.detalles && selectedCompra.detalles.length > 0 && (
+                {loadingDetalle ? (
+                  <div className="flex justify-center py-6"><Loader2 className="w-6 h-6 animate-spin text-gray-400" /></div>
+                ) : selectedCompra.detalles && selectedCompra.detalles.length > 0 ? (
                   <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
                     <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
-                      <h3 style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-gray-800 text-base">📦 Productos</h3>
+                      <h3 style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-gray-800 text-base">📦 Productos comprados</h3>
                     </div>
                     <div className="p-6 space-y-3">
                       {selectedCompra.detalles.map((d, i) => (
                         <div key={i} className="flex justify-between items-center p-4 bg-gray-50 rounded-xl">
-                          <div><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-semibold text-gray-900">{d.nombreProducto}</p><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 mt-0.5">{d.cantidad} x {fmt(d.precioUnitario)}</p></div>
+                          <div>
+                            <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-semibold text-gray-900">{d.nombreProducto}</p>
+                            <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 mt-0.5">Cantidad: <span className="font-medium text-gray-700">{d.cantidad}</span> &nbsp;·&nbsp; Precio unitario: <span className="font-medium text-gray-700">{fmt(d.precioUnitario)}</span></p>
+                          </div>
                           <p style={{ fontFamily: 'Inter, sans-serif' }} className="font-bold text-gray-900">{fmt(d.total)}</p>
                         </div>
                       ))}
                     </div>
                   </div>
-                )}
+                ) : null}
               </div>
             </div>
           )}

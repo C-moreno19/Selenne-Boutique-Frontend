@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   Plus, Search, MoreVertical, Edit, Power,
-  Trash2, ChevronRight, Eye, Shield, Loader2, RefreshCw
+  Trash2, ChevronRight, Eye, Shield, Loader2, RefreshCw, FileSpreadsheet, FileText
 } from 'lucide-react';
+import * as XLSX from 'xlsx';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { useAuth } from '../../../shared/contexts/AuthContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '../../../components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../../../components/ui/alert-dialog';
@@ -305,6 +308,55 @@ export const UsuariosView: React.FC = () => {
     setPermisosSet(prev => { const s = new Set(prev); perms.forEach(p => all ? s.delete(p.nombre) : s.add(p.nombre)); return s; });
   };
 
+  const exportarExcel = () => {
+    const datos = filtered.map(u => ({
+      'Nombre': u.nombreCompleto,
+      'Email': u.email,
+      'Teléfono': u.telefono || '—',
+      'Rol': u.rolNombre || '—',
+      'Cargo': u.cargo || '—',
+      'Estado': u.estado,
+      'Email Verificado': u.emailVerificado ? 'Sí' : 'No',
+      'Fecha Registro': fmtDate(u.fechaRegistro),
+    }));
+    const ws = XLSX.utils.json_to_sheet(datos);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Usuarios');
+    // Ajustar ancho de columnas
+    ws['!cols'] = [
+      { wch: 30 }, { wch: 35 }, { wch: 15 }, { wch: 18 },
+      { wch: 20 }, { wch: 12 }, { wch: 18 }, { wch: 18 },
+    ];
+    XLSX.writeFile(wb, `usuarios_selenne_${new Date().toISOString().slice(0,10)}.xlsx`);
+  };
+
+  const exportarPDF = () => {
+    const doc = new jsPDF({ orientation: 'landscape' });
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(16);
+    doc.text('Gestión de Usuarios — Selenne Boutique', 14, 18);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.text(`Generado el ${new Date().toLocaleDateString('es-CO')} · ${filtered.length} usuario(s)`, 14, 26);
+    autoTable(doc, {
+      startY: 32,
+      head: [['Nombre', 'Email', 'Teléfono', 'Rol', 'Estado', 'Email Verificado', 'Fecha Registro']],
+      body: filtered.map(u => [
+        u.nombreCompleto,
+        u.email,
+        u.telefono || '—',
+        u.rolNombre || '—',
+        u.estado,
+        u.emailVerificado ? 'Sí' : 'No',
+        fmtDate(u.fechaRegistro),
+      ]),
+      styles: { fontSize: 9, cellPadding: 4 },
+      headStyles: { fillColor: [214, 83, 145], textColor: 255, fontStyle: 'bold' },
+      alternateRowStyles: { fillColor: [252, 242, 248] },
+    });
+    doc.save(`usuarios_selenne_${new Date().toISOString().slice(0,10)}.pdf`);
+  };
+
   if (loading) return (
     <div className="flex items-center justify-center min-h-screen">
       <Loader2 className="w-8 h-8 animate-spin text-[#d65391]" />
@@ -337,6 +389,14 @@ export const UsuariosView: React.FC = () => {
             <div className="flex gap-3">
               <button onClick={() => { setLoading(true); loadUsers().finally(() => setLoading(false)); }} className="px-4 py-3 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
                 <RefreshCw className="w-5 h-5" />
+              </button>
+              <button onClick={exportarExcel} style={{ fontFamily: "Inter, sans-serif" }} className="px-4 py-3 bg-white border border-gray-200 text-green-700 rounded-lg hover:bg-green-50 hover:border-green-300 transition-colors flex items-center gap-2" title="Exportar a Excel">
+                <FileSpreadsheet className="w-5 h-5" />
+                <span className="hidden sm:inline">Excel</span>
+              </button>
+              <button onClick={exportarPDF} style={{ fontFamily: "Inter, sans-serif" }} className="px-4 py-3 bg-white border border-gray-200 text-red-600 rounded-lg hover:bg-red-50 hover:border-red-300 transition-colors flex items-center gap-2" title="Exportar a PDF">
+                <FileText className="w-5 h-5" />
+                <span className="hidden sm:inline">PDF</span>
               </button>
               {puedeCrear && (
               <button onClick={handleCreate} style={{ fontFamily: "Inter, sans-serif" }} className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2">

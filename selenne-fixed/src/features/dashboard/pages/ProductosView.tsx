@@ -30,6 +30,7 @@ interface FormData {
   stock: string; imagenPrincipal: string;
   tallasSeleccionadas: string[]; coloresSeleccionados: string[]; materialesSeleccionados: string[];
   variantes: Variante[];
+  imagenesPorColor: Record<string, string[]>;
 }
 
 const EMPTY: FormData = {
@@ -38,6 +39,7 @@ const EMPTY: FormData = {
   precioCompra: '', precioVenta: '', precioOferta: '',
   stock: '0', imagenPrincipal: '',
   tallasSeleccionadas: [], coloresSeleccionados: [], materialesSeleccionados: [], variantes: [],
+  imagenesPorColor: {},
 };
 
 // Input de precio tipo tarjeta — sin flechas del navegador
@@ -91,7 +93,8 @@ export const ProductosView: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [uploadingImg, setUploadingImg] = useState(false);
   const [form, setForm] = useState<FormData>(EMPTY);
-  const [activeTab, setActiveTab] = useState<'info' | 'variantes'>('info');
+  const [activeTab, setActiveTab] = useState<'info' | 'variantes' | 'imagenes'>('info');
+  const [uploadingColorImg, setUploadingColorImg] = useState<string | null>(null);
 
   // Imagen pendiente de subir (archivo local)
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -128,6 +131,43 @@ export const ProductosView: React.FC = () => {
     setImagePreview('');
   };
 
+  const subirImagenColor = async (colorNombre: string, file: File) => {
+    if (file.size > 5 * 1024 * 1024) { toast.error('La imagen no puede superar 5MB'); return; }
+    setUploadingColorImg(colorNombre);
+    try {
+      const token = localStorage.getItem('accessToken') || '';
+      const fd = new FormData();
+      fd.append('file', file);
+      const res = await fetch(`${apiBase}/api/upload/imagen`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: fd,
+      });
+      const data = await res.json();
+      if (!res.ok) { toast.error(data?.message || 'Error subiendo imagen'); return; }
+      const url: string = data?.data?.url || data?.url || '';
+      if (!url) { toast.error('No se recibió la URL de la imagen'); return; }
+      setForm(f => ({
+        ...f,
+        imagenesPorColor: {
+          ...f.imagenesPorColor,
+          [colorNombre]: [...(f.imagenesPorColor[colorNombre] || []), url],
+        },
+      }));
+    } catch { toast.error('Error subiendo imagen'); }
+    finally { setUploadingColorImg(null); }
+  };
+
+  const quitarImagenColor = (colorNombre: string, url: string) => {
+    setForm(f => ({
+      ...f,
+      imagenesPorColor: {
+        ...f.imagenesPorColor,
+        [colorNombre]: (f.imagenesPorColor[colorNombre] || []).filter(u => u !== url),
+      },
+    }));
+  };
+
   const openCreate = () => {
     setForm(EMPTY);
     setIsEditing(false);
@@ -152,6 +192,7 @@ export const ProductosView: React.FC = () => {
       coloresSeleccionados: p.colores || [],
       materialesSeleccionados: p.materiales || [],
       variantes: p.variantes?.map(v => ({ tallaNombre: v.tallaNombre || '', colorNombre: v.colorNombre || '', stock: v.stock })) || [],
+      imagenesPorColor: p.imagenesPorColor || {},
     });
     setIsEditing(true);
     setActiveTab('info');
@@ -264,11 +305,13 @@ export const ProductosView: React.FC = () => {
         variantes: form.variantes,
       };
 
+      payload.imagenesPorColor = Object.keys(form.imagenesPorColor).length > 0 ? form.imagenesPorColor : undefined;
+
       if (isEditing && selectedProduct) {
         const ok = await actualizarProducto(
           selectedProduct.id, payload,
           form.tallasSeleccionadas, form.coloresSeleccionados, tallas, colores,
-          form.imagenPrincipal ? [form.imagenPrincipal] : undefined,
+          form.imagenPrincipal ? [form.imagenPrincipal] : [],
           form.materialesSeleccionados, materiales
         );
         if (ok) {
@@ -653,6 +696,7 @@ export const ProductosView: React.FC = () => {
             {[
               { key: 'info', label: 'Información y Precios' },
               { key: 'variantes', label: 'Tallas, Colores y Stock' },
+              { key: 'imagenes', label: 'Imágenes' },
             ].map(tab => (
               <button key={tab.key} onClick={() => setActiveTab(tab.key as any)}
                 style={{ fontFamily: 'Inter, sans-serif' }}
@@ -877,6 +921,110 @@ export const ProductosView: React.FC = () => {
                         </button>
                       ))}
                       {materiales.length === 0 && <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-400">No hay materiales registrados.</p>}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* ── TAB IMÁGENES ── */}
+              {activeTab === 'imagenes' && (
+                <>
+                  {/* Imagen principal */}
+                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                      <h3 style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-gray-800 text-base">🖼️ Imagen Principal</h3>
+                      <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-400 mt-1">La imagen que se muestra en la lista de productos</p>
+                    </div>
+                    <div className="p-6 flex items-start gap-4">
+                      {(imagePreview || form.imagenPrincipal) ? (
+                        <img
+                          src={imagePreview || (form.imagenPrincipal.startsWith('http') ? form.imagenPrincipal : `http://localhost:5000${form.imagenPrincipal}`)}
+                          alt="Principal"
+                          className="w-24 h-24 object-cover rounded-xl border border-gray-200"
+                        />
+                      ) : (
+                        <div className="w-24 h-24 bg-gray-100 rounded-xl border-2 border-dashed border-gray-200 flex items-center justify-center">
+                          <ImageIcon className="w-8 h-8 text-gray-300" />
+                        </div>
+                      )}
+                      <div className="flex flex-col gap-2">
+                        <label className="cursor-pointer px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors flex items-center gap-2" style={{ fontFamily: 'Inter, sans-serif' }}>
+                          <Upload className="w-4 h-4" />
+                          {uploadingImg ? 'Subiendo...' : 'Cambiar imagen'}
+                          <input type="file" accept="image/jpeg,image/jpg,image/png,image/webp" className="hidden"
+                            disabled={uploadingImg}
+                            onChange={e => { const f = e.target.files?.[0]; if (f) handleImageFile(f); e.target.value = ''; }} />
+                        </label>
+                        {(imagePreview || form.imagenPrincipal) && (
+                          <button onClick={() => { resetImageState(); setForm(f => ({ ...f, imagenPrincipal: '' })); }}
+                            style={{ fontFamily: 'Inter, sans-serif' }}
+                            className="text-xs text-red-400 hover:text-red-600 text-left transition-colors">
+                            Quitar imagen
+                          </button>
+                        )}
+                        <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-400">JPG, PNG, WebP · máx. 5MB</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Imágenes por color */}
+                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                      <h3 style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-gray-800 text-base">🎨 Imágenes por Color</h3>
+                      <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-400 mt-1">Cuando el cliente elija un color, verá solo las fotos de ese color</p>
+                    </div>
+                    <div className="p-6">
+                      {form.coloresSeleccionados.length === 0 ? (
+                        <div className="text-center py-10 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+                          <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-400">
+                            Primero selecciona los colores en la pestaña <strong>"Tallas, Colores y Stock"</strong>
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col gap-6">
+                          {form.coloresSeleccionados.map(colorNombre => {
+                            const imgColor = colores.find((c: any) => c.nombre === colorNombre);
+                            const hex = imgColor?.hexColor || '#ccc';
+                            const imgs = form.imagenesPorColor[colorNombre] || [];
+                            const subiendo = uploadingColorImg === colorNombre;
+                            return (
+                              <div key={colorNombre} className="border border-gray-100 rounded-xl p-4">
+                                <div className="flex items-center gap-2 mb-3">
+                                  <span className="w-5 h-5 rounded-full border border-gray-200 flex-shrink-0" style={{ background: hex }} />
+                                  <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-semibold text-gray-700">{colorNombre}</span>
+                                  <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-400">({imgs.length} foto{imgs.length !== 1 ? 's' : ''})</span>
+                                </div>
+                                <div className="flex flex-wrap gap-3">
+                                  {imgs.map(url => (
+                                    <div key={url} className="relative group">
+                                      <img
+                                        src={url.startsWith('http') ? url : `http://localhost:5000${url}`}
+                                        alt={colorNombre}
+                                        className="w-20 h-20 object-cover rounded-lg border border-gray-200"
+                                      />
+                                      <button
+                                        onClick={() => quitarImagenColor(colorNombre, url)}
+                                        className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center shadow-sm hover:bg-red-600 transition-colors"
+                                      >
+                                        <X className="w-3 h-3" />
+                                      </button>
+                                    </div>
+                                  ))}
+                                  <label className={`w-20 h-20 border-2 border-dashed rounded-lg flex flex-col items-center justify-center cursor-pointer transition-colors ${subiendo ? 'border-gray-200 bg-gray-50' : 'border-gray-300 hover:border-[#d65391] hover:bg-pink-50'}`}>
+                                    {subiendo
+                                      ? <Loader2 className="w-5 h-5 text-[#d65391] animate-spin" />
+                                      : <><Plus className="w-5 h-5 text-gray-400" /><span style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-400 mt-1">Agregar</span></>
+                                    }
+                                    <input type="file" accept="image/jpeg,image/jpg,image/png,image/webp" className="hidden"
+                                      disabled={!!uploadingColorImg}
+                                      onChange={e => { const f = e.target.files?.[0]; if (f) subirImagenColor(colorNombre, f); e.target.value = ''; }} />
+                                  </label>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </>

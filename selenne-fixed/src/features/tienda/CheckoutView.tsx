@@ -14,7 +14,7 @@ import {
 } from '../../components/ui/select';
 import { useTienda } from '../../shared/contexts/TiendaContext';
 import { usePedidosAdmin } from '../../shared/contexts/PedidosAdminContext';
-import { postJson, postForm } from '../../services/api';
+import { postJson, postForm, getJson } from '../../services/api';
 import { useAuth } from '../../shared/contexts/AuthContext';
 import { useMensajes } from '../../shared/contexts/MensajesContext';
 import { generarContraseñaTemporal } from '../../shared/utils/credentialGenerator';
@@ -88,12 +88,21 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
     telefono: ''
   });
   
-  // Datos para transferencia
-  const numeroCuenta = '1234567890';
-  const nombreCuenta = 'Selenne Boutique SAS';
-  const banco = 'Banco XYZ';
-  const tipoCuenta = 'Ahorros';
-  const datosQR = `Cuenta: ${numeroCuenta}\nBanco: ${banco}\nNombre: ${nombreCuenta}\nMonto: $${getTotalCarrito().toLocaleString('es-CO')}`;
+  // Datos para transferencia — se cargan del backend
+  const [datosBanco, setDatosBanco] = React.useState({
+    banco: 'Bancolombia',
+    numeroCuenta: '1234567890',
+    titular: 'Selenne Boutique',
+    tipoCuenta: 'Ahorros',
+  });
+
+  React.useEffect(() => {
+    getJson('/api/config/banco')
+      .then((d: any) => { if (d?.data) setDatosBanco(d.data); })
+      .catch(() => {});
+  }, []);
+
+  const datosQR = `Cuenta: ${datosBanco.numeroCuenta}\nBanco: ${datosBanco.banco}\nNombre: ${datosBanco.titular}\nMonto: $${getTotalCarrito().toLocaleString('es-CO')}`;
 
   const formatPrecio = (precio: number) => {
     return `$${precio.toLocaleString('es-CO')}`;
@@ -309,10 +318,12 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
         DocumentoCliente: datosEnvio.documento || '',
         EmailCliente: datosEnvio.email,
         TelefonoCliente: datosEnvio.telefono,
-        DireccionEnvio: datosEnvio.direccion,
+        DireccionEnvio: datosEnvio.barrio
+          ? `${datosEnvio.direccion}, Barrio ${datosEnvio.barrio}`
+          : datosEnvio.direccion,
         Ciudad: datosEnvio.ciudad,
-        CodigoPostal: datosEnvio.codigoPostal || '',
-        MetodoPago: metodoPago === 'transferencia' ? 'Transferencia' : 'Contra Entrega',
+        CodigoPostal: '',
+        MetodoPago: metodoPago === 'transferencia' ? 'transferencia' : 'contraentrega',
         Notas: datosEnvio.notas || '',
         Items: carritoItems.map(item => ({
           ProductoID: item.id,
@@ -499,7 +510,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                   </div>
                   <div>
                     <Label htmlFor="ciudad">Ciudad *</Label>
-                    <Select value={datosEnvio.ciudad} onValueChange={(value) => setDatosEnvio({ ...datosEnvio, ciudad: value })}>
+                    <Select value={datosEnvio.ciudad} onValueChange={(value: string) => setDatosEnvio({ ...datosEnvio, ciudad: value })}>
                       <SelectTrigger id="ciudad" className="mt-1">
                         <SelectValue placeholder="Selecciona una ciudad" />
                       </SelectTrigger>
@@ -553,9 +564,11 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                     value={datosEnvio.notas}
                     onChange={handleInputChange}
                     placeholder="Instrucciones especiales de entrega"
+                    maxLength={300}
                     className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#d65391] focus:border-transparent"
                     rows={3}
                   />
+                  <p className="text-xs text-gray-400 text-right mt-1">{datosEnvio.notas.length}/300</p>
                 </div>
               </div>
             </div>
@@ -610,19 +623,19 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                       <div className="space-y-3">
                         <div>
                           <p className="text-xs text-gray-500">Banco</p>
-                          <p className="text-sm text-gray-900">{banco}</p>
+                          <p className="text-sm text-gray-900">{datosBanco.banco}</p>
                         </div>
                         <div>
                           <p className="text-xs text-gray-500">Tipo de Cuenta</p>
-                          <p className="text-sm text-gray-900">{tipoCuenta}</p>
+                          <p className="text-sm text-gray-900">{datosBanco.tipoCuenta}</p>
                         </div>
                         <div>
                           <p className="text-xs text-gray-500">Número de Cuenta</p>
-                          <p className="text-sm text-gray-900">{numeroCuenta}</p>
+                          <p className="text-sm text-gray-900">{datosBanco.numeroCuenta}</p>
                         </div>
                         <div>
                           <p className="text-xs text-gray-500">Titular</p>
-                          <p className="text-sm text-gray-900">{nombreCuenta}</p>
+                          <p className="text-sm text-gray-900">{datosBanco.titular}</p>
                         </div>
                         <div>
                           <p className="text-xs text-gray-500">Monto a Transferir</p>
@@ -678,6 +691,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                       <div className="relative border border-gray-200 rounded-lg p-4 bg-gray-50">
                         <button
                           type="button"
+                          title="Eliminar comprobante"
                           onClick={handleRemoveComprobante}
                           className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
                         >

@@ -26,6 +26,7 @@ function MainApp() {
   const [currentView, setCurrentView] = useState<View>('landing');
   const [isRecoverModalOpen, setIsRecoverModalOpen] = useState(false);
   const [alert, setAlert] = useState<Alert | null>(null);
+  const [pendingCheckout, setPendingCheckout] = useState(false);
   const { user } = useAuth();
 
   const showAlert = (type: 'success' | 'error' | 'info', message: string) => {
@@ -39,7 +40,12 @@ function MainApp() {
   const handleLoginSuccess = () => {
     showAlert('success', 'Inicio de sesión exitoso. Redirigiendo…');
     setTimeout(() => {
-      setCurrentView('dashboard');
+      if (pendingCheckout) {
+        setPendingCheckout(false);
+        setCurrentView('checkout');
+      } else {
+        setCurrentView('dashboard');
+      }
     }, 1500);
   };
 
@@ -67,6 +73,7 @@ function MainApp() {
             onNavigateToLogin={() => setCurrentView('login')}
             onNavigateToRegister={() => setCurrentView('register')}
             onNavigateToCheckout={() => setCurrentView('checkout')}
+            onNavigateToLoginForCheckout={() => { setPendingCheckout(true); setCurrentView('login'); }}
           />
         ) : currentView === 'checkout' ? (
           <CheckoutView onBack={() => setCurrentView('landing')} />

@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { toast } from 'sonner@2.0.3';
+import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
+import { toast } from 'sonner';
+import api from '../../services/api';
 
 export interface Producto {
   id: number;
@@ -10,7 +11,7 @@ export interface Producto {
   imagenes?: string[];
   imagenesPorColor?: Record<string, string[]>;
   categoria: 'mujer' | 'accesorios' | 'sale';
-  subcategoria?: string; // Categoría de ropa: Vestido, Blusa, Pantalón, etc.
+  subcategoria?: string;
   tipoProducto: string;
   tallas: string[];
   colores?: string[];
@@ -21,6 +22,7 @@ export interface Producto {
 }
 
 interface CarritoItem extends Producto {
+  carritoID: number; // ID del registro en BD
   cantidad: number;
   tallaSeleccionada: string;
   colorSeleccionado?: string;
@@ -48,8 +50,8 @@ interface TiendaContextType {
   favoritos: number[];
   pedidos: Pedido[];
   agregarAlCarrito: (producto: Producto, talla: string, color?: string, cantidad?: number) => void;
-  removerDelCarrito: (id: number) => void;
-  actualizarCantidad: (id: number, cantidad: number) => void;
+  removerDelCarrito: (carritoID: number) => void;
+  actualizarCantidad: (carritoID: number, cantidad: number) => void;
   toggleFavorito: (id: number) => void;
   esFavorito: (id: number) => boolean;
   getTotalCarrito: () => number;
@@ -71,95 +73,171 @@ interface TiendaProviderProps {
   children: ReactNode;
 }
 
+// Returns true if a valid auth token exists
+const isLoggedIn = () => !!localStorage.getItem('accessToken');
+
 export const TiendaProvider: React.FC<TiendaProviderProps> = ({ children }) => {
-  const [carritoItems, setCarritoItems] = useState<CarritoItem[]>(() => {
-    const saved = localStorage.getItem('selenne_carrito');
-    return saved ? JSON.parse(saved) : [];
-  });
-
-  const [favoritos, setFavoritos] = useState<number[]>(() => {
-    const saved = localStorage.getItem('selenne_favoritos');
-    return saved ? JSON.parse(saved) : [];
-  });
-
+  const [carritoItems, setCarritoItems] = useState<CarritoItem[]>([]);
+  const [favoritos, setFavoritos] = useState<number[]>([]);
   const [pedidos, setPedidos] = useState<Pedido[]>(() => {
     const saved = localStorage.getItem('selenne_pedidos');
     return saved ? JSON.parse(saved) : [];
   });
 
-  // Guardar carrito en localStorage
-  useEffect(() => {
-    localStorage.setItem('selenne_carrito', JSON.stringify(carritoItems));
-  }, [carritoItems]);
+  // Prevent concurrent loads
+  const loadingRef = useRef(false);
 
-  // Guardar favoritos en localStorage
-  useEffect(() => {
-    localStorage.setItem('selenne_favoritos', JSON.stringify(favoritos));
-  }, [favoritos]);
+  const loadFromApi = async () => {
+    if (loadingRef.current) return;
+    loadingRef.current = true;
+    try {
+      const [carritoRes, favRes] = await Promise.all([
+        api.getJson('/api/carrito').catch(() => null),
+        api.getJson('/api/favoritos').catch(() => null),
+      ]);
 
-  // Guardar pedidos en localStorage
+      if (carritoRes) {
+        const items: CarritoItem[] = (carritoRes?.data || carritoRes || []).map((c: any) => ({
+          carritoID: c.carritoID,
+          id: c.productoID,
+          nombre: c.productoNombre,
+          imagen: c.imagenProducto || '',
+          precio: c.precioUnitario,
+          precioOriginal: null,
+          categoria: 'mujer' as const,
+          tipoProducto: '',
+          tallas: [],
+          rating: 0,
+          nuevo: false,
+          cantidad: c.cantidad,
+          tallaSeleccionada: c.tallaSeleccionada || '',
+          colorSeleccionado: c.colorSeleccionado || '',
+        }));
+        setCarritoItems(items);
+      }
+
+      if (favRes) {
+        const ids: number[] = favRes?.data || favRes || [];
+        setFavoritos(ids);
+      }
+    } catch (_) {
+      // not logged in or network error — keep empty
+    } finally {
+      loadingRef.current = false;
+    }
+  };
+
+  const clearLocalState = () => {
+    setCarritoItems([]);
+    setFavoritos([]);
+  };
+
+  // Load on mount if already logged in
+  useEffect(() => {
+    if (isLoggedIn()) {
+      loadFromApi();
+    }
+  }, []);
+
+  // Listen to auth events
+  useEffect(() => {
+    const onLogin = () => loadFromApi();
+    const onLogout = () => clearLocalState();
+    window.addEventListener('auth:login', onLogin);
+    window.addEventListener('auth:logout', onLogout);
+    return () => {
+      window.removeEventListener('auth:login', onLogin);
+      window.removeEventListener('auth:logout', onLogout);
+    };
+  }, []);
+
+  // Persist pedidos in localStorage (they're local only)
   useEffect(() => {
     localStorage.setItem('selenne_pedidos', JSON.stringify(pedidos));
   }, [pedidos]);
 
-  const agregarAlCarrito = (producto: Producto, talla: string, color?: string, cantidad: number = 1) => {
-    setCarritoItems(items => {
-      const existente = items.find(
-        item => item.id === producto.id && item.tallaSeleccionada === talla && (item.colorSeleccionado || '') === (color || '')
+  const agregarAlCarrito = async (producto: Producto, talla: string, color?: string, cantidad: number = 1) => {
+    try {
+      await api.postJson('/api/carrito/items', {
+        ProductoID: producto.id,
+        Cantidad: cantidad,
+        TallaSeleccionada: talla,
+        ColorSeleccionado: color || '',
+      });
+
+      // Reload cart from API to get correct carritoIDs
+      const res = await api.getJson('/api/carrito');
+      const items: CarritoItem[] = (res?.data || res || []).map((c: any) => ({
+        carritoID: c.carritoID,
+        id: c.productoID,
+        nombre: c.productoNombre,
+        imagen: c.imagenProducto || '',
+        precio: c.precioUnitario,
+        precioOriginal: null,
+        categoria: 'mujer' as const,
+        tipoProducto: '',
+        tallas: [],
+        rating: 0,
+        nuevo: false,
+        cantidad: c.cantidad,
+        tallaSeleccionada: c.tallaSeleccionada || '',
+        colorSeleccionado: c.colorSeleccionado || '',
+      }));
+      setCarritoItems(items);
+
+      const existing = carritoItems.find(
+        i => i.id === producto.id && i.tallaSeleccionada === talla && (i.colorSeleccionado || '') === (color || '')
       );
-
-      if (existente) {
-        toast.success('Cantidad actualizada', {
-          description: `${producto.nombre} - Talla ${talla} (+${cantidad})`
-        });
-        return items.map(item =>
-          item.id === producto.id && item.tallaSeleccionada === talla && (item.colorSeleccionado || '') === (color || '')
-            ? { ...item, cantidad: item.cantidad + cantidad }
-            : item
-        );
+      if (existing) {
+        toast.success('Cantidad actualizada', { description: `${producto.nombre} - Talla ${talla} (+${cantidad})` });
       } else {
-        toast.success('Producto agregado', {
-          description: `${producto.nombre} - Talla ${talla} x${cantidad}`
-        });
-        return [...items, { 
-          ...producto, 
-          cantidad: cantidad, 
-          tallaSeleccionada: talla,
-          colorSeleccionado: color || '' 
-        }];
+        toast.success('Producto agregado', { description: `${producto.nombre} - Talla ${talla} x${cantidad}` });
       }
-    });
+    } catch (_) {
+      toast.error('No se pudo agregar al carrito');
+    }
   };
 
-  const removerDelCarrito = (id: number) => {
-    setCarritoItems(items => items.filter(item => item.id !== id));
-    toast.success('Producto eliminado del carrito');
+  const removerDelCarrito = async (carritoID: number) => {
+    try {
+      await api.deleteJson(`/api/carrito/items/${carritoID}`);
+      setCarritoItems(items => items.filter(item => item.carritoID !== carritoID));
+      toast.success('Producto eliminado del carrito');
+    } catch (_) {
+      toast.error('No se pudo eliminar del carrito');
+    }
   };
 
-  const actualizarCantidad = (id: number, cantidad: number) => {
+  const actualizarCantidad = async (carritoID: number, cantidad: number) => {
     if (cantidad < 1) {
-      removerDelCarrito(id);
+      removerDelCarrito(carritoID);
       return;
     }
-    setCarritoItems(items =>
-      items.map(item =>
-        item.id === id ? { ...item, cantidad } : item
-      )
-    );
+    try {
+      await api.putJson(`/api/carrito/items/${carritoID}`, { Cantidad: cantidad });
+      setCarritoItems(items =>
+        items.map(item => item.carritoID === carritoID ? { ...item, cantidad } : item)
+      );
+    } catch (_) {
+      toast.error('No se pudo actualizar la cantidad');
+    }
   };
 
-  const toggleFavorito = (id: number) => {
-    setFavoritos(favs => {
-      if (favs.includes(id)) {
+  const toggleFavorito = async (id: number) => {
+    const esFav = favoritos.includes(id);
+    try {
+      if (esFav) {
+        await api.deleteJson(`/api/favoritos/${id}`);
+        setFavoritos(favs => favs.filter(fav => fav !== id));
         toast.info('Eliminado de favoritos');
-        return favs.filter(fav => fav !== id);
       } else {
-        toast.success('Agregado a favoritos', {
-          description: 'Producto guardado en tu lista de deseos'
-        });
-        return [...favs, id];
+        await api.postJson(`/api/favoritos/${id}`, {});
+        setFavoritos(favs => [...favs, id]);
+        toast.success('Agregado a favoritos', { description: 'Producto guardado en tu lista de deseos' });
       }
-    });
+    } catch (_) {
+      toast.error('No se pudo actualizar favoritos');
+    }
   };
 
   const esFavorito = (id: number) => favoritos.includes(id);
@@ -168,8 +246,13 @@ export const TiendaProvider: React.FC<TiendaProviderProps> = ({ children }) => {
     return carritoItems.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
   };
 
-  const limpiarCarrito = () => {
-    setCarritoItems([]);
+  const limpiarCarrito = async () => {
+    try {
+      await api.deleteJson('/api/carrito');
+      setCarritoItems([]);
+    } catch (_) {
+      setCarritoItems([]);
+    }
   };
 
   const agregarPedido = (datosEnvio: Pedido['datosEnvio'], metodoPago: 'contra-entrega' | 'transferencia') => {

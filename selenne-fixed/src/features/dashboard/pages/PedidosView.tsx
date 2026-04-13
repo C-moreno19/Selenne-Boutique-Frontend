@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Search, Eye, CheckCircle, XCircle, ChevronRight, Loader2, RefreshCw, Package, User, MapPin, CreditCard, Image } from 'lucide-react';
+import { Search, Eye, CheckCircle, XCircle, ChevronRight, Loader2, RefreshCw, Package, User, MapPin, CreditCard, Image, Mail } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '../../../components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../../../components/ui/alert-dialog';
 import { Textarea } from '../../../components/ui/textarea';
@@ -34,6 +34,8 @@ export const PedidosView: React.FC = () => {
   const [rechazarOpen, setRechazarOpen] = useState(false);
   const [razonRechazo, setRazonRechazo] = useState('');
   const [comprobanteOpen, setComprobanteOpen] = useState(false);
+  const [emailPagoOpen, setEmailPagoOpen] = useState(false);
+  const [mensajePago, setMensajePago] = useState('');
 
   const loadData = useCallback(async () => {
     try {
@@ -64,6 +66,22 @@ export const PedidosView: React.FC = () => {
     const q = searchQuery.toLowerCase();
     return p.nombreCliente.toLowerCase().includes(q) || p.emailCliente.toLowerCase().includes(q);
   });
+
+  const enviarEmailPago = async () => {
+    if (!selectedPedido) return;
+    setSaving(true);
+    try {
+      await api.fetchWithAuth(`/api/pedidos/${selectedPedido.pedidoID}/email-pago`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ Mensaje: mensajePago }),
+      });
+      toast.success('Correo de pago enviado');
+      setEmailPagoOpen(false);
+      setMensajePago('');
+    } catch (e: any) { toast.error(e?.data?.message || e?.message || 'Error enviando correo'); }
+    finally { setSaving(false); }
+  };
 
   const cambiarEstado = async (pedido: Pedido, estado: string, notas?: string) => {
     setSaving(true);
@@ -118,9 +136,9 @@ export const PedidosView: React.FC = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {filtered.map(p => (
+            {filtered.map((p, idx) => (
               <tr key={p.pedidoID} className="hover:bg-gray-50 transition-colors">
-                <td className="px-6 py-4"><span style={{ fontFamily: 'Inter, sans-serif' }} className="font-medium text-gray-900">#{p.pedidoID}</span></td>
+                <td className="px-6 py-4"><span style={{ fontFamily: 'Inter, sans-serif' }} className="font-medium text-gray-900">#{idx + 1}</span></td>
                 <td className="px-6 py-4">
                   <p style={{ fontFamily: 'Inter, sans-serif' }} className="font-medium text-gray-900">{p.nombreCliente}</p>
                   <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">{p.emailCliente}</p>
@@ -141,6 +159,10 @@ export const PedidosView: React.FC = () => {
                     <button onClick={() => { setSelectedPedido(p); setViewOpen(true); }}
                       className="p-2 text-gray-500 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors" title="Ver detalles">
                       <Eye className="w-5 h-5" />
+                    </button>
+                    <button onClick={() => { setSelectedPedido(p); setEmailPagoOpen(true); }}
+                      className="p-2 text-gray-500 hover:bg-pink-50 hover:text-[#d65391] rounded-lg transition-colors" title="Enviar correo de pago">
+                      <Mail className="w-5 h-5" />
                     </button>
                     {puedeEditar && (
                       <>
@@ -329,25 +351,88 @@ export const PedidosView: React.FC = () => {
         </DialogContent>
       </Dialog>
 
+      {/* Modal Email Pago */}
+      <Dialog open={emailPagoOpen} onOpenChange={(v: boolean) => { setEmailPagoOpen(v); if (!v) setMensajePago(''); }}>
+        <DialogContent className="max-w-md flex flex-col p-0 gap-0 max-h-[90vh]">
+          <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-100 flex-shrink-0">
+            <div className="flex items-center gap-3 mb-1">
+              <div className="w-9 h-9 bg-[#fce7f3] rounded-xl flex items-center justify-center flex-shrink-0">
+                <Mail className="w-5 h-5 text-[#d65391]" />
+              </div>
+              <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-xl">
+                Correo de Pago
+              </DialogTitle>
+            </div>
+            <DialogDescription style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-500 ml-12">
+              Para <strong className="text-gray-700">{selectedPedido?.nombreCliente}</strong> · {selectedPedido?.emailCliente}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
+            <div className="bg-[#fdf2f8] border border-[#f9a8d4] rounded-xl p-4">
+              <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-[#9d174d]">
+                Se enviará la información bancaria con código QR para que el cliente complete el pago del pedido <strong>#{selectedPedido?.pedidoID}</strong>.
+              </p>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">
+                Mensaje adicional <span className="text-gray-400 font-normal">(opcional)</span>
+              </Label>
+              <textarea value={mensajePago} onChange={e => setMensajePago(e.target.value)}
+                placeholder="Ej: Hola, falta el saldo de $50.000 para completar tu pedido..."
+                rows={3}
+                style={{ fontFamily: 'Inter, sans-serif' }}
+                className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#d65391] resize-none bg-gray-50" />
+            </div>
+            <div className="bg-gray-50 border border-gray-100 rounded-xl p-4">
+              <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Datos bancarios</p>
+              <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">Configurados en <code className="bg-white border border-gray-200 px-1.5 py-0.5 rounded text-xs">appsettings.json → BankAccount</code></p>
+            </div>
+          </div>
+          <DialogFooter className="px-6 py-4 border-t border-gray-100 flex-shrink-0 flex gap-2">
+            <button onClick={() => setEmailPagoOpen(false)} style={{ fontFamily: 'Inter, sans-serif' }}
+              className="flex-1 py-2.5 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors text-sm font-medium">
+              Cancelar
+            </button>
+            <button onClick={enviarEmailPago} disabled={saving} style={{ fontFamily: 'Inter, sans-serif' }}
+              className="flex-1 py-2.5 bg-[#d65391] text-white rounded-xl hover:bg-[#c0426f] disabled:opacity-50 flex items-center justify-center gap-2 transition-colors text-sm font-medium">
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Mail className="w-4 h-4" />}
+              Enviar correo
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Modal Aprobar */}
-      <AlertDialog open={aprobarOpen} onOpenChange={setAprobarOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle style={{ fontFamily: 'Playfair Display, serif' }}>¿Aprobar pedido?</AlertDialogTitle>
-            <AlertDialogDescription style={{ fontFamily: 'Inter, sans-serif' }}>
-              El pedido #{selectedPedido?.pedidoID} de <strong>{selectedPedido?.nombreCliente}</strong> pasará a Ventas.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel style={{ fontFamily: 'Inter, sans-serif' }}>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={() => selectedPedido && cambiarEstado(selectedPedido, 'Aprobado')}
-              disabled={saving} className="bg-green-600 hover:bg-green-700 flex items-center gap-2"
-              style={{ fontFamily: 'Inter, sans-serif' }}>
-              {saving && <Loader2 className="w-4 h-4 animate-spin" />} Aprobar
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <Dialog open={aprobarOpen} onOpenChange={setAprobarOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader className="px-6 pt-6 pb-4">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                <CheckCircle className="w-5 h-5 text-green-600" />
+              </div>
+              <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-xl">¿Aprobar pedido?</DialogTitle>
+            </div>
+            <DialogDescription style={{ fontFamily: 'Inter, sans-serif' }} className="ml-13 text-gray-600">
+              El pedido de <strong className="text-gray-900">{selectedPedido?.nombreCliente}</strong> pasará al módulo de Ventas para su despacho.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex gap-3 px-6 pb-6">
+            <button type="button" onClick={() => setAprobarOpen(false)} style={{ fontFamily: 'Inter, sans-serif' }}
+              className="flex-1 py-2.5 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors text-sm font-medium">
+              Cancelar
+            </button>
+            <button type="button" onClick={() => selectedPedido && cambiarEstado(selectedPedido, 'Aprobado')}
+              disabled={saving}
+              style={{ fontFamily: 'Inter, sans-serif', backgroundColor: '#16a34a', color: '#ffffff' }}
+              className="flex-1 py-2.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
+              onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#15803d')}
+              onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#16a34a')}>
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
+              Aprobar pedido
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Modal Rechazar */}
       <Dialog open={rechazarOpen} onOpenChange={setRechazarOpen}>
