@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  ShoppingCart, 
-  Users, 
-  Package, 
+import React, { useEffect, useState, useMemo } from 'react';
+import {
+  TrendingUp,
+  TrendingDown,
+  ShoppingCart,
+  Users,
+  Package,
   Download,
   FileText,
   ChevronRight,
@@ -13,6 +13,54 @@ import {
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '../../../components/ui/dialog';
 import { toast } from 'sonner@2.0.3';
+import { getJson } from '../../../services/api';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import * as XLSX from 'xlsx';
+
+interface DashboardStats {
+  totalUsuarios: number;
+  totalProductos: number;
+  totalPedidos: number;
+  pedidosPendientes: number;
+  totalVentas: number;
+  productosStockBajo: StockProduct[];
+}
+
+interface StockProduct {
+  productoID: number;
+  nombre: string;
+  stock: number;
+}
+
+interface PedidoDetalleDto {
+  productoNombre: string;
+  cantidad: number;
+}
+
+interface PedidoDto {
+  pedidoID: number;
+  nombreCliente: string;
+  total: number;
+  estado: string;
+  fechaPedido: string;
+  detalles: PedidoDetalleDto[];
+}
+
+interface RecentSale {
+  id: string;
+  cliente: string;
+  producto: string;
+  monto: number;
+  fecha: string;
+  estado: string;
+  cantidad: number;
+}
+
+interface CategoryItem {
+  name: string;
+  value: number;
+}
 
 export const DashboardHome: React.FC = () => {
   // Estados para modales
@@ -20,68 +68,118 @@ export const DashboardHome: React.FC = () => {
   const [reportType, setReportType] = useState('');
   const [salesDetailOpen, setSalesDetailOpen] = useState(false);
   const [stockDetailOpen, setStockDetailOpen] = useState(false);
+  const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null);
+  const [recentSales, setRecentSales] = useState<RecentSale[]>([]);
+  const [lowStockProducts, setLowStockProducts] = useState<Array<StockProduct & { codigo: string; alerta: string; minimo: number }>>([]);
+  const [topProductsData, setTopProductsData] = useState<CategoryItem[]>([]);
+  const [categoryData, setCategoryData] = useState<CategoryItem[]>([]);
+  const [salesData, setSalesData] = useState<CategoryItem[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  // Datos para gráfico de ventas últimos 30 días
-  const salesData = [
-    { name: '1', value: 12000 },
-    { name: '5', value: 15000 },
-    { name: '10', value: 18000 },
-    { name: '15', value: 16000 },
-    { name: '20', value: 22000 },
-    { name: '25', value: 25000 },
-    { name: '30', value: 28000 },
-  ];
+  useEffect(() => {
+    const loadDashboard = async () => {
+      setLoading(true);
+      try {
+        const [statsRes, pedidosRes, productosRes] = await Promise.all([
+          getJson('/api/admin/dashboard'),
+          getJson('/api/pedidos'),
+          getJson('/api/productos?estado=activo')
+        ]);
 
-  // Datos para productos más vendidos
-  const topProductsData = [
-    { name: 'Vestidos', value: 2400 },
-    { name: 'Blusas', value: 1800 },
-    { name: 'Pantalones', value: 1200 },
-    { name: 'Accesorios', value: 800 },
-  ];
+        const stats = statsRes?.data || statsRes;
+        if (stats) {
+          setDashboardStats(stats);
+          setLowStockProducts((stats.productosStockBajo || []).map((product: StockProduct) => ({
+            ...product,
+            codigo: `PRO-${product.productoID.toString().padStart(3, '0')}`,
+            alerta: product.stock <= 0 ? 'agotado' : product.stock <= 3 ? 'crítico' : 'medio',
+            minimo: 5
+          })));
+        }
 
-  // Datos para métricas por categoría (donut)
-  const categoryData = [
-    { name: 'Vestidos', value: 35 },
-    { name: 'Blusas', value: 25 },
-    { name: 'Pantalones', value: 20 },
-    { name: 'Accesorios', value: 15 },
-    { name: 'Otros', value: 5 },
-  ];
+        const pedidos = (pedidosRes?.data || pedidosRes || []) as PedidoDto[];
+        const sales = pedidos.map((pedido) => {
+          const producto = pedido.detalles?.[0]?.productoNombre || 'Venta';
+          return {
+            id: `PED-${pedido.pedidoID}`,
+            cliente: pedido.nombreCliente || 'Cliente',
+            producto,
+            monto: Number(pedido.total || 0),
+            fecha: new Date(pedido.fechaPedido).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }),
+            estado: pedido.estado || 'Pendiente',
+            cantidad: pedido.detalles?.reduce((s, item) => s + (item?.cantidad || 0), 0) || 0,
+          };
+        });
 
-  const COLORS = ['#d65391', '#f8a9c5', '#87CEEB', '#FFB347', '#90EE90'];
+        setRecentSales(sales.slice(0, 5));
 
-  // Últimas ventas
-  const recentSales = [
-    { id: 'VEN-001', cliente: 'María García', producto: 'Vestido Floral', monto: 189000, fecha: 'Hace 5 min', estado: 'Completada', cantidad: 1 },
-    { id: 'VEN-002', cliente: 'Ana López', producto: 'Blusa Blanca', monto: 89000, fecha: 'Hace 15 min', estado: 'Completada', cantidad: 1 },
-    { id: 'VEN-003', cliente: 'Laura Ruiz', producto: 'Jean Skinny', monto: 129000, fecha: 'Hace 1 hora', estado: 'Pendiente', cantidad: 2 },
-    { id: 'VEN-004', cliente: 'Sofia Martínez', producto: 'Vestido Negro', monto: 199000, fecha: 'Hace 2 horas', estado: 'Completada', cantidad: 1 },
-    { id: 'VEN-005', cliente: 'Carmen Díaz', producto: 'Blusa Satinada', monto: 119000, fecha: 'Hace 3 horas', estado: 'Completada', cantidad: 3 },
-  ];
+        const salesByDay: Record<string, number> = {};
+        const last30Days = Array.from({ length: 30 }, (_, index) => {
+          const date = new Date();
+          date.setDate(date.getDate() - (29 - index));
+          const key = date.toISOString().slice(0, 10);
+          salesByDay[key] = 0;
+          return key;
+        });
 
-  // Productos bajos en stock
-  const lowStockProducts = [
-    { nombre: 'Vestido Floral Elegante', codigo: 'PRO-001', stock: 3, alerta: 'crítico', minimo: 10 },
-    { nombre: 'Blusa Satinada Rosa', codigo: 'PRO-015', stock: 5, alerta: 'medio', minimo: 10 },
-    { nombre: 'Jean Skinny Azul', codigo: 'PRO-003', stock: 0, alerta: 'agotado', minimo: 10 },
-    { nombre: 'Vestido Cóctel Negro', codigo: 'PRO-028', stock: 7, alerta: 'medio', minimo: 10 },
-    { nombre: 'Pantalón Casual Beige', codigo: 'PRO-012', stock: 2, alerta: 'crítico', minimo: 10 },
-  ];
+        pedidos.forEach((pedido) => {
+          const key = new Date(pedido.fechaPedido).toISOString().slice(0, 10);
+          if (key in salesByDay) {
+            salesByDay[key] += Number(pedido.total || 0);
+          }
+        });
 
-  const handleExport = (tipo: string) => {
-    setReportType(tipo);
-    setReportModalOpen(true);
-  };
+        setSalesData(last30Days.map((day) => ({
+          name: day.slice(8),
+          value: salesByDay[day] || 0,
+        })));
 
-  const handleGenerateReport = () => {
-    toast.success(`Generando reporte de ${reportType}...`);
-    setReportModalOpen(false);
-    // Simular descarga
-    setTimeout(() => {
-      toast.success('Reporte descargado exitosamente');
-    }, 1500);
-  };
+        const productCounts: Record<string, number> = {};
+        pedidos.forEach((pedido) => {
+          pedido.detalles?.forEach((item) => {
+            if (!item?.productoNombre) return;
+            productCounts[item.productoNombre] = (productCounts[item.productoNombre] || 0) + (item.cantidad || 0);
+          });
+        });
+
+        const topProducts = Object.entries(productCounts)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 5)
+          .map(([name, value]) => ({ name, value }));
+
+        setTopProductsData(topProducts.length ? topProducts : [
+          { name: 'Sin datos', value: 0 }
+        ]);
+
+        const products = (productosRes?.data || productosRes || []) as any[];
+        const categoryCounts: Record<string, number> = {};
+        products.forEach((product) => {
+          const category = product.categoriaNombre || product.CategoriaNombre || 'Sin categoría';
+          categoryCounts[category] = (categoryCounts[category] || 0) + 1;
+        });
+
+        setCategoryData(Object.entries(categoryCounts)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 5)
+          .map(([name, value]) => ({ name, value })));
+
+      } catch (error: any) {
+        console.error('Error cargando dashboard:', error);
+        toast.error('No se pudo cargar el dashboard. Revisa la conexión con el servidor.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadDashboard();
+  }, []);
+
+  const totals = useMemo(() => ({
+    ventasMensuales: dashboardStats?.totalVentas ?? 0,
+    ventasTotales: dashboardStats?.totalPedidos ?? 0,
+    clientesActivos: dashboardStats?.totalUsuarios ?? 0,
+    productosStock: dashboardStats?.totalProductos ?? 0,
+  }), [dashboardStats]);
 
   const getStockAlertColor = (alerta: string) => {
     switch (alerta) {
@@ -96,6 +194,164 @@ export const DashboardHome: React.FC = () => {
     }
   };
 
+  const COLORS = ['#d65391', '#f8a9c5', '#87CEEB', '#FFB347', '#90EE90'];
+
+  const handleExport = (tipo: string) => {
+    setReportType(tipo);
+    setReportModalOpen(true);
+  };
+
+  const generatePDFReport = (tipo: string) => {
+    const doc = new jsPDF({ orientation: 'landscape' });
+    const fecha = new Date().toLocaleDateString('es-CO');
+    const filename = `reporte-${tipo.toLowerCase().replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf`;
+
+    const head_styles = { fillColor: [214, 83, 145] as [number, number, number], textColor: 255, fontStyle: 'bold' as const };
+    const alt_row = { fillColor: [252, 242, 248] as [number, number, number] };
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(16);
+    doc.text(`Reporte de ${tipo} — Selenne Boutique`, 14, 18);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.text(`Generado el ${fecha}`, 14, 26);
+
+    switch (tipo) {
+      case 'Ventas Mensuales':
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(11);
+        doc.text('Resumen General', 14, 36);
+        autoTable(doc, {
+          startY: 40,
+          head: [['Métrica', 'Valor']],
+          body: [
+            ['Ventas del mes', `$${totals.ventasMensuales.toLocaleString('es-CO')}`],
+            ['Pedidos totales', totals.ventasTotales.toLocaleString('es-CO')],
+            ['Clientes activos', totals.clientesActivos.toLocaleString('es-CO')],
+            ['Productos activos', totals.productosStock.toLocaleString('es-CO')],
+          ],
+          headStyles: head_styles,
+          alternateRowStyles: alt_row,
+          styles: { fontSize: 10 },
+          columnStyles: { 0: { fontStyle: 'bold' } },
+        });
+        const y1 = (doc as any).lastAutoTable.finalY + 10;
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(11);
+        doc.text('Ventas Recientes', 14, y1);
+        autoTable(doc, {
+          startY: y1 + 4,
+          head: [['#', 'Cliente', 'Producto', 'Monto', 'Fecha', 'Estado']],
+          body: recentSales.map(s => [s.id, s.cliente, s.producto, `$${s.monto.toLocaleString('es-CO')}`, s.fecha, s.estado]),
+          headStyles: head_styles,
+          alternateRowStyles: alt_row,
+          styles: { fontSize: 9 },
+        });
+        break;
+
+      case 'Productos Más Vendidos':
+        autoTable(doc, {
+          startY: 32,
+          head: [['Producto', 'Unidades Vendidas']],
+          body: topProductsData.map(p => [p.name, p.value.toString()]),
+          headStyles: head_styles,
+          alternateRowStyles: alt_row,
+          styles: { fontSize: 10 },
+          columnStyles: { 1: { halign: 'center' } },
+        });
+        break;
+
+      case 'Distribución por Categoría':
+        autoTable(doc, {
+          startY: 32,
+          head: [['Categoría', 'Cantidad de Productos']],
+          body: categoryData.map(c => [c.name, c.value.toString()]),
+          headStyles: head_styles,
+          alternateRowStyles: alt_row,
+          styles: { fontSize: 10 },
+          columnStyles: { 1: { halign: 'center' } },
+        });
+        break;
+    }
+
+    doc.save(filename);
+  };
+
+  const generateExcelReport = (tipo: string) => {
+    let data: any[] = [];
+    let filename = `reporte-${tipo.toLowerCase().replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}`
+    switch (tipo) {
+      case 'Ventas Mensuales':
+        data = [
+          { 'Métrica': 'Ventas Mensuales', 'Valor': totals.ventasMensuales },
+          { 'Métrica': 'Pedidos Totales', 'Valor': totals.ventasTotales },
+          { 'Métrica': 'Clientes Activos', 'Valor': totals.clientesActivos },
+          { 'Métrica': 'Productos Activos', 'Valor': totals.productosStock },
+          {},
+          { 'ID': 'ID', 'Cliente': 'Cliente', 'Producto': 'Producto', 'Monto': 'Monto', 'Fecha': 'Fecha', 'Estado': 'Estado' },
+          ...recentSales.map(sale => ({
+            'ID': sale.id,
+            'Cliente': sale.cliente,
+            'Producto': sale.producto,
+            'Monto': sale.monto,
+            'Fecha': sale.fecha,
+            'Estado': sale.estado
+          }))
+        ];
+        break;
+
+      case 'Productos Más Vendidos':
+        data = topProductsData.map(product => ({
+          'Producto': product.name,
+          'Cantidad Vendida': product.value
+        }));
+        break;
+
+      case 'Distribución por Categoría':
+        data = categoryData.map(cat => ({
+          'Categoría': cat.name,
+          'Cantidad de Productos': cat.value
+        }));
+        break;
+    }
+
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, tipo);
+    XLSX.writeFile(wb, `${filename}.xlsx`);
+  };
+
+  const handleGenerateReport = () => {
+    const format = (document.getElementById('report-format') as HTMLSelectElement)?.value || 'pdf';
+
+    // Verificar que los datos estén disponibles
+    if (!dashboardStats || loading) {
+      toast.error('Los datos del dashboard aún no están disponibles. Intenta nuevamente.');
+      setReportModalOpen(false);
+      return;
+    }
+
+    try {
+      switch (format) {
+        case 'pdf':
+          generatePDFReport(reportType);
+          break;
+        case 'xlsx':
+          generateExcelReport(reportType);
+          break;
+        default:
+          generatePDFReport(reportType);
+      }
+
+      toast.success(`Reporte de ${reportType} generado exitosamente`);
+    } catch (error) {
+      console.error('Error generando reporte:', error);
+      toast.error('Error al generar el reporte. Intenta nuevamente.');
+    }
+
+    setReportModalOpen(false);
+  };
+
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
       {/* Header */}
@@ -104,7 +360,7 @@ export const DashboardHome: React.FC = () => {
           Dashboard Principal
         </h1>
         <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-600">
-          Resumen general del sistema de gestión
+          {loading ? 'Cargando datos del dashboard...' : 'Resumen general del sistema de gestión'}
         </p>
       </div>
 
@@ -125,10 +381,10 @@ export const DashboardHome: React.FC = () => {
             Ventas Mensuales
           </h3>
           <p style={{ fontFamily: 'Playfair Display, serif' }} className="text-[32px] text-gray-900 mb-1">
-            $15.2M
+            ${totals.ventasMensuales.toLocaleString('es-CL')}
           </p>
           <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">
-            vs. mes anterior
+            Total de ingresos registrados
           </p>
         </div>
 
@@ -144,13 +400,13 @@ export const DashboardHome: React.FC = () => {
             </div>
           </div>
           <h3 style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-600 mb-1">
-            Ventas Totales
+            Pedidos Totales
           </h3>
           <p style={{ fontFamily: 'Playfair Display, serif' }} className="text-[32px] text-gray-900 mb-1">
-            245
+            {totals.ventasTotales.toLocaleString('es-CL')}
           </p>
           <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">
-            este mes
+            órdenes registradas
           </p>
         </div>
 
@@ -169,10 +425,10 @@ export const DashboardHome: React.FC = () => {
             Clientes Activos
           </h3>
           <p style={{ fontFamily: 'Playfair Display, serif' }} className="text-[32px] text-gray-900 mb-1">
-            1,847
+            {totals.clientesActivos.toLocaleString('es-CL')}
           </p>
           <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">
-            registrados
+            usuarios registrados
           </p>
         </div>
 
@@ -188,13 +444,13 @@ export const DashboardHome: React.FC = () => {
             </div>
           </div>
           <h3 style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-600 mb-1">
-            Productos en Stock
+            Productos Activos
           </h3>
           <p style={{ fontFamily: 'Playfair Display, serif' }} className="text-[32px] text-gray-900 mb-1">
-            156
+            {totals.productosStock.toLocaleString('es-CL')}
           </p>
           <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">
-            productos disponibles
+            productos registrados
           </p>
         </div>
       </div>
@@ -440,77 +696,79 @@ export const DashboardHome: React.FC = () => {
 
       {/* Modal de Generar Reporte */}
       <Dialog open={reportModalOpen} onOpenChange={setReportModalOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl">
-              Generar Reporte
-            </DialogTitle>
-            <DialogDescription style={{ fontFamily: 'Inter, sans-serif' }}>
-              Selecciona el tipo de reporte que deseas generar
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <FileText className="w-5 h-5 text-blue-600" />
-                <h4 style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-blue-900">
-                  {reportType}
-                </h4>
+        <DialogContent className="max-w-md p-0 gap-0 overflow-hidden">
+          {/* Header con gradiente */}
+          <div className="bg-gradient-to-r from-[#d65391] to-[#e87ab5] px-8 py-6">
+            <div className="flex items-center gap-3 mb-1">
+              <div className="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center">
+                <Download className="w-5 h-5 text-white" />
               </div>
-              <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-blue-700">
-                Se generará un archivo Excel con los datos actuales
-              </p>
+              <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl text-white">
+                Generar Reporte
+              </DialogTitle>
+            </div>
+            <DialogDescription style={{ fontFamily: 'Inter, sans-serif' }} className="text-white/80 text-sm ml-12">
+              Exporta los datos del dashboard
+            </DialogDescription>
+          </div>
+
+          <div className="px-8 py-6 space-y-5">
+            {/* Tipo de reporte */}
+            <div className="flex items-center gap-3 bg-[#fdf2f8] border border-[#f9a8d4] rounded-xl px-4 py-3">
+              <div className="w-8 h-8 bg-[#d65391] rounded-lg flex items-center justify-center flex-shrink-0">
+                <FileText className="w-4 h-4 text-white" />
+              </div>
+              <div>
+                <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-semibold text-[#9d174d]">{reportType}</p>
+                <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-[#be185d]">Datos actuales del dashboard</p>
+              </div>
             </div>
 
+            {/* Formato */}
             <div>
-              <label htmlFor="report-format" style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-700 block mb-2">
-                Formato del archivo
-              </label>
-              <select 
-                id="report-format"
-                style={{ fontFamily: 'Inter, sans-serif' }}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391]"
-              >
-                <option value="xlsx">Excel (.xlsx)</option>
-                <option value="pdf">PDF (.pdf)</option>
-                <option value="csv">CSV (.csv)</option>
-              </select>
-            </div>
-
-            <div>
-              <label htmlFor="report-period" style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-700 block mb-2">
-                Período
-              </label>
-              <select 
-                id="report-period"
-                style={{ fontFamily: 'Inter, sans-serif' }}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391]"
-              >
-                <option value="today">Hoy</option>
-                <option value="week">Última semana</option>
-                <option value="month">Último mes</option>
-                <option value="year">Último año</option>
-                <option value="custom">Personalizado</option>
-              </select>
+              <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Formato de descarga</p>
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { value: 'xlsx', label: 'Excel', ext: '.xlsx', icon: '📊' },
+                  { value: 'pdf',  label: 'PDF',   ext: '.pdf',  icon: '📄' },
+                ].map(opt => (
+                  <label key={opt.value}
+                    className="flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-all has-[:checked]:border-[#d65391] has-[:checked]:bg-[#fdf2f8] border-gray-200 hover:border-gray-300">
+                    <input type="radio" name="report-format-radio" value={opt.value} id={`fmt-${opt.value}`}
+                      defaultChecked={opt.value === 'xlsx'} className="accent-[#d65391]" />
+                    <div>
+                      <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-semibold text-gray-800">{opt.icon} {opt.label}</p>
+                      <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-400">{opt.ext}</p>
+                    </div>
+                  </label>
+                ))}
+              </div>
             </div>
           </div>
-          <DialogFooter className="gap-2">
-            <button
-              onClick={() => setReportModalOpen(false)}
+
+          {/* Footer */}
+          <div className="flex gap-3 px-8 pb-6">
+            <button type="button" onClick={() => setReportModalOpen(false)}
               style={{ fontFamily: 'Inter, sans-serif' }}
-              className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
-            >
+              className="flex-1 py-2.5 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors text-sm font-medium">
               Cancelar
             </button>
-            <button
-              onClick={handleGenerateReport}
+            <button type="button" onClick={() => {
+              const sel = document.querySelector('input[name="report-format-radio"]:checked') as HTMLInputElement;
+              const format = sel?.value || 'xlsx';
+              if (!dashboardStats || loading) { toast.error('Los datos aún no están disponibles'); setReportModalOpen(false); return; }
+              try {
+                if (format === 'pdf') generatePDFReport(reportType);
+                else generateExcelReport(reportType);
+                toast.success(`Reporte de ${reportType} generado`);
+                setReportModalOpen(false);
+              } catch { toast.error('Error generando el reporte'); }
+            }}
               style={{ fontFamily: 'Inter, sans-serif' }}
-              className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2"
-            >
-              <Download className="w-4 h-4" />
-              Generar Reporte
+              className="flex-1 py-2.5 bg-[#d65391] text-white rounded-xl hover:bg-[#c14a7f] transition-colors text-sm font-semibold flex items-center justify-center gap-2">
+              <Download className="w-4 h-4" /> Descargar
             </button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
 

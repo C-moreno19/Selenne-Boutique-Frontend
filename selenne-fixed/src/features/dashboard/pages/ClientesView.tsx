@@ -18,6 +18,7 @@ interface Cliente {
 export const ClientesView: React.FC = () => {
   const { pedidos } = usePedidosAdmin();
   const [clientes, setClientes] = useState<Cliente[]>([]);
+  const [allPedidos, setAllPedidos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCliente, setSelectedCliente] = useState<Cliente | null>(null);
@@ -25,7 +26,11 @@ export const ClientesView: React.FC = () => {
 
   const loadClientes = useCallback(async () => {
     try {
-      const res = await api.getJson('/api/usuarios');
+      const [res, pedidosRes] = await Promise.all([
+        api.getJson('/api/usuarios'),
+        api.getJson('/api/pedidos').catch(() => null),
+      ]);
+      setAllPedidos(pedidosRes?.data || pedidosRes || []);
       const todos = res?.data || res || [];
       const soloClientes = todos
         .filter((u: any) => {
@@ -59,6 +64,14 @@ export const ClientesView: React.FC = () => {
       c.telefono.includes(q)
     );
   });
+
+  const getDireccion = (c: Cliente) => {
+    if (c.direccion) return c.direccion;
+    const pedido = [...allPedidos, ...pedidos]
+      .filter((p: any) => (p.emailCliente ?? p.email ?? '').toLowerCase() === c.email.toLowerCase())
+      .sort((a: any, b: any) => new Date(b.fechaPedido ?? b.fecha ?? 0).getTime() - new Date(a.fechaPedido ?? a.fecha ?? 0).getTime())[0];
+    return pedido?.direccionEnvio || pedido?.direccion || '—';
+  };
 
   const formatFecha = (f: string) => {
     if (!f) return '—';
@@ -144,7 +157,7 @@ export const ClientesView: React.FC = () => {
                       </td>
                       {/* Dirección */}
                       <td className="px-5 py-4">
-                        <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-600 truncate max-w-[180px] block">{c.direccion || '—'}</span>
+                        <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-600 truncate max-w-[180px] block">{getDireccion(c)}</span>
                       </td>
                       {/* Fecha */}
                       <td className="px-5 py-4">

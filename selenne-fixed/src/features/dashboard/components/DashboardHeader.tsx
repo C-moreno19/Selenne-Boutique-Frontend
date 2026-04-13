@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import { 
-  Search, 
-  Bell, 
-  MessageCircle, 
-  HelpCircle, 
-  ChevronDown, 
-  LogOut, 
-  User, 
-  Settings, 
-  Menu 
+import {
+  Search,
+  MessageCircle,
+  ChevronDown,
+  LogOut,
+  User,
+  ShoppingBag,
+  UserPlus,
+  Mail,
+  Menu
 } from 'lucide-react';
 import { useAuth } from '../../../shared/contexts/AuthContext';
 import { useSidebar } from '../../../shared/contexts/SidebarContext';
@@ -41,53 +41,40 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Estados para modales
-  const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [messagesOpen, setMessagesOpen] = useState(false);
-  const [helpOpen, setHelpOpen] = useState(false);
 
-  // notificaciones y mensajes dinámicos a partir del contexto de Mensajes
-  const { obtenerMensajesPorCliente, obtenerMensajesAdmin, marcarComoLeido } = useMensajes();
+  const { obtenerMensajesAdmin, marcarComoLeido } = useMensajes();
 
-  // calculamos datos para el header a partir de lo que hay en el contexto
-  // si es admin, mostrar todas las notificaciones; si es cliente, mostrar solo las suyas
-  const notifications = (user?.role === 'ADMINISTRADOR' ? obtenerMensajesAdmin() : (user?.email ? obtenerMensajesPorCliente(user.email) : [])).map(m => ({
-    id: m.id,
-    titulo: m.tipo.charAt(0).toUpperCase() + m.tipo.slice(1),
-    mensaje: m.contenido,
-    tiempo: m.fecha,
-    tipo: m.tipo,
-    leido: m.leido,
-  }));
+  const adminMsgs = obtenerMensajesAdmin();
+  const unreadMessages = adminMsgs.filter(m => !m.leido).length;
 
-  const unreadNotifications = notifications.filter(n => !n.leido).length;
-
-  const messages = user?.email
-    ? obtenerMensajesPorCliente(user.email).map(m => ({
-        id: m.id,
-        usuario: m.remitente === 'admin' ? 'Soporte' : m.emailCliente || 'Cliente',
-        mensaje: m.contenido,
-        tiempo: m.fecha,
-        avatar: m.remitente === 'admin' ? 'AD' : m.emailCliente?.slice(0,2).toUpperCase() || '??',
-        leido: m.leido,
-      }))
-    : [];
-
-  const unreadMessages = messages.filter(m => !m.leido).length;
-
-  const getNotificationIcon = (tipo: string) => {
+  const getMsgIcon = (tipo: string) => {
     switch (tipo) {
-      case 'alerta': 
-        return '⚠️';
-      case 'exito':
-        return '✅';
-      case 'error':
-        return '❌';
-      case 'info':
-        return 'ℹ️';
-      default:
-        return '📢';
+      case 'aprobacion': return <ShoppingBag className="w-4 h-4 text-green-600" />;
+      case 'rechazo': return <ShoppingBag className="w-4 h-4 text-red-500" />;
+      case 'pago-incompleto': return <ShoppingBag className="w-4 h-4 text-orange-500" />;
+      case 'nuevo-cliente': return <UserPlus className="w-4 h-4 text-blue-500" />;
+      case 'respuesta-cliente': return <Mail className="w-4 h-4 text-[#d65391]" />;
+      default: return <Mail className="w-4 h-4 text-gray-500" />;
     }
+  };
+
+  const getMsgLabel = (tipo: string) => {
+    switch (tipo) {
+      case 'aprobacion': return 'Nuevo pedido aprobado';
+      case 'rechazo': return 'Pedido rechazado';
+      case 'pago-incompleto': return 'Pago incompleto';
+      case 'nuevo-cliente': return 'Nuevo usuario registrado';
+      case 'respuesta-cliente': return 'Respuesta de cliente';
+      case 'consulta': return 'Consulta recibida';
+      default: return 'Notificación';
+    }
+  };
+
+  const getNavSection = (tipo: string): string | null => {
+    if (['aprobacion','rechazo','pago-incompleto','notificacion'].includes(tipo)) return 'pedidos';
+    if (tipo === 'nuevo-cliente') return 'usuarios';
+    return null;
   };
 
   return (
@@ -134,39 +121,18 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 
           {/* Iconos de Acción */}
           <div className="flex items-center gap-2">
-            {/* Notificaciones */}
-            <button 
-              onClick={() => setNotificationsOpen(true)}
-              className="relative p-2.5 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
-            >
-              <Bell className="w-5 h-5" />
-              {unreadNotifications > 0 && (
-                <span className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                  {unreadNotifications}
-                </span>
-              )}
-            </button>
-
-            {/* Mensajes */}
-            <button 
+            {/* Mensajes / Notificaciones unificado */}
+            <button
               onClick={() => setMessagesOpen(true)}
               className="relative p-2.5 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
+              title="Mensajes y notificaciones"
             >
               <MessageCircle className="w-5 h-5" />
               {unreadMessages > 0 && (
                 <span className="absolute top-1 right-1 w-5 h-5 bg-[#d65391] text-white text-xs rounded-full flex items-center justify-center">
-                  {unreadMessages}
+                  {unreadMessages > 9 ? '9+' : unreadMessages}
                 </span>
               )}
-            </button>
-
-            {/* Ayuda */}
-            <button 
-              onClick={() => setHelpOpen(true)}
-              className="p-2.5 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
-              title="Algo"
-            >
-              <HelpCircle className="w-5 h-5" />
             </button>
 
             {/* Separador */}
@@ -229,216 +195,108 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
         </div>
       </header>
 
-      {/* Modal de Notificaciones */}
-      <Dialog open={notificationsOpen} onOpenChange={setNotificationsOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
+      {/* Modal unificado de Mensajes y Notificaciones */}
+      <Dialog open={messagesOpen} onOpenChange={setMessagesOpen}>
+        <DialogContent className="max-w-2xl h-auto flex flex-col p-0 gap-0">
+          <DialogHeader className="px-8 pt-6 pb-4 border-b border-gray-200 flex-shrink-0">
             <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl">
-              🔔 Notificaciones
+              Mensajes
             </DialogTitle>
             <DialogDescription style={{ fontFamily: 'Inter, sans-serif' }}>
-              Revisa tus notificaciones recientes
+              Pedidos nuevos, usuarios registrados y respuestas de correo
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-2 max-h-[500px] overflow-y-auto">
-            {notifications.length === 0 ? (
-              <div className="text-center py-8">
-                <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-500">
-                  No tienes notificaciones por el momento
-                </p>
-              </div>
-            ) : (
-              notifications.map((notif) => (
-                <div
-                  key={notif.id}
-                  onClick={() => marcarComoLeido(notif.id)}
-                  className={`p-4 rounded-lg border-l-4 transition-all cursor-pointer ${
-                    notif.leido
-                      ? 'bg-gray-50 border-l-gray-300'
-                      : 'bg-white border-l-[#d65391] shadow-sm hover:shadow-md'
-                  }`}
-                >
-                  <div className="flex items-start gap-3">
-                    <span className="text-2xl flex-shrink-0">{getNotificationIcon(notif.tipo)}</span>
-                    <div className="flex-1 min-w-0">
-                      <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-semibold text-gray-900">
-                        {notif.titulo}
-                      </p>
-                      <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-600 mt-1">
-                        {notif.mensaje}
-                      </p>
-                      <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-400 mt-2 block">
-                        {notif.tiempo}
-                      </span>
-                    </div>
-                    {!notif.leido && (
-                      <div className="w-2 h-2 bg-[#d65391] rounded-full flex-shrink-0 mt-2"></div>
-                    )}
-                  </div>
+
+          <div className="flex-1 overflow-y-auto">
+            <div className="space-y-6 py-6 px-8">
+              <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                <div className="bg-gray-50 px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                  <h3 style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-gray-800 text-base">💬 Actividad reciente</h3>
+                  {unreadMessages > 0 && (
+                    <span className="px-2 py-0.5 bg-[#d65391] text-white text-xs rounded-full" style={{ fontFamily: 'Inter, sans-serif' }}>
+                      {unreadMessages} sin leer
+                    </span>
+                  )}
                 </div>
-              ))
-            )}
+                <div className="divide-y divide-gray-100">
+                  {adminMsgs.length === 0 ? (
+                    <div className="text-center py-12">
+                      <MessageCircle className="w-10 h-10 mx-auto text-gray-200 mb-3" />
+                      <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-400">
+                        No hay mensajes por el momento
+                      </p>
+                    </div>
+                  ) : (
+                    adminMsgs.map(msg => {
+                      const navSection = getNavSection(msg.tipo) as any;
+                      return (
+                        <div
+                          key={msg.id}
+                          onClick={() => {
+                            marcarComoLeido(msg.id);
+                            if (navSection) {
+                              onSectionChange(navSection);
+                              setMessagesOpen(false);
+                            }
+                          }}
+                          className={`flex items-start gap-4 px-6 py-4 transition-colors cursor-pointer ${
+                            msg.leido ? 'opacity-60' : 'hover:bg-pink-50'
+                          }`}
+                        >
+                          <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${msg.leido ? 'bg-gray-100' : 'bg-pink-100'}`}>
+                            {getMsgIcon(msg.tipo)}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between gap-2">
+                              <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs font-semibold text-[#d65391] uppercase tracking-wide">
+                                {getMsgLabel(msg.tipo)}
+                              </p>
+                              <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-400 whitespace-nowrap flex-shrink-0">
+                                {new Date(msg.fecha).toLocaleDateString('es-CO')}
+                              </span>
+                            </div>
+                            <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-700 mt-0.5 truncate">
+                              {msg.contenido}
+                            </p>
+                            {navSection && !msg.leido && (
+                              <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-[#d65391] mt-1">
+                                Clic para ir a {navSection === 'pedidos' ? 'Pedidos' : 'Usuarios'} →
+                              </p>
+                            )}
+                          </div>
+                          {!msg.leido && (
+                            <div className="w-2 h-2 bg-[#d65391] rounded-full flex-shrink-0 mt-2" />
+                          )}
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
-          <DialogFooter className="mt-4 pt-4 border-t">
-            {notifications.length > 0 && (
+
+          <DialogFooter className="gap-2 px-8 py-5 border-t border-gray-200 flex-shrink-0">
+            {adminMsgs.some(m => !m.leido) && (
               <button
                 onClick={() => {
-                  notifications.forEach(n => {
-                    if (!n.leido) marcarComoLeido(n.id);
-                  });
-                  toast.success('Todas las notificaciones marcadas como leídas');
-                  setNotificationsOpen(false);
+                  adminMsgs.filter(m => !m.leido).forEach(m => marcarComoLeido(m.id));
+                  toast.success('Todos los mensajes marcados como leídos');
                 }}
                 style={{ fontFamily: 'Inter, sans-serif' }}
-                className="px-6 py-2 bg-[#d65391] text-white rounded-lg hover:bg-[#c14a7f] transition-colors font-medium"
+                className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
               >
-                Marcar todas como leídas
+                Marcar todos como leídos
               </button>
             )}
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Modal de Mensajes */}
-      <Dialog open={messagesOpen} onOpenChange={setMessagesOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl">
-              ✉️ Mensajes
-            </DialogTitle>
-            <DialogDescription style={{ fontFamily: 'Inter, sans-serif' }}>
-              Conversaciones y mensajes recientes
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-2 max-h-[500px] overflow-y-auto">
-            {messages.length === 0 ? (
-              <div className="text-center py-8">
-                <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-500">
-                  No hay mensajes por el momento
-                </p>
-              </div>
-            ) : (
-              messages.map((msg) => (
-                <div
-                  key={msg.id}
-                  onClick={() => marcarComoLeido(msg.id)}
-                  className={`p-4 rounded-lg border-l-4 transition-all cursor-pointer ${
-                    msg.leido
-                      ? 'bg-gray-50 border-l-gray-300'
-                      : 'bg-white border-l-[#d65391] shadow-sm hover:shadow-md'
-                  }`}
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-[#d65391] to-[#f8a9c5] rounded-full flex items-center justify-center flex-shrink-0">
-                      <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-white text-xs font-bold">
-                        {msg.avatar}
-                      </span>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-semibold text-gray-900">
-                          {msg.usuario}
-                        </p>
-                        <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-400 whitespace-nowrap ml-2">
-                          {msg.tiempo}
-                        </span>
-                      </div>
-                      <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-600 mt-1">
-                        {msg.mensaje}
-                      </p>
-                    </div>
-                    {!msg.leido && (
-                      <div className="w-2 h-2 bg-[#d65391] rounded-full flex-shrink-0 mt-2"></div>
-                    )}
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-          <DialogFooter className="mt-4 pt-4 border-t">
             <button
               onClick={() => setMessagesOpen(false)}
               style={{ fontFamily: 'Inter, sans-serif' }}
-              className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+              className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
             >
               Cerrar
             </button>
           </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Modal de Ayuda */}
-      <Dialog open={helpOpen} onOpenChange={setHelpOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl">
-              Centro de Ayuda
-            </DialogTitle>
-            <DialogDescription style={{ fontFamily: 'Inter, sans-serif' }}>
-              Encuentra respuestas y documentación útil
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="bg-gradient-to-br from-[#d65391] to-[#f8a9c5] rounded-lg p-6 text-white">
-              <h3 style={{ fontFamily: 'Playfair Display, serif' }} className="text-xl mb-2">
-                ¿Necesitas ayuda?
-              </h3>
-              <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-white/90">
-                Aquí encontrarás guías y recursos para usar el sistema
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
-                <h4 style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-900 mb-2">
-                  📚 Guía de Inicio
-                </h4>
-                <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-600">
-                  Aprende los conceptos básicos del sistema
-                </p>
-              </div>
-
-              <div className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
-                <h4 style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-900 mb-2">
-                  🎥 Video Tutoriales
-                </h4>
-                <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-600">
-                  Tutoriales paso a paso en video
-                </p>
-              </div>
-
-              <div className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
-                <h4 style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-900 mb-2">
-                  💬 Soporte en Vivo
-                </h4>
-                <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-600">
-                  Chatea con nuestro equipo de soporte
-                </p>
-              </div>
-
-              <div className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
-                <h4 style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-900 mb-2">
-                  ❓ Preguntas Frecuentes
-                </h4>
-                <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-600">
-                  Respuestas a las dudas más comunes
-                </p>
-              </div>
-            </div>
-
-            <div className="border-t border-gray-200 pt-4">
-              <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-600 mb-2">
-                ¿Necesitas ayuda personalizada?
-              </p>
-              <button
-                onClick={() => toast.info('Abriendo chat de soporte...')}
-                style={{ fontFamily: 'Inter, sans-serif' }}
-                className="w-full px-4 py-2 bg-[#d65391] text-white rounded-lg hover:bg-[#c14a7f] transition-colors"
-              >
-                Contactar Soporte
-              </button>
-            </div>
-          </div>
         </DialogContent>
       </Dialog>
     </>

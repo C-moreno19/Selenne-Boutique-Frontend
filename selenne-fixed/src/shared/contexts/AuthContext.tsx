@@ -11,6 +11,7 @@ interface User {
   telefono?: string;
   direccion?: string;
   documento?: string;
+  ciudad?: string;
   permisos?: string[];
 }
 
@@ -52,6 +53,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         telefono: userObj?.Telefono || userObj?.telefono || '',
         direccion: userObj?.Direccion || userObj?.direccion || '',
         documento: userObj?.Documento || userObj?.documento || '',
+        ciudad: userObj?.Ciudad || userObj?.ciudad || '',
         permisos: userObj?.Permisos || userObj?.permisos || [],
       };
 
@@ -68,6 +70,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             telefono: perfilData?.telefono || perfilData?.Telefono || '',
             direccion: perfilData?.direccion || perfilData?.Direccion || '',
             documento: perfilData?.documento || perfilData?.Documento || '',
+            ciudad: perfilData?.ciudad || perfilData?.Ciudad || '',
           };
           setUser(updatedUser);
           localStorage.setItem('currentUser', JSON.stringify(updatedUser));
@@ -92,6 +95,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         telefono: perfilData?.telefono || perfilData?.Telefono || '',
         direccion: perfilData?.direccion || perfilData?.Direccion || '',
         documento: perfilData?.documento || perfilData?.Documento || '',
+        ciudad: perfilData?.ciudad || perfilData?.Ciudad || '',
       };
       setUser(updatedUser);
       localStorage.setItem('currentUser', JSON.stringify(updatedUser));
@@ -122,6 +126,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setUser(null);
     localStorage.removeItem('currentUser');
     clearAuthTokens();
+    window.dispatchEvent(new Event('auth:logout'));
   };
 
   return (

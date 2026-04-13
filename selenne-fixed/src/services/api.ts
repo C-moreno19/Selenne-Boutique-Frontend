@@ -97,6 +97,12 @@ export async function postJson(path: string, body: any) {
 export async function getJson(path: string) {
   return fetchWithAuth(path, { method: 'GET' });
 }
+export async function putJson(path: string, body: any) {
+  return fetchWithAuth(path, { method: 'PUT', body: JSON.stringify(body) });
+}
+export async function deleteJson(path: string) {
+  return fetchWithAuth(path, { method: 'DELETE' });
+}
 export async function postForm(path: string, form: FormData) {
   return fetchWithAuth(path, { method: 'POST', body: form });
 }
@@ -107,4 +113,4 @@ export function setTokensFromAuthResponse(obj: { accessToken?: string; refreshTo
 }
 export function clearAuthTokens() { clearTokens(); }
 
-export default { apiBase, fetchWithAuth, postJson, getJson, postForm, setTokensFromAuthResponse, clearAuthTokens };
+export default { apiBase, fetchWithAuth, postJson, putJson, deleteJson, getJson, postForm, setTokensFromAuthResponse, clearAuthTokens };

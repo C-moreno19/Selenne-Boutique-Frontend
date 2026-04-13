@@ -3,6 +3,7 @@ import { CustomInput } from '../components/CustomInput';
 import { CustomButton } from '../components/CustomButton';
 import { SatinBackground } from '../components/SatinBackground';
 import api from '../../../services/api';
+import { useMensajes } from '../../../shared/contexts/MensajesContext';
 import imgLogo from 'figma:asset/8184a8c16f30f2f7daa53602475d236bcd50c9b3.png';
 
 interface RegisterViewProps {
@@ -33,6 +34,7 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
   });
 
   const [loading, setLoading] = useState(false);
+  const { crearMensaje } = useMensajes();
 
   const updateField = (field: string, value: string) => {
     // Validación en tiempo real según el campo
@@ -143,17 +145,26 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
         const payload = {
           NombreCompleto: formData.fullName,
           Email: formData.email.toLowerCase().trim(),
-          Contrasena: formData.password,  // Sin tilde, como espera el backend
+          Contrasena: formData.password,
           Telefono: formData.phone,
+          Direccion: formData.address || '',
         };
-        
-        console.log('📤 Enviando signup con payload:', JSON.stringify(payload, null, 2));
         
         // Llamar a /api/auth/signup del backend
         const response = await api.postJson('/api/auth/signup', payload);
 
         console.log('✅ Respuesta exitosa del servidor:', response);
         setLoading(false);
+
+        // Notificar al admin
+        crearMensaje({
+          idVenta: '',
+          emailCliente: formData.email.toLowerCase().trim(),
+          remitente: 'cliente',
+          contenido: `Nueva cuenta registrada: ${formData.fullName} (${formData.email.toLowerCase().trim()})`,
+          tipo: 'nuevo-cliente',
+          destinatarios: ['admin'],
+        });
 
         // Éxito - mostrar mensaje
         onShowAlert('success', '✅ Cuenta creada exitosamente. Revisa tu correo para confirmar.');
