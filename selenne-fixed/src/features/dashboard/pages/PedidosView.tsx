@@ -5,7 +5,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Textarea } from '../../../components/ui/textarea';
 import { Label } from '../../../components/ui/label';
 import { toast } from 'sonner';
-import { getJson } from '../../../services/api';
+import { getJson, apiBase } from '../../../services/api';
 import api from '../../../services/api';
 import { useAuth } from '../../../shared/contexts/AuthContext';
 
@@ -338,7 +338,11 @@ export const PedidosView: React.FC = () => {
           </DialogHeader>
           <div className="p-6">
             {selectedPedido?.comprobantePago ? (
-              <img src={`http://localhost:5000${selectedPedido.comprobantePago}`} alt="Comprobante"
+              <img
+                src={selectedPedido.comprobantePago.startsWith('http')
+                  ? selectedPedido.comprobantePago
+                  : `${apiBase}${selectedPedido.comprobantePago}`}
+                alt="Comprobante"
                 className="w-full rounded-xl border border-gray-200 shadow-sm" />
             ) : (
               <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-center text-gray-400">Sin comprobante</p>
