@@ -85,7 +85,8 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
   const [errores, setErrores] = useState({
     nombre: '',
     documento: '',
-    telefono: ''
+    telefono: '',
+    email: ''
   });
   
   // Datos para transferencia — se cargan del backend
@@ -110,28 +111,26 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    
+
     // Validación en tiempo real según el campo
     if (name === 'nombre') {
-      // Solo permitir letras y espacios
-      if (value && !/^[a-zA-Záéíóúñ\s]*$/.test(value)) {
-        setErrores(prev => ({ ...prev, nombre: 'Solo se permiten letras y espacios' }));
-        return; // No actualizar si contiene caracteres especiales
+      // Solo permitir letras y espacios (incluye acentos, ñ, ü)
+      if (value && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]*$/.test(value)) {
+        setErrores(prev => ({ ...prev, nombre: 'Solo se permiten letras' }));
+        return; // Bloquear el carácter inválido
       } else {
         setErrores(prev => ({ ...prev, nombre: '' }));
       }
     } else if (name === 'telefono' || name === 'documento') {
       // Solo permitir números
       if (value && !/^\d*$/.test(value)) {
-        const campo = name === 'telefono' ? 'telefono' : 'documento';
-        setErrores(prev => ({ ...prev, [campo]: 'Solo se permiten números' }));
-        return; // No actualizar si contiene caracteres no numéricos
+        setErrores(prev => ({ ...prev, [name]: 'Solo se permiten números' }));
+        return; // Bloquear el carácter inválido
       } else {
-        const campo = name === 'telefono' ? 'telefono' : 'documento';
-        setErrores(prev => ({ ...prev, [campo]: '' }));
+        setErrores(prev => ({ ...prev, [name]: '' }));
       }
     }
-    
+
     setDatosEnvio({
       ...datosEnvio,
       [name]: value

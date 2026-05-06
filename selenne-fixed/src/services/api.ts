@@ -1,19 +1,14 @@
 export const apiBase = (import.meta && import.meta.env && import.meta.env.VITE_API_BASE_URL) || '';
 
-function getAccessToken() { return localStorage.getItem('accessToken'); }
-function setAccessToken(token: string | null) {
-  if (token) localStorage.setItem('accessToken', token);
-  else localStorage.removeItem('accessToken');
-}
-function getRefreshToken() { return localStorage.getItem('refreshToken'); }
-function setRefreshToken(token: string | null) {
-  if (token) localStorage.setItem('refreshToken', token);
-  else localStorage.removeItem('refreshToken');
-}
-function clearTokens() {
-  localStorage.removeItem('accessToken');
-  localStorage.removeItem('refreshToken');
-}
+// Tokens en memoria — no persisten en localStorage ni entre recargas de página
+let _accessToken: string | null = null;
+let _refreshToken: string | null = null;
+
+export function getAccessToken() { return _accessToken; }
+function setAccessToken(token: string | null) { _accessToken = token ?? null; }
+function getRefreshToken() { return _refreshToken; }
+function setRefreshToken(token: string | null) { _refreshToken = token ?? null; }
+function clearTokens() { _accessToken = null; _refreshToken = null; }
 
 let refreshingPromise: Promise<boolean> | null = null;
 

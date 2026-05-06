@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, Search, Eye, Edit, Trash2, ChevronRight, Loader2, RefreshCw } from 'lucide-react';
+import { Plus, Search, Eye, Edit, ChevronRight, Loader2, RefreshCw } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '../../../components/ui/dialog';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../../../components/ui/alert-dialog';
 import { Input } from '../../../components/ui/input';
 import { Label } from '../../../components/ui/label';
 import { toast } from 'sonner';
@@ -16,7 +15,7 @@ interface Proveedor {
   email?: string;
   telefono?: string;
   documento?: string;
-  estado?: string;
+  estado: string;
 }
 
 export const ProveedoresView: React.FC = () => {
@@ -30,12 +29,37 @@ export const ProveedoresView: React.FC = () => {
 
   const [viewOpen, setViewOpen] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
-  const [deleteOpen, setDeleteOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [selected, setSelected] = useState<Proveedor | null>(null);
 
   const [form, setForm] = useState({ nombre: '', contacto: '', email: '', telefono: '', documento: '' });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
+  const updateForm = (field: string, value: string) => {
+    if (field === 'nombre' || field === 'contacto') {
+      if (value && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]*$/.test(value)) {
+        setFormErrors(prev => ({ ...prev, [field]: 'Solo se permiten letras' }));
+        return;
+      } else {
+        setFormErrors(prev => ({ ...prev, [field]: '' }));
+      }
+    } else if (field === 'telefono' || field === 'documento') {
+      if (value && !/^\d*$/.test(value)) {
+        setFormErrors(prev => ({ ...prev, [field]: 'Solo se permiten números' }));
+        return;
+      } else {
+        setFormErrors(prev => ({ ...prev, [field]: '' }));
+      }
+    } else if (field === 'email') {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (value && !emailRegex.test(value)) {
+        setFormErrors(prev => ({ ...prev, email: 'Formato de email inválido' }));
+      } else {
+        setFormErrors(prev => ({ ...prev, email: '' }));
+      }
+    }
+    setForm(prev => ({ ...prev, [field]: value }));
+  };
 
   const loadData = useCallback(async () => {
     try {
@@ -102,15 +126,30 @@ export const ProveedoresView: React.FC = () => {
     finally { setSaving(false); }
   };
 
-  const eliminar = async () => {
-    if (!selected) return;
+  const toggleEstado = async (p: Proveedor) => {
+    const nuevoEstado = p.estado === 'activo' ? 'inactivo' : 'activo';
     setSaving(true);
     try {
-      await api.fetchWithAuth(`/api/proveedores/${selected.proveedorID}`, { method: 'DELETE' });
-      toast.success('Proveedor eliminado');
-      setDeleteOpen(false); loadData();
-    } catch { toast.error('Error eliminando proveedor'); }
-    finally { setSaving(false); }
+      await api.fetchWithAuth(`/api/proveedores/${p.proveedorID}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          Nombre: p.nombre,
+          Contacto: p.contacto || '',
+          Email: p.email || '',
+          Telefono: p.telefono || '',
+          Documento: p.documento || '',
+          Estado: nuevoEstado,
+        }),
+      });
+      toast.success(`Proveedor marcado como ${nuevoEstado}`);
+      loadData();
+    } catch (e: any) {
+      const mensaje =
+        e?.data?.message || e?.data?.Message ||
+        e?.data?.title   || e?.data?.Title   ||
+        e?.message       || 'Error cambiando estado del proveedor';
+      toast.error(mensaje);
+    } finally { setSaving(false); }
   };
 
   if (loading) return (
@@ -154,7 +193,7 @@ export const ProveedoresView: React.FC = () => {
         <table className="w-full">
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
-              {['NOMBRE', 'CONTACTO', 'EMAIL', 'TELÉFONO', 'DOCUMENTO', 'ACCIONES'].map(h => (
+              {['NOMBRE', 'CONTACTO', 'EMAIL', 'TELÉFONO', 'DOCUMENTO', 'ESTADO', 'ACCIONES'].map(h => (
                 <th key={h} className="px-6 py-4 text-left">
                   <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs font-semibold uppercase tracking-wider text-gray-500">{h}</span>
                 </th>
@@ -170,6 +209,22 @@ export const ProveedoresView: React.FC = () => {
                 <td className="px-6 py-4"><span style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-600">{p.telefono || '—'}</span></td>
                 <td className="px-6 py-4"><span style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-600 text-sm">{p.documento || '—'}</span></td>
                 <td className="px-6 py-4">
+                  <button
+                    onClick={() => puedeAdmin && toggleEstado(p)}
+                    disabled={saving || !puedeAdmin}
+                    style={{ fontFamily: 'Inter, sans-serif' }}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
+                      p.estado === 'activo'
+                        ? 'bg-green-50 text-green-700 border-green-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200'
+                        : 'bg-gray-100 text-gray-500 border-gray-200 hover:bg-green-50 hover:text-green-700 hover:border-green-200'
+                    } ${!puedeAdmin ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                    title={p.estado === 'activo' ? 'Clic para desactivar' : 'Clic para activar'}
+                  >
+                    <span className={`w-1.5 h-1.5 rounded-full ${p.estado === 'activo' ? 'bg-green-500' : 'bg-gray-400'}`} />
+                    {p.estado === 'activo' ? 'Activo' : 'Inactivo'}
+                  </button>
+                </td>
+                <td className="px-6 py-4">
                   <div className="flex items-center gap-2">
                     <button onClick={() => { setSelected(p); setViewOpen(true); }}
                       className="p-2 text-gray-500 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors" title="Ver detalles">
@@ -180,10 +235,6 @@ export const ProveedoresView: React.FC = () => {
                         <button onClick={() => openEdit(p)}
                           className="p-2 text-gray-500 hover:bg-yellow-50 hover:text-yellow-600 rounded-lg transition-colors" title="Editar">
                           <Edit className="w-5 h-5" />
-                        </button>
-                        <button onClick={() => { setSelected(p); setDeleteOpen(true); }}
-                          className="p-2 text-gray-500 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors" title="Eliminar">
-                          <Trash2 className="w-5 h-5" />
                         </button>
                       </>
                     )}
@@ -226,7 +277,7 @@ export const ProveedoresView: React.FC = () => {
                     <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">
                       Nombre <span className="text-red-500">*</span>
                     </Label>
-                    <Input value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })}
+                    <Input value={form.nombre} onChange={e => updateForm('nombre', e.target.value)}
                       placeholder="Nombre del proveedor"
                       className={`h-10 ${formErrors.nombre ? 'border-red-500' : 'border-gray-300'}`} />
                     {formErrors.nombre && <p className="text-red-500 text-xs">{formErrors.nombre}</p>}
@@ -234,15 +285,16 @@ export const ProveedoresView: React.FC = () => {
 
                   <div className="flex flex-col gap-2">
                     <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">Contacto</Label>
-                    <Input value={form.contacto} onChange={e => setForm({ ...form, contacto: e.target.value })}
-                      placeholder="Nombre del contacto" className="h-10 border-gray-300" />
+                    <Input value={form.contacto} onChange={e => updateForm('contacto', e.target.value)}
+                      placeholder="Nombre del contacto" className={`h-10 ${formErrors.contacto ? 'border-red-500' : 'border-gray-300'}`} />
+                    {formErrors.contacto && <p className="text-red-500 text-xs">{formErrors.contacto}</p>}
                   </div>
 
                   <div className="flex flex-col gap-2">
                     <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">
                       Email <span className="text-red-500">*</span>
                     </Label>
-                    <Input type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })}
+                    <Input type="email" value={form.email} onChange={e => updateForm('email', e.target.value)}
                       placeholder="email@ejemplo.com"
                       className={`h-10 ${formErrors.email ? 'border-red-500' : 'border-gray-300'}`} />
                     {formErrors.email && <p className="text-red-500 text-xs">{formErrors.email}</p>}
@@ -252,16 +304,17 @@ export const ProveedoresView: React.FC = () => {
                     <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">
                       Teléfono <span className="text-red-500">*</span>
                     </Label>
-                    <Input type="tel" value={form.telefono} onChange={e => setForm({ ...form, telefono: e.target.value })}
-                      placeholder="+57 300 123 4567"
+                    <Input type="tel" value={form.telefono} onChange={e => updateForm('telefono', e.target.value)}
+                      placeholder="3001234567"
                       className={`h-10 ${formErrors.telefono ? 'border-red-500' : 'border-gray-300'}`} />
                     {formErrors.telefono && <p className="text-red-500 text-xs">{formErrors.telefono}</p>}
                   </div>
 
                   <div className="flex flex-col gap-2 col-span-2">
                     <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">Documento (NIT / Cédula)</Label>
-                    <Input value={form.documento} onChange={e => setForm({ ...form, documento: e.target.value })}
-                      placeholder="NIT o número de cédula" className="h-10 border-gray-300" />
+                    <Input value={form.documento} onChange={e => updateForm('documento', e.target.value)}
+                      placeholder="NIT o número de cédula" className={`h-10 ${formErrors.documento ? 'border-red-500' : 'border-gray-300'}`} />
+                    {formErrors.documento && <p className="text-red-500 text-xs">{formErrors.documento}</p>}
                   </div>
                 </div>
               </div>
@@ -316,24 +369,6 @@ export const ProveedoresView: React.FC = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Modal Eliminar */}
-      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle style={{ fontFamily: 'Playfair Display, serif' }}>¿Eliminar proveedor?</AlertDialogTitle>
-            <AlertDialogDescription style={{ fontFamily: 'Inter, sans-serif' }}>
-              Vas a eliminar a <strong>{selected?.nombre}</strong>. Esta acción no se puede deshacer.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel style={{ fontFamily: 'Inter, sans-serif' }}>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={eliminar} disabled={saving}
-              className="bg-red-600 hover:bg-red-700 flex items-center gap-2" style={{ fontFamily: 'Inter, sans-serif' }}>
-              {saving && <Loader2 className="w-4 h-4 animate-spin" />} Eliminar
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 };

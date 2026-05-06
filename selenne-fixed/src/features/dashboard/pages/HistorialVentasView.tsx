@@ -118,9 +118,9 @@ export const HistorialVentasView: React.FC<HistorialVentasViewProps> = ({ onBack
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {filtered.map(p => (
+            {filtered.map((p, idx) => (
               <tr key={p.pedidoID} className="hover:bg-gray-50 transition-colors">
-                <td className="px-6 py-4"><span style={{ fontFamily: 'Inter, sans-serif' }} className="font-medium text-gray-900">#{p.pedidoID}</span></td>
+                <td className="px-6 py-4"><span style={{ fontFamily: 'Inter, sans-serif' }} className="font-medium text-gray-900">#{idx + 1}</span></td>
                 <td className="px-6 py-4">
                   <p style={{ fontFamily: 'Inter, sans-serif' }} className="font-medium text-gray-900">{p.nombreCliente}</p>
                   <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">{p.emailCliente}</p>

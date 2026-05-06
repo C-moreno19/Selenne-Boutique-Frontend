@@ -8,7 +8,7 @@ import {
   Download,
   FileText,
   ChevronRight,
-  AlertTriangle
+  AlertTriangle,
 } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '../../../components/ui/dialog';
@@ -62,18 +62,30 @@ interface CategoryItem {
   value: number;
 }
 
+interface DateRange { from: Date; to: Date; }
+
+const toInputValue = (d: Date) => d.toISOString().slice(0, 10);
+
+const defaultDateRange = (): DateRange => {
+  const to = new Date();
+  const from = new Date();
+  from.setDate(from.getDate() - 29);
+  return { from, to };
+};
+
+const formatDate = (d: Date) =>
+  d.toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' });
+
 export const DashboardHome: React.FC = () => {
-  // Estados para modales
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [reportType, setReportType] = useState('');
   const [salesDetailOpen, setSalesDetailOpen] = useState(false);
   const [stockDetailOpen, setStockDetailOpen] = useState(false);
   const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null);
-  const [recentSales, setRecentSales] = useState<RecentSale[]>([]);
   const [lowStockProducts, setLowStockProducts] = useState<Array<StockProduct & { codigo: string; alerta: string; minimo: number }>>([]);
-  const [topProductsData, setTopProductsData] = useState<CategoryItem[]>([]);
   const [categoryData, setCategoryData] = useState<CategoryItem[]>([]);
-  const [salesData, setSalesData] = useState<CategoryItem[]>([]);
+  const [allPedidos, setAllPedidos] = useState<PedidoDto[]>([]);
+  const [dateRange, setDateRange] = useState<DateRange>(defaultDateRange());
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -98,58 +110,7 @@ export const DashboardHome: React.FC = () => {
         }
 
         const pedidos = (pedidosRes?.data || pedidosRes || []) as PedidoDto[];
-        const sales = pedidos.map((pedido) => {
-          const producto = pedido.detalles?.[0]?.productoNombre || 'Venta';
-          return {
-            id: `PED-${pedido.pedidoID}`,
-            cliente: pedido.nombreCliente || 'Cliente',
-            producto,
-            monto: Number(pedido.total || 0),
-            fecha: new Date(pedido.fechaPedido).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }),
-            estado: pedido.estado || 'Pendiente',
-            cantidad: pedido.detalles?.reduce((s, item) => s + (item?.cantidad || 0), 0) || 0,
-          };
-        });
-
-        setRecentSales(sales.slice(0, 5));
-
-        const salesByDay: Record<string, number> = {};
-        const last30Days = Array.from({ length: 30 }, (_, index) => {
-          const date = new Date();
-          date.setDate(date.getDate() - (29 - index));
-          const key = date.toISOString().slice(0, 10);
-          salesByDay[key] = 0;
-          return key;
-        });
-
-        pedidos.forEach((pedido) => {
-          const key = new Date(pedido.fechaPedido).toISOString().slice(0, 10);
-          if (key in salesByDay) {
-            salesByDay[key] += Number(pedido.total || 0);
-          }
-        });
-
-        setSalesData(last30Days.map((day) => ({
-          name: day.slice(8),
-          value: salesByDay[day] || 0,
-        })));
-
-        const productCounts: Record<string, number> = {};
-        pedidos.forEach((pedido) => {
-          pedido.detalles?.forEach((item) => {
-            if (!item?.productoNombre) return;
-            productCounts[item.productoNombre] = (productCounts[item.productoNombre] || 0) + (item.cantidad || 0);
-          });
-        });
-
-        const topProducts = Object.entries(productCounts)
-          .sort((a, b) => b[1] - a[1])
-          .slice(0, 5)
-          .map(([name, value]) => ({ name, value }));
-
-        setTopProductsData(topProducts.length ? topProducts : [
-          { name: 'Sin datos', value: 0 }
-        ]);
+        setAllPedidos(pedidos);
 
         const products = (productosRes?.data || productosRes || []) as any[];
         const categoryCounts: Record<string, number> = {};
@@ -157,7 +118,6 @@ export const DashboardHome: React.FC = () => {
           const category = product.categoriaNombre || product.CategoriaNombre || 'Sin categoría';
           categoryCounts[category] = (categoryCounts[category] || 0) + 1;
         });
-
         setCategoryData(Object.entries(categoryCounts)
           .sort((a, b) => b[1] - a[1])
           .slice(0, 5)
@@ -174,6 +134,73 @@ export const DashboardHome: React.FC = () => {
     loadDashboard();
   }, []);
 
+  const filteredPedidos = useMemo(() => {
+    const { from, to } = dateRange;
+    const start = new Date(from.getFullYear(), from.getMonth(), from.getDate());
+    const end = new Date(to.getFullYear(), to.getMonth(), to.getDate(), 23, 59, 59, 999);
+    return allPedidos.filter((pedido) => {
+      const fecha = new Date(pedido.fechaPedido);
+      return fecha >= start && fecha <= end;
+    });
+  }, [allPedidos, dateRange]);
+
+  const salesData = useMemo(() => {
+    const from = dateRange.from;
+    const to = dateRange.to;
+    const days: string[] = [];
+    const current = new Date(from.getFullYear(), from.getMonth(), from.getDate());
+    const end = new Date(to.getFullYear(), to.getMonth(), to.getDate());
+    while (current <= end) {
+      days.push(current.toISOString().slice(0, 10));
+      current.setDate(current.getDate() + 1);
+    }
+    const salesByDay: Record<string, number> = {};
+    days.forEach((d) => { salesByDay[d] = 0; });
+    filteredPedidos.forEach((pedido) => {
+      const key = new Date(pedido.fechaPedido).toISOString().slice(0, 10);
+      if (key in salesByDay) salesByDay[key] += Number(pedido.total || 0);
+    });
+    return days.map((day) => ({ name: day.slice(5), value: salesByDay[day] || 0 }));
+  }, [filteredPedidos, dateRange]);
+
+  const topProductsData = useMemo(() => {
+    const productCounts: Record<string, number> = {};
+    filteredPedidos.forEach((pedido) => {
+      pedido.detalles?.forEach((item) => {
+        if (!item?.productoNombre) return;
+        productCounts[item.productoNombre] = (productCounts[item.productoNombre] || 0) + (item.cantidad || 0);
+      });
+    });
+    const top = Object.entries(productCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([name, value]) => ({ name, value }));
+    return top.length ? top : [{ name: 'Sin datos', value: 0 }];
+  }, [filteredPedidos]);
+
+  const recentSales = useMemo<RecentSale[]>(() => {
+    return filteredPedidos
+      .slice()
+      .sort((a, b) => new Date(b.fechaPedido).getTime() - new Date(a.fechaPedido).getTime())
+      .slice(0, 10)
+      .map((pedido) => ({
+        id: `PED-${pedido.pedidoID}`,
+        cliente: pedido.nombreCliente || 'Cliente',
+        producto: pedido.detalles?.[0]?.productoNombre || 'Venta',
+        monto: Number(pedido.total || 0),
+        fecha: new Date(pedido.fechaPedido).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }),
+        estado: pedido.estado || 'Pendiente',
+        cantidad: pedido.detalles?.reduce((s, item) => s + (item?.cantidad || 0), 0) || 0,
+      }));
+  }, [filteredPedidos]);
+
+  const dateRangeLabel = useMemo(() => {
+    if (dateRange.from.toDateString() === dateRange.to.toDateString()) {
+      return formatDate(dateRange.from);
+    }
+    return `${formatDate(dateRange.from)} — ${formatDate(dateRange.to)}`;
+  }, [dateRange]);
+
   const totals = useMemo(() => ({
     ventasMensuales: dashboardStats?.totalVentas ?? 0,
     ventasTotales: dashboardStats?.totalPedidos ?? 0,
@@ -183,14 +210,10 @@ export const DashboardHome: React.FC = () => {
 
   const getStockAlertColor = (alerta: string) => {
     switch (alerta) {
-      case 'agotado':
-        return 'bg-red-100 text-red-700 border-red-200';
-      case 'crítico':
-        return 'bg-orange-100 text-orange-700 border-orange-200';
-      case 'medio':
-        return 'bg-yellow-100 text-yellow-700 border-yellow-200';
-      default:
-        return 'bg-gray-100 text-gray-700 border-gray-200';
+      case 'agotado': return 'bg-red-100 text-red-700 border-red-200';
+      case 'crítico': return 'bg-orange-100 text-orange-700 border-orange-200';
+      case 'medio': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
+      default: return 'bg-gray-100 text-gray-700 border-gray-200';
     }
   };
 
@@ -214,7 +237,7 @@ export const DashboardHome: React.FC = () => {
     doc.text(`Reporte de ${tipo} — Selenne Boutique`, 14, 18);
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(10);
-    doc.text(`Generado el ${fecha}`, 14, 26);
+    doc.text(`Generado el ${fecha} · Período: ${dateRangeLabel}`, 14, 26);
 
     switch (tipo) {
       case 'Ventas Mensuales':
@@ -279,7 +302,7 @@ export const DashboardHome: React.FC = () => {
 
   const generateExcelReport = (tipo: string) => {
     let data: any[] = [];
-    let filename = `reporte-${tipo.toLowerCase().replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}`
+    const filename = `reporte-${tipo.toLowerCase().replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}`;
     switch (tipo) {
       case 'Ventas Mensuales':
         data = [
@@ -321,41 +344,10 @@ export const DashboardHome: React.FC = () => {
     XLSX.writeFile(wb, `${filename}.xlsx`);
   };
 
-  const handleGenerateReport = () => {
-    const format = (document.getElementById('report-format') as HTMLSelectElement)?.value || 'pdf';
-
-    // Verificar que los datos estén disponibles
-    if (!dashboardStats || loading) {
-      toast.error('Los datos del dashboard aún no están disponibles. Intenta nuevamente.');
-      setReportModalOpen(false);
-      return;
-    }
-
-    try {
-      switch (format) {
-        case 'pdf':
-          generatePDFReport(reportType);
-          break;
-        case 'xlsx':
-          generateExcelReport(reportType);
-          break;
-        default:
-          generatePDFReport(reportType);
-      }
-
-      toast.success(`Reporte de ${reportType} generado exitosamente`);
-    } catch (error) {
-      console.error('Error generando reporte:', error);
-      toast.error('Error al generar el reporte. Intenta nuevamente.');
-    }
-
-    setReportModalOpen(false);
-  };
-
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-6">
         <h1 style={{ fontFamily: 'Playfair Display, serif' }} className="text-[36px] text-gray-900 mb-2">
           Dashboard Principal
         </h1>
@@ -455,6 +447,53 @@ export const DashboardHome: React.FC = () => {
         </div>
       </div>
 
+      {/* Encabezado de sección de gráficas con selector de fechas */}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6">
+        <h2 style={{ fontFamily: 'Playfair Display, serif' }} className="text-[24px] text-gray-900">
+          Análisis de Ventas
+        </h2>
+        <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-4 py-2.5 shadow-sm">
+          <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 whitespace-nowrap">
+            Desde
+          </span>
+          <input
+            type="date"
+            value={toInputValue(dateRange.from)}
+            max={toInputValue(dateRange.to)}
+            onChange={(e) => {
+              const val = e.target.value;
+              if (val) setDateRange((prev) => ({ ...prev, from: new Date(val + 'T00:00:00') }));
+            }}
+            className="text-sm text-gray-700 border-none outline-none bg-transparent cursor-pointer"
+            style={{ fontFamily: 'Inter, sans-serif' }}
+          />
+          <span className="text-gray-300">—</span>
+          <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 whitespace-nowrap">
+            Hasta
+          </span>
+          <input
+            type="date"
+            value={toInputValue(dateRange.to)}
+            min={toInputValue(dateRange.from)}
+            max={toInputValue(new Date())}
+            onChange={(e) => {
+              const val = e.target.value;
+              if (val) setDateRange((prev) => ({ ...prev, to: new Date(val + 'T00:00:00') }));
+            }}
+            className="text-sm text-gray-700 border-none outline-none bg-transparent cursor-pointer"
+            style={{ fontFamily: 'Inter, sans-serif' }}
+          />
+          <button
+            onClick={() => setDateRange(defaultDateRange())}
+            className="ml-1 text-xs text-[#d65391] hover:text-[#c14a7f] whitespace-nowrap transition-colors"
+            style={{ fontFamily: 'Inter, sans-serif' }}
+            title="Restablecer a últimos 30 días"
+          >
+            Resetear
+          </button>
+        </div>
+      </div>
+
       {/* Gráficos principales */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         {/* Gráfico de Ventas */}
@@ -462,10 +501,10 @@ export const DashboardHome: React.FC = () => {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h3 style={{ fontFamily: 'Playfair Display, serif' }} className="text-[22px] text-gray-900 mb-1">
-                Ventas Últimos 30 Días
+                Ventas por Período
               </h3>
-              <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-600">
-                Tendencia de ventas diarias (claramente identificadas)
+              <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-500">
+                {dateRangeLabel}
               </p>
             </div>
             <button
@@ -479,32 +518,28 @@ export const DashboardHome: React.FC = () => {
           <ResponsiveContainer width="100%" height={250}>
             <LineChart data={salesData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis 
-                dataKey="name" 
+              <XAxis
+                dataKey="name"
                 style={{ fontFamily: 'Inter, sans-serif', fontSize: '12px' }}
                 stroke="#9CA3AF"
-                name="Días"
               />
-              <YAxis 
+              <YAxis
                 style={{ fontFamily: 'Inter, sans-serif', fontSize: '12px' }}
                 stroke="#9CA3AF"
-                name="Ventas ($)"
               />
-              <Tooltip 
-                contentStyle={{ 
+              <Tooltip
+                contentStyle={{
                   fontFamily: 'Inter, sans-serif',
                   borderRadius: '8px',
                   border: '1px solid #e5e7eb'
                 }}
               />
-              <Legend 
-                wrapperStyle={{ fontFamily: 'Inter, sans-serif', fontSize: '14px' }}
-              />
-              <Line 
-                type="monotone" 
-                dataKey="value" 
+              <Legend wrapperStyle={{ fontFamily: 'Inter, sans-serif', fontSize: '14px' }} />
+              <Line
+                type="monotone"
+                dataKey="value"
                 name="Ventas"
-                stroke="#d65391" 
+                stroke="#d65391"
                 strokeWidth={3}
                 dot={{ fill: '#d65391', r: 4 }}
                 activeDot={{ r: 6 }}
@@ -520,8 +555,8 @@ export const DashboardHome: React.FC = () => {
               <h3 style={{ fontFamily: 'Playfair Display, serif' }} className="text-[22px] text-gray-900 mb-1">
                 Productos Más Vendidos
               </h3>
-              <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-600">
-                Top productos del mes
+              <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-500">
+                {dateRangeLabel}
               </p>
             </div>
             <button
@@ -535,19 +570,17 @@ export const DashboardHome: React.FC = () => {
           <ResponsiveContainer width="100%" height={250}>
             <BarChart data={topProductsData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis 
-                dataKey="name" 
+              <XAxis
+                dataKey="name"
                 style={{ fontFamily: 'Inter, sans-serif', fontSize: '12px' }}
                 stroke="#9CA3AF"
-                name="Productos"
               />
-              <YAxis 
+              <YAxis
                 style={{ fontFamily: 'Inter, sans-serif', fontSize: '12px' }}
                 stroke="#9CA3AF"
-                name="Cantidad Vendida"
               />
-              <Tooltip 
-                contentStyle={{ 
+              <Tooltip
+                contentStyle={{
                   fontFamily: 'Inter, sans-serif',
                   borderRadius: '8px',
                   border: '1px solid #e5e7eb'
@@ -566,8 +599,8 @@ export const DashboardHome: React.FC = () => {
             <h3 style={{ fontFamily: 'Playfair Display, serif' }} className="text-[22px] text-gray-900 mb-1">
               Distribución por Categoría
             </h3>
-            <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-600">
-              Cantidad de productos vendidos por categoría
+            <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-500">
+              Productos activos en catálogo
             </p>
           </div>
           <button
@@ -594,15 +627,15 @@ export const DashboardHome: React.FC = () => {
                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
               ))}
             </Pie>
-            <Tooltip 
-              contentStyle={{ 
+            <Tooltip
+              contentStyle={{
                 fontFamily: 'Inter, sans-serif',
                 borderRadius: '8px',
                 border: '1px solid #e5e7eb'
               }}
               formatter={(value) => `${value} producto(s)`}
             />
-            <Legend 
+            <Legend
               wrapperStyle={{ fontFamily: 'Inter, sans-serif', fontSize: '14px' }}
               formatter={(value, props) => `${props.payload.name}: ${props.payload.value}`}
             />
@@ -610,14 +643,19 @@ export const DashboardHome: React.FC = () => {
         </ResponsiveContainer>
       </div>
 
-      {/* 2 Tablas de Datos */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Últimas Ventas */}
+      <div className="grid grid-cols-1 gap-6">
         {/* Últimas Ventas */}
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
           <div className="flex items-center justify-between mb-4">
-            <h3 style={{ fontFamily: 'Playfair Display, serif' }} className="text-[20px] text-gray-900">
-              Últimas Ventas
-            </h3>
+            <div>
+              <h3 style={{ fontFamily: 'Playfair Display, serif' }} className="text-[20px] text-gray-900">
+                Últimas Ventas
+              </h3>
+              <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 mt-0.5">
+                {dateRangeLabel}
+              </p>
+            </div>
             <button
               onClick={() => setSalesDetailOpen(true)}
               className="text-sm text-[#d65391] hover:text-[#c14a7f] transition-colors flex items-center gap-1"
@@ -651,53 +689,19 @@ export const DashboardHome: React.FC = () => {
                 </div>
               </div>
             ))}
+            {recentSales.length === 0 && (
+              <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-400 text-center py-6">
+                Sin ventas en el período seleccionado
+              </p>
+            )}
           </div>
         </div>
 
-        {/* Productos con Stock Bajo */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <div className="flex items-center justify-between mb-4">
-            <h3 style={{ fontFamily: 'Playfair Display, serif' }} className="text-[20px] text-gray-900">
-              Stock Bajo
-            </h3>
-            <button
-              onClick={() => setStockDetailOpen(true)}
-              className="text-sm text-[#d65391] hover:text-[#c14a7f] transition-colors flex items-center gap-1"
-              style={{ fontFamily: 'Inter, sans-serif' }}
-            >
-              Ver todo
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
-          <div className="space-y-3">
-            {lowStockProducts.slice(0, 4).map((product) => (
-              <div key={product.codigo} className="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
-                <div className="flex items-start justify-between mb-2">
-                  <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-900 flex-1">
-                    {product.nombre}
-                  </p>
-                  <span className={`px-2 py-0.5 rounded-full text-xs border ${getStockAlertColor(product.alerta)}`}>
-                    {product.alerta}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-600">
-                    {product.codigo}
-                  </span>
-                  <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-900">
-                    {product.stock} unid.
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
 
       {/* Modal de Generar Reporte */}
       <Dialog open={reportModalOpen} onOpenChange={setReportModalOpen}>
         <DialogContent className="max-w-md p-0 gap-0 overflow-hidden">
-          {/* Header con gradiente */}
           <div className="bg-gradient-to-r from-[#d65391] to-[#e87ab5] px-8 py-6">
             <div className="flex items-center gap-3 mb-1">
               <div className="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center">
@@ -708,29 +712,27 @@ export const DashboardHome: React.FC = () => {
               </DialogTitle>
             </div>
             <DialogDescription style={{ fontFamily: 'Inter, sans-serif' }} className="text-white/80 text-sm ml-12">
-              Exporta los datos del dashboard
+              Período: {dateRangeLabel}
             </DialogDescription>
           </div>
 
           <div className="px-8 py-6 space-y-5">
-            {/* Tipo de reporte */}
             <div className="flex items-center gap-3 bg-[#fdf2f8] border border-[#f9a8d4] rounded-xl px-4 py-3">
               <div className="w-8 h-8 bg-[#d65391] rounded-lg flex items-center justify-center flex-shrink-0">
                 <FileText className="w-4 h-4 text-white" />
               </div>
               <div>
                 <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-semibold text-[#9d174d]">{reportType}</p>
-                <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-[#be185d]">Datos actuales del dashboard</p>
+                <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-[#be185d]">Datos del período seleccionado</p>
               </div>
             </div>
 
-            {/* Formato */}
             <div>
               <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Formato de descarga</p>
               <div className="grid grid-cols-2 gap-3">
                 {[
                   { value: 'xlsx', label: 'Excel', ext: '.xlsx', icon: '📊' },
-                  { value: 'pdf',  label: 'PDF',   ext: '.pdf',  icon: '📄' },
+                  { value: 'pdf', label: 'PDF', ext: '.pdf', icon: '📄' },
                 ].map(opt => (
                   <label key={opt.value}
                     className="flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-all has-[:checked]:border-[#d65391] has-[:checked]:bg-[#fdf2f8] border-gray-200 hover:border-gray-300">
@@ -746,7 +748,6 @@ export const DashboardHome: React.FC = () => {
             </div>
           </div>
 
-          {/* Footer */}
           <div className="flex gap-3 px-8 pb-6">
             <button type="button" onClick={() => setReportModalOpen(false)}
               style={{ fontFamily: 'Inter, sans-serif' }}
@@ -777,10 +778,10 @@ export const DashboardHome: React.FC = () => {
         <DialogContent className="max-w-3xl">
           <DialogHeader>
             <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl">
-              Todas las Ventas Recientes
+              Ventas del Período
             </DialogTitle>
             <DialogDescription style={{ fontFamily: 'Inter, sans-serif' }}>
-              Historial completo de ventas realizadas
+              {dateRangeLabel} · {recentSales.length} venta{recentSales.length !== 1 ? 's' : ''}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3 max-h-[500px] overflow-y-auto">
@@ -812,6 +813,11 @@ export const DashboardHome: React.FC = () => {
                 </div>
               </div>
             ))}
+            {recentSales.length === 0 && (
+              <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-400 text-center py-10">
+                Sin ventas en el período seleccionado
+              </p>
+            )}
           </div>
           <DialogFooter>
             <button
@@ -825,66 +831,6 @@ export const DashboardHome: React.FC = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Modal Ver Todo - Stock Bajo */}
-      <Dialog open={stockDetailOpen} onOpenChange={setStockDetailOpen}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl flex items-center gap-2">
-              <AlertTriangle className="w-6 h-6 text-orange-600" />
-              Productos con Stock Bajo
-            </DialogTitle>
-            <DialogDescription style={{ fontFamily: 'Inter, sans-serif' }}>
-              Productos que necesitan reabastecimiento urgente
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-3 max-h-[500px] overflow-y-auto">
-            {lowStockProducts.map((product) => (
-              <div key={product.codigo} className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex-1">
-                    <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-900 mb-1">
-                      {product.nombre}
-                    </p>
-                    <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-600">
-                      Código: {product.codigo}
-                    </p>
-                  </div>
-                  <span className={`px-3 py-1 rounded-full text-xs border ${getStockAlertColor(product.alerta)}`}>
-                    {product.alerta}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between mt-3">
-                  <div>
-                    <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-600">
-                      Stock actual:
-                    </span>
-                    <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-900 ml-2">
-                      {product.stock} unidades
-                    </span>
-                  </div>
-                  <div>
-                    <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-600">
-                      Stock mínimo:
-                    </span>
-                    <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-900 ml-2">
-                      {product.minimo} unidades
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-          <DialogFooter>
-            <button
-              onClick={() => setStockDetailOpen(false)}
-              style={{ fontFamily: 'Inter, sans-serif' }}
-              className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
-            >
-              Cerrar
-            </button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

@@ -431,12 +431,6 @@ export const ComprasView: React.FC<ComprasViewProps> = ({ onNavigateToHistorial 
                         <Edit className="w-5 h-5" />
                       </button>
                     )}
-                    {puedeEliminar && (
-                      <button onClick={() => { setSelectedCompra(compra); setDeleteOpen(true); }}
-                        className="p-2 text-gray-500 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors" title="Eliminar">
-                        <Trash2 className="w-5 h-5" />
-                      </button>
-                    )}
                   </div>
                 </td>
               </tr>
@@ -546,24 +540,6 @@ export const ComprasView: React.FC<ComprasViewProps> = ({ onNavigateToHistorial 
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      {/* Modal Eliminar */}
-      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle style={{ fontFamily: 'Playfair Display, serif' }}>¿Eliminar compra?</AlertDialogTitle>
-            <AlertDialogDescription style={{ fontFamily: 'Inter, sans-serif' }}>
-              Vas a eliminar la compra <strong>{selectedCompra?.ordenFactura}</strong>. Esta acción no se puede deshacer.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel style={{ fontFamily: 'Inter, sans-serif' }}>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={eliminarCompra} disabled={saving}
-              className="bg-red-600 hover:bg-red-700 flex items-center gap-2" style={{ fontFamily: 'Inter, sans-serif' }}>
-              {saving && <Loader2 className="w-4 h-4 animate-spin" />} Eliminar
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 };

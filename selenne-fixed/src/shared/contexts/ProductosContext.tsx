@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { getJson, apiBase, fetchWithAuth } from '../../services/api';
+import { getJson, getAccessToken, apiBase, fetchWithAuth } from '../../services/api';
 import { toast } from 'sonner';
 
 export interface ProductoAdmin {
@@ -182,10 +182,8 @@ function extraerLista(raw: any): ProductoAdmin[] {
 
 async function cargarDesdeApi(soloActivos = false): Promise<ProductoAdmin[]> {
   try {
-    const token = localStorage.getItem('accessToken');
     const path = soloActivos ? '/api/productos?estado=activo' : '/api/productos?estado=activo';
-
-    if (token) {
+    if (getAccessToken()) {
       const raw = await getJson(path);
       return extraerLista(raw);
     } else {
@@ -202,7 +200,7 @@ async function cargarDesdeApi(soloActivos = false): Promise<ProductoAdmin[]> {
 // Para el dashboard: carga TODOS (activos + inactivos)
 async function cargarTodosDesdeApi(): Promise<ProductoAdmin[]> {
   try {
-    const token = localStorage.getItem('accessToken');
+    const token = getAccessToken();
     if (!token) return [];
 
     // Carga activos e inactivos en paralelo
@@ -258,8 +256,7 @@ export const ProductosProvider: React.FC<{ children: ReactNode }> = ({ children 
 
   const cargarProductos = async () => {
     setLoading(true);
-    const token = localStorage.getItem('accessToken');
-    const lista = token ? await cargarTodosDesdeApi() : await cargarDesdeApi();
+    const lista = getAccessToken() ? await cargarTodosDesdeApi() : await cargarDesdeApi();
     console.log(`[Productos] cargados: ${lista.length}`);
     setProductos(lista);
     setLoading(false);
@@ -268,16 +265,14 @@ export const ProductosProvider: React.FC<{ children: ReactNode }> = ({ children 
   useEffect(() => {
     cargarProductos();
 
-    const handleStorage = (e: StorageEvent) => {
-      if (e.key === 'accessToken') cargarProductos();
-    };
     const handleLogin = () => cargarProductos();
+    const handleLogout = () => cargarProductos(); // recarga en modo público
 
-    window.addEventListener('storage', handleStorage);
     window.addEventListener('auth:login', handleLogin);
+    window.addEventListener('auth:logout', handleLogout);
     return () => {
-      window.removeEventListener('storage', handleStorage);
       window.removeEventListener('auth:login', handleLogin);
+      window.removeEventListener('auth:logout', handleLogout);
     };
   }, []);
 

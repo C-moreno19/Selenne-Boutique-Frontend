@@ -201,7 +201,8 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
   const handleChangePassword = async () => {
     if (!passwordData.current || !passwordData.new || !passwordData.confirm) { toast.error('Completa todos los campos'); return; }
     if (passwordData.new !== passwordData.confirm) { toast.error('Las contraseñas no coinciden'); return; }
-    if (passwordData.new.length < 6) { toast.error('Mínimo 6 caracteres'); return; }
+    const pwdRegex = /^(?=(.*\d){2})(?=.*[^a-zA-Z0-9\s]).{9,20}$/;
+    if (!pwdRegex.test(passwordData.new)) { toast.error('La contraseña debe tener entre 9 y 20 caracteres, al menos 2 números y 1 carácter especial'); return; }
     setSaving(true);
     try {
       await api.postJson('/api/auth/change-password', { ContrasenaActual: passwordData.current, NuevaContrasena: passwordData.new });
@@ -340,28 +341,6 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
           {/* ── Sidebar ── */}
           <div className="space-y-5">
 
-            {/* Resumen */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-              <div className="bg-gradient-to-r from-[#d65391] to-[#f8a9c5] px-5 py-3">
-                <h3 style={{ fontFamily: 'Playfair Display, serif' }} className="text-base text-white font-semibold">Resumen</h3>
-              </div>
-              <div className="p-4 grid grid-cols-3 gap-3">
-                {[
-                  { icon: <ShoppingBag className="w-5 h-5 text-[#d65391]" />, label: 'Carrito',  value: carritoItems.length      },
-                  { icon: <Heart className="w-5 h-5 text-[#d65391]" />,       label: 'Favoritos', value: favoritos.length         },
-                  { icon: <Package className="w-5 h-5 text-[#d65391]" />,     label: 'Pedidos',   value: pedidosAprobados.length  },
-                ].map(({ icon, label, value }) => (
-                  <div key={label} className="flex flex-col items-center gap-1.5 bg-[#fdf2f8] rounded-xl p-3">
-                    <div className="w-9 h-9 bg-white rounded-lg flex items-center justify-center shadow-sm">
-                      {icon}
-                    </div>
-                    <span className="text-xl font-bold text-gray-900" style={{ fontFamily: 'Inter, sans-serif' }}>{value}</span>
-                    <span className="text-[10px] text-gray-500 text-center leading-tight" style={{ fontFamily: 'Inter, sans-serif' }}>{label}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
             {/* Mis pedidos */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
               <div className="flex items-center gap-2 mb-4">
@@ -461,7 +440,15 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
               <div className="relative">
                 <User className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${errors.nombre ? 'text-red-400' : 'text-[#d65391]'}`} />
                 <input type="text" value={formData.nombre}
-                  onChange={e => { setFormData(p => ({ ...p, nombre: e.target.value })); setErrors(p => ({ ...p, nombre: '' })); }}
+                  onChange={e => {
+                    const val = e.target.value;
+                    if (val && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]*$/.test(val)) {
+                      setErrors(p => ({ ...p, nombre: 'Solo se permiten letras' }));
+                      return;
+                    }
+                    setFormData(p => ({ ...p, nombre: val }));
+                    setErrors(p => ({ ...p, nombre: '' }));
+                  }}
                   className={fieldClass(errors.nombre)} placeholder="Tu nombre completo"
                   style={{ fontFamily: 'Inter, sans-serif' }} />
               </div>
@@ -473,7 +460,15 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
               <div className="relative">
                 <Phone className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${errors.telefono ? 'text-red-400' : 'text-[#d65391]'}`} />
                 <input type="tel" value={formData.telefono}
-                  onChange={e => { setFormData(p => ({ ...p, telefono: e.target.value })); setErrors(p => ({ ...p, telefono: '' })); }}
+                  onChange={e => {
+                    const val = e.target.value;
+                    if (val && !/^\d*$/.test(val)) {
+                      setErrors(p => ({ ...p, telefono: 'Solo se permiten números' }));
+                      return;
+                    }
+                    setFormData(p => ({ ...p, telefono: val }));
+                    setErrors(p => ({ ...p, telefono: '' }));
+                  }}
                   className={fieldClass(errors.telefono)} placeholder="3001234567"
                   style={{ fontFamily: 'Inter, sans-serif' }} />
               </div>
@@ -483,9 +478,17 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
             <div>
               <label className="text-xs text-gray-600 block mb-1.5" style={{ fontFamily: 'Inter, sans-serif' }}>Documento</label>
               <div className="relative">
-                <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#d65391]" />
+                <CreditCard className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${errors.documento ? 'text-red-400' : 'text-[#d65391]'}`} />
                 <input type="text" value={formData.documento}
-                  onChange={e => { setFormData(p => ({ ...p, documento: e.target.value })); setErrors(p => ({ ...p, documento: '' })); }}
+                  onChange={e => {
+                    const val = e.target.value;
+                    if (val && !/^\d*$/.test(val)) {
+                      setErrors(p => ({ ...p, documento: 'Solo se permiten números' }));
+                      return;
+                    }
+                    setFormData(p => ({ ...p, documento: val }));
+                    setErrors(p => ({ ...p, documento: '' }));
+                  }}
                   className={fieldClass(errors.documento)} placeholder="Número de documento"
                   style={{ fontFamily: 'Inter, sans-serif' }} />
               </div>

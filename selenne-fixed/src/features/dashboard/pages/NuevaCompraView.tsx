@@ -42,6 +42,33 @@ export const NuevaCompraView: React.FC<NuevaCompraViewProps> = ({ onBack, onSucc
     email: '',
     telefono: '',
   });
+  const [proveedorErrors, setProveedorErrors] = useState({ nombre: '', contacto: '', email: '', telefono: '' });
+
+  const updateProveedor = (field: string, value: string) => {
+    if (field === 'nombre' || field === 'contacto') {
+      if (value && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]*$/.test(value)) {
+        setProveedorErrors(prev => ({ ...prev, [field]: 'Solo se permiten letras' }));
+        return;
+      } else {
+        setProveedorErrors(prev => ({ ...prev, [field]: '' }));
+      }
+    } else if (field === 'telefono') {
+      if (value && !/^\d*$/.test(value)) {
+        setProveedorErrors(prev => ({ ...prev, telefono: 'Solo se permiten números' }));
+        return;
+      } else {
+        setProveedorErrors(prev => ({ ...prev, telefono: '' }));
+      }
+    } else if (field === 'email') {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (value && !emailRegex.test(value)) {
+        setProveedorErrors(prev => ({ ...prev, email: 'Formato de email inválido' }));
+      } else {
+        setProveedorErrors(prev => ({ ...prev, email: '' }));
+      }
+    }
+    setFormProveedor(prev => ({ ...prev, [field]: value }));
+  };
 
   const productos: Producto[] = [
     { id: '1', nombre: 'Telas de Seda Premium', precioBase: 50000, sku: 'TEL1001', categoria: 'Materiales' },
@@ -356,8 +383,10 @@ export const NuevaCompraView: React.FC<NuevaCompraViewProps> = ({ onBack, onSucc
                 id="prov-nombre"
                 placeholder="Nombre completo"
                 value={formProveedor.nombre}
-                onChange={(e) => setFormProveedor({ ...formProveedor, nombre: e.target.value })}
+                onChange={(e) => updateProveedor('nombre', e.target.value)}
+                className={proveedorErrors.nombre ? 'border-red-500' : ''}
               />
+              {proveedorErrors.nombre && <p className="text-xs text-red-500 mt-1">{proveedorErrors.nombre}</p>}
             </div>
 
             <div>
@@ -368,8 +397,10 @@ export const NuevaCompraView: React.FC<NuevaCompraViewProps> = ({ onBack, onSucc
                 id="prov-contacto"
                 placeholder="Nombre del contacto"
                 value={formProveedor.contacto}
-                onChange={(e) => setFormProveedor({ ...formProveedor, contacto: e.target.value })}
+                onChange={(e) => updateProveedor('contacto', e.target.value)}
+                className={proveedorErrors.contacto ? 'border-red-500' : ''}
               />
+              {proveedorErrors.contacto && <p className="text-xs text-red-500 mt-1">{proveedorErrors.contacto}</p>}
             </div>
 
             <div>
@@ -381,8 +412,10 @@ export const NuevaCompraView: React.FC<NuevaCompraViewProps> = ({ onBack, onSucc
                 type="email"
                 placeholder="correo@proveedor.com"
                 value={formProveedor.email}
-                onChange={(e) => setFormProveedor({ ...formProveedor, email: e.target.value })}
+                onChange={(e) => updateProveedor('email', e.target.value)}
+                className={proveedorErrors.email ? 'border-red-500' : ''}
               />
+              {proveedorErrors.email && <p className="text-xs text-red-500 mt-1">{proveedorErrors.email}</p>}
             </div>
 
             <div>
@@ -391,10 +424,12 @@ export const NuevaCompraView: React.FC<NuevaCompraViewProps> = ({ onBack, onSucc
               </Label>
               <Input
                 id="prov-telefono"
-                placeholder="+57 300 000 0000"
+                placeholder="3001234567"
                 value={formProveedor.telefono}
-                onChange={(e) => setFormProveedor({ ...formProveedor, telefono: e.target.value })}
+                onChange={(e) => updateProveedor('telefono', e.target.value)}
+                className={proveedorErrors.telefono ? 'border-red-500' : ''}
               />
+              {proveedorErrors.telefono && <p className="text-xs text-red-500 mt-1">{proveedorErrors.telefono}</p>}
             </div>
           </div>
 
@@ -403,6 +438,7 @@ export const NuevaCompraView: React.FC<NuevaCompraViewProps> = ({ onBack, onSucc
               onClick={() => {
                 setShowModalProveedor(false);
                 setFormProveedor({ nombre: '', contacto: '', email: '', telefono: '' });
+                setProveedorErrors({ nombre: '', contacto: '', email: '', telefono: '' });
               }}
               style={{ fontFamily: 'Inter, sans-serif' }}
               className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
@@ -430,6 +466,7 @@ export const NuevaCompraView: React.FC<NuevaCompraViewProps> = ({ onBack, onSucc
                 toast.success('Proveedor creado exitosamente');
                 setShowModalProveedor(false);
                 setFormProveedor({ nombre: '', contacto: '', email: '', telefono: '' });
+                setProveedorErrors({ nombre: '', contacto: '', email: '', telefono: '' });
               }}
               style={{ fontFamily: 'Inter, sans-serif' }}
               className="px-6 py-2 bg-[#d65391] text-white rounded-lg hover:bg-[#c44880] transition-colors"

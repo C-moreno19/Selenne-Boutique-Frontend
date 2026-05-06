@@ -278,7 +278,15 @@ export const PerfilView: React.FC = () => {
                   </label>
                   <div className="relative">
                     <User className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${errors.name ? 'text-red-400' : 'text-[#d65391]'}`} />
-                    <input type="text" value={formData.name} onChange={(e) => { setFormData({ ...formData, name: e.target.value }); setErrors({ ...errors, name: '' }); }}
+                    <input type="text" value={formData.name} onChange={(e) => {
+                      const val = e.target.value;
+                      if (val && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]*$/.test(val)) {
+                        setErrors({ ...errors, name: 'Solo se permiten letras' });
+                        return;
+                      }
+                      setFormData({ ...formData, name: val });
+                      setErrors({ ...errors, name: '' });
+                    }}
                       className={fieldClass(errors.name)} placeholder="Tu nombre completo" style={{ fontFamily: 'Inter, sans-serif' }} />
                   </div>
                   {errors.name && <p className="text-xs text-red-500 mt-1" style={{ fontFamily: 'Inter, sans-serif' }}>{errors.name}</p>}
@@ -290,7 +298,16 @@ export const PerfilView: React.FC = () => {
                   </label>
                   <div className="relative">
                     <Mail className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${errors.email ? 'text-red-400' : 'text-[#d65391]'}`} />
-                    <input type="email" value={formData.email} onChange={(e) => { setFormData({ ...formData, email: e.target.value }); setErrors({ ...errors, email: '' }); }}
+                    <input type="email" value={formData.email} onChange={(e) => {
+                      const val = e.target.value;
+                      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                      if (val && !emailRegex.test(val)) {
+                        setErrors({ ...errors, email: 'Formato de email inválido' });
+                      } else {
+                        setErrors({ ...errors, email: '' });
+                      }
+                      setFormData({ ...formData, email: val });
+                    }}
                       className={fieldClass(errors.email)} placeholder="tu@email.com" style={{ fontFamily: 'Inter, sans-serif' }} />
                   </div>
                   {errors.email && <p className="text-xs text-red-500 mt-1" style={{ fontFamily: 'Inter, sans-serif' }}>{errors.email}</p>}
@@ -302,7 +319,15 @@ export const PerfilView: React.FC = () => {
                   </label>
                   <div className="relative">
                     <FileText className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${errors.documento ? 'text-red-400' : 'text-[#d65391]'}`} />
-                    <input type="text" value={formData.documento} onChange={(e) => { setFormData({ ...formData, documento: e.target.value }); setErrors({ ...errors, documento: '' }); }}
+                    <input type="text" value={formData.documento} onChange={(e) => {
+                      const val = e.target.value;
+                      if (val && !/^\d*$/.test(val)) {
+                        setErrors({ ...errors, documento: 'Solo se permiten números' });
+                        return;
+                      }
+                      setFormData({ ...formData, documento: val });
+                      setErrors({ ...errors, documento: '' });
+                    }}
                       className={fieldClass(errors.documento)} placeholder="1234567890" style={{ fontFamily: 'Inter, sans-serif' }} />
                   </div>
                   {errors.documento && <p className="text-xs text-red-500 mt-1" style={{ fontFamily: 'Inter, sans-serif' }}>{errors.documento}</p>}
@@ -314,7 +339,15 @@ export const PerfilView: React.FC = () => {
                   </label>
                   <div className="relative">
                     <Phone className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${errors.phone ? 'text-red-400' : 'text-[#d65391]'}`} />
-                    <input type="tel" value={formData.phone} onChange={(e) => { setFormData({ ...formData, phone: e.target.value }); setErrors({ ...errors, phone: '' }); }}
+                    <input type="tel" value={formData.phone} onChange={(e) => {
+                      const val = e.target.value;
+                      if (val && !/^\d*$/.test(val)) {
+                        setErrors({ ...errors, phone: 'Solo se permiten números' });
+                        return;
+                      }
+                      setFormData({ ...formData, phone: val });
+                      setErrors({ ...errors, phone: '' });
+                    }}
                       className={fieldClass(errors.phone)} placeholder="3001234567" style={{ fontFamily: 'Inter, sans-serif' }} />
                   </div>
                   {errors.phone && <p className="text-xs text-red-500 mt-1" style={{ fontFamily: 'Inter, sans-serif' }}>{errors.phone}</p>}
