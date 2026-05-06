@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Check, X } from 'lucide-react';
 import { CustomInput } from '../components/CustomInput';
 import { CustomButton } from '../components/CustomButton';
 import { SatinBackground } from '../components/SatinBackground';
@@ -36,13 +37,20 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
   const [loading, setLoading] = useState(false);
   const { crearMensaje } = useMensajes();
 
+  const passwordRules = {
+    minLength: formData.password.length >= 9,
+    maxLength: formData.password.length <= 20 && formData.password.length > 0,
+    twoNumbers: (formData.password.match(/\d/g) || []).length >= 2,
+    specialChar: /[^a-zA-Z0-9\s]/.test(formData.password),
+  };
+
   const updateField = (field: string, value: string) => {
     // Validación en tiempo real según el campo
     if (field === 'fullName') {
-      // Solo permitir letras y espacios
-      if (value && !/^[a-zA-Záéíóúñ\s]*$/.test(value)) {
-        setErrors(prev => ({ ...prev, fullName: 'Solo se permiten letras y espacios' }));
-        return; // No actualizar si contiene caracteres especiales
+      // Solo permitir letras y espacios (incluye acentos, ñ, ü)
+      if (value && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]*$/.test(value)) {
+        setErrors(prev => ({ ...prev, fullName: 'Solo se permiten letras' }));
+        return; // Bloquear el carácter inválido
       } else {
         setErrors(prev => ({ ...prev, fullName: '' }));
       }
@@ -50,7 +58,7 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
       // Solo permitir números
       if (value && !/^\d*$/.test(value)) {
         setErrors(prev => ({ ...prev, phone: 'Solo se permiten números' }));
-        return; // No actualizar si contiene caracteres no numéricos
+        return; // Bloquear el carácter inválido
       } else {
         setErrors(prev => ({ ...prev, phone: '' }));
       }
@@ -63,9 +71,11 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
         setErrors(prev => ({ ...prev, email: '' }));
       }
     }
-    
+
     setFormData((prev) => ({ ...prev, [field]: value }));
-    setErrors((prev) => ({ ...prev, [field]: '' }));
+    if (field !== 'email') {
+      setErrors((prev) => ({ ...prev, [field]: '' }));
+    }
   };
 
   const validateForm = (): boolean => {
@@ -84,7 +94,7 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
     if (!formData.fullName.trim()) {
       newErrors.fullName = 'Por favor ingresa tu nombre completo.';
       isValid = false;
-    } else if (!/^[a-zA-Záéíóúñ\s]+$/.test(formData.fullName)) {
+    } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/.test(formData.fullName)) {
       newErrors.fullName = 'El nombre no puede contener caracteres especiales.';
       isValid = false;
     }
@@ -105,8 +115,8 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
     if (!formData.password) {
       newErrors.password = 'Por favor ingresa una contraseña.';
       isValid = false;
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'La contraseña debe tener al menos 6 caracteres.';
+    } else if (!passwordRules.minLength || !passwordRules.maxLength || !passwordRules.twoNumbers || !passwordRules.specialChar) {
+      newErrors.password = 'La contraseña no cumple con los requisitos.';
       isValid = false;
     }
 
@@ -298,6 +308,30 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
               placeholder="••••••••"
               showPasswordToggle
             />
+
+            {/* Indicador de requisitos de contraseña */}
+            <div className="-mt-2 px-1 space-y-1.5">
+              {[
+                { ok: passwordRules.minLength, label: 'Más de 8 caracteres' },
+                { ok: passwordRules.maxLength, label: 'Máximo 20 caracteres' },
+                { ok: passwordRules.twoNumbers, label: 'Al menos 2 números' },
+                { ok: passwordRules.specialChar, label: 'Al menos 1 carácter especial (!@#$%...)' },
+              ].map(({ ok, label }) => (
+                <div key={label} className="flex items-center gap-2">
+                  {ok ? (
+                    <Check className="w-3.5 h-3.5 text-green-500 shrink-0" />
+                  ) : (
+                    <X className="w-3.5 h-3.5 text-gray-300 shrink-0" />
+                  )}
+                  <span
+                    style={{ fontFamily: 'Inter, sans-serif', fontSize: '12px' }}
+                    className={ok ? 'text-green-500' : 'text-gray-300'}
+                  >
+                    {label}
+                  </span>
+                </div>
+              ))}
+            </div>
 
             <CustomInput
               type="password"

@@ -28,10 +28,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(() => {
-    const stored = localStorage.getItem('currentUser');
-    return stored ? JSON.parse(stored) : null;
-  });
+  const [user, setUser] = useState<User | null>(null);
 
   const loginAsync = async (email: string, password: string): Promise<boolean> => {
     try {
@@ -58,7 +55,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       };
 
       setUser(userData);
-      localStorage.setItem('currentUser', JSON.stringify(userData));
       window.dispatchEvent(new Event('auth:login'));
 
       if (userData.usuarioID) {
@@ -73,7 +69,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             ciudad: perfilData?.ciudad || perfilData?.Ciudad || '',
           };
           setUser(updatedUser);
-          localStorage.setItem('currentUser', JSON.stringify(updatedUser));
         } catch (e) {}
       }
 
@@ -98,7 +93,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         ciudad: perfilData?.ciudad || perfilData?.Ciudad || '',
       };
       setUser(updatedUser);
-      localStorage.setItem('currentUser', JSON.stringify(updatedUser));
     } catch (e) {
       console.warn('refreshUser failed', e);
     }
@@ -111,7 +105,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const permisos: string[] = res?.data || res || [];
       const updatedUser = { ...user, permisos };
       setUser(updatedUser);
-      localStorage.setItem('currentUser', JSON.stringify(updatedUser));
     } catch (e) {
       console.warn('refreshPermisos failed', e);
     }
@@ -124,7 +117,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('currentUser');
     clearAuthTokens();
     window.dispatchEvent(new Event('auth:logout'));
   };

@@ -160,6 +160,32 @@ export const UsuariosView: React.FC = () => {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
 
+  const updateForm = (field: string, value: string) => {
+    if (field === 'nombreCompleto') {
+      if (value && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]*$/.test(value)) {
+        setFormErrors(prev => ({ ...prev, nombreCompleto: 'Solo se permiten letras' }));
+        return;
+      } else {
+        setFormErrors(prev => ({ ...prev, nombreCompleto: '' }));
+      }
+    } else if (field === 'telefono') {
+      if (value && !/^\d*$/.test(value)) {
+        setFormErrors(prev => ({ ...prev, telefono: 'Solo se permiten números' }));
+        return;
+      } else {
+        setFormErrors(prev => ({ ...prev, telefono: '' }));
+      }
+    } else if (field === 'email') {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (value && !emailRegex.test(value)) {
+        setFormErrors(prev => ({ ...prev, email: 'Formato de email inválido' }));
+      } else {
+        setFormErrors(prev => ({ ...prev, email: '' }));
+      }
+    }
+    setForm(prev => ({ ...prev, [field]: value }));
+  };
+
   const [permisosSet, setPermisosSet] = useState<Set<string>>(new Set());
   const [savingPermisos, setSavingPermisos] = useState(false);
 
@@ -579,7 +605,7 @@ export const UsuariosView: React.FC = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label className="text-sm text-gray-700 mb-1 block">Nombre Completo *</Label>
-                      <Input value={form.nombreCompleto} onChange={e => setForm({...form, nombreCompleto: e.target.value})} placeholder="Juan Pérez" />
+                      <Input value={form.nombreCompleto} onChange={e => updateForm('nombreCompleto', e.target.value)} placeholder="Juan Pérez" className={formErrors.nombreCompleto ? 'border-red-500' : ''} />
                       {formErrors.nombreCompleto && <p className="text-red-500 text-xs mt-1">{formErrors.nombreCompleto}</p>}
                     </div>
                     <div>
@@ -589,7 +615,7 @@ export const UsuariosView: React.FC = () => {
                   </div>
                   <div>
                     <Label className="text-sm text-gray-700 mb-1 block">Correo Electrónico *</Label>
-                    <Input type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} placeholder="correo@ejemplo.com" disabled={editOpen} className={editOpen ? "bg-gray-50 text-gray-500" : ""} />
+                    <Input type="email" value={form.email} onChange={e => updateForm('email', e.target.value)} placeholder="correo@ejemplo.com" disabled={editOpen} className={editOpen ? "bg-gray-50 text-gray-500" : (formErrors.email ? "border-red-500" : "")} />
                     {editOpen && <p className="text-xs text-gray-400 mt-1">El correo no se puede cambiar</p>}
                     {formErrors.email && <p className="text-red-500 text-xs mt-1">{formErrors.email}</p>}
                   </div>
@@ -619,7 +645,8 @@ export const UsuariosView: React.FC = () => {
                   </div>
                   <div>
                     <Label className="text-sm text-gray-700 mb-1 block">Teléfono</Label>
-                    <Input type="tel" value={form.telefono} onChange={e => setForm({...form, telefono: e.target.value.replace(/\D/g,"")})} placeholder="3001234567" />
+                    <Input type="tel" value={form.telefono} onChange={e => updateForm('telefono', e.target.value)} placeholder="3001234567" className={formErrors.telefono ? 'border-red-500' : ''} />
+                    {formErrors.telefono && <p className="text-red-500 text-xs mt-1">{formErrors.telefono}</p>}
                   </div>
                   <div>
                     <Label className="text-sm text-gray-700 mb-1 block">Dirección</Label>

@@ -29,17 +29,18 @@ export const FavoritosView: React.FC<FavoritosViewProps> = ({
   return (
     <div className="min-h-screen bg-white">
       {/* Banner */}
-      <div className="bg-gradient-to-r from-[#d65391] to-[#f8a9c5] text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center mb-2">
-            <Heart className="w-10 h-10 mr-3 fill-white" />
-            <h1 className="text-4xl md:text-5xl font-playfair">Mis Favoritos</h1>
-          </div>
-          <p className="text-lg opacity-90 font-inter">
-            {productosFavoritos.length} {productosFavoritos.length === 1 ? 'producto guardado' : 'productos guardados'}
-          </p>
-        </div>
+      <div className="pt-8 pb-2 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2
+          style={{ fontFamily: "Playfair Display, serif", fontSize: "32px", fontWeight: 700, letterSpacing: "0.08em" }}
+          className="text-[#1a1a1a] uppercase"
+        >
+          Favoritos
+        </h2>
+        <p style={{ fontFamily: "Inter, sans-serif" }} className="text-sm text-gray-500 mt-1">
+          {productosFavoritos.length} {productosFavoritos.length === 1 ? 'producto guardado' : 'productos guardados'}
+        </p>
       </div>
+      <div style={{ height: "2px", backgroundColor: "#d65391" }} />
 
       {/* Contenido */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

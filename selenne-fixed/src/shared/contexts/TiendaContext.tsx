@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
 import { toast } from 'sonner';
-import api from '../../services/api';
+import api, { getAccessToken } from '../../services/api';
 
 export interface Producto {
   id: number;
@@ -22,7 +22,7 @@ export interface Producto {
 }
 
 interface CarritoItem extends Producto {
-  carritoID: number; // ID del registro en BD
+  carritoID: number;
   cantidad: number;
   tallaSeleccionada: string;
   colorSeleccionado?: string;
@@ -63,28 +63,43 @@ const TiendaContext = createContext<TiendaContextType | undefined>(undefined);
 
 export const useTienda = () => {
   const context = useContext(TiendaContext);
-  if (!context) {
-    throw new Error('useTienda debe usarse dentro de TiendaProvider');
-  }
+  if (!context) throw new Error('useTienda debe usarse dentro de TiendaProvider');
   return context;
 };
 
-interface TiendaProviderProps {
-  children: ReactNode;
-}
+// ── localStorage keys para invitados ────────────────────────────────────────
+const GUEST_CART_KEY = 'selenne_guest_cart';
+const GUEST_FAV_KEY  = 'selenne_guest_favoritos';
 
-// Returns true if a valid auth token exists
-const isLoggedIn = () => !!localStorage.getItem('accessToken');
+const loadGuestCart = (): CarritoItem[] => {
+  try { return JSON.parse(localStorage.getItem(GUEST_CART_KEY) || '[]'); } catch { return []; }
+};
+const loadGuestFav = (): number[] => {
+  try { return JSON.parse(localStorage.getItem(GUEST_FAV_KEY) || '[]'); } catch { return []; }
+};
+const saveGuestCart = (items: CarritoItem[]) =>
+  localStorage.setItem(GUEST_CART_KEY, JSON.stringify(items));
+const saveGuestFav = (ids: number[]) =>
+  localStorage.setItem(GUEST_FAV_KEY, JSON.stringify(ids));
+const clearGuestData = () => {
+  localStorage.removeItem(GUEST_CART_KEY);
+  localStorage.removeItem(GUEST_FAV_KEY);
+};
 
-export const TiendaProvider: React.FC<TiendaProviderProps> = ({ children }) => {
-  const [carritoItems, setCarritoItems] = useState<CarritoItem[]>([]);
-  const [favoritos, setFavoritos] = useState<number[]>([]);
+const isLoggedIn = () => !!getAccessToken();
+
+// ── Provider ─────────────────────────────────────────────────────────────────
+export const TiendaProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [carritoItems, setCarritoItems] = useState<CarritoItem[]>(() =>
+    isLoggedIn() ? [] : loadGuestCart()
+  );
+  const [favoritos, setFavoritos] = useState<number[]>(() =>
+    isLoggedIn() ? [] : loadGuestFav()
+  );
   const [pedidos, setPedidos] = useState<Pedido[]>(() => {
-    const saved = localStorage.getItem('selenne_pedidos');
-    return saved ? JSON.parse(saved) : [];
+    try { return JSON.parse(localStorage.getItem('selenne_pedidos') || '[]'); } catch { return []; }
   });
 
-  // Prevent concurrent loads
   const loadingRef = useRef(false);
 
   const loadFromApi = async () => {
@@ -121,10 +136,38 @@ export const TiendaProvider: React.FC<TiendaProviderProps> = ({ children }) => {
         setFavoritos(ids);
       }
     } catch (_) {
-      // not logged in or network error — keep empty
+      // not logged in or network error
     } finally {
       loadingRef.current = false;
     }
+  };
+
+  // Al hacer login: fusionar datos de invitado con el servidor y luego cargar
+  const mergeGuestAndLoad = async () => {
+    const guestCart = loadGuestCart();
+    const guestFavs = loadGuestFav();
+
+    // Subir carrito de invitado al servidor
+    for (const item of guestCart) {
+      try {
+        await api.postJson('/api/carrito/items', {
+          ProductoID: item.id,
+          Cantidad: item.cantidad,
+          TallaSeleccionada: item.tallaSeleccionada,
+          ColorSeleccionado: item.colorSeleccionado || '',
+        });
+      } catch (_) {}
+    }
+
+    // Subir favoritos de invitado al servidor
+    for (const id of guestFavs) {
+      try {
+        await api.postJson(`/api/favoritos/${id}`, {});
+      } catch (_) {}
+    }
+
+    clearGuestData();
+    await loadFromApi();
   };
 
   const clearLocalState = () => {
@@ -132,31 +175,46 @@ export const TiendaProvider: React.FC<TiendaProviderProps> = ({ children }) => {
     setFavoritos([]);
   };
 
-  // Load on mount if already logged in
+  // Cargar desde API si ya hay sesión al montar
   useEffect(() => {
-    if (isLoggedIn()) {
-      loadFromApi();
-    }
+    if (isLoggedIn()) loadFromApi();
   }, []);
 
-  // Listen to auth events
+  // Escuchar eventos de auth
   useEffect(() => {
-    const onLogin = () => loadFromApi();
+    const onLogin  = () => mergeGuestAndLoad();
     const onLogout = () => clearLocalState();
-    window.addEventListener('auth:login', onLogin);
+    window.addEventListener('auth:login',  onLogin);
     window.addEventListener('auth:logout', onLogout);
     return () => {
-      window.removeEventListener('auth:login', onLogin);
+      window.removeEventListener('auth:login',  onLogin);
       window.removeEventListener('auth:logout', onLogout);
     };
   }, []);
 
-  // Persist pedidos in localStorage (they're local only)
+  // Persistir pedidos locales
   useEffect(() => {
     localStorage.setItem('selenne_pedidos', JSON.stringify(pedidos));
   }, [pedidos]);
 
+  // ── Carrito ───────────────────────────────────────────────────────────────
   const agregarAlCarrito = async (producto: Producto, talla: string, color?: string, cantidad: number = 1) => {
+    if (!isLoggedIn()) {
+      // Modo invitado: guardar en localStorage
+      setCarritoItems(prev => {
+        const existing = prev.find(
+          i => i.id === producto.id && i.tallaSeleccionada === talla && (i.colorSeleccionado || '') === (color || '')
+        );
+        const updated = existing
+          ? prev.map(i => i.carritoID === existing.carritoID ? { ...i, cantidad: i.cantidad + cantidad } : i)
+          : [...prev, { ...producto, carritoID: -Date.now(), cantidad, tallaSeleccionada: talla, colorSeleccionado: color || '' }];
+        saveGuestCart(updated);
+        return updated;
+      });
+      toast.success('Producto agregado', { description: `${producto.nombre} - Talla ${talla} x${cantidad}` });
+      return;
+    }
+
     try {
       await api.postJson('/api/carrito/items', {
         ProductoID: producto.id,
@@ -165,7 +223,6 @@ export const TiendaProvider: React.FC<TiendaProviderProps> = ({ children }) => {
         ColorSeleccionado: color || '',
       });
 
-      // Reload cart from API to get correct carritoIDs
       const res = await api.getJson('/api/carrito');
       const items: CarritoItem[] = (res?.data || res || []).map((c: any) => ({
         carritoID: c.carritoID,
@@ -199,6 +256,15 @@ export const TiendaProvider: React.FC<TiendaProviderProps> = ({ children }) => {
   };
 
   const removerDelCarrito = async (carritoID: number) => {
+    if (!isLoggedIn()) {
+      setCarritoItems(prev => {
+        const updated = prev.filter(i => i.carritoID !== carritoID);
+        saveGuestCart(updated);
+        return updated;
+      });
+      toast.success('Producto eliminado del carrito');
+      return;
+    }
     try {
       await api.deleteJson(`/api/carrito/items/${carritoID}`);
       setCarritoItems(items => items.filter(item => item.carritoID !== carritoID));
@@ -209,8 +275,14 @@ export const TiendaProvider: React.FC<TiendaProviderProps> = ({ children }) => {
   };
 
   const actualizarCantidad = async (carritoID: number, cantidad: number) => {
-    if (cantidad < 1) {
-      removerDelCarrito(carritoID);
+    if (cantidad < 1) { removerDelCarrito(carritoID); return; }
+
+    if (!isLoggedIn()) {
+      setCarritoItems(prev => {
+        const updated = prev.map(i => i.carritoID === carritoID ? { ...i, cantidad } : i);
+        saveGuestCart(updated);
+        return updated;
+      });
       return;
     }
     try {
@@ -223,7 +295,19 @@ export const TiendaProvider: React.FC<TiendaProviderProps> = ({ children }) => {
     }
   };
 
+  // ── Favoritos ─────────────────────────────────────────────────────────────
   const toggleFavorito = async (id: number) => {
+    if (!isLoggedIn()) {
+      setFavoritos(prev => {
+        const esFav = prev.includes(id);
+        const updated = esFav ? prev.filter(f => f !== id) : [...prev, id];
+        saveGuestFav(updated);
+        if (esFav) toast.info('Eliminado de favoritos');
+        else toast.success('Agregado a favoritos', { description: 'Producto guardado en tu lista de deseos' });
+        return updated;
+      });
+      return;
+    }
     const esFav = favoritos.includes(id);
     try {
       if (esFav) {
@@ -242,11 +326,15 @@ export const TiendaProvider: React.FC<TiendaProviderProps> = ({ children }) => {
 
   const esFavorito = (id: number) => favoritos.includes(id);
 
-  const getTotalCarrito = () => {
-    return carritoItems.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
-  };
+  const getTotalCarrito = () =>
+    carritoItems.reduce((sum, item) => sum + item.precio * item.cantidad, 0);
 
   const limpiarCarrito = async () => {
+    if (!isLoggedIn()) {
+      setCarritoItems([]);
+      clearGuestData();
+      return;
+    }
     try {
       await api.deleteJson('/api/carrito');
       setCarritoItems([]);
@@ -263,27 +351,18 @@ export const TiendaProvider: React.FC<TiendaProviderProps> = ({ children }) => {
       total: getTotalCarrito(),
       estado: metodoPago === 'transferencia' ? 'pendiente' : 'confirmado',
       metodoPago,
-      datosEnvio
+      datosEnvio,
     };
     setPedidos(prev => [...prev, nuevoPedido]);
   };
 
   return (
-    <TiendaContext.Provider
-      value={{
-        carritoItems,
-        favoritos,
-        pedidos,
-        agregarAlCarrito,
-        removerDelCarrito,
-        actualizarCantidad,
-        toggleFavorito,
-        esFavorito,
-        getTotalCarrito,
-        limpiarCarrito,
-        agregarPedido
-      }}
-    >
+    <TiendaContext.Provider value={{
+      carritoItems, favoritos, pedidos,
+      agregarAlCarrito, removerDelCarrito, actualizarCantidad,
+      toggleFavorito, esFavorito, getTotalCarrito,
+      limpiarCarrito, agregarPedido,
+    }}>
       {children}
     </TiendaContext.Provider>
   );

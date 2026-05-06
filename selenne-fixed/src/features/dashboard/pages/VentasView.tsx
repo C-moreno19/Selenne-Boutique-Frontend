@@ -56,6 +56,7 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
   const [telefonoCliente, setTelefonoCliente] = useState('');
   const [documentoCliente, setDocumentoCliente] = useState('');
   const [metodoPago, setMetodoPago] = useState('Transferencia');
+  const [ventaErrors, setVentaErrors] = useState({ nombreCliente: '', emailCliente: '', telefonoCliente: '', documentoCliente: '' });
   const [notasVenta, setNotasVenta] = useState('');
   const [productosDisponibles, setProductosDisponibles] = useState<ProductoSimple[]>([]);
   const [itemsVenta, setItemsVenta] = useState<ItemVenta[]>([]);
@@ -130,6 +131,7 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
   const resetNuevaVenta = () => {
     setNombreCliente(''); setEmailCliente(''); setTelefonoCliente(''); setDocumentoCliente('');
     setNotasVenta(''); setItemsVenta([]);
+    setVentaErrors({ nombreCliente: '', emailCliente: '', telefonoCliente: '', documentoCliente: '' });
   };
 
   const filtered = pedidos.filter(p => {
@@ -267,12 +269,6 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
                       className="p-2 text-gray-500 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors" title="Enviar correo de guía">
                       <Truck className="w-5 h-5" />
                     </button>
-                    {puedeEliminar && (
-                      <button onClick={() => { setSelectedPedido(p); setDeleteOpen(true); }}
-                        className="p-2 text-gray-500 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors" title="Eliminar">
-                        <Trash2 className="w-5 h-5" />
-                      </button>
-                    )}
                   </div>
                 </td>
               </tr>
@@ -359,24 +355,6 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
         </DialogContent>
       </Dialog>
 
-      {/* Modal Eliminar */}
-      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle style={{ fontFamily: 'Playfair Display, serif' }}>¿Eliminar venta?</AlertDialogTitle>
-            <AlertDialogDescription style={{ fontFamily: 'Inter, sans-serif' }}>
-              Vas a eliminar la venta #{selectedPedido?.pedidoID} de <strong>{selectedPedido?.nombreCliente}</strong>. Esta acción no se puede deshacer.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel style={{ fontFamily: 'Inter, sans-serif' }}>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={eliminar} disabled={saving}
-              className="bg-red-600 hover:bg-red-700 flex items-center gap-2" style={{ fontFamily: 'Inter, sans-serif' }}>
-              {saving && <Loader2 className="w-4 h-4 animate-spin" />} Eliminar
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
       {/* Modal Email Guía */}
       <Dialog open={emailGuiaOpen} onOpenChange={v => { setEmailGuiaOpen(v); if (!v) { setNumeroGuia(''); setTransportadora(''); setFotoGuia(null); } }}>
         <DialogContent className="max-w-md flex flex-col p-0 gap-0 max-h-[90vh]">
@@ -458,19 +436,56 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
               <div className="p-6 grid grid-cols-2 gap-4">
                 <div className="flex flex-col gap-2">
                   <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">Nombre <span className="text-red-500">*</span></Label>
-                  <Input value={nombreCliente} onChange={e => setNombreCliente(e.target.value)} placeholder="Nombre del cliente" className="h-10 border-gray-300" />
+                  <Input value={nombreCliente} onChange={e => {
+                    const val = e.target.value;
+                    if (val && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]*$/.test(val)) {
+                      setVentaErrors(prev => ({ ...prev, nombreCliente: 'Solo se permiten letras' }));
+                      return;
+                    }
+                    setVentaErrors(prev => ({ ...prev, nombreCliente: '' }));
+                    setNombreCliente(val);
+                  }} placeholder="Nombre del cliente" className={`h-10 ${ventaErrors.nombreCliente ? 'border-red-500' : 'border-gray-300'}`} />
+                  {ventaErrors.nombreCliente && <p className="text-xs text-red-500 mt-1">{ventaErrors.nombreCliente}</p>}
                 </div>
                 <div className="flex flex-col gap-2">
                   <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">Documento <span className="text-gray-400 text-xs">(opcional)</span></Label>
-                  <Input value={documentoCliente} onChange={e => setDocumentoCliente(e.target.value)} placeholder="Cédula o NIT" className="h-10 border-gray-300" />
+                  <Input value={documentoCliente} onChange={e => {
+                    const val = e.target.value;
+                    if (val && !/^\d*$/.test(val)) {
+                      setVentaErrors(prev => ({ ...prev, documentoCliente: 'Solo se permiten números' }));
+                      return;
+                    }
+                    setVentaErrors(prev => ({ ...prev, documentoCliente: '' }));
+                    setDocumentoCliente(val);
+                  }} placeholder="Cédula o NIT" className={`h-10 ${ventaErrors.documentoCliente ? 'border-red-500' : 'border-gray-300'}`} />
+                  {ventaErrors.documentoCliente && <p className="text-xs text-red-500 mt-1">{ventaErrors.documentoCliente}</p>}
                 </div>
                 <div className="flex flex-col gap-2">
-                  <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">Email</Label>
-                  <Input type="email" value={emailCliente} onChange={e => setEmailCliente(e.target.value)} placeholder="email@ejemplo.com" className="h-10 border-gray-300" />
+                  <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">Email <span className="text-red-500">*</span></Label>
+                  <Input type="email" value={emailCliente} onChange={e => {
+                    const val = e.target.value;
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (val && !emailRegex.test(val)) {
+                      setVentaErrors(prev => ({ ...prev, emailCliente: 'Formato de email inválido' }));
+                    } else {
+                      setVentaErrors(prev => ({ ...prev, emailCliente: '' }));
+                    }
+                    setEmailCliente(val);
+                  }} placeholder="email@ejemplo.com" className={`h-10 ${ventaErrors.emailCliente ? 'border-red-500' : 'border-gray-300'}`} />
+                  {ventaErrors.emailCliente && <p className="text-xs text-red-500 mt-1">{ventaErrors.emailCliente}</p>}
                 </div>
                 <div className="flex flex-col gap-2">
-                  <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">Teléfono</Label>
-                  <Input value={telefonoCliente} onChange={e => setTelefonoCliente(e.target.value)} placeholder="+57 300 123 4567" className="h-10 border-gray-300" />
+                  <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">Teléfono <span className="text-red-500">*</span></Label>
+                  <Input value={telefonoCliente} onChange={e => {
+                    const val = e.target.value;
+                    if (val && !/^\d*$/.test(val)) {
+                      setVentaErrors(prev => ({ ...prev, telefonoCliente: 'Solo se permiten números' }));
+                      return;
+                    }
+                    setVentaErrors(prev => ({ ...prev, telefonoCliente: '' }));
+                    setTelefonoCliente(val);
+                  }} placeholder="3001234567" className={`h-10 ${ventaErrors.telefonoCliente ? 'border-red-500' : 'border-gray-300'}`} />
+                  {ventaErrors.telefonoCliente && <p className="text-xs text-red-500 mt-1">{ventaErrors.telefonoCliente}</p>}
                 </div>
                 <div className="flex flex-col gap-2">
                   <Label style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-700">Método de Pago</Label>
@@ -582,18 +597,21 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
               style={{ fontFamily: 'Inter, sans-serif' }} className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">Cancelar</button>
             <button onClick={async () => {
               if (!nombreCliente.trim()) { toast.error('El nombre es obligatorio'); return; }
+              if (!emailCliente.trim()) { toast.error('El email del cliente es obligatorio'); return; }
+              if (!telefonoCliente.trim()) { toast.error('El teléfono del cliente es obligatorio'); return; }
               if (itemsVenta.length === 0) { toast.error('Agrega al menos un producto'); return; }
               setSaving(true);
               try {
                 await postJson('/api/pedidos', {
                   NombreCliente: nombreCliente,
                   DocumentoCliente: documentoCliente || undefined,
-                  EmailCliente: emailCliente || 'sin-email@selenne.com',
-                  TelefonoCliente: telefonoCliente || 'N/A',
+                  EmailCliente: emailCliente,
+                  TelefonoCliente: telefonoCliente,
                   DireccionEnvio: 'Venta presencial',
                   Ciudad: 'N/A',
                   MetodoPago: metodoPago,
                   Notas: notasVenta,
+                  Estado: 'Aprobado',
                   Items: itemsVenta.map(i => ({ ProductoID: i.productoID, Cantidad: i.cantidad, TallaID: i.tallaID, ColorID: i.colorID, TallaNombre: i.tallaNombre, ColorNombre: i.colorNombre })),
                 });
                 toast.success('Venta registrada correctamente');

@@ -11,7 +11,7 @@ import { useProductos, ProductoAdmin, CreateProductoPayload } from '../../../sha
 import { useSubcategorias } from '../../../shared/contexts/SubcategoriasContext';
 import { useProductosAdmin } from '../../../shared/data/useProductosAdmin';
 import { useAuth } from '../../../shared/contexts/AuthContext';
-import { apiBase } from '../../../services/api';
+import { apiBase, getAccessToken } from '../../../services/api';
 
 const fmt = (n?: number) =>
   n != null ? new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n) : '—';
@@ -135,7 +135,7 @@ export const ProductosView: React.FC = () => {
     if (file.size > 5 * 1024 * 1024) { toast.error('La imagen no puede superar 5MB'); return; }
     setUploadingColorImg(colorNombre);
     try {
-      const token = localStorage.getItem('accessToken') || '';
+      const token = getAccessToken() || '';
       const fd = new FormData();
       fd.append('file', file);
       const res = await fetch(`${apiBase}/api/upload/imagen`, {
@@ -209,7 +209,7 @@ export const ProductosView: React.FC = () => {
   const uploadImageFile = async (id: string, file: File) => {
     setUploadingImg(true);
     try {
-      const token = localStorage.getItem('accessToken') || '';
+      const token = getAccessToken() || '';
 
       // 1. Subir archivo al servidor
       const fd = new FormData();

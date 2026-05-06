@@ -12,8 +12,13 @@ import {
   ShoppingCart,
   ChevronLeft,
   ChevronRight,
+  ChevronUp,
   Zap,
   LogIn,
+  SlidersHorizontal,
+  Package,
+  Globe,
+  Lock,
 } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
@@ -84,6 +89,15 @@ export const LandingView: React.FC<LandingViewProps> = ({
   const [filtroPrecioMax, setFiltroPrecioMax] = useState<number | null>(null);
   const [mostrarModalLoginPerfil, setMostrarModalLoginPerfil] = useState(false);
   const [mostrarModalLoginCarrito, setMostrarModalLoginCarrito] = useState(false);
+  const [paginaActual, setPaginaActual] = useState(1);
+  const PRODUCTOS_POR_PAGINA = 12;
+  const [filtrosAbiertos, setFiltrosAbiertos] = useState(false);
+  const [seccionesAbiertas, setSeccionesAbiertas] = useState({ precio: true, talla: true, tipo: true, categoria: true });
+  const [precioMinLocal, setPrecioMinLocal] = useState(0);
+  const [precioMaxLocal, setPrecioMaxLocal] = useState(0);
+  const [tallaLocal, setTallaLocal] = useState("");
+  const [tipoLocal, setTipoLocal] = useState("");
+  const [categoriaLocal, setCategoriaLocal] = useState("");
 
   const productosData = useProductosCombinados();
   const { colores, tallas } = useSubcategorias();
@@ -130,7 +144,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
   const materialesDisponibles = useMemo(() => {
     const set = new Set<string>();
     productosParaFiltros.forEach((p) => {
-      if (p.materiales) set.add(p.materiales);
+      if (p.materiales) (Array.isArray(p.materiales) ? p.materiales : [p.materiales]).forEach((m: string) => set.add(m));
     });
     return Array.from(set);
   }, [productosParaFiltros]);
@@ -203,6 +217,53 @@ export const LandingView: React.FC<LandingViewProps> = ({
     return productos;
   }, [categoriaActiva, busqueda, ordenar, filtroTipoProducto, filtroCategoriaRopa, filtroTalla, filtroColor, filtroMaterial, filtroPrecioMin, filtroPrecioMax, productosData]);
 
+  const maxPrecioGlobal = useMemo(() => {
+    const precios = productosData.map(p => p.precio);
+    return precios.length ? Math.max(...precios) : 1000000;
+  }, [productosData]);
+
+  const contadorFiltros = useMemo(() => {
+    let c = 0;
+    if (filtroTipoProducto && filtroTipoProducto !== 'all') c++;
+    if (filtroCategoriaRopa && filtroCategoriaRopa !== 'all') c++;
+    if (filtroTalla && filtroTalla !== 'all') c++;
+    if (filtroPrecioMin !== null) c++;
+    if (filtroPrecioMax !== null) c++;
+    return c;
+  }, [filtroTipoProducto, filtroCategoriaRopa, filtroTalla, filtroPrecioMin, filtroPrecioMax]);
+
+  const abrirFiltros = () => {
+    setPrecioMinLocal(filtroPrecioMin ?? 0);
+    setPrecioMaxLocal(filtroPrecioMax ?? maxPrecioGlobal);
+    setTallaLocal(filtroTalla);
+    setTipoLocal(filtroTipoProducto);
+    setCategoriaLocal(filtroCategoriaRopa);
+    setFiltrosAbiertos(true);
+  };
+
+  const aplicarFiltros = () => {
+    setFiltroPrecioMin(precioMinLocal > 0 ? precioMinLocal : null);
+    setFiltroPrecioMax(precioMaxLocal < maxPrecioGlobal ? precioMaxLocal : null);
+    setFiltroTalla(tallaLocal);
+    setFiltroTipoProducto(tipoLocal);
+    setFiltroCategoriaRopa(categoriaLocal);
+    setFiltrosAbiertos(false);
+  };
+
+  const limpiarFiltros = () => {
+    setPrecioMinLocal(0);
+    setPrecioMaxLocal(maxPrecioGlobal);
+    setTallaLocal('');
+    setTipoLocal('');
+    setCategoriaLocal('');
+  };
+
+  // Resetear página al cambiar filtros o categoría
+  useEffect(() => { setPaginaActual(1); }, [categoriaActiva, busqueda, ordenar, filtroTipoProducto, filtroCategoriaRopa, filtroTalla, filtroColor, filtroMaterial, filtroPrecioMin, filtroPrecioMax]);
+
+  const totalPaginasLanding = Math.ceil(productosFiltrados.length / PRODUCTOS_POR_PAGINA);
+  const productosPaginaLanding = productosFiltrados.slice((paginaActual - 1) * PRODUCTOS_POR_PAGINA, paginaActual * PRODUCTOS_POR_PAGINA);
+
   useEffect(() => {
     getJson('/api/config/banco').then((d: any) => {
       if (d?.data?.whatsapp) {
@@ -224,7 +285,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
   useEffect(() => {
     if (productoSeleccionado) {
       if (productoSeleccionado.colores && productoSeleccionado.colores.length > 0) {
-        setColorSeleccionado(prev => prev || productoSeleccionado.colores[0]);
+        setColorSeleccionado(prev => prev || (productoSeleccionado.colores?.[0] ?? ''));
       } else {
         setColorSeleccionado('');
       }
@@ -395,8 +456,8 @@ export const LandingView: React.FC<LandingViewProps> = ({
                                     setProductoSeleccionado(prod);
                                     const colorInicial = prod.colores?.[0] || '';
                                     const primeraDisponible = prod.tallas?.find((t: string) => {
-                                      if (!prod.variantes?.length) return true;
-                                      const v = prod.variantes.find((x: any) => x.tallaNombre === t && (!colorInicial || x.colorNombre === colorInicial));
+                                      if (!(prod as any).variantes?.length) return true;
+                                      const v = (prod as any).variantes.find((x: any) => x.tallaNombre === t && (!colorInicial || x.colorNombre === colorInicial));
                                       return v ? v.stock > 0 : true;
                                     });
                                     setTallaSeleccionada(primeraDisponible || prod.tallas?.[0] || 'Única');
@@ -597,73 +658,17 @@ export const LandingView: React.FC<LandingViewProps> = ({
 
       <div className="flex-1 flex flex-col">
         {/* Barra de Búsqueda y Filtros */}
-        <div className="bg-gray-50 border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
-            <div className="relative w-full mb-2">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <Input
-                type="text"
-                placeholder="Buscar productos..."
-                value={busqueda}
+        <div className="bg-white border-b border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div className="relative w-full mb-3">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Input type="text" placeholder="Buscar productos..." value={busqueda}
                 onChange={(e) => setBusqueda(e.target.value)}
-                className="pl-10 bg-white w-full"
-                style={{ fontFamily: "Inter, sans-serif" }}
-              />
+                className="pl-10 bg-white w-full" style={{ fontFamily: "Inter, sans-serif" }} />
             </div>
-            <div className="flex gap-3 items-center justify-between w-full">
-              <Select value={filtroTipoProducto || "all"} onValueChange={setFiltroTipoProducto}>
-                <SelectTrigger className="flex-1 bg-white px-3 py-1 h-9 text-sm">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tipo de producto</SelectItem>
-                  {tiposProductoDisponibles.map((tipo) => (
-                    <SelectItem key={tipo} value={tipo}>{tipo}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <Select value={filtroCategoriaRopa || "all"} onValueChange={setFiltroCategoriaRopa}>
-                <SelectTrigger className="flex-1 bg-white px-3 py-1 h-9 text-sm">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Categoría</SelectItem>
-                  {categoriasRopaDisponibles.map((cat) => (
-                    <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <Input
-                type="number"
-                placeholder="Precio min"
-                value={filtroPrecioMin === null ? "" : filtroPrecioMin}
-                onChange={(e) => setFiltroPrecioMin(e.target.value === "" ? null : parseInt(e.target.value) || null)}
-                className="bg-white w-24 px-2 py-1 h-9 text-sm"
-              />
-              <Input
-                type="number"
-                placeholder="Precio máx"
-                value={filtroPrecioMax === null ? "" : filtroPrecioMax}
-                onChange={(e) => setFiltroPrecioMax(e.target.value === "" ? null : parseInt(e.target.value) || null)}
-                className="bg-white w-24 px-2 py-1 h-9 text-sm"
-              />
-
-              <Select value={filtroTalla || "all"} onValueChange={setFiltroTalla}>
-                <SelectTrigger className="flex-1 bg-white px-3 py-1 h-9 text-sm">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Talla</SelectItem>
-                  {tallasDisponibles.map((t) => (
-                    <SelectItem key={t} value={t}>{t}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
+            <div className="flex items-center justify-between gap-3">
               <Select value={ordenar} onValueChange={setOrdenar}>
-                <SelectTrigger className="flex-1 bg-white px-3 py-1 h-9 text-sm">
+                <SelectTrigger className="w-52 bg-white h-9 text-sm" style={{ fontFamily: "Inter, sans-serif" }}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -673,43 +678,163 @@ export const LandingView: React.FC<LandingViewProps> = ({
                   <SelectItem value="nombre">Nombre A-Z</SelectItem>
                 </SelectContent>
               </Select>
+              <button onClick={abrirFiltros}
+                style={{ fontFamily: "Inter, sans-serif" }}
+                className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:border-gray-900 transition-colors">
+                <SlidersHorizontal className="w-4 h-4" />
+                FILTROS
+                {contadorFiltros > 0 && (
+                  <span className="bg-black text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">{contadorFiltros}</span>
+                )}
+              </button>
             </div>
           </div>
         </div>
 
-        {/* Banner de Categoría */}
-        {(() => {
-          const banners: Record<string, { tag: string; title: string; subtitle: string; letter: string; from: string; to: string }> = {
-            mujer:      { tag: "Nueva Colección", title: "Colección Mujer",      subtitle: "Elegancia y estilo para cada ocasión",           letter: "M", from: "#c73d7f", to: "#f0a0c8" },
-            accesorios: { tag: "Exclusivos",      title: "Accesorios",           subtitle: "El detalle que completa tu look",                 letter: "A", from: "#b45309", to: "#f59e0b" },
-            sale:       { tag: "Ofertas",         title: "Sale",                 subtitle: "Descuentos especiales en productos seleccionados", letter: "S", from: "#b91c1c", to: "#f87171" },
-          };
-          const b = banners[categoriaActiva] || banners.mujer;
-          return (
-            <div className="relative overflow-hidden" style={{ background: `linear-gradient(120deg, ${b.from} 0%, ${b.to} 100%)` }}>
-              <div className="absolute inset-0 opacity-10 pointer-events-none"
-                style={{ backgroundImage: "radial-gradient(circle, white 1px, transparent 1px)", backgroundSize: "24px 24px" }} />
-              <div className="absolute right-6 top-1/2 -translate-y-1/2 select-none pointer-events-none hidden md:block"
-                style={{ fontFamily: "Playfair Display, serif", fontSize: "7rem", fontWeight: 900, color: "white", opacity: 0.12, lineHeight: 1 }}>
-                {b.letter}
+        {/* Panel de Filtros */}
+        {filtrosAbiertos && (
+          <>
+            <div className="fixed inset-0 bg-black/40 z-40" onClick={() => setFiltrosAbiertos(false)} />
+            <div className="fixed right-0 top-0 h-full w-80 bg-white z-50 flex flex-col shadow-2xl" style={{ fontFamily: "Inter, sans-serif" }}>
+              {/* Header */}
+              <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+                <span className="text-xs font-bold tracking-widest text-gray-900">APLICAR FILTROS</span>
+                <button onClick={() => setFiltrosAbiertos(false)} className="flex items-center gap-1 text-xs font-bold tracking-widest text-gray-900 hover:text-gray-600">
+                  CERCA <X className="w-4 h-4" />
+                </button>
               </div>
-              <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-7 flex flex-col justify-center">
-                <span style={{ fontFamily: "Inter, sans-serif" }}
-                  className="inline-block text-[11px] font-bold uppercase tracking-[0.3em] text-white/70 mb-2">
-                  {b.tag}
-                </span>
-                <h2 style={{ fontFamily: "Playfair Display, serif" }}
-                  className="text-3xl md:text-4xl font-bold text-white leading-tight mb-1">
-                  {b.title}
-                </h2>
-                <p style={{ fontFamily: "Inter, sans-serif" }}
-                  className="text-sm text-white/80 tracking-wide">
-                  {b.subtitle}
-                </p>
+
+              <div className="flex-1 overflow-y-auto">
+                {/* PRECIO */}
+                <div className="px-5 py-4 border-b border-gray-100">
+                  <button onClick={() => setSeccionesAbiertas(s => ({ ...s, precio: !s.precio }))}
+                    className="w-full flex items-center justify-between mb-3">
+                    <span className="text-xs font-bold tracking-widest text-gray-900">PRECIO</span>
+                    <ChevronUp className={`w-4 h-4 text-gray-500 transition-transform ${seccionesAbiertas.precio ? '' : 'rotate-180'}`} />
+                  </button>
+                  {seccionesAbiertas.precio && (
+                    <>
+                      <div className="relative h-6 mb-4">
+                        <div className="absolute top-1/2 -translate-y-1/2 w-full h-[2px] bg-gray-200 rounded-full">
+                          <div className="absolute h-full bg-black rounded-full"
+                            style={{ left: `${(precioMinLocal / maxPrecioGlobal) * 100}%`, width: `${((precioMaxLocal - precioMinLocal) / maxPrecioGlobal) * 100}%` }} />
+                        </div>
+                        <input type="range" min={0} max={maxPrecioGlobal} step={1000} value={precioMinLocal}
+                          onChange={e => setPrecioMinLocal(Math.min(Number(e.target.value), precioMaxLocal - 1000))}
+                          className="absolute w-full h-full opacity-0 cursor-pointer" style={{ zIndex: 3 }} />
+                        <input type="range" min={0} max={maxPrecioGlobal} step={1000} value={precioMaxLocal}
+                          onChange={e => setPrecioMaxLocal(Math.max(Number(e.target.value), precioMinLocal + 1000))}
+                          className="absolute w-full h-full opacity-0 cursor-pointer" style={{ zIndex: 4 }} />
+                        <div className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-black rounded-full border-2 border-white shadow pointer-events-none"
+                          style={{ left: `calc(${(precioMinLocal / maxPrecioGlobal) * 100}% - 8px)` }} />
+                        <div className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-black rounded-full border-2 border-white shadow pointer-events-none"
+                          style={{ left: `calc(${(precioMaxLocal / maxPrecioGlobal) * 100}% - 8px)` }} />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 border border-gray-200 rounded px-3 py-2 text-sm text-gray-700">
+                          $ {precioMinLocal.toLocaleString('es-CO')}
+                        </div>
+                        <span className="text-gray-400">—</span>
+                        <div className="flex-1 border border-gray-200 rounded px-3 py-2 text-sm text-gray-700">
+                          $ {precioMaxLocal.toLocaleString('es-CO')}
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                {/* TALLA */}
+                {tallasDisponibles.length > 0 && (
+                  <div className="px-5 py-4 border-b border-gray-100">
+                    <button onClick={() => setSeccionesAbiertas(s => ({ ...s, talla: !s.talla }))}
+                      className="w-full flex items-center justify-between mb-3">
+                      <span className="text-xs font-bold tracking-widest text-gray-900">TALLA</span>
+                      <ChevronUp className={`w-4 h-4 text-gray-500 transition-transform ${seccionesAbiertas.talla ? '' : 'rotate-180'}`} />
+                    </button>
+                    {seccionesAbiertas.talla && (
+                      <div className="flex flex-wrap gap-2">
+                        {tallasDisponibles.map(t => (
+                          <button key={t} onClick={() => setTallaLocal(tallaLocal === t ? '' : t)}
+                            className={`px-3 py-1.5 text-sm border rounded transition-colors ${tallaLocal === t ? 'border-black bg-black text-white' : 'border-gray-300 text-gray-700 hover:border-gray-900'}`}>
+                            {t}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* TIPO DE PRODUCTO */}
+                {tiposProductoDisponibles.length > 0 && (
+                  <div className="px-5 py-4 border-b border-gray-100">
+                    <button onClick={() => setSeccionesAbiertas(s => ({ ...s, tipo: !s.tipo }))}
+                      className="w-full flex items-center justify-between mb-3">
+                      <span className="text-xs font-bold tracking-widest text-gray-900">TIPO DE PRODUCTO</span>
+                      <ChevronUp className={`w-4 h-4 text-gray-500 transition-transform ${seccionesAbiertas.tipo ? '' : 'rotate-180'}`} />
+                    </button>
+                    {seccionesAbiertas.tipo && (
+                      <div className="flex flex-wrap gap-2">
+                        {tiposProductoDisponibles.map(t => (
+                          <button key={t} onClick={() => setTipoLocal(tipoLocal === t ? '' : t)}
+                            className={`px-3 py-1.5 text-sm border rounded transition-colors ${tipoLocal === t ? 'border-black bg-black text-white' : 'border-gray-300 text-gray-700 hover:border-gray-900'}`}>
+                            {t}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* CATEGORÍA */}
+                {categoriasRopaDisponibles.length > 0 && (
+                  <div className="px-5 py-4 border-b border-gray-100">
+                    <button onClick={() => setSeccionesAbiertas(s => ({ ...s, categoria: !s.categoria }))}
+                      className="w-full flex items-center justify-between mb-3">
+                      <span className="text-xs font-bold tracking-widest text-gray-900">CATEGORÍA</span>
+                      <ChevronUp className={`w-4 h-4 text-gray-500 transition-transform ${seccionesAbiertas.categoria ? '' : 'rotate-180'}`} />
+                    </button>
+                    {seccionesAbiertas.categoria && (
+                      <div className="flex flex-wrap gap-2">
+                        {categoriasRopaDisponibles.map(c => (
+                          <button key={c} onClick={() => setCategoriaLocal(categoriaLocal === c ? '' : c)}
+                            className={`px-3 py-1.5 text-sm border rounded transition-colors ${categoriaLocal === c ? 'border-black bg-black text-white' : 'border-gray-300 text-gray-700 hover:border-gray-900'}`}>
+                            {c}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Limpiar filtros */}
+                {(tallaLocal || tipoLocal || categoriaLocal || precioMinLocal > 0 || precioMaxLocal < maxPrecioGlobal) && (
+                  <button onClick={limpiarFiltros} className="w-full px-5 py-3 text-xs text-gray-500 hover:text-gray-900 underline transition-colors">
+                    Limpiar filtros
+                  </button>
+                )}
+              </div>
+
+              {/* Footer */}
+              <div className="px-5 py-4 border-t border-gray-100">
+                <button onClick={aplicarFiltros}
+                  className="w-full bg-black text-white py-3 text-xs font-bold tracking-widest hover:bg-gray-800 transition-colors">
+                  MOSTRAR ARTÍCULOS
+                </button>
               </div>
             </div>
-          );
-        })()}
+          </>
+        )}
+
+        {/* Banner de Categoría */}
+        <div className="pt-8 pb-2 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2
+            style={{ fontFamily: "Playfair Display, serif", fontSize: "32px", fontWeight: 700, letterSpacing: "0.08em" }}
+            className="text-[#1a1a1a] uppercase"
+          >
+            {categoriaActiva === "mujer" ? "Mujer" : categoriaActiva === "accesorios" ? "Accesorios" : "Sale"}
+          </h2>
+        </div>
+        <div style={{ height: "2px", backgroundColor: "#d65391" }} />
 
         {/* Grid de Productos */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -725,16 +850,13 @@ export const LandingView: React.FC<LandingViewProps> = ({
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {productosFiltrados.map((producto) => (
-                <div
-                  key={producto.id}
-                  className="bg-white rounded-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow duration-300 group"
-                >
+              {productosPaginaLanding.map((producto) => (
+                <div key={producto.id} className="bg-white overflow-hidden group">
                   <div className="relative overflow-hidden">
                     <img
                       src={producto.imagen}
                       alt={producto.nombre}
-                      className="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-300"
+                      className="w-full h-96 object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                     {producto.badge && (
                       <Badge
@@ -747,63 +869,50 @@ export const LandingView: React.FC<LandingViewProps> = ({
                         {producto.badge}
                       </Badge>
                     )}
-                    {producto.agotado && (
-                      <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center rounded-t-xl">
-                        <span className="bg-white text-gray-800 text-xs font-bold px-3 py-1 rounded-full shadow">
-                          Agotado
-                        </span>
-                      </div>
-                    )}
-                    {producto.precioOriginal && (
-                      <Badge className="absolute top-3 right-3 bg-black hover:bg-black text-white">
-                        -{calcularDescuento(producto.precio, producto.precioOriginal)}%
-                      </Badge>
-                    )}
-                    {producto.nuevo && (
-                      <Badge className="absolute top-3 right-3 bg-green-500 hover:bg-green-600">
-                        Nuevo
-                      </Badge>
-                    )}
+                    <button
+                      onClick={() => {
+                        setProductoSeleccionado(producto);
+                        const colorIni = (producto as any).colores?.[0] || '';
+                        const tallasP: string[] = (producto as any).tallas || [];
+                        const variantesP: any[] = (producto as any).variantes || [];
+                        const tallaIni = tallasP.find((t: string) => {
+                          if (!variantesP.length) return true;
+                          const v = variantesP.find((x: any) => x.tallaNombre === t && (!colorIni || x.colorNombre === colorIni));
+                          return v ? v.stock > 0 : true;
+                        });
+                        setTallaSeleccionada(tallaIni || tallasP[0] || 'Única');
+                        setColorSeleccionado(colorIni);
+                        setCantidadSeleccionada(1);
+                        setImagenActual(0);
+                      }}
+                      style={{ fontFamily: "Inter, sans-serif" }}
+                      className="absolute top-3 right-3 bg-white/90 hover:bg-white text-gray-900 text-xs font-bold tracking-widest px-3 py-1.5 transition-colors"
+                    >
+                      DETALLE
+                    </button>
                     <button
                       onClick={() => toggleFavorito(producto.id)}
-                      className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-md hover:bg-gray-100 transition-colors"
+                      className="absolute bottom-3 right-3 p-2 bg-white rounded-full shadow-md hover:bg-gray-100 transition-colors"
                     >
-                      <Heart
-                        className={`w-5 h-5 ${
-                          esFavorito(producto.id)
-                            ? "fill-[#d65391] text-[#d65391]"
-                            : "text-gray-600"
-                        }`}
-                      />
+                      <Heart className={`w-5 h-5 ${esFavorito(producto.id) ? "fill-[#d65391] text-[#d65391]" : "text-gray-600"}`} />
                     </button>
+                    {(producto as any).agotado && (
+                      <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+                        <span className="bg-white text-gray-800 text-xs font-bold px-3 py-1 rounded-full shadow">Agotado</span>
+                      </div>
+                    )}
                   </div>
-                  <div className="p-4">
-                    <div className="flex items-center mb-2">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`w-4 h-4 ${
-                            i < Math.floor(producto.rating)
-                              ? "fill-yellow-400 text-yellow-400"
-                              : "text-gray-300"
-                          }`}
-                        />
-                      ))}
-                      <span className="text-xs text-gray-500 ml-2">{producto.rating}</span>
-                    </div>
+                  <div className="pt-3 pb-4 px-1">
                     <h3
                       style={{ fontFamily: "Inter, sans-serif" }}
-                      className="text-gray-900 mb-2 h-12 line-clamp-2"
+                      className="text-gray-900 text-sm font-semibold uppercase tracking-wide mb-1 line-clamp-2"
                     >
                       {producto.nombre}
                     </h3>
-                    <div className="flex items-center gap-2 mb-3">
+                    <div className="flex items-center gap-2">
                       {producto.precioOriginal ? (
                         <>
-                          <span
-                            style={{ fontFamily: "Playfair Display, serif" }}
-                            className="text-xl text-[#d65391]"
-                          >
+                          <span style={{ fontFamily: "Playfair Display, serif" }} className="text-[#d65391]">
                             {formatPrecio(producto.precio)}
                           </span>
                           <span className="text-sm text-gray-400 line-through">
@@ -811,430 +920,274 @@ export const LandingView: React.FC<LandingViewProps> = ({
                           </span>
                         </>
                       ) : (
-                        <span
-                          style={{ fontFamily: "Playfair Display, serif" }}
-                          className="text-xl text-gray-900"
-                        >
+                        <span style={{ fontFamily: "Playfair Display, serif" }} className="text-gray-900">
                           {formatPrecio(producto.precio)}
                         </span>
                       )}
-                    </div>
-                    <div className="flex gap-1 mb-3 flex-wrap">
-                      {producto.tallas.map((talla) => (
-                        <span key={talla} className="px-2 py-1 text-xs border border-gray-300 rounded">
-                          {talla}
-                        </span>
-                      ))}
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        onClick={() => {
-                          setProductoSeleccionado(producto);
-                          const colorIni = (producto as any).colores?.[0] || '';
-                          const tallasP: string[] = (producto as any).tallas || [];
-                          const variantesP: any[] = (producto as any).variantes || [];
-                          const tallaIni = tallasP.find((t: string) => {
-                            if (!variantesP.length) return true;
-                            const v = variantesP.find((x: any) => x.tallaNombre === t && (!colorIni || x.colorNombre === colorIni));
-                            return v ? v.stock > 0 : true;
-                          });
-                          setTallaSeleccionada(tallaIni || tallasP[0] || 'Única');
-                          setColorSeleccionado(colorIni);
-                          setCantidadSeleccionada(1);
-                          setImagenActual(0);
-                        }}
-                        className="flex-1 bg-black hover:bg-gray-800 text-white h-11"
-                        style={{ fontFamily: "Inter, sans-serif" }}
-                      >
-                        Ver Detalles
-                      </Button>
                     </div>
                   </div>
                 </div>
               ))}
             </div>
           )}
+
+          {/* Paginación */}
+          {totalPaginasLanding > 1 && (
+            <div className="flex items-center justify-center gap-4 mt-8 mb-4">
+              <button
+                onClick={() => { setPaginaActual(p => p - 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                disabled={paginaActual === 1}
+                style={{ fontFamily: 'Inter, sans-serif' }}
+                className="px-5 py-2 text-sm border border-gray-300 rounded-lg hover:border-[#d65391] hover:text-[#d65391] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                ← Anterior
+              </button>
+              <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-600">
+                {paginaActual} / {totalPaginasLanding}
+              </span>
+              <button
+                onClick={() => { setPaginaActual(p => p + 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                disabled={paginaActual === totalPaginasLanding}
+                style={{ fontFamily: 'Inter, sans-serif' }}
+                className="px-5 py-2 text-sm border border-gray-300 rounded-lg hover:border-[#d65391] hover:text-[#d65391] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                Siguiente →
+              </button>
+            </div>
+          )}
         </main>
       </div>
 
-      {/* Modal de Detalle del Producto */}
+      {/* Modal Detalle Producto */}
       <Dialog open={!!productoSeleccionado} onOpenChange={() => setProductoSeleccionado(null)}>
-        <DialogContent className="max-w-xl max-h-[90vh] overflow-hidden p-0 flex flex-col w-[95vw]">
+        <DialogContent className="max-w-4xl p-0 overflow-hidden" style={{ height: '85vh' }}>
           <DialogDescription className="sr-only">
             {productoSeleccionado?.nombre || "Detalle del Producto"}
           </DialogDescription>
-          <div className="overflow-y-auto flex-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-            <div className="sticky top-0 bg-white border-b border-gray-200 px-3 py-2 flex items-center justify-between z-10">
-              <div>
-                <h1
-                  style={{ fontFamily: "Playfair Display, serif" }}
-                  className="text-lg font-bold text-gray-900"
-                >
-                  {productoSeleccionado?.nombre || "Detalle del Producto"}
-                </h1>
-                <p className="text-xs text-gray-500 mt-0.5">
-                  {productoSeleccionado?.codigo} • {productoSeleccionado?.marca}
-                </p>
-              </div>
-              <button
-                onClick={() => setProductoSeleccionado(null)}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-              >
-                <X className="w-6 h-6 text-gray-600" />
-              </button>
-            </div>
+          {productoSeleccionado && (() => {
+            const ps = productoSeleccionado as any;
+            const imagenesPorColor = productoSeleccionado.imagenesPorColor || {};
+            const imgsForColor = colorSeleccionado && imagenesPorColor[colorSeleccionado] && imagenesPorColor[colorSeleccionado].length > 0
+              ? imagenesPorColor[colorSeleccionado]
+              : (productoSeleccionado.imagenes && productoSeleccionado.imagenes.length > 0 ? productoSeleccionado.imagenes : [productoSeleccionado.imagen]);
+            return (
+              <div style={{ display: 'flex', height: '85vh', overflow: 'hidden' }}>
+                {/* LEFT: Image panel — all dimensions via inline style so nothing depends on Tailwind arbitrary classes */}
+                <div style={{ position: 'relative', width: '44%', minWidth: '44%', height: '85vh', overflow: 'hidden', flexShrink: 0, backgroundColor: '#f9fafb' }}>
+                  <ImageCarousel
+                    key={`${productoSeleccionado.id}-${colorSeleccionado || 'default'}`}
+                    imagenes={imgsForColor}
+                    nombre={productoSeleccionado.nombre}
+                    className="w-full h-full"
+                  />
+                </div>
 
-            {productoSeleccionado && (
-              <div className="px-3 py-3">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                  {/* SECCIÓN IZQUIERDA: Galería */}
-                  <div>
-                    <div className="sticky top-32">
-                      <div className="relative rounded-md overflow-hidden h-56 bg-gray-100 mb-2 flex items-center justify-center">
-                        {productoSeleccionado.badge && (
-                          <Badge
-                            className={`absolute top-3 right-3 z-10 ${
-                              productoSeleccionado.badge === "Sale"
-                                ? "bg-red-500 hover:bg-red-600"
-                                : "bg-[#d65391] hover:bg-[#d65391]"
-                            }`}
-                          >
-                            {productoSeleccionado.badge}
-                          </Badge>
-                        )}
-                        {(() => {
-                          const imagenesPorColor = productoSeleccionado.imagenesPorColor || {};
-                          const imgsForColor = colorSeleccionado && imagenesPorColor[colorSeleccionado] && imagenesPorColor[colorSeleccionado].length > 0
-                            ? imagenesPorColor[colorSeleccionado]
-                            : (productoSeleccionado.imagenes && productoSeleccionado.imagenes.length > 0 ? productoSeleccionado.imagenes : [productoSeleccionado.imagen]);
-                          return (
-                            <ImageCarousel
-                              key={`${productoSeleccionado.id}-${colorSeleccionado || 'default'}`}
-                              imagenes={imgsForColor}
-                              nombre={productoSeleccionado.nombre}
-                              className="w-full h-full"
-                            />
-                          );
-                        })()}
-                      </div>
+                {/* RIGHT: Details panel */}
+                <div style={{ flex: 1, height: '85vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '12px', padding: '28px 32px' }}>
 
-                      {/* Miniaturas */}
-                      {(() => {
-                        const imagenesPorColor = productoSeleccionado.imagenesPorColor || {};
-                        const imgsForColor = colorSeleccionado && imagenesPorColor[colorSeleccionado] && imagenesPorColor[colorSeleccionado].length > 0
-                          ? imagenesPorColor[colorSeleccionado]
-                          : (productoSeleccionado.imagenes && productoSeleccionado.imagenes.length > 0 ? productoSeleccionado.imagenes : [productoSeleccionado.imagen]);
-                        return imgsForColor.length > 1 ? (
-                          <div className="flex gap-1">
-                            {imgsForColor.slice(0, 3).map((img, idx) => (
-                              <img
-                                key={idx}
-                                src={img}
-                                alt={`Miniatura ${idx + 1}`}
-                                className="w-12 h-12 rounded-md object-cover border border-gray-200 cursor-pointer hover:border-[#d65391] transition-colors"
+                  {/* Name */}
+                  <h1
+                    style={{ fontFamily: 'Playfair Display, serif' }}
+                    className="text-3xl font-black uppercase text-gray-900 leading-tight"
+                  >
+                    {productoSeleccionado.nombre}
+                  </h1>
+
+                  {/* Price */}
+                  <div className="flex items-baseline gap-3">
+                    <span className="text-xl font-bold text-gray-900">
+                      {formatPrecio(productoSeleccionado.precio)}
+                    </span>
+                    {productoSeleccionado.precioOriginal && (
+                      <>
+                        <span className="text-sm text-gray-400 line-through">
+                          {formatPrecio(productoSeleccionado.precioOriginal)}
+                        </span>
+                        <span className="text-xs font-semibold text-red-500">
+                          -{calcularDescuento(productoSeleccionado.precio, productoSeleccionado.precioOriginal)}%
+                        </span>
+                      </>
+                    )}
+                  </div>
+
+                  {/* SKU */}
+                  {ps.codigo && (
+                    <p className="text-xs text-gray-400 -mt-1">SKU: {ps.codigo}</p>
+                  )}
+
+                  {/* Description */}
+                  {ps.descripcion && (
+                    <p className="text-sm text-gray-600 leading-relaxed mt-1">
+                      {ps.descripcion}
+                    </p>
+                  )}
+
+                  {/* Brand */}
+                  {ps.marca && (
+                    <p className="text-xs font-semibold uppercase tracking-widest text-gray-500">
+                      {ps.marca}
+                    </p>
+                  )}
+
+                  {/* Info icons */}
+                  <div className="border-t border-gray-100 pt-3 flex flex-col text-xs text-gray-500">
+                    <div className="flex items-center gap-3 py-2 border-b border-gray-100">
+                      <Package className="w-4 h-4 flex-shrink-0" />
+                      <span className="uppercase tracking-wide font-medium">Envío estándar 3-5 días hábiles</span>
+                    </div>
+                    <div className="flex items-center gap-3 py-2 border-b border-gray-100">
+                      <Globe className="w-4 h-4 flex-shrink-0" />
+                      <span className="uppercase tracking-wide font-medium">Envíos a todo el país</span>
+                    </div>
+                    <div className="flex items-center gap-3 py-2">
+                      <Lock className="w-4 h-4 flex-shrink-0" />
+                      <span className="uppercase tracking-wide font-medium">Pago 100% seguro y encriptado</span>
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  {/* Colors */}
+                  {(() => {
+                    const coloresProducto = productoSeleccionado.colores && productoSeleccionado.colores.length > 0
+                      ? productoSeleccionado.colores
+                      : colores.map((c: any) => c.nombre);
+                    if (coloresProducto.length === 0) return null;
+                    return (
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900 mb-2">Color</p>
+                        <div className="flex gap-3 flex-wrap">
+                          {coloresProducto.map((color) => {
+                            const hexColor = getColorHex(color);
+                            return (
+                              <button
+                                key={color}
+                                onClick={() => {
+                                  setColorSeleccionado(color);
+                                  const imgsPorColor = productoSeleccionado.imagenesPorColor?.[color];
+                                  if (imgsPorColor && imgsPorColor.length > 0) setImagenActual(0);
+                                }}
+                                className={`w-8 h-8 rounded-full border-2 transition-all ${
+                                  colorSeleccionado === color
+                                    ? 'border-gray-900 ring-2 ring-gray-900 ring-offset-2'
+                                    : 'border-gray-200 hover:border-gray-500'
+                                }`}
+                                style={{ backgroundColor: hexColor }}
+                                title={color}
                               />
-                            ))}
-                          </div>
-                        ) : null;
-                      })()}
-                    </div>
-                  </div>
-
-                  {/* SECCIÓN DERECHA: Información y Controles */}
-                  <div className="space-y-2">
-                    {/* Rating */}
-                    <div className="flex items-center gap-1 mb-2 pb-2 border-b border-gray-200">
-                      <div className="flex items-center gap-1">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`w-3 h-3 ${
-                              i < Math.floor(productoSeleccionado.rating)
-                                ? "fill-yellow-400 text-yellow-400"
-                                : "text-gray-300"
-                            }`}
-                          />
-                        ))}
-                      </div>
-                      <span className="text-xs text-gray-600 font-medium">
-                        ({productoSeleccionado.rating})
-                      </span>
-                    </div>
-
-                    {/* Descripción */}
-                    {productoSeleccionado.descripcion && (
-                      <p className="text-xs text-gray-600 leading-relaxed mb-2 pb-2 border-b border-gray-100">
-                        {productoSeleccionado.descripcion}
-                      </p>
-                    )}
-
-                    {/* PRECIOS Y DESCUENTO */}
-                    <div className="mb-3">
-                      <div className="flex items-baseline gap-2 mb-1">
-                        <span
-                          style={{ fontFamily: "Playfair Display, serif" }}
-                          className="text-2xl font-bold text-gray-900"
-                        >
-                          {formatPrecio(productoSeleccionado.precio)}
-                        </span>
-                        {productoSeleccionado.precioOriginal && (
-                          <span className="text-sm text-gray-400 line-through">
-                            {formatPrecio(productoSeleccionado.precioOriginal)}
-                          </span>
-                        )}
-                        {productoSeleccionado.precioOriginal && (
-                          <Badge className="bg-red-500 hover:bg-red-600 text-white text-xs ml-auto">
-                            -{calcularDescuento(productoSeleccionado.precio, productoSeleccionado.precioOriginal)}%
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* SELECTOR DE COLOR */}
-                    {(() => {
-                      const coloresProducto = productoSeleccionado.colores && productoSeleccionado.colores.length > 0
-                        ? productoSeleccionado.colores
-                        : colores.map((c: any) => c.nombre);
-                      if (coloresProducto.length === 0) return null;
-                      return (
-                        <div>
-                          <label className="block text-xs font-semibold text-gray-900 mb-3">
-                            Color:
-                          </label>
-                          <div className="flex gap-4 flex-wrap mb-3">
-                            {coloresProducto.map((color) => {
-                              const hexColor = getColorHex(color);
-                              return (
-                                <div key={color} className="flex flex-col items-center">
-                                  <button
-                                    onClick={() => {
-                                      setColorSeleccionado(color);
-                                      const imgsPorColor = productoSeleccionado.imagenesPorColor?.[color];
-                                      if (imgsPorColor && imgsPorColor.length > 0) {
-                                        setImagenActual(0);
-                                      }
-                                    }}
-                                    className={`w-10 h-10 rounded-full transition-all border-2 shadow-sm hover:shadow-md ${
-                                      colorSeleccionado === color
-                                        ? "border-[#d65391] ring-2 ring-[#d65391] ring-offset-2"
-                                        : "border-gray-300 hover:border-[#d65391]"
-                                    }`}
-                                    style={{ backgroundColor: hexColor }}
-                                    title={color}
-                                  />
-                                  <p className="text-xs text-gray-600 mt-1">{color}</p>
-                                </div>
-                              );
-                            })}
-                          </div>
+                            );
+                          })}
                         </div>
-                      );
-                    })()}
-
-                    {/* MATERIAL */}
-                    {productoSeleccionado.materiales && productoSeleccionado.materiales.length > 0 && (
-                      <div className="flex items-center gap-2 text-xs text-gray-600 bg-gray-50 rounded-lg px-3 py-2">
-                        <span className="text-base">🧵</span>
-                        <span>
-                          <span className="font-semibold text-gray-800">Material: </span>
-                          {Array.isArray(productoSeleccionado.materiales)
-                            ? productoSeleccionado.materiales.join(', ')
-                            : productoSeleccionado.materiales}
-                        </span>
                       </div>
-                    )}
+                    );
+                  })()}
 
-                    {/* SELECTOR DE TALLA */}
-                    {(() => {
-                      const tallasProducto: string[] = (productoSeleccionado as any).tallas || [];
-                      const variantes: any[] = (productoSeleccionado as any).variantes || [];
-                      const tallasConStock: any[] = (productoSeleccionado as any).tallasConStock || [];
-                      const stockGeneral: number = (productoSeleccionado as any).stock ?? 0;
-
-                      const tallasGlobales = tallas.map((t: any) => t.nombre);
-                      const tallasMostrar: string[] = tallasProducto.length > 0
-                        ? tallasProducto
-                        : (tallasGlobales.length > 0 ? tallasGlobales : (stockGeneral > 0 ? ['Única'] : []));
-
-                      if (tallasMostrar.length === 0) return null;
-
-                      const todosVariantesCero = variantes.length > 0 &&
-                        variantes.every((x: any) => (x.stock ?? 0) <= 0);
-
-                      return (
-                        <div>
-                          <label className="block text-xs font-semibold text-gray-900 mb-2">
-                            Selecciona tu talla:
-                          </label>
-                          <div className="flex flex-wrap gap-2">
-                            {tallasMostrar.map((talla) => {
-                              let sinStock = false;
-                              let stockDisponible = 0;
-
-                              if (talla === 'Única') {
-                                sinStock = stockGeneral <= 0;
-                                stockDisponible = stockGeneral;
-                              } else if (variantes.length > 0 && !todosVariantesCero) {
-                                const colorEfectivo = colorSeleccionado || (productoSeleccionado.colores?.length === 1 ? productoSeleccionado.colores[0] : null);
-                                if (colorEfectivo) {
-                                  const v = variantes.find((x: any) => x.tallaNombre === talla && x.colorNombre === colorEfectivo);
-                                  stockDisponible = v?.stock ?? 0;
-                                } else {
-                                  stockDisponible = variantes.filter((x: any) => x.tallaNombre === talla).reduce((s: number, x: any) => s + (x.stock ?? 0), 0);
-                                }
-                                sinStock = stockDisponible <= 0;
+                  {/* Sizes */}
+                  {(() => {
+                    const tallasProducto: string[] = (productoSeleccionado as any).tallas || [];
+                    const variantes: any[] = (productoSeleccionado as any).variantes || [];
+                    const tallasConStock: any[] = (productoSeleccionado as any).tallasConStock || [];
+                    const stockGeneral: number = (productoSeleccionado as any).stock ?? 0;
+                    const tallasGlobales = tallas.map((t: any) => t.nombre);
+                    const tallasMostrar: string[] = tallasProducto.length > 0
+                      ? tallasProducto
+                      : (tallasGlobales.length > 0 ? tallasGlobales : (stockGeneral > 0 ? ['Única'] : []));
+                    if (tallasMostrar.length === 0) return null;
+                    const todosVariantesCero = variantes.length > 0 && variantes.every((x: any) => (x.stock ?? 0) <= 0);
+                    return (
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900 mb-2">Talla</p>
+                        <div className="flex flex-wrap gap-2">
+                          {tallasMostrar.map((talla) => {
+                            let sinStock = false;
+                            let stockDisponible = 0;
+                            if (talla === 'Única') {
+                              sinStock = stockGeneral <= 0;
+                              stockDisponible = stockGeneral;
+                            } else if (variantes.length > 0 && !todosVariantesCero) {
+                              const colorEfectivo = colorSeleccionado || (productoSeleccionado.colores?.length === 1 ? productoSeleccionado.colores[0] : null);
+                              if (colorEfectivo) {
+                                const v = variantes.find((x: any) => x.tallaNombre === talla && x.colorNombre === colorEfectivo);
+                                stockDisponible = v?.stock ?? 0;
                               } else {
-                                const tallaInfo = tallasConStock.find((t: any) => t.nombre === talla);
-                                const stockTalla = tallaInfo ? tallaInfo.stock : (stockGeneral > 0 ? stockGeneral : 10);
-                                sinStock = stockTalla <= 0;
-                                stockDisponible = stockTalla;
+                                stockDisponible = variantes.filter((x: any) => x.tallaNombre === talla).reduce((s: number, x: any) => s + (x.stock ?? 0), 0);
                               }
-
-                              const seleccionada = tallaSeleccionada === talla;
-                              return (
-                                <button
-                                  key={talla}
-                                  type="button"
-                                  disabled={sinStock}
-                                  onClick={() => !sinStock && setTallaSeleccionada(talla)}
-                                  className={`relative px-3 py-1.5 rounded-md border text-sm font-medium transition-all
-                                    ${sinStock
-                                      ? 'border-gray-200 text-gray-300 bg-gray-50 cursor-not-allowed line-through'
-                                      : seleccionada
-                                        ? 'border-[#d65391] bg-[#d65391] text-white shadow-sm'
-                                        : 'border-gray-300 text-gray-700 hover:border-[#d65391]'
-                                    }`}
-                                  title={sinStock ? 'Agotado en esta talla' : `${talla}${stockDisponible > 0 ? ` — ${stockDisponible} disponibles` : ''}`}
-                                >
-                                  {talla}
-                                  {sinStock && (
-                                    <span className="absolute -top-1 -right-1 bg-red-400 text-white text-[9px] px-1 rounded-full">✕</span>
-                                  )}
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      );
-                    })()}
-
-                    {/* CANTIDAD */}
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-900 mb-2">
-                        Cantidad:
-                      </label>
-                      <div className="flex items-center gap-3 bg-gray-50 rounded-lg p-2 w-fit">
-                        <button
-                          onClick={() => setCantidadSeleccionada(Math.max(1, cantidadSeleccionada - 1))}
-                          className="p-2 hover:bg-white rounded-lg transition-colors"
-                        >
-                          <Minus className="w-4 h-4 text-gray-600" />
-                        </button>
-                        <input
-                          type="number"
-                          min="1"
-                          value={cantidadSeleccionada}
-                          onChange={(e) => setCantidadSeleccionada(Math.max(1, parseInt(e.target.value) || 1))}
-                          className="w-10 text-center font-bold text-sm border-0 bg-transparent"
-                        />
-                        <button
-                          onClick={() => setCantidadSeleccionada(cantidadSeleccionada + 1)}
-                          className="p-2 hover:bg-white rounded-lg transition-colors"
-                        >
-                          <Plus className="w-4 h-4 text-gray-600" />
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* STOCK STATUS */}
-                    {productoSeleccionado.agotado ? (
-                      <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
-                        <span className="text-red-500">⚠️</span>
-                        <div>
-                          <p className="text-sm font-semibold text-red-600">Producto Agotado</p>
-                          <p className="text-xs text-red-400">Sin stock disponible por el momento</p>
+                              sinStock = stockDisponible <= 0;
+                            } else {
+                              const tallaInfo = tallasConStock.find((t: any) => t.nombre === talla);
+                              const stockTalla = tallaInfo ? tallaInfo.stock : (stockGeneral > 0 ? stockGeneral : 10);
+                              sinStock = stockTalla <= 0;
+                              stockDisponible = stockTalla;
+                            }
+                            const seleccionada = tallaSeleccionada === talla;
+                            return (
+                              <button
+                                key={talla}
+                                type="button"
+                                disabled={sinStock}
+                                onClick={() => !sinStock && setTallaSeleccionada(talla)}
+                                className={`w-12 h-10 border text-sm font-medium transition-all ${
+                                  sinStock
+                                    ? 'border-gray-200 text-gray-300 bg-gray-50 cursor-not-allowed line-through'
+                                    : seleccionada
+                                      ? 'border-gray-900 bg-gray-900 text-white'
+                                      : 'border-gray-300 text-gray-700 hover:border-gray-900'
+                                }`}
+                                title={sinStock ? 'Agotado' : `${talla} — ${stockDisponible} disponibles`}
+                              >
+                                {talla}
+                              </button>
+                            );
+                          })}
                         </div>
                       </div>
-                    ) : (
-                      (() => {
-                        const variantes: any[] = (productoSeleccionado as any).variantes || [];
-                        const stockGeneral: number = (productoSeleccionado as any).stock ?? 0;
-                        const tallasConStock: any[] = (productoSeleccionado as any).tallasConStock || [];
-                        const todosVariantesCero = variantes.length > 0 && variantes.every((x: any) => (x.stock ?? 0) <= 0);
-                        const colorEfectivo = colorSeleccionado || (productoSeleccionado.colores?.length === 1 ? productoSeleccionado.colores[0] : null);
-                        let texto = tallaSeleccionada ? '' : 'Selecciona una talla';
-                        let isAgotado = false;
+                    );
+                  })()}
 
-                        if (tallaSeleccionada === 'Única') {
-                          isAgotado = stockGeneral <= 0;
-                          texto = isAgotado ? 'Agotado' : `${stockGeneral} unidades disponibles`;
-                        } else if (variantes.length > 0 && !todosVariantesCero) {
-                          if (tallaSeleccionada && colorEfectivo) {
-                            const v = variantes.find((x: any) => x.tallaNombre === tallaSeleccionada && x.colorNombre === colorEfectivo);
-                            const stockV = v?.stock ?? 0;
-                            isAgotado = stockV <= 0;
-                            texto = isAgotado ? `Agotado en ${tallaSeleccionada} / ${colorEfectivo}` : `${stockV} unidades en ${tallaSeleccionada} / ${colorEfectivo}`;
-                          } else if (tallaSeleccionada) {
-                            const total = variantes.filter((x: any) => x.tallaNombre === tallaSeleccionada).reduce((s: number, x: any) => s + (x.stock ?? 0), 0);
-                            isAgotado = total <= 0;
-                            texto = isAgotado ? `Agotado en ${tallaSeleccionada}` : `${total} unidades en ${tallaSeleccionada}`;
-                          } else if (colorEfectivo) {
-                            const total = variantes.filter((x: any) => x.colorNombre === colorEfectivo).reduce((s: number, x: any) => s + (x.stock ?? 0), 0);
-                            isAgotado = total <= 0;
-                            texto = isAgotado ? 'Color agotado' : `${total} unidades en ${colorEfectivo}`;
-                          }
-                        } else {
-                          const tallaInfo = tallaSeleccionada ? tallasConStock.find((t: any) => t.nombre === tallaSeleccionada) : null;
-                          const stockTotal = tallaInfo ? tallaInfo.stock : stockGeneral;
-                          isAgotado = stockTotal <= 0;
-                          texto = isAgotado ? 'Agotado' : `${stockTotal} unidades disponibles`;
-                        }
-                        return (
-                          <div className="flex items-center gap-1">
-                            <div className={`w-2 h-2 rounded-full ${isAgotado ? 'bg-red-400' : 'bg-green-400'}`}></div>
-                            <span className={`text-xs font-medium ${isAgotado ? 'text-red-500' : 'text-green-600'}`}>{texto}</span>
-                          </div>
-                        );
-                      })()
-                    )}
-
-                    {/* BOTONES DE ACCIÓN */}
-                    <div className="space-y-1 pt-2 border-t border-gray-200">
-                      <Button
-                        disabled={productoSeleccionado.agotado}
-                        onClick={handleComprarAhora}
-                        className={`w-full h-9 font-semibold text-xs shadow-md transition-all text-white ${productoSeleccionado.agotado ? 'bg-gray-300 cursor-not-allowed' : 'bg-[#d65391] hover:bg-[#c04380] hover:shadow-lg'}`}
-                        style={{ fontFamily: "Inter, sans-serif" }}
+                  {/* Quantity + Add to cart */}
+                  <div className="flex items-center gap-3 mt-1">
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => setCantidadSeleccionada(Math.max(1, cantidadSeleccionada - 1))}
+                        className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors text-gray-600"
                       >
-                        <Zap className="w-4 h-4 mr-2" />
-                        {productoSeleccionado.agotado ? 'Agotado' : 'Comprar Ahora'}
-                      </Button>
-                      <Button
-                        disabled={productoSeleccionado.agotado}
-                        onClick={handleAgregarAlCarrito}
-                        className={`w-full h-9 font-semibold text-xs transition-all text-white ${productoSeleccionado.agotado ? 'bg-gray-300 cursor-not-allowed' : 'bg-black hover:bg-gray-800'}`}
-                        style={{ fontFamily: "Inter, sans-serif" }}
+                        <Minus className="w-3 h-3" />
+                      </button>
+                      <span className="text-sm font-medium w-4 text-center">{cantidadSeleccionada}</span>
+                      <button
+                        onClick={() => setCantidadSeleccionada(cantidadSeleccionada + 1)}
+                        className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors text-gray-600"
                       >
-                        <ShoppingBag className="w-4 h-4 mr-2" />
-                        Agregar al Carrito
-                      </Button>
-                      <Button
-                        onClick={() => toggleFavorito(productoSeleccionado.id)}
-                        variant="outline"
-                        className="w-full border-2 border-[#d65391] text-[#d65391] hover:bg-[#d65391] hover:text-white h-9 font-semibold text-xs transition-all"
-                        style={{ fontFamily: "Inter, sans-serif" }}
-                      >
-                        <Heart
-                          className={`w-4 h-4 mr-2 ${esFavorito(productoSeleccionado.id) ? "fill-current" : ""}`}
-                        />
-                        {esFavorito(productoSeleccionado.id) ? "En Favoritos" : "Agregar a Favoritos"}
-                      </Button>
+                        <Plus className="w-3 h-3" />
+                      </button>
                     </div>
+                    <button
+                      disabled={ps.agotado}
+                      onClick={handleAgregarAlCarrito}
+                      className={`flex-1 h-10 border text-xs font-semibold uppercase tracking-wider transition-all ${
+                        ps.agotado
+                          ? 'border-gray-200 text-gray-300 cursor-not-allowed'
+                          : 'border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white'
+                      }`}
+                    >
+                      {ps.agotado ? 'Agotado' : 'Agregar al Carrito'}
+                    </button>
                   </div>
+
+                  {/* Buy Now */}
+                  <button
+                    disabled={ps.agotado}
+                    onClick={handleComprarAhora}
+                    className={`w-full h-10 text-xs font-semibold uppercase tracking-wider text-white transition-all ${
+                      ps.agotado ? 'bg-gray-300 cursor-not-allowed' : 'bg-[#d65391] hover:bg-[#c04380]'
+                    }`}
+                  >
+                    {ps.agotado ? 'Agotado' : 'Comprar Ahora'}
+                  </button>
                 </div>
               </div>
-            )}
-          </div>
+            );
+          })()}
         </DialogContent>
       </Dialog>
 

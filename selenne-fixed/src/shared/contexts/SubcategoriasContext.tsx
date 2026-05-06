@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { getJson, postJson } from '../../services/api';
+import { getJson, postJson, getAccessToken } from '../../services/api';
 import { apiBase } from '../../services/api';
 
 interface Subcategoria {
@@ -47,12 +47,12 @@ function mapById(idField: string) {
 }
 
 function isLoggedIn(): boolean {
-  return !!localStorage.getItem('accessToken');
+  return !!getAccessToken();
 }
 
 async function doGet(path: string): Promise<any[]> {
   try {
-    const token = localStorage.getItem('accessToken');
+    const token = getAccessToken();
     const headers: Record<string, string> = {};
     if (token) headers['Authorization'] = `Bearer ${token}`;
     const res = await fetch(apiBase + path, { headers });
@@ -74,7 +74,7 @@ async function doPost(path: string, body: object): Promise<any | null> {
 
 async function doPut(path: string, body: object): Promise<any | null> {
   try {
-    const token = localStorage.getItem('accessToken');
+    const token = getAccessToken();
     const res = await fetch(apiBase + path, {
       method: 'PUT',
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
@@ -89,7 +89,7 @@ async function doPut(path: string, body: object): Promise<any | null> {
 
 async function doDelete(path: string): Promise<boolean> {
   try {
-    const token = localStorage.getItem('accessToken');
+    const token = getAccessToken();
     const res = await fetch(apiBase + path, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
