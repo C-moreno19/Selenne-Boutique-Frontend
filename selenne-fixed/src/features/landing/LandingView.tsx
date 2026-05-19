@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+﻿import React, { useState, useMemo, useEffect } from "react";
 import {
   ShoppingBag,
   Heart,
@@ -80,6 +80,8 @@ export const LandingView: React.FC<LandingViewProps> = ({
   const [menuMovilAbierto, setMenuMovilAbierto] = useState(false);
   const [favoritosOpen, setFavoritosOpen] = useState(false);
   const [carritoAbierto, setCarritoAbierto] = useState(false);
+  const [busquedaModalAbierta, setBusquedaModalAbierta] = useState(false);
+  const [busquedaModal, setBusquedaModal] = useState('');
   const [filtroTalla, setFiltroTalla] = useState<string>("");
   const [filtroColor, setFiltroColor] = useState<string>("");
   const [filtroMaterial, setFiltroMaterial] = useState<string>("");
@@ -87,7 +89,6 @@ export const LandingView: React.FC<LandingViewProps> = ({
   const [filtroCategoriaRopa, setFiltroCategoriaRopa] = useState<string>("");
   const [filtroPrecioMin, setFiltroPrecioMin] = useState<number | null>(null);
   const [filtroPrecioMax, setFiltroPrecioMax] = useState<number | null>(null);
-  const [mostrarModalLoginPerfil, setMostrarModalLoginPerfil] = useState(false);
   const [mostrarModalLoginCarrito, setMostrarModalLoginCarrito] = useState(false);
   const [paginaActual, setPaginaActual] = useState(1);
   const PRODUCTOS_POR_PAGINA = 12;
@@ -343,8 +344,8 @@ export const LandingView: React.FC<LandingViewProps> = ({
                 className="flex items-center justify-center hover:opacity-75 transition-opacity"
                 title="Selenne Boutique — Inicio"
               >
-                <span className="text-2xl font-bold tracking-wide font-playfair drop-shadow-sm">
-                  Selenne <span className="text-[#d65391] italic">Boutique</span>
+                <span className="text-2xl font-bold tracking-wide text-black" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
+                  Selenne Boutique
                 </span>
               </button>
             </div>
@@ -353,7 +354,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
             <nav className="hidden lg:flex items-center space-x-8">
               <button
                 onClick={() => setCategoriaActiva("mujer")}
-                style={{ fontFamily: "Inter, sans-serif" }}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className={`py-2 px-1 border-b-2 transition-colors ${
                   categoriaActiva === "mujer"
                     ? "border-[#d65391] text-[#d65391]"
@@ -364,7 +365,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
               </button>
               <button
                 onClick={() => setCategoriaActiva("accesorios")}
-                style={{ fontFamily: "Inter, sans-serif" }}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className={`py-2 px-1 border-b-2 transition-colors ${
                   categoriaActiva === "accesorios"
                     ? "border-[#d65391] text-[#d65391]"
@@ -375,7 +376,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
               </button>
               <button
                 onClick={() => setCategoriaActiva("sale")}
-                style={{ fontFamily: "Inter, sans-serif" }}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className={`py-2 px-1 border-b-2 transition-colors ${
                   categoriaActiva === "sale"
                     ? "border-[#d65391] text-[#d65391]"
@@ -393,7 +394,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                 size="sm"
                 onClick={onNavigateToLogin}
                 className="hidden md:flex items-center gap-1 text-gray-700 hover:text-[#d65391]"
-                style={{ fontFamily: "Inter, sans-serif" }}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
               >
                 <LogIn className="w-4 h-4" />
                 Iniciar Sesión
@@ -402,16 +403,87 @@ export const LandingView: React.FC<LandingViewProps> = ({
                 size="sm"
                 onClick={onNavigateToRegister}
                 className="hidden md:flex bg-[#d65391] hover:bg-[#c04380] text-white"
-                style={{ fontFamily: "Inter, sans-serif" }}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
               >
                 Registrarse
               </Button>
               <button
-                onClick={() => setMostrarModalLoginPerfil(true)}
+                onClick={() => onNavigateToLogin()}
                 className="md:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
               >
                 <User className="w-6 h-6 text-gray-700" />
               </button>
+              <Sheet open={busquedaModalAbierta} onOpenChange={v => { setBusquedaModalAbierta(v); if (!v) setBusquedaModal(''); }}>
+                <SheetTrigger asChild>
+                  <button
+                    onClick={() => setBusquedaModal('')}
+                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                    title="Buscar"
+                  >
+                    <Search className="w-6 h-6 text-gray-700" />
+                  </button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-full sm:max-w-md flex flex-col p-0">
+                  <SheetHeader className="px-4 py-3 border-b border-gray-100">
+                    <SheetTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Buscar</SheetTitle>
+                  </SheetHeader>
+                  <div className="mt-0 flex flex-col gap-0 flex-1 overflow-hidden">
+                    <div className="flex items-center gap-2 border-b border-gray-200 px-4 py-3">
+                      <Search className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                      <input
+                        autoFocus
+                        type="text"
+                        value={busquedaModal}
+                        onChange={e => setBusquedaModal(e.target.value)}
+                        placeholder="Buscar productos..."
+                        className="flex-1 text-sm outline-none text-gray-900 placeholder-gray-400"
+                        style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                      />
+                      {busquedaModal && (
+                        <button onClick={() => setBusquedaModal('')} className="text-gray-400 hover:text-gray-600">
+                          <X className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                    <div className="overflow-y-auto flex-1">
+                      {busquedaModal.trim() === '' ? (
+                        <p className="text-center text-sm text-gray-400 py-10">Empieza a escribir para buscar productos</p>
+                      ) : (() => {
+                        const resultados = productosData.filter(p =>
+                          p.nombre.toLowerCase().includes(busquedaModal.toLowerCase()) ||
+                          (p.descripcion || '').toLowerCase().includes(busquedaModal.toLowerCase())
+                        );
+                        return resultados.length === 0 ? (
+                          <p className="text-center text-sm text-gray-400 py-10">Sin resultados para "{busquedaModal}"</p>
+                        ) : (
+                          <div>
+                            {resultados.map(p => (
+                              <button key={p.id} type="button"
+                                onClick={() => {
+                                  setProductoSeleccionado(p);
+                                  setTallaSeleccionada(p.tallas[0] || '');
+                                  setColorSeleccionado(p.colores?.[0] || '');
+                                  setCantidadSeleccionada(1);
+                                  setImagenActual(0);
+                                  setBusquedaModalAbierta(false);
+                                }}
+                                className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0"
+                              >
+                                <img src={p.imagen} alt={p.nombre} className="w-14 h-14 object-cover flex-shrink-0" />
+                                <div className="flex-1 text-left min-w-0">
+                                  <p className="text-sm font-medium text-gray-900 truncate" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>{p.nombre}</p>
+                                  {p.descripcion && <p className="text-xs text-gray-400 truncate mt-0.5">{p.descripcion}</p>}
+                                  <p className="text-sm font-bold text-gray-900 mt-0.5">${p.precio.toLocaleString('es-CO')}</p>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  </div>
+                </SheetContent>
+              </Sheet>
               <Sheet open={favoritosOpen} onOpenChange={setFavoritosOpen}>
                 <SheetTrigger asChild>
                   <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors relative">
@@ -425,7 +497,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                 </SheetTrigger>
                 <SheetContent>
                   <SheetHeader>
-                    <SheetTitle style={{ fontFamily: 'Playfair Display, serif' }}>
+                    <SheetTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                       Favoritos
                     </SheetTitle>
                   </SheetHeader>
@@ -448,7 +520,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                               <img src={prod.imagen} alt={prod.nombre} className="w-16 h-16 object-cover rounded" />
                               <div className="flex-1">
                                 <div className="flex justify-between items-center">
-                                  <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium">{prod.nombre}</span>
+                                  <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium">{prod.nombre}</span>
                                   <span className="text-sm text-gray-600">{formatPrecio(prod.precio)}</span>
                                 </div>
                                 <div className="mt-2 flex gap-2">
@@ -492,7 +564,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                 </SheetTrigger>
                 <SheetContent>
                   <SheetHeader>
-                    <SheetTitle style={{ fontFamily: "Playfair Display, serif" }}>
+                    <SheetTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                       Carrito de Compras
                     </SheetTitle>
                   </SheetHeader>
@@ -578,10 +650,10 @@ export const LandingView: React.FC<LandingViewProps> = ({
                           </div>
                           <Separator />
                           <div className="flex justify-between">
-                            <span style={{ fontFamily: "Playfair Display, serif" }} className="text-lg text-gray-900">
+                            <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-lg text-gray-900">
                               Total:
                             </span>
-                            <span style={{ fontFamily: "Playfair Display, serif" }} className="text-lg text-[#d65391]">
+                            <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-lg text-[#d65391]">
                               {formatPrecio(getTotalCarrito())}
                             </span>
                           </div>
@@ -593,7 +665,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                             setMostrarModalLoginCarrito(true);
                           }}
                           className="w-full bg-black hover:bg-gray-800 text-white h-11"
-                          style={{ fontFamily: "Inter, sans-serif" }}
+                          style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                         >
                           Proceder al Pago
                         </Button>
@@ -610,7 +682,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
             <nav className="lg:hidden py-4 space-y-2 border-t border-gray-200">
               <button
                 onClick={() => { setCategoriaActiva("mujer"); setMenuMovilAbierto(false); }}
-                style={{ fontFamily: "Inter, sans-serif" }}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className={`block w-full text-left px-4 py-2 rounded-lg ${
                   categoriaActiva === "mujer" ? "bg-[#f8a9c5] text-white" : "text-gray-700 hover:bg-gray-100"
                 }`}
@@ -619,7 +691,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
               </button>
               <button
                 onClick={() => { setCategoriaActiva("accesorios"); setMenuMovilAbierto(false); }}
-                style={{ fontFamily: "Inter, sans-serif" }}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className={`block w-full text-left px-4 py-2 rounded-lg ${
                   categoriaActiva === "accesorios" ? "bg-[#f8a9c5] text-white" : "text-gray-700 hover:bg-gray-100"
                 }`}
@@ -628,7 +700,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
               </button>
               <button
                 onClick={() => { setCategoriaActiva("sale"); setMenuMovilAbierto(false); }}
-                style={{ fontFamily: "Inter, sans-serif" }}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className={`block w-full text-left px-4 py-2 rounded-lg ${
                   categoriaActiva === "sale" ? "bg-[#f8a9c5] text-white" : "text-gray-700 hover:bg-gray-100"
                 }`}
@@ -657,18 +729,27 @@ export const LandingView: React.FC<LandingViewProps> = ({
       </header>
 
       <div className="flex-1 flex flex-col">
+        {/* Banner de categoría */}
+        <div className="w-full">
+          <img
+            src={
+              categoriaActiva === "mujer"
+                ? "/banners/banner-mujer.png"
+                : categoriaActiva === "accesorios"
+                ? "/banners/banner-accesorios.png"
+                : "/banners/banner-sale.png"
+            }
+            alt={categoriaActiva}
+            className="w-full h-auto block"
+          />
+        </div>
+
         {/* Barra de Búsqueda y Filtros */}
         <div className="bg-white border-b border-gray-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-            <div className="relative w-full mb-3">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <Input type="text" placeholder="Buscar productos..." value={busqueda}
-                onChange={(e) => setBusqueda(e.target.value)}
-                className="pl-10 bg-white w-full" style={{ fontFamily: "Inter, sans-serif" }} />
-            </div>
             <div className="flex items-center justify-between gap-3">
               <Select value={ordenar} onValueChange={setOrdenar}>
-                <SelectTrigger className="w-52 bg-white h-9 text-sm" style={{ fontFamily: "Inter, sans-serif" }}>
+                <SelectTrigger className="w-52 bg-white h-9 text-sm" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -679,7 +760,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                 </SelectContent>
               </Select>
               <button onClick={abrirFiltros}
-                style={{ fontFamily: "Inter, sans-serif" }}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:border-gray-900 transition-colors">
                 <SlidersHorizontal className="w-4 h-4" />
                 FILTROS
@@ -695,7 +776,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
         {filtrosAbiertos && (
           <>
             <div className="fixed inset-0 bg-black/40 z-40" onClick={() => setFiltrosAbiertos(false)} />
-            <div className="fixed right-0 top-0 h-full w-80 bg-white z-50 flex flex-col shadow-2xl" style={{ fontFamily: "Inter, sans-serif" }}>
+            <div className="fixed right-0 top-0 h-full w-80 bg-white z-50 flex flex-col shadow-2xl" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
               {/* Header */}
               <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
                 <span className="text-xs font-bold tracking-widest text-gray-900">APLICAR FILTROS</span>
@@ -825,21 +906,11 @@ export const LandingView: React.FC<LandingViewProps> = ({
           </>
         )}
 
-        {/* Banner de Categoría */}
-        <div className="pt-8 pb-2 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2
-            style={{ fontFamily: "Playfair Display, serif", fontSize: "32px", fontWeight: 700, letterSpacing: "0.08em" }}
-            className="text-[#1a1a1a] uppercase"
-          >
-            {categoriaActiva === "mujer" ? "Mujer" : categoriaActiva === "accesorios" ? "Accesorios" : "Sale"}
-          </h2>
-        </div>
-        <div style={{ height: "2px", backgroundColor: "#d65391" }} />
 
         {/* Grid de Productos */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="mb-4 flex justify-between items-center">
-            <p style={{ fontFamily: "Inter, sans-serif" }} className="text-gray-600">
+            <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-600">
               {productosFiltrados.length} productos encontrados
             </p>
           </div>
@@ -885,7 +956,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                         setCantidadSeleccionada(1);
                         setImagenActual(0);
                       }}
-                      style={{ fontFamily: "Inter, sans-serif" }}
+                      style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                       className="absolute top-3 right-3 bg-white/90 hover:bg-white text-gray-900 text-xs font-bold tracking-widest px-3 py-1.5 transition-colors"
                     >
                       DETALLE
@@ -904,7 +975,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                   </div>
                   <div className="pt-3 pb-4 px-1">
                     <h3
-                      style={{ fontFamily: "Inter, sans-serif" }}
+                      style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                       className="text-gray-900 text-sm font-semibold uppercase tracking-wide mb-1 line-clamp-2"
                     >
                       {producto.nombre}
@@ -912,7 +983,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                     <div className="flex items-center gap-2">
                       {producto.precioOriginal ? (
                         <>
-                          <span style={{ fontFamily: "Playfair Display, serif" }} className="text-[#d65391]">
+                          <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-[#d65391]">
                             {formatPrecio(producto.precio)}
                           </span>
                           <span className="text-sm text-gray-400 line-through">
@@ -920,7 +991,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                           </span>
                         </>
                       ) : (
-                        <span style={{ fontFamily: "Playfair Display, serif" }} className="text-gray-900">
+                        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-900">
                           {formatPrecio(producto.precio)}
                         </span>
                       )}
@@ -937,18 +1008,18 @@ export const LandingView: React.FC<LandingViewProps> = ({
               <button
                 onClick={() => { setPaginaActual(p => p - 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                 disabled={paginaActual === 1}
-                style={{ fontFamily: 'Inter, sans-serif' }}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className="px-5 py-2 text-sm border border-gray-300 rounded-lg hover:border-[#d65391] hover:text-[#d65391] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 ← Anterior
               </button>
-              <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-600">
+              <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-600">
                 {paginaActual} / {totalPaginasLanding}
               </span>
               <button
                 onClick={() => { setPaginaActual(p => p + 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                 disabled={paginaActual === totalPaginasLanding}
-                style={{ fontFamily: 'Inter, sans-serif' }}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className="px-5 py-2 text-sm border border-gray-300 rounded-lg hover:border-[#d65391] hover:text-[#d65391] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Siguiente →
@@ -987,7 +1058,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
 
                   {/* Name */}
                   <h1
-                    style={{ fontFamily: 'Playfair Display, serif' }}
+                    style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                     className="text-3xl font-black uppercase text-gray-900 leading-tight"
                   >
                     {productoSeleccionado.nombre}
@@ -1010,22 +1081,10 @@ export const LandingView: React.FC<LandingViewProps> = ({
                     )}
                   </div>
 
-                  {/* SKU */}
-                  {ps.codigo && (
-                    <p className="text-xs text-gray-400 -mt-1">SKU: {ps.codigo}</p>
-                  )}
-
                   {/* Description */}
-                  {ps.descripcion && (
-                    <p className="text-sm text-gray-600 leading-relaxed mt-1">
-                      {ps.descripcion}
-                    </p>
-                  )}
-
-                  {/* Brand */}
-                  {ps.marca && (
-                    <p className="text-xs font-semibold uppercase tracking-widest text-gray-500">
-                      {ps.marca}
+                  {(productoSeleccionado.descripcion || ps.descripcion) && (
+                    <p className="text-sm text-gray-600 leading-relaxed mt-4 mb-2">
+                      {productoSeleccionado.descripcion || ps.descripcion}
                     </p>
                   )}
 
@@ -1144,8 +1203,8 @@ export const LandingView: React.FC<LandingViewProps> = ({
                     );
                   })()}
 
-                  {/* Quantity + Add to cart */}
-                  <div className="flex items-center gap-3 mt-1">
+                  {/* Quantity + Add to cart + Favorite */}
+                  <div className="flex items-center gap-3 mt-1" style={{ flexShrink: 0 }}>
                     <div className="flex items-center gap-3">
                       <button
                         onClick={() => setCantidadSeleccionada(Math.max(1, cantidadSeleccionada - 1))}
@@ -1172,12 +1231,20 @@ export const LandingView: React.FC<LandingViewProps> = ({
                     >
                       {ps.agotado ? 'Agotado' : 'Agregar al Carrito'}
                     </button>
+                    <button
+                      onClick={() => onNavigateToLogin()}
+                      title="Inicia sesión para guardar en favoritos"
+                      className="w-10 h-10 border border-gray-300 flex items-center justify-center transition-all flex-shrink-0 text-gray-500 hover:border-[#d65391] hover:text-[#d65391]"
+                    >
+                      <Heart className="w-4 h-4" fill="none" />
+                    </button>
                   </div>
 
                   {/* Buy Now */}
                   <button
                     disabled={ps.agotado}
                     onClick={handleComprarAhora}
+                    style={{ flexShrink: 0 }}
                     className={`w-full h-10 text-xs font-semibold uppercase tracking-wider text-white transition-all ${
                       ps.agotado ? 'bg-gray-300 cursor-not-allowed' : 'bg-[#d65391] hover:bg-[#c04380]'
                     }`}
@@ -1191,42 +1258,6 @@ export const LandingView: React.FC<LandingViewProps> = ({
         </DialogContent>
       </Dialog>
 
-      {/* Modal Login para Perfil */}
-      <Dialog open={mostrarModalLoginPerfil} onOpenChange={setMostrarModalLoginPerfil}>
-        <DialogContent className="max-w-xs w-[90vw] rounded-2xl p-6 text-center">
-          <DialogDescription className="sr-only">Iniciar sesión para ver tu perfil</DialogDescription>
-          <div className="flex justify-center mb-3">
-            <div className="w-12 h-12 rounded-full bg-[#d65391]/10 flex items-center justify-center">
-              <LogIn className="w-5 h-5 text-[#d65391]" />
-            </div>
-          </div>
-          <DialogHeader className="mb-1">
-            <DialogTitle style={{ fontFamily: "Playfair Display, serif" }} className="text-xl text-gray-900">
-              Inicia sesión
-            </DialogTitle>
-          </DialogHeader>
-          <p style={{ fontFamily: "Inter, sans-serif" }} className="text-sm text-gray-500 mb-5">
-            Para ver tu perfil e historial de compras necesitas una cuenta.
-          </p>
-          <div className="space-y-2">
-            <Button
-              onClick={() => { setMostrarModalLoginPerfil(false); onNavigateToLogin(); }}
-              className="w-full bg-[#d65391] hover:bg-[#c14a7f] text-white h-10 text-sm"
-              style={{ fontFamily: "Inter, sans-serif" }}
-            >
-              Iniciar Sesión
-            </Button>
-            <Button
-              onClick={() => { setMostrarModalLoginPerfil(false); onNavigateToRegister(); }}
-              variant="outline"
-              className="w-full border-gray-200 text-gray-600 hover:bg-gray-50 h-10 text-sm"
-              style={{ fontFamily: "Inter, sans-serif" }}
-            >
-              Crear cuenta
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
 
       {/* Modal Login para Carrito / Compra */}
       <Dialog open={mostrarModalLoginCarrito} onOpenChange={setMostrarModalLoginCarrito}>
@@ -1238,18 +1269,18 @@ export const LandingView: React.FC<LandingViewProps> = ({
             </div>
           </div>
           <DialogHeader className="mb-1">
-            <DialogTitle style={{ fontFamily: "Playfair Display, serif" }} className="text-xl text-gray-900">
+            <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xl text-gray-900">
               ¡Un paso más!
             </DialogTitle>
           </DialogHeader>
-          <p style={{ fontFamily: "Inter, sans-serif" }} className="text-sm text-gray-500 mb-5">
+          <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500 mb-5">
             Para agregar productos al carrito y realizar compras necesitas iniciar sesión.
           </p>
           <div className="space-y-2">
             <Button
               onClick={() => { setMostrarModalLoginCarrito(false); (onNavigateToLoginForCheckout ?? onNavigateToLogin)(); }}
               className="w-full bg-[#d65391] hover:bg-[#c14a7f] text-white h-10 text-sm"
-              style={{ fontFamily: "Inter, sans-serif" }}
+              style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
             >
               Iniciar Sesión
             </Button>
@@ -1257,7 +1288,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
               onClick={() => { setMostrarModalLoginCarrito(false); onNavigateToRegister(); }}
               variant="outline"
               className="w-full border-gray-200 text-gray-600 hover:bg-gray-50 h-10 text-sm"
-              style={{ fontFamily: "Inter, sans-serif" }}
+              style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
             >
               Crear cuenta
             </Button>
@@ -1271,17 +1302,17 @@ export const LandingView: React.FC<LandingViewProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
               <h3
-                style={{ fontFamily: "Playfair Display, serif" }}
+                style={{ fontFamily: '"Times New Roman", Times, serif', color: '#ffffff' }}
                 className="text-2xl mb-4"
               >
-                Selenne <span className="text-[#f8a9c5]">Boutique</span>
+                Selenne Boutique
               </h3>
-              <p style={{ fontFamily: "Inter, sans-serif" }} className="text-gray-400 text-sm">
+              <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-400 text-sm">
                 Elegancia y estilo en cada prenda
               </p>
             </div>
             <div>
-              <h4 style={{ fontFamily: "Inter, sans-serif" }} className="mb-4">Compra</h4>
+              <h4 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="mb-4">Compra</h4>
               <ul className="space-y-2 text-sm text-gray-400">
                 <li>
                   <button onClick={() => setCategoriaActiva("mujer")} className="hover:text-[#f8a9c5]">
@@ -1301,7 +1332,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
               </ul>
             </div>
             <div>
-              <h4 style={{ fontFamily: "Inter, sans-serif" }} className="mb-4">Ayuda</h4>
+              <h4 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="mb-4">Ayuda</h4>
               <ul className="space-y-2 text-sm text-gray-400">
                 <li>
                   <a
@@ -1316,7 +1347,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
               </ul>
             </div>
             <div>
-              <h4 style={{ fontFamily: "Inter, sans-serif" }} className="mb-4">Síguenos</h4>
+              <h4 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="mb-4">Síguenos</h4>
               <ul className="space-y-2 text-sm text-gray-400">
                 <li><a href="https://www.instagram.com/selenne_boutique_?igsh=MWJtaXR0Zm85MW13ZQ==" target="_blank" rel="noopener noreferrer" className="hover:text-[#f8a9c5]">Instagram</a></li>
               </ul>

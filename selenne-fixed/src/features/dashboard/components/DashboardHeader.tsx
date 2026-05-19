@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import {
   Search,
   MessageCircle,
@@ -113,7 +113,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                 placeholder="Buscar productos, usuarios, ventas..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                style={{ fontFamily: 'Inter, sans-serif' }}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391] focus:border-transparent transition-all"
               />
             </div>
@@ -148,10 +148,10 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                   <User className="w-5 h-5 text-white" />
                 </div>
                 <div className="text-left">
-                  <div style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-900">
+                  <div style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-900">
                     {user?.name}
                   </div>
-                  <div style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-[#d65391]">
+                  <div style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-[#d65391]">
                     {user?.role}
                   </div>
                 </div>
@@ -173,7 +173,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                       className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors text-left"
                     >
                       <User className="w-4 h-4 text-gray-600" />
-                      <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-700">
+                      <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-700">
                         Mi Perfil
                       </span>
                     </button>
@@ -183,7 +183,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                       className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-red-50 transition-colors text-left"
                     >
                       <LogOut className="w-4 h-4 text-red-600" />
-                      <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-red-600">
+                      <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-red-600">
                         Cerrar Sesión
                       </span>
                     </button>
@@ -199,10 +199,10 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
       <Dialog open={messagesOpen} onOpenChange={setMessagesOpen}>
         <DialogContent className="max-w-2xl h-auto flex flex-col p-0 gap-0">
           <DialogHeader className="px-8 pt-6 pb-4 border-b border-gray-200 flex-shrink-0">
-            <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl">
+            <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-2xl">
               Mensajes
             </DialogTitle>
-            <DialogDescription style={{ fontFamily: 'Inter, sans-serif' }}>
+            <DialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
               Pedidos nuevos, usuarios registrados y respuestas de correo
             </DialogDescription>
           </DialogHeader>
@@ -211,9 +211,9 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
             <div className="space-y-6 py-6 px-8">
               <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
                 <div className="bg-gray-50 px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-                  <h3 style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-gray-800 text-base">💬 Actividad reciente</h3>
+                  <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-gray-800 text-base">💬 Actividad reciente</h3>
                   {unreadMessages > 0 && (
-                    <span className="px-2 py-0.5 bg-[#d65391] text-white text-xs rounded-full" style={{ fontFamily: 'Inter, sans-serif' }}>
+                    <span className="px-2 py-0.5 bg-[#d65391] text-white text-xs rounded-full" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                       {unreadMessages} sin leer
                     </span>
                   )}
@@ -222,7 +222,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                   {adminMsgs.length === 0 ? (
                     <div className="text-center py-12">
                       <MessageCircle className="w-10 h-10 mx-auto text-gray-200 mb-3" />
-                      <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-400">
+                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-400">
                         No hay mensajes por el momento
                       </p>
                     </div>
@@ -248,18 +248,18 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between gap-2">
-                              <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs font-semibold text-[#d65391] uppercase tracking-wide">
+                              <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs font-semibold text-[#d65391] uppercase tracking-wide">
                                 {getMsgLabel(msg.tipo)}
                               </p>
-                              <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-400 whitespace-nowrap flex-shrink-0">
+                              <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 whitespace-nowrap flex-shrink-0">
                                 {new Date(msg.fecha).toLocaleDateString('es-CO')}
                               </span>
                             </div>
-                            <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-700 mt-0.5 truncate">
+                            <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-700 mt-0.5 truncate">
                               {msg.contenido}
                             </p>
                             {navSection && !msg.leido && (
-                              <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-[#d65391] mt-1">
+                              <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-[#d65391] mt-1">
                                 Clic para ir a {navSection === 'pedidos' ? 'Pedidos' : 'Usuarios'} →
                               </p>
                             )}
@@ -283,7 +283,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                   adminMsgs.filter(m => !m.leido).forEach(m => marcarComoLeido(m.id));
                   toast.success('Todos los mensajes marcados como leídos');
                 }}
-                style={{ fontFamily: 'Inter, sans-serif' }}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
               >
                 Marcar todos como leídos
@@ -291,7 +291,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
             )}
             <button
               onClick={() => setMessagesOpen(false)}
-              style={{ fontFamily: 'Inter, sans-serif' }}
+              style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
               className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
             >
               Cerrar

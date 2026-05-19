@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { AlertTriangle, Phone, Mail, RefreshCw } from 'lucide-react';
 
 interface ServerErrorPageProps {
@@ -23,7 +23,7 @@ export const ServerErrorPage: React.FC<ServerErrorPageProps> = ({
             500
           </div>
           <p
-            style={{ fontFamily: 'Inter, sans-serif' }}
+            style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
             className="text-gray-500 text-sm uppercase tracking-widest"
           >
             Error del servidor
@@ -40,14 +40,14 @@ export const ServerErrorPage: React.FC<ServerErrorPageProps> = ({
 
         {/* Main Message */}
         <h1
-          style={{ fontFamily: 'Playfair Display, serif' }}
+          style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
           className="text-3xl md:text-4xl font-bold text-gray-900 mb-4"
         >
           Algo salió mal
         </h1>
 
         <p
-          style={{ fontFamily: 'Inter, sans-serif' }}
+          style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
           className="text-gray-600 mb-8 leading-relaxed"
         >
           Nuestros servidores están experimentando dificultades. Estamos trabajando para solucionarlo lo antes posible.
@@ -68,7 +68,7 @@ export const ServerErrorPage: React.FC<ServerErrorPageProps> = ({
         {showSupportInfo && (
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
             <h3
-              style={{ fontFamily: 'Playfair Display, serif' }}
+              style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
               className="font-semibold text-blue-900 mb-4"
             >
               Necesitas ayuda?
@@ -77,7 +77,7 @@ export const ServerErrorPage: React.FC<ServerErrorPageProps> = ({
             <div className="space-y-3">
               <div className="flex items-center gap-3 text-sm">
                 <Phone className="w-5 h-5 text-blue-600 flex-shrink-0" />
-                <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-700">
+                <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-700">
                   +57 (601) 234-5678
                 </span>
               </div>
@@ -86,7 +86,7 @@ export const ServerErrorPage: React.FC<ServerErrorPageProps> = ({
                 <Mail className="w-5 h-5 text-blue-600 flex-shrink-0" />
                 <a
                   href="mailto:soporte@selenneboutique.com"
-                  style={{ fontFamily: 'Inter, sans-serif' }}
+                  style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                   className="text-blue-600 hover:text-blue-700 underline"
                 >
                   soporte@selenneboutique.com
@@ -98,7 +98,7 @@ export const ServerErrorPage: React.FC<ServerErrorPageProps> = ({
 
         {/* Status Info */}
         <div
-          style={{ fontFamily: 'Inter, sans-serif' }}
+          style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
           className="bg-gray-100 rounded-lg p-4 mb-8"
         >
           <p className="text-xs text-gray-600 mb-2">
@@ -117,7 +117,7 @@ export const ServerErrorPage: React.FC<ServerErrorPageProps> = ({
 
         {/* Footer */}
         <div
-          style={{ fontFamily: 'Inter, sans-serif' }}
+          style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
           className="text-xs text-gray-500"
         >
           <p>Referencia: {new Date().toISOString()}</p>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+﻿import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   User, Mail, Phone, MapPin, Edit, Save, X, Lock, Bell,
   ShoppingBag, Heart, Package, Loader2, Eye, EyeOff,
@@ -103,7 +103,7 @@ const CitySelect: React.FC<{ value: string; onChange: (v: string) => void; class
       <button type="button"
         onClick={() => { setOpen(o => !o); setTimeout(() => inputRef.current?.focus(), 50); }}
         className="w-full flex items-center gap-2 pl-10 pr-3 h-[42px] border border-gray-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#d65391]/30 focus:border-[#d65391] transition-all text-left"
-        style={{ fontFamily: 'Inter, sans-serif', color: value ? '#111' : '#9ca3af' }}>
+        style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', color: value ? '#111' : '#9ca3af' }}>
         <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#d65391] pointer-events-none" />
         <span className="flex-1 truncate">{label || 'Selecciona tu ciudad'}</span>
         <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform flex-shrink-0 ${open ? 'rotate-180' : ''}`} />
@@ -117,7 +117,7 @@ const CitySelect: React.FC<{ value: string; onChange: (v: string) => void; class
               <input ref={inputRef} value={q} onChange={e => setQ(e.target.value)}
                 placeholder="Buscar ciudad..."
                 className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-gray-200 outline-none focus:border-[#d65391] bg-gray-50"
-                style={{ fontFamily: 'Inter, sans-serif' }} />
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} />
             </div>
           </div>
           <div className="overflow-y-auto" style={{ maxHeight: 200 }}>
@@ -126,13 +126,13 @@ const CitySelect: React.FC<{ value: string; onChange: (v: string) => void; class
               : Object.entries(grouped).map(([dep, cities]) => (
                 <div key={dep}>
                   <p className="px-3 py-1 text-[10px] font-bold text-gray-400 uppercase tracking-wider bg-gray-50"
-                    style={{ fontFamily: 'Inter, sans-serif' }}>{dep}</p>
+                    style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>{dep}</p>
                   {cities.map(c => (
                     <button key={c.value} type="button"
                       onClick={() => { onChange(c.value); setOpen(false); setQ(''); }}
                       className={`w-full text-left px-4 py-2 text-sm hover:bg-[#fdf2f8] hover:text-[#d65391] transition-colors
                         ${value === c.value ? 'bg-[#fdf2f8] text-[#d65391] font-semibold' : 'text-gray-700'}`}
-                      style={{ fontFamily: 'Inter, sans-serif' }}>
+                      style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                       {c.label}
                     </button>
                   ))}
@@ -254,317 +254,269 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
         <button type="button" title="Volver" onClick={onBack} className="p-2 hover:bg-gray-100 rounded-xl transition-colors flex-shrink-0">
           <ArrowLeft className="w-5 h-5 text-gray-500" />
         </button>
-        <span className="text-sm text-gray-500 truncate" style={{ fontFamily: 'Inter, sans-serif' }}>Mi cuenta</span>
-        <button type="button" title="Cerrar sesión" onClick={onLogout}
-          className="ml-auto flex items-center gap-1.5 text-sm text-red-500 hover:text-red-600 px-3 py-1.5 hover:bg-red-50 rounded-xl transition-colors flex-shrink-0"
-          style={{ fontFamily: 'Inter, sans-serif' }}>
-          <LogOut className="w-4 h-4" /> Cerrar sesión
-        </button>
+        <span className="text-sm text-gray-500 truncate">Mi cuenta</span>
       </div>
 
-      <div className="p-4 md:p-6 max-w-5xl mx-auto w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
+      <div className="min-h-[calc(100vh-53px)] bg-white">
+      <div className="max-w-3xl mx-auto px-8 py-8">
 
-          {/* ── Card principal ── */}
-          <div className="lg:col-span-2">
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        {/* Título */}
+        <h1 className="text-sm font-bold text-gray-900 uppercase tracking-widest mb-6">Perfil</h1>
 
-              {/* Banner rosa */}
-              <div className="bg-gradient-to-r from-[#d65391] to-[#f8a9c5] p-6 relative overflow-hidden">
-                <div className="absolute inset-0 bg-black opacity-5" />
-                <div className="relative flex items-center gap-4 min-w-0">
-                  <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center ring-4 ring-white/30 flex-shrink-0">
-                    <User className="w-8 h-8 text-white" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <h2 style={{ fontFamily: 'Playfair Display, serif' }} className="text-xl text-white mb-1 truncate">
-                      {user?.name || 'Mi Perfil'}
-                    </h2>
-                    <div className="flex items-center gap-1.5 min-w-0">
-                      <Mail className="w-4 h-4 text-white/80 flex-shrink-0" />
-                      <p className="text-white/80 text-sm truncate" style={{ fontFamily: 'Inter, sans-serif' }}>{user?.email}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Info fields */}
-              <div className="p-6">
-                <h3 style={{ fontFamily: 'Playfair Display, serif' }} className="text-xl text-gray-900 mb-5">Información Personal</h3>
-                <div className="space-y-3">
-                  {/* Email con badge de verificado */}
-                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors overflow-hidden">
-                    <div className="w-10 h-10 bg-gradient-to-br from-[#d65391] to-[#f8a9c5] rounded-2xl flex items-center justify-center flex-shrink-0 shadow-md shadow-[#d65391]/30">
-                      <Mail className="w-5 h-5 text-white" />
-                    </div>
-                    <div className="min-w-0 flex-1 overflow-hidden">
-                      <p className="text-xs text-gray-500 mb-0.5" style={{ fontFamily: 'Inter, sans-serif' }}>Correo Electrónico</p>
-                      <div className="flex items-center gap-2">
-                        <p className="text-sm text-gray-900 truncate" style={{ fontFamily: 'Inter, sans-serif' }}>{user?.email}</p>
-                        {profileData.emailVerificado
-                          ? <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full flex-shrink-0" style={{ fontFamily: 'Inter, sans-serif' }}>✓ Verificado</span>
-                          : <span className="text-xs bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded-full flex-shrink-0" style={{ fontFamily: 'Inter, sans-serif' }}>Sin verificar</span>
-                        }
-                      </div>
-                    </div>
-                  </div>
-                  {[
-                  { icon: <Phone className="w-5 h-5 text-white" />,      label: 'Teléfono de Contacto', value: profileData.telefono  || 'No especificado' },
-                  { icon: <CreditCard className="w-5 h-5 text-white" />, label: 'Documento',             value: profileData.documento || 'No especificado' },
-                  { icon: <MapPin className="w-5 h-5 text-white" />,     label: 'Ciudad',                value: profileData.ciudad    || 'No especificada'  },
-                  { icon: <MapPin className="w-5 h-5 text-white" />,     label: 'Dirección',             value: profileData.direccion || 'No especificada'  },
-                  ].map(({ icon, label, value }) => (
-                    <div key={label} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors overflow-hidden">
-                      <div className="w-10 h-10 bg-gradient-to-br from-[#d65391] to-[#f8a9c5] rounded-2xl flex items-center justify-center flex-shrink-0 shadow-md shadow-[#d65391]/30">
-                        {icon}
-                      </div>
-                      <div className="min-w-0 flex-1 overflow-hidden">
-                        <p className="text-xs text-gray-500 mb-0.5" style={{ fontFamily: 'Inter, sans-serif' }}>{label}</p>
-                        <p className="text-sm text-gray-900 truncate" style={{ fontFamily: 'Inter, sans-serif' }}>{value}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mt-6 pt-5 border-t border-gray-100">
-                  <button type="button"
-                    onClick={() => { setFormData({ nombre: user?.name || '', ...profileData }); setErrors({ nombre: '', telefono: '', direccion: '' }); setEditModalOpen(true); }}
-                    className="w-full bg-black text-white px-6 h-[44px] rounded-xl hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 text-sm font-medium"
-                    style={{ fontFamily: 'Inter, sans-serif' }}>
-                    <Edit className="w-4 h-4" /> Editar Perfil
-                  </button>
-                </div>
-              </div>
-            </div>
+        {/* Card info personal */}
+        <div className="border border-gray-200 overflow-hidden mb-6">
+          <div className="px-5 py-4 flex items-center justify-between border-b border-gray-200">
+            <span className="text-sm font-medium text-gray-900">{user?.name || 'Mi cuenta'}</span>
+            <button type="button"
+              onClick={() => { setFormData({ nombre: user?.name || '', ...profileData }); setErrors({ nombre: '', telefono: '', direccion: '' }); setEditModalOpen(true); }}
+              className="text-gray-400 hover:text-gray-600 transition-colors p-1"
+            >
+              <Edit className="w-4 h-4" />
+            </button>
           </div>
-
-          {/* ── Sidebar ── */}
-          <div className="space-y-5">
-
-            {/* Mis pedidos */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-              <div className="flex items-center gap-2 mb-4">
-                <Package className="w-5 h-5 text-[#d65391]" />
-                <h3 style={{ fontFamily: 'Playfair Display, serif' }} className="text-lg text-gray-900">Mis Pedidos</h3>
-              </div>
-              <button type="button" onClick={() => { setPedidosModalOpen(true); cargarPedidos(); }}
-                className="w-full bg-black text-white px-4 py-2.5 rounded-xl hover:bg-gray-800 transition-colors text-sm"
-                style={{ fontFamily: 'Inter, sans-serif' }}>
-                Ver mis pedidos
-              </button>
-            </div>
-
-            {/* Contraseña */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-              <div className="flex items-center gap-2 mb-4">
-                <Lock className="w-5 h-5 text-[#d65391]" />
-                <h3 style={{ fontFamily: 'Playfair Display, serif' }} className="text-lg text-gray-900">Cambiar Contraseña</h3>
-              </div>
-              <button type="button" onClick={() => setPasswordModalOpen(true)}
-                className="w-full bg-black text-white px-4 py-2.5 rounded-xl hover:bg-gray-800 transition-colors text-sm"
-                style={{ fontFamily: 'Inter, sans-serif' }}>
-                Cambiar Contraseña
-              </button>
-            </div>
-
-            {/* Notificaciones */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-              <div className="bg-gradient-to-r from-[#d65391] to-[#f8a9c5] px-5 py-3 flex items-center gap-2">
-                <Bell className="w-4 h-4 text-white" />
-                <h3 style={{ fontFamily: 'Playfair Display, serif' }} className="text-base text-white font-semibold">Notificaciones</h3>
-              </div>
-              <div className="p-4">
-                <div className="flex items-center justify-between p-3 bg-[#fdf2f8] rounded-xl">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-sm">
-                      <Mail className="w-4 h-4 text-[#d65391]" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-800" style={{ fontFamily: 'Inter, sans-serif' }}>Email</p>
-                      <p className="text-xs text-gray-400" style={{ fontFamily: 'Inter, sans-serif' }}>
-                        {notifications ? 'Activado' : 'Desactivado'}
-                      </p>
-                    </div>
-                  </div>
-                  <button type="button"
-                    aria-label={notifications ? 'Desactivar notificaciones' : 'Activar notificaciones'}
-                    onClick={async () => {
-                    const n = !notifications;
-                    setNotifications(n);
-                    try {
-                      await api.fetchWithAuth(`/api/usuarios/${user?.usuarioID}`, {
-                        method: 'PUT',
-                        body: JSON.stringify({ NotificacionesEmail: n })
-                      });
-                      toast.success(n ? 'Notificaciones de email activadas' : 'Notificaciones de email desactivadas');
-                    } catch {
-                      setNotifications(!n);
-                      toast.error('Error al guardar preferencia');
-                    }
-                  }}
-                    className={`relative w-12 h-6 rounded-full transition-colors flex-shrink-0 ${notifications ? 'bg-[#d65391]' : 'bg-gray-300'}`}>
-                    <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${notifications ? 'translate-x-6' : ''}`} />
-                  </button>
-                </div>
+          <div className="px-5 py-4 space-y-3">
+            <div>
+              <p className="text-xs text-gray-400 mb-0.5">Correo electrónico</p>
+              <div className="flex items-center gap-2 flex-wrap">
+                <p className="text-sm text-gray-900">{user?.email}</p>
+                {profileData.emailVerificado
+                  ? <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full">✓ Verificado</span>
+                  : <span className="text-xs bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded-full">Sin verificar</span>
+                }
               </div>
             </div>
+            {[
+              { label: 'Teléfono',    value: profileData.telefono  || '—' },
+              { label: 'Documento',   value: profileData.documento || '—' },
+              { label: 'Ciudad',      value: profileData.ciudad    || '—' },
+              { label: 'Dirección',   value: profileData.direccion || '—' },
+            ].map(({ label, value }) => (
+              <div key={label}>
+                <p className="text-xs text-gray-400 mb-0.5">{label}</p>
+                <p className="text-sm text-gray-900">{value}</p>
+              </div>
+            ))}
           </div>
         </div>
+
+        {/* Mis pedidos */}
+        <h2 className="text-sm font-bold text-gray-900 uppercase tracking-widest mb-3">Mis pedidos</h2>
+        <div className="border border-gray-200 overflow-hidden mb-6">
+          <button type="button"
+            onClick={() => { setPedidosModalOpen(true); cargarPedidos(); }}
+            className="w-full px-5 py-4 text-left flex items-center justify-between hover:bg-gray-50 transition-colors"
+          >
+            <span className="text-sm text-gray-700">Ver mis pedidos</span>
+            <Package className="w-4 h-4 text-gray-400" />
+          </button>
+        </div>
+
+        {/* Cambiar contraseña */}
+        <h2 className="text-sm font-bold text-gray-900 uppercase tracking-widest mb-3">Cambiar contraseña</h2>
+        <div className="border border-gray-200 overflow-hidden mb-6">
+          <button type="button"
+            onClick={() => setPasswordModalOpen(true)}
+            className="w-full px-5 py-4 text-left flex items-center justify-between hover:bg-gray-50 transition-colors"
+          >
+            <span className="text-sm text-gray-700">Cambiar contraseña</span>
+            <Edit className="w-4 h-4 text-gray-400" />
+          </button>
+        </div>
+
+        {/* Notificaciones */}
+        <h2 className="text-sm font-bold text-gray-900 uppercase tracking-widest mb-3">Notificaciones</h2>
+        <div className="border border-gray-200 overflow-hidden mb-8">
+          <div className="px-5 py-4 flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-700">Recibir notificaciones</p>
+              <p className="text-xs text-gray-400 mt-0.5">Activa o desactiva las notificaciones de tus pedidos</p>
+            </div>
+            <button type="button"
+              role="switch"
+              aria-checked={notifications}
+              aria-label={notifications ? 'Desactivar notificaciones' : 'Activar notificaciones'}
+              onClick={() => {
+                const n = !notifications;
+                setNotifications(n);
+                api.fetchWithAuth(`/api/usuarios/${user?.usuarioID}`, {
+                  method: 'PUT',
+                  body: JSON.stringify({ NotificacionesEmail: n })
+                })
+                  .then(() => toast.success(n ? 'Notificaciones activadas' : 'Notificaciones desactivadas'))
+                  .catch(() => toast.error('Error al guardar preferencia'));
+              }}
+              className={`relative flex-shrink-0 w-11 h-6 rounded-full transition-colors duration-200 focus:outline-none ${notifications ? 'bg-gray-900' : 'bg-gray-300'}`}
+            >
+              <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all duration-200 ${notifications ? 'left-6' : 'left-1'}`} />
+            </button>
+          </div>
+        </div>
+
+        {/* Cerrar sesión */}
+        <div className="border border-gray-200 overflow-hidden">
+          <button type="button" onClick={onLogout}
+            className="w-full px-5 py-4 text-left flex items-center justify-between hover:bg-red-50 transition-colors group">
+            <span className="text-sm text-red-500 group-hover:text-red-600">Cerrar sesión</span>
+            <LogOut className="w-4 h-4 text-red-400 group-hover:text-red-500" />
+          </button>
+        </div>
+
+      </div>
       </div>
 
       {/* ══ Modal Editar Perfil ══ */}
       <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
-        <DialogContent hideCloseButton className="max-w-md p-0 gap-0 rounded-2xl max-h-[90vh] flex flex-col">
-          <div className="bg-gradient-to-r from-[#d65391] to-[#f8a9c5] px-6 py-5 flex items-center gap-4 flex-shrink-0">
-            <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center ring-2 ring-white/30 flex-shrink-0">
-              <User className="w-6 h-6 text-white" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-xl text-white leading-tight">
-                Editar Perfil
-              </DialogTitle>
-              <DialogDescription className="text-white/80 text-sm mt-0.5" style={{ fontFamily: 'Inter, sans-serif' }}>
-                {user?.email}
-              </DialogDescription>
-            </div>
-            <button type="button" aria-label="Cerrar" onClick={() => setEditModalOpen(false)} className="text-white/70 hover:text-white transition-colors flex-shrink-0">
-              <X className="w-5 h-5" />
-            </button>
+        <DialogContent className="max-w-md p-0 overflow-hidden gap-0 max-h-[90vh] flex flex-col">
+          {/* Título */}
+          <div style={{ padding: '28px 32px 20px' }} className="border-b border-gray-100 flex-shrink-0">
+            <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+              className="text-2xl font-black uppercase text-gray-900 leading-tight">
+              Editar perfil
+            </DialogTitle>
+            <DialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+              className="text-sm text-gray-500 mt-1">
+              {user?.email}
+            </DialogDescription>
           </div>
 
-          <div className="px-6 py-5 space-y-4 overflow-y-auto flex-1">
+          {/* Campos */}
+          <div style={{ padding: '24px 32px' }} className="space-y-5 overflow-y-auto flex-1">
+            {/* Nombre */}
             <div>
-              <label className="text-xs text-gray-600 block mb-1.5" style={{ fontFamily: 'Inter, sans-serif' }}>
-                Nombre Completo <span className="text-[#d65391]">*</span>
+              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-2"
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                Nombre completo <span className="text-red-400 normal-case tracking-normal">*</span>
               </label>
               <div className="relative">
-                <User className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${errors.nombre ? 'text-red-400' : 'text-[#d65391]'}`} />
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input type="text" value={formData.nombre}
                   onChange={e => {
                     const val = e.target.value;
-                    if (val && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]*$/.test(val)) {
-                      setErrors(p => ({ ...p, nombre: 'Solo se permiten letras' }));
-                      return;
-                    }
-                    setFormData(p => ({ ...p, nombre: val }));
-                    setErrors(p => ({ ...p, nombre: '' }));
+                    if (val && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]*$/.test(val)) { setErrors(p => ({ ...p, nombre: 'Solo se permiten letras' })); return; }
+                    setFormData(p => ({ ...p, nombre: val })); setErrors(p => ({ ...p, nombre: '' }));
                   }}
-                  className={fieldClass(errors.nombre)} placeholder="Tu nombre completo"
-                  style={{ fontFamily: 'Inter, sans-serif' }} />
+                  className={`w-full pl-10 pr-3 h-11 text-sm border focus:outline-none focus:border-gray-900 transition-colors ${errors.nombre ? 'border-red-300 bg-red-50' : 'border-gray-200'}`}
+                  placeholder="Tu nombre completo"
+                  style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} />
               </div>
               {errors.nombre && <p className="text-xs text-red-500 mt-1">{errors.nombre}</p>}
             </div>
 
+            {/* Teléfono */}
             <div>
-              <label className="text-xs text-gray-600 block mb-1.5" style={{ fontFamily: 'Inter, sans-serif' }}>Teléfono</label>
+              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-2"
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Teléfono</label>
               <div className="relative">
-                <Phone className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${errors.telefono ? 'text-red-400' : 'text-[#d65391]'}`} />
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input type="tel" value={formData.telefono}
                   onChange={e => {
                     const val = e.target.value;
-                    if (val && !/^\d*$/.test(val)) {
-                      setErrors(p => ({ ...p, telefono: 'Solo se permiten números' }));
-                      return;
-                    }
-                    setFormData(p => ({ ...p, telefono: val }));
-                    setErrors(p => ({ ...p, telefono: '' }));
+                    if (val && !/^\d*$/.test(val)) { setErrors(p => ({ ...p, telefono: 'Solo se permiten números' })); return; }
+                    setFormData(p => ({ ...p, telefono: val })); setErrors(p => ({ ...p, telefono: '' }));
                   }}
-                  className={fieldClass(errors.telefono)} placeholder="3001234567"
-                  style={{ fontFamily: 'Inter, sans-serif' }} />
+                  className={`w-full pl-10 pr-3 h-11 text-sm border focus:outline-none focus:border-gray-900 transition-colors ${errors.telefono ? 'border-red-300 bg-red-50' : 'border-gray-200'}`}
+                  placeholder="3001234567"
+                  style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} />
               </div>
               {errors.telefono && <p className="text-xs text-red-500 mt-1">{errors.telefono}</p>}
             </div>
 
+            {/* Documento */}
             <div>
-              <label className="text-xs text-gray-600 block mb-1.5" style={{ fontFamily: 'Inter, sans-serif' }}>Documento</label>
+              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-2"
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Documento</label>
               <div className="relative">
-                <CreditCard className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${errors.documento ? 'text-red-400' : 'text-[#d65391]'}`} />
+                <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input type="text" value={formData.documento}
                   onChange={e => {
                     const val = e.target.value;
-                    if (val && !/^\d*$/.test(val)) {
-                      setErrors(p => ({ ...p, documento: 'Solo se permiten números' }));
-                      return;
-                    }
-                    setFormData(p => ({ ...p, documento: val }));
-                    setErrors(p => ({ ...p, documento: '' }));
+                    if (val && !/^\d*$/.test(val)) { setErrors(p => ({ ...p, documento: 'Solo se permiten números' })); return; }
+                    setFormData(p => ({ ...p, documento: val })); setErrors(p => ({ ...p, documento: '' }));
                   }}
-                  className={fieldClass(errors.documento)} placeholder="Número de documento"
-                  style={{ fontFamily: 'Inter, sans-serif' }} />
+                  className={`w-full pl-10 pr-3 h-11 text-sm border focus:outline-none focus:border-gray-900 transition-colors ${errors.documento ? 'border-red-300 bg-red-50' : 'border-gray-200'}`}
+                  placeholder="Número de documento"
+                  style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} />
               </div>
               {errors.documento && <p className="text-xs text-red-500 mt-1">{errors.documento}</p>}
             </div>
 
+            {/* Ciudad */}
             <div>
-              <label className="text-xs text-gray-600 block mb-1.5" style={{ fontFamily: 'Inter, sans-serif' }}>Ciudad / Municipio</label>
+              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-2"
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Ciudad</label>
               <CitySelect value={formData.ciudad} onChange={v => setFormData(p => ({ ...p, ciudad: v }))} />
             </div>
 
+            {/* Dirección */}
             <div>
-              <label className="text-xs text-gray-600 block mb-1.5" style={{ fontFamily: 'Inter, sans-serif' }}>
-                Dirección <span className="text-[#d65391]">*</span>
-              </label>
+              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-2"
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Dirección</label>
               <div className="relative">
-                <MapPin className={`absolute left-3 top-3 w-4 h-4 ${errors.direccion ? 'text-red-400' : 'text-[#d65391]'}`} />
+                <MapPin className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
                 <textarea value={formData.direccion}
                   onChange={e => { setFormData(p => ({ ...p, direccion: e.target.value })); setErrors(p => ({ ...p, direccion: '' })); }}
-                  style={{ fontFamily: 'Inter, sans-serif' }}
-                  className={`w-full pl-10 pr-3 py-2.5 text-sm border rounded-xl focus:outline-none focus:ring-2 min-h-[42px] max-h-[80px] resize-none transition-all ${errors.direccion ? 'border-red-300 focus:ring-red-200 bg-red-50' : 'border-gray-200 focus:ring-[#d65391]/30 focus:border-[#d65391]'}`}
-                  placeholder="Calle 10 # 43E – 125, Apto 301..." />
+                  className={`w-full pl-10 pr-3 py-2.5 text-sm border focus:outline-none focus:border-gray-900 min-h-[44px] max-h-[80px] resize-none transition-colors ${errors.direccion ? 'border-red-300 bg-red-50' : 'border-gray-200'}`}
+                  placeholder="Calle 10 # 43E – 125, Apto 301..."
+                  style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} />
               </div>
               {errors.direccion && <p className="text-xs text-red-500 mt-1">{errors.direccion}</p>}
             </div>
           </div>
 
-          <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3 flex-shrink-0">
+          {/* Acciones */}
+          <div style={{ padding: '16px 32px 28px' }} className="border-t border-gray-100 flex justify-end gap-3 flex-shrink-0">
             <button type="button" onClick={() => setEditModalOpen(false)}
-              className="px-5 h-[40px] text-sm bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-100 transition-colors flex items-center gap-2"
-              style={{ fontFamily: 'Inter, sans-serif' }}>
-              <X className="w-4 h-4" /> Cancelar
+              className="h-10 px-5 text-sm text-gray-600 border border-gray-200 hover:bg-gray-50 transition-colors"
+              style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+              Cancelar
             </button>
             <button type="button" onClick={handleSaveProfile} disabled={saving}
-              className="px-5 h-[40px] text-sm bg-gradient-to-r from-[#d65391] to-[#f8a9c5] text-white rounded-xl hover:opacity-90 transition-all flex items-center gap-2 shadow-sm disabled:opacity-60"
-              style={{ fontFamily: 'Inter, sans-serif' }}>
-              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-              {saving ? 'Guardando...' : 'Guardar Cambios'}
+              className="h-10 px-5 text-sm font-semibold text-white bg-gray-900 hover:bg-gray-700 transition-colors flex items-center gap-2 disabled:opacity-50"
+              style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+              {saving ? 'Guardando...' : 'Guardar cambios'}
             </button>
           </div>
         </DialogContent>
       </Dialog>
 
       {/* ══ Modal Cambiar Contraseña ══ */}
-      <Dialog open={passwordModalOpen} onOpenChange={setPasswordModalOpen}>
-        <DialogContent hideCloseButton className="max-w-md p-0 rounded-2xl gap-0">
-          <div className="bg-gradient-to-r from-[#d65391] to-[#f8a9c5] px-6 py-5 flex items-center gap-4">
-            <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center ring-2 ring-white/30 flex-shrink-0">
-              <Lock className="w-6 h-6 text-white" />
-            </div>
-            <div className="flex-1">
-              <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-xl text-white">Cambiar Contraseña</DialogTitle>
-              <DialogDescription className="text-white/80 text-xs mt-0.5" style={{ fontFamily: 'Inter, sans-serif' }}>
-                Mantén tu cuenta segura con una contraseña fuerte
-              </DialogDescription>
-            </div>
-            <button type="button" aria-label="Cerrar" onClick={() => setPasswordModalOpen(false)} className="text-white/70 hover:text-white transition-colors">
-              <X className="w-5 h-5" />
-            </button>
+      <Dialog open={passwordModalOpen} onOpenChange={v => { setPasswordModalOpen(v); if (!v) setPasswordData({ current: '', new: '', confirm: '' }); }}>
+        <DialogContent className="max-w-md p-0 overflow-hidden gap-0">
+          {/* Título */}
+          <div style={{ padding: '28px 32px 20px' }} className="border-b border-gray-100">
+            <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+              className="text-2xl font-black uppercase text-gray-900 leading-tight">
+              Cambiar contraseña
+            </DialogTitle>
+            <DialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+              className="text-sm text-gray-500 mt-1">
+              Mantén tu cuenta segura con una contraseña fuerte
+            </DialogDescription>
           </div>
 
-          <div className="px-6 py-5 space-y-4">
+          {/* Campos */}
+          <div style={{ padding: '24px 32px' }} className="space-y-5">
             {([
-              { key: 'current', label: 'Contraseña Actual',          placeholder: 'Tu contraseña actual' },
-              { key: 'new',     label: 'Nueva Contraseña',            placeholder: 'Mínimo 6 caracteres'  },
-              { key: 'confirm', label: 'Confirmar Nueva Contraseña',  placeholder: 'Repite la contraseña'  },
+              { key: 'current', label: 'Contraseña actual',          placeholder: 'Tu contraseña actual' },
+              { key: 'new',     label: 'Nueva contraseña',            placeholder: 'Mínimo 9 caracteres'  },
+              { key: 'confirm', label: 'Confirmar nueva contraseña',  placeholder: 'Repite la contraseña'  },
             ] as const).map(({ key, label, placeholder }) => (
               <div key={key}>
-                <label className="text-xs text-gray-600 block mb-1.5" style={{ fontFamily: 'Inter, sans-serif' }}>{label}</label>
+                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-2"
+                  style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                  {label}
+                </label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#d65391]" />
-                  <input type={showPwd[key] ? 'text' : 'password'} value={passwordData[key]}
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type={showPwd[key] ? 'text' : 'password'}
+                    value={passwordData[key]}
                     onChange={e => setPasswordData(p => ({ ...p, [key]: e.target.value }))}
                     placeholder={placeholder}
-                    className="w-full pl-10 pr-10 h-[42px] text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#d65391]/30 focus:border-[#d65391] transition-all"
-                    style={{ fontFamily: 'Inter, sans-serif' }} />
+                    className="w-full pl-10 pr-10 h-11 text-sm border border-gray-200 focus:outline-none focus:border-gray-900 transition-colors"
+                    style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                  />
                   <button type="button" aria-label="Mostrar/Ocultar"
                     onClick={() => setShowPwd(p => ({ ...p, [key]: !p[key] }))}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
@@ -572,38 +524,44 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
                   </button>
                 </div>
                 {key === 'new' && passwordData.new.length > 0 && (
-                  <div className="mt-1.5 flex items-center gap-2">
+                  <div className="mt-2 flex items-center gap-2">
                     <div className="flex gap-1 flex-1">
                       {[1,2,3,4].map(i => (
-                        <div key={i} className={`h-1 flex-1 rounded-full transition-colors ${
+                        <div key={i} className={`h-1 flex-1 transition-colors ${
                           passwordData.new.length >= i * 3
-                            ? i <= 1 ? 'bg-red-400' : i <= 2 ? 'bg-yellow-400' : i <= 3 ? 'bg-blue-400' : 'bg-green-400'
+                            ? i <= 1 ? 'bg-red-400' : i <= 2 ? 'bg-yellow-400' : i <= 3 ? 'bg-blue-400' : 'bg-green-500'
                             : 'bg-gray-200'}`} />
                       ))}
                     </div>
-                    <span className="text-xs text-gray-500" style={{ fontFamily: 'Inter, sans-serif' }}>
+                    <span className="text-xs text-gray-400 w-12 text-right"
+                      style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                       {passwordData.new.length < 6 ? 'Débil' : passwordData.new.length < 9 ? 'Regular' : passwordData.new.length < 12 ? 'Buena' : 'Fuerte'}
                     </span>
                   </div>
                 )}
                 {key === 'confirm' && passwordData.confirm && passwordData.new !== passwordData.confirm && (
-                  <p className="text-xs text-red-500 mt-1" style={{ fontFamily: 'Inter, sans-serif' }}>Las contraseñas no coinciden</p>
+                  <p className="text-xs text-red-500 mt-1.5"
+                    style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                    Las contraseñas no coinciden
+                  </p>
                 )}
               </div>
             ))}
           </div>
 
-          <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3">
-            <button type="button" onClick={() => { setPasswordModalOpen(false); setPasswordData({ current: '', new: '', confirm: '' }); }}
-              className="px-5 h-[40px] text-sm bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-100 transition-colors flex items-center gap-2"
-              style={{ fontFamily: 'Inter, sans-serif' }}>
-              <X className="w-4 h-4" /> Cancelar
+          {/* Acciones */}
+          <div style={{ padding: '16px 32px 28px' }} className="border-t border-gray-100 flex items-center justify-end gap-3">
+            <button type="button"
+              onClick={() => { setPasswordModalOpen(false); setPasswordData({ current: '', new: '', confirm: '' }); }}
+              className="h-10 px-5 text-sm text-gray-600 border border-gray-200 hover:bg-gray-50 transition-colors"
+              style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+              Cancelar
             </button>
             <button type="button" onClick={handleChangePassword} disabled={saving}
-              className="px-5 h-[40px] text-sm bg-gradient-to-r from-[#d65391] to-[#f8a9c5] text-white rounded-xl hover:opacity-90 transition-all flex items-center gap-2 shadow-sm disabled:opacity-60"
-              style={{ fontFamily: 'Inter, sans-serif' }}>
-              <Lock className="w-4 h-4" />
-              {saving ? 'Guardando...' : 'Cambiar Contraseña'}
+              className="h-10 px-5 text-sm font-semibold text-white bg-gray-900 hover:bg-gray-700 transition-colors flex items-center gap-2 disabled:opacity-50"
+              style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+              {saving ? 'Guardando...' : 'Actualizar contraseña'}
             </button>
           </div>
         </DialogContent>
@@ -611,91 +569,98 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
 
       {/* ══ Modal Pedidos ══ */}
       <Dialog open={pedidosModalOpen} onOpenChange={v => { setPedidosModalOpen(v); if (!v) setPedidoSelec(null); }}>
-        <DialogContent hideCloseButton className="max-w-2xl p-0 rounded-2xl gap-0 max-h-[90vh] flex flex-col">
+        <DialogContent className="max-w-2xl p-0 overflow-hidden gap-0 max-h-[90vh] flex flex-col">
 
-          {/* Header */}
-          <div className="bg-gradient-to-r from-[#d65391] to-[#f8a9c5] px-6 py-5 flex items-center gap-4 flex-shrink-0">
-            {pedidoSelec ? (
-              <button type="button" onClick={() => setPedidoSelec(null)}
-                className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors flex-shrink-0">
-                <ArrowLeft className="w-5 h-5 text-white" />
-              </button>
-            ) : (
-              <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
-                <Package className="w-5 h-5 text-white" />
+          {/* Título */}
+          <div style={{ padding: '28px 32px 20px' }} className="border-b border-gray-100 flex items-start justify-between flex-shrink-0">
+            <div className="flex items-center gap-3">
+              {pedidoSelec && (
+                <button type="button" onClick={() => setPedidoSelec(null)}
+                  className="p-1 -ml-1 hover:bg-gray-100 transition-colors rounded">
+                  <ArrowLeft className="w-4 h-4 text-gray-500" />
+                </button>
+              )}
+              <div>
+                <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                  className="text-2xl font-black uppercase text-gray-900 leading-tight">
+                  {pedidoSelec ? `Pedido #${pedidoSelec.pedidoID}` : 'Mis pedidos'}
+                </DialogTitle>
+                <DialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                  className="text-sm text-gray-500 mt-1">
+                  {pedidoSelec
+                    ? new Date(pedidoSelec.fechaPedido).toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' })
+                    : `${pedidos.length} pedido${pedidos.length !== 1 ? 's' : ''} en total`}
+                </DialogDescription>
               </div>
-            )}
-            <div className="flex-1 min-w-0">
-              <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-xl text-white leading-tight">
-                {pedidoSelec ? `Pedido #${pedidoSelec.pedidoID}` : 'Mis Pedidos'}
-              </DialogTitle>
-              <DialogDescription className="text-white/80 text-xs mt-0.5" style={{ fontFamily: 'Inter, sans-serif' }}>
-                {pedidoSelec
-                  ? new Date(pedidoSelec.fechaPedido).toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' })
-                  : `${pedidos.length} pedido${pedidos.length !== 1 ? 's' : ''} en total`}
-              </DialogDescription>
             </div>
-            {!pedidoSelec && (
-              <button type="button" title="Actualizar" onClick={cargarPedidos} disabled={loadingP}
-                className="text-white/70 hover:text-white transition-colors mr-1 disabled:opacity-50">
-                <RefreshCw className={`w-4 h-4 ${loadingP ? 'animate-spin' : ''}`} />
-              </button>
-            )}
-            <button type="button" aria-label="Cerrar" onClick={() => { setPedidosModalOpen(false); setPedidoSelec(null); }}
-              className="text-white/70 hover:text-white transition-colors">
-              <X className="w-5 h-5" />
-            </button>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              {!pedidoSelec && (
+                <button type="button" title="Actualizar" onClick={cargarPedidos} disabled={loadingP}
+                  className="p-1.5 hover:bg-gray-100 transition-colors rounded text-gray-400 disabled:opacity-40">
+                  <RefreshCw className={`w-4 h-4 ${loadingP ? 'animate-spin' : ''}`} />
+                </button>
+              )}
+            </div>
           </div>
 
           <div className="overflow-y-auto flex-1">
 
             {/* ── Vista lista ── */}
             {!pedidoSelec && (
-              <div className="p-5">
+              <div style={{ padding: '24px 32px' }}>
                 {loadingP && pedidos.length === 0 ? (
-                  <div className="flex flex-col items-center py-12 gap-3">
-                    <Loader2 className="w-7 h-7 animate-spin text-[#d65391]" />
-                    <p className="text-sm text-gray-400" style={{ fontFamily: 'Inter, sans-serif' }}>Cargando pedidos...</p>
+                  <div className="flex flex-col items-center py-16 gap-3">
+                    <Loader2 className="w-7 h-7 animate-spin text-gray-400" />
+                    <p className="text-sm text-gray-400" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Cargando pedidos...</p>
                   </div>
                 ) : pedidos.length === 0 ? (
-                  <div className="text-center py-12">
-                    <div className="w-16 h-16 bg-[#fdf2f8] rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Package className="w-8 h-8 text-[#d65391]" />
-                    </div>
-                    <p className="text-base font-semibold text-gray-700" style={{ fontFamily: 'Playfair Display, serif' }}>Sin pedidos</p>
-                    <p className="text-sm text-gray-400 mt-1" style={{ fontFamily: 'Inter, sans-serif' }}>Tus pedidos aparecerán aquí</p>
+                  <div className="text-center py-16">
+                    <Package className="w-10 h-10 text-gray-300 mx-auto mb-4" />
+                    <p className="text-base font-semibold text-gray-800" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Sin pedidos aún</p>
+                    <p className="text-sm text-gray-400 mt-1" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Tus pedidos aparecerán aquí cuando realices una compra</p>
                   </div>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     {pedidos.map(pedido => {
                       const cfg = estadoConfig[pedido.estado] || estadoConfig.Pendiente;
                       return (
                         <button key={pedido.pedidoID} type="button"
                           onClick={() => setPedidoSelec(pedido)}
-                          className="w-full text-left border border-gray-100 rounded-xl p-4 hover:shadow-md hover:border-[#d65391]/30 transition-all bg-white">
-                          <div className="flex items-start justify-between gap-3 mb-2.5">
-                            <div>
+                          className="w-full text-left border border-gray-100 p-5 hover:border-gray-300 hover:bg-gray-50 transition-all">
+                          <div className="flex items-start justify-between gap-4 mb-2">
+                            <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1 flex-wrap">
-                                <span className="font-semibold text-gray-900 text-sm" style={{ fontFamily: 'Inter, sans-serif' }}>
-                                  Pedido #{pedido.pedidoID}
+                                <span className="font-bold text-gray-900 text-base uppercase tracking-wide"
+                                  style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                                  #{pedido.pedidoID}
                                 </span>
-                                <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${cfg.bg} ${cfg.text}`}>{cfg.label}</span>
+                                <span className={`px-2 py-0.5 text-xs font-medium ${cfg.bg} ${cfg.text}`}>{cfg.label}</span>
                               </div>
-                              <p className="text-xs text-gray-400 flex items-center gap-1" style={{ fontFamily: 'Inter, sans-serif' }}>
-                                <Calendar className="w-3 h-3" />
+                              <p className="text-sm text-gray-500 flex items-center gap-1.5"
+                                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                                <Calendar className="w-3.5 h-3.5" />
                                 {new Date(pedido.fechaPedido).toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' })}
                               </p>
                             </div>
-                            <p className="text-base font-bold text-[#d65391] flex-shrink-0" style={{ fontFamily: 'Inter, sans-serif' }}>
+                            <p className="text-base font-bold text-gray-900 flex-shrink-0"
+                              style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                               {fmt(pedido.total)}
                             </p>
                           </div>
-                          <div className="flex flex-wrap gap-1.5 text-xs">
-                            {pedido.metodoPago && <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded-lg"><CreditCard className="w-3 h-3 inline mr-1" />{pedido.metodoPago}</span>}
-                            {pedido.ciudad && <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded-lg"><MapPin className="w-3 h-3 inline mr-1" />{pedido.ciudad}</span>}
+                          <div className="flex flex-wrap gap-2 text-xs mt-3 pt-3 border-t border-gray-100">
+                            {pedido.metodoPago && (
+                              <span className="text-gray-500 flex items-center gap-1">
+                                <CreditCard className="w-3 h-3" />{pedido.metodoPago}
+                              </span>
+                            )}
+                            {pedido.ciudad && (
+                              <span className="text-gray-500 flex items-center gap-1">
+                                <MapPin className="w-3 h-3" />{pedido.ciudad}
+                              </span>
+                            )}
                             {pedido.numeroGuia && (
-                              <span className="bg-blue-50 text-blue-700 px-2 py-1 rounded-lg font-medium">
-                                <Truck className="w-3 h-3 inline mr-1" />Guía: {pedido.numeroGuia}{pedido.transportadora ? ` · ${pedido.transportadora}` : ''}
+                              <span className="text-blue-600 flex items-center gap-1 font-medium">
+                                <Truck className="w-3 h-3" />Guía: {pedido.numeroGuia}
                               </span>
                             )}
                           </div>
@@ -711,40 +676,49 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
             {pedidoSelec && (() => {
               const cfg = estadoConfig[pedidoSelec.estado] || estadoConfig.Pendiente;
               return (
-                <div className="p-5 space-y-5">
-                  {/* Estado */}
-                  <div className="flex items-center justify-between p-4 bg-[#fdf2f8] rounded-xl">
-                    <span className={`px-3 py-1 text-sm rounded-full font-semibold ${cfg.bg} ${cfg.text}`}>{cfg.label}</span>
-                    <span className="text-xl font-bold text-[#d65391]" style={{ fontFamily: 'Inter, sans-serif' }}>{fmt(pedidoSelec.total)}</span>
+                <div style={{ padding: '24px 32px' }} className="space-y-6">
+
+                  {/* Estado + Total */}
+                  <div className="flex items-center justify-between py-4 border-b border-gray-100">
+                    <span className={`px-3 py-1 text-xs font-semibold uppercase tracking-wide ${cfg.bg} ${cfg.text}`}>{cfg.label}</span>
+                    <span className="text-2xl font-black text-gray-900"
+                      style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                      {fmt(pedidoSelec.total)}
+                    </span>
                   </div>
 
                   {/* Productos */}
                   <div>
-                    <h4 className="text-sm font-semibold text-gray-700 mb-3" style={{ fontFamily: 'Inter, sans-serif' }}>Productos</h4>
+                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3"
+                      style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Productos</p>
                     <div className="space-y-3">
                       {(pedidoSelec.detalles ?? []).map((d, i) => (
-                        <div key={i} className="flex gap-3 bg-white border border-gray-100 rounded-xl p-3">
-                          <div className="w-20 h-20 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0 border border-gray-200">
+                        <div key={i} className="flex gap-4 border border-gray-100 p-4">
+                          <div className="w-16 h-16 overflow-hidden bg-gray-100 flex-shrink-0">
                             {d.imagenProducto ? (
                               <img src={d.imagenProducto.startsWith('http') ? d.imagenProducto : `${apiBase}${d.imagenProducto}`}
                                 alt={d.productoNombre} className="w-full h-full object-cover" />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center">
-                                <Package className="w-8 h-8 text-gray-300" />
+                                <Package className="w-6 h-6 text-gray-300" />
                               </div>
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold text-gray-900 truncate" style={{ fontFamily: 'Inter, sans-serif' }}>{d.productoNombre}</p>
-                            <div className="flex flex-wrap gap-1.5 mt-1">
-                              {d.talla && <span className="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded-md">Talla: {d.talla}</span>}
-                              {d.color && <span className="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded-md">Color: {d.color}</span>}
+                            <p className="text-sm font-semibold text-gray-900 mb-1"
+                              style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>{d.productoNombre}</p>
+                            <div className="flex flex-wrap gap-2 text-xs text-gray-500 mb-2">
+                              {d.talla && <span>Talla: {d.talla}</span>}
+                              {d.talla && d.color && <span>·</span>}
+                              {d.color && <span>Color: {d.color}</span>}
                             </div>
-                            <div className="flex items-center justify-between mt-2">
-                              <span className="text-xs text-gray-500" style={{ fontFamily: 'Inter, sans-serif' }}>
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs text-gray-400"
+                                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                                 {fmt(d.precioUnitario)} × {d.cantidad}
                               </span>
-                              <span className="text-sm font-bold text-gray-900" style={{ fontFamily: 'Inter, sans-serif' }}>{fmt(d.subtotal)}</span>
+                              <span className="text-sm font-bold text-gray-900"
+                                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>{fmt(d.subtotal)}</span>
                             </div>
                           </div>
                         </div>
@@ -752,46 +726,56 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
                     </div>
                   </div>
 
-                  {/* Desglose de precios */}
-                  <div className="bg-gray-50 rounded-xl p-4 space-y-2">
-                    <div className="flex justify-between text-sm text-gray-600" style={{ fontFamily: 'Inter, sans-serif' }}>
-                      <span>Subtotal</span><span>{fmt(pedidoSelec.subtotal ?? 0)}</span>
-                    </div>
-                    {(pedidoSelec.descuento ?? 0) > 0 && (
-                      <div className="flex justify-between text-sm text-green-600" style={{ fontFamily: 'Inter, sans-serif' }}>
-                        <span>Descuento</span><span>-{fmt(pedidoSelec.descuento ?? 0)}</span>
+                  {/* Resumen de pago */}
+                  <div>
+                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3"
+                      style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Resumen</p>
+                    <div className="border border-gray-100">
+                      {[
+                        { label: 'Subtotal', value: fmt(pedidoSelec.subtotal ?? 0), className: 'text-gray-600' },
+                        ...((pedidoSelec.descuento ?? 0) > 0 ? [{ label: 'Descuento', value: `-${fmt(pedidoSelec.descuento ?? 0)}`, className: 'text-green-600' }] : []),
+                        { label: 'Envío', value: (pedidoSelec.envio ?? 0) === 0 ? 'Gratis' : fmt(pedidoSelec.envio ?? 0), className: 'text-gray-600' },
+                      ].map(({ label, value, className }) => (
+                        <div key={label} className={`flex justify-between text-sm px-4 py-3 border-b border-gray-100 ${className}`}
+                          style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                          <span>{label}</span><span>{value}</span>
+                        </div>
+                      ))}
+                      <div className="flex justify-between text-base font-bold text-gray-900 px-4 py-3"
+                        style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                        <span>Total</span><span>{fmt(pedidoSelec.total)}</span>
                       </div>
-                    )}
-                    <div className="flex justify-between text-sm text-gray-600" style={{ fontFamily: 'Inter, sans-serif' }}>
-                      <span>Envío</span><span>{(pedidoSelec.envio ?? 0) === 0 ? 'Gratis' : fmt(pedidoSelec.envio ?? 0)}</span>
-                    </div>
-                    <div className="flex justify-between text-base font-bold text-gray-900 pt-2 border-t border-gray-200" style={{ fontFamily: 'Inter, sans-serif' }}>
-                      <span>Total</span><span className="text-[#d65391]">{fmt(pedidoSelec.total)}</span>
                     </div>
                   </div>
 
                   {/* Info envío */}
-                  <div className="bg-white border border-gray-100 rounded-xl p-4 space-y-3">
-                    <h4 className="text-sm font-semibold text-gray-700" style={{ fontFamily: 'Inter, sans-serif' }}>Información de envío</h4>
-                    {[
-                      { icon: <CreditCard className="w-4 h-4 text-[#d65391]" />, label: 'Pago',      value: pedidoSelec.metodoPago },
-                      { icon: <MapPin className="w-4 h-4 text-[#d65391]" />,     label: 'Ciudad',    value: pedidoSelec.ciudad },
-                      { icon: <MapPin className="w-4 h-4 text-[#d65391]" />,     label: 'Dirección', value: pedidoSelec.direccionEnvio },
-                      ...(pedidoSelec.numeroGuia ? [{ icon: <Truck className="w-4 h-4 text-[#d65391]" />, label: 'Guía', value: `${pedidoSelec.numeroGuia}${pedidoSelec.transportadora ? ` · ${pedidoSelec.transportadora}` : ''}` }] : []),
-                    ].filter(r => r.value).map(({ icon, label, value }) => (
-                      <div key={label} className="flex items-start gap-2.5">
-                        <span className="mt-0.5 flex-shrink-0">{icon}</span>
-                        <div className="min-w-0">
-                          <p className="text-xs text-gray-400" style={{ fontFamily: 'Inter, sans-serif' }}>{label}</p>
-                          <p className="text-sm text-gray-800 break-words" style={{ fontFamily: 'Inter, sans-serif' }}>{value}</p>
+                  <div>
+                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3"
+                      style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Envío</p>
+                    <div className="border border-gray-100">
+                      {[
+                        { icon: <CreditCard className="w-4 h-4 text-gray-400" />, label: 'Método de pago', value: pedidoSelec.metodoPago },
+                        { icon: <MapPin className="w-4 h-4 text-gray-400" />,     label: 'Ciudad',         value: pedidoSelec.ciudad },
+                        { icon: <MapPin className="w-4 h-4 text-gray-400" />,     label: 'Dirección',      value: pedidoSelec.direccionEnvio },
+                        ...(pedidoSelec.numeroGuia ? [{ icon: <Truck className="w-4 h-4 text-gray-400" />, label: 'Número de guía', value: `${pedidoSelec.numeroGuia}${pedidoSelec.transportadora ? ` · ${pedidoSelec.transportadora}` : ''}` }] : []),
+                      ].filter(r => r.value).map(({ icon, label, value }) => (
+                        <div key={label} className="flex items-start gap-3 px-4 py-3 border-b border-gray-100 last:border-b-0">
+                          <span className="mt-0.5 flex-shrink-0">{icon}</span>
+                          <div className="min-w-0">
+                            <p className="text-xs text-gray-400 mb-0.5"
+                              style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>{label}</p>
+                            <p className="text-sm text-gray-800 break-words"
+                              style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>{value}</p>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
 
                   {pedidoSelec.notas && (
-                    <div className="bg-yellow-50 border border-yellow-100 rounded-xl p-3 text-sm text-yellow-800" style={{ fontFamily: 'Inter, sans-serif' }}>
-                      <strong>Notas:</strong> {pedidoSelec.notas}
+                    <div className="border border-gray-100 p-4 text-sm text-gray-600"
+                      style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                      <span className="font-semibold text-gray-900">Notas: </span>{pedidoSelec.notas}
                     </div>
                   )}
                 </div>

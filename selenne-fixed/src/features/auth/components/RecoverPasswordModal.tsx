@@ -164,7 +164,7 @@ export const RecoverPasswordModal: React.FC<RecoverPasswordModalProps> = ({
               <X size={24} />
             </button>
 
-            <h2 className="mb-6 text-[#000000] font-bold text-[32px] font-['Playfair_Display']">
+            <h2 className="mb-6 text-[#000000] font-bold text-[32px]">
               Recuperar contraseña
             </h2>
 

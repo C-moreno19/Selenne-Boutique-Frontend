@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 
 interface StatCardProps {
@@ -30,13 +30,13 @@ export const StatCard: React.FC<StatCardProps> = ({
       <div className="flex items-start justify-between mb-4">
         <div>
           <p
-            style={{ fontFamily: 'Inter, sans-serif' }}
+            style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
             className="text-sm text-gray-600 mb-1"
           >
             {title}
           </p>
           <h3
-            style={{ fontFamily: 'Playfair Display, serif' }}
+            style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
             className="text-2xl font-bold text-gray-900"
           >
             {value}
@@ -60,7 +60,7 @@ export const StatCard: React.FC<StatCardProps> = ({
             <TrendingDown className="w-4 h-4 text-red-500" />
           )}
           <span
-            style={{ fontFamily: 'Inter, sans-serif' }}
+            style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
             className={`text-sm font-medium ${
               trend.direction === 'up' ? 'text-green-600' : 'text-red-600'
             }`}
@@ -70,7 +70,7 @@ export const StatCard: React.FC<StatCardProps> = ({
           </span>
           {trend.label && (
             <span
-              style={{ fontFamily: 'Inter, sans-serif' }}
+              style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
               className="text-sm text-gray-500"
             >
               {trend.label}
@@ -109,7 +109,7 @@ export const SimpleBarChart: React.FC<BarChartProps> = ({
     <div className={`bg-white rounded-xl p-6 shadow-sm border border-gray-100 ${className}`}>
       {title && (
         <h3
-          style={{ fontFamily: 'Playfair Display, serif' }}
+          style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
           className="text-lg font-bold text-gray-900 mb-6"
         >
           {title}
@@ -125,14 +125,14 @@ export const SimpleBarChart: React.FC<BarChartProps> = ({
             <div key={index}>
               <div className="flex items-center justify-between mb-2">
                 <span
-                  style={{ fontFamily: 'Inter, sans-serif' }}
+                  style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                   className="text-sm font-medium text-gray-700"
                 >
                   {item.label}
                 </span>
                 {showValue && (
                   <span
-                    style={{ fontFamily: 'Inter, sans-serif' }}
+                    style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                     className="text-sm font-semibold text-gray-900"
                   >
                     {item.value}
@@ -222,7 +222,7 @@ export const SimplePieChart: React.FC<PieChartProps> = ({
     <div className={`bg-white rounded-xl p-6 shadow-sm border border-gray-100 ${className}`}>
       {title && (
         <h3
-          style={{ fontFamily: 'Playfair Display, serif' }}
+          style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
           className="text-lg font-bold text-gray-900 mb-6"
         >
           {title}
@@ -254,13 +254,13 @@ export const SimplePieChart: React.FC<PieChartProps> = ({
                 ></div>
                 <div>
                   <p
-                    style={{ fontFamily: 'Inter, sans-serif' }}
+                    style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                     className="text-sm font-medium text-gray-900"
                   >
                     {segment.label}
                   </p>
                   <p
-                    style={{ fontFamily: 'Inter, sans-serif' }}
+                    style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                     className="text-xs text-gray-500"
                   >
                     {segment.percentage.toFixed(1)}%

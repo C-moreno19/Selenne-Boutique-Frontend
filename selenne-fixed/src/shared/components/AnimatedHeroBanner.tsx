@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { ArrowRight, Sparkles } from 'lucide-react';
 
 interface AnimatedHeroBannerProps {
@@ -55,7 +55,7 @@ export const AnimatedHeroBanner: React.FC<AnimatedHeroBannerProps> = ({
             <div className="flex items-center gap-2 mb-4 animate-bounce">
               <Sparkles className="w-5 h-5 text-white" />
               <span
-                style={{ fontFamily: 'Inter, sans-serif' }}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className="text-sm font-semibold text-white uppercase tracking-widest"
               >
                 Nueva Colección
@@ -65,7 +65,7 @@ export const AnimatedHeroBanner: React.FC<AnimatedHeroBannerProps> = ({
 
           {/* Title */}
           <h1
-            style={{ fontFamily: 'Playfair Display, serif' }}
+            style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
             className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight animate-fade-in"
           >
             {title}
@@ -74,7 +74,7 @@ export const AnimatedHeroBanner: React.FC<AnimatedHeroBannerProps> = ({
           {/* Subtitle */}
           {subtitle && (
             <p
-              style={{ fontFamily: 'Inter, sans-serif' }}
+              style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
               className="text-lg sm:text-xl text-white/90 mb-8 leading-relaxed animate-fade-in"
               style={{ animationDelay: '0.2s' }}
             >
@@ -105,11 +105,11 @@ export const AnimatedHeroBanner: React.FC<AnimatedHeroBannerProps> = ({
           {/* Stats or Features */}
           <div className="mt-12 grid grid-cols-3 gap-4 max-w-sm text-white">
             <div className="animate-fade-in" style={{ animationDelay: '0.6s' }}>
-              <p style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl font-bold">
+              <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-2xl font-bold">
                 500+
               </p>
               <p
-                style={{ fontFamily: 'Inter, sans-serif' }}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className="text-sm text-white/80"
               >
                 Productos
@@ -117,11 +117,11 @@ export const AnimatedHeroBanner: React.FC<AnimatedHeroBannerProps> = ({
             </div>
 
             <div className="animate-fade-in" style={{ animationDelay: '0.7s' }}>
-              <p style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl font-bold">
+              <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-2xl font-bold">
                 100K+
               </p>
               <p
-                style={{ fontFamily: 'Inter, sans-serif' }}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className="text-sm text-white/80"
               >
                 Clientes
@@ -129,11 +129,11 @@ export const AnimatedHeroBanner: React.FC<AnimatedHeroBannerProps> = ({
             </div>
 
             <div className="animate-fade-in" style={{ animationDelay: '0.8s' }}>
-              <p style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl font-bold">
+              <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-2xl font-bold">
                 4.9⭐
               </p>
               <p
-                style={{ fontFamily: 'Inter, sans-serif' }}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className="text-sm text-white/80"
               >
                 Rating

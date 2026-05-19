@@ -19,6 +19,7 @@ export interface Producto {
   rating: number;
   badge?: string | null;
   nuevo: boolean;
+  descripcion?: string;
 }
 
 interface CarritoItem extends Producto {

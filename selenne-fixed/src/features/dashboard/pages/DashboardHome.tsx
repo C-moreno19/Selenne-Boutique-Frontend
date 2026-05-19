@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+﻿import React, { useEffect, useState, useMemo } from 'react';
 import {
   TrendingUp,
   TrendingDown,
@@ -7,8 +7,8 @@ import {
   Package,
   Download,
   FileText,
+  FileSpreadsheet,
   ChevronRight,
-  AlertTriangle,
 } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '../../../components/ui/dialog';
@@ -217,7 +217,7 @@ export const DashboardHome: React.FC = () => {
     }
   };
 
-  const COLORS = ['#d65391', '#f8a9c5', '#87CEEB', '#FFB347', '#90EE90'];
+  const COLORS = ['#d65391', '#f4a0c8', '#6366f1', '#10b981', '#f59e0b'];
 
   const handleExport = (tipo: string) => {
     setReportType(tipo);
@@ -344,403 +344,213 @@ export const DashboardHome: React.FC = () => {
     XLSX.writeFile(wb, `${filename}.xlsx`);
   };
 
+  const cardShadow = { boxShadow: '0 2px 12px rgba(214, 83, 145, 0.07)' };
+  const cardShadowHover = { boxShadow: '0 6px 24px rgba(214, 83, 145, 0.13)' };
+
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
       {/* Header */}
-      <div className="mb-6">
-        <h1 style={{ fontFamily: 'Playfair Display, serif' }} className="text-[36px] text-gray-900 mb-2">
-          Dashboard Principal
-        </h1>
-        <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-600">
-          {loading ? 'Cargando datos del dashboard...' : 'Resumen general del sistema de gestión'}
+      <div className="mb-8">
+        <h1 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-3xl font-bold text-gray-800 mb-1">Dashboard</h1>
+        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-400">
+          {loading ? 'Cargando datos...' : 'Resumen general del sistema'}
         </p>
       </div>
 
-      {/* 4 Tarjetas Superiores de Métricas */}
+      {/* 4 Tarjetas de Métricas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {/* Card 1 - Ventas Mensuales */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer">
-          <div className="flex items-start justify-between mb-4">
-            <div className="bg-gradient-to-br from-[#d65391] to-[#f8a9c5] p-3 rounded-lg">
-              <TrendingUp className="w-6 h-6 text-white" />
+        {[
+          { label: 'Ventas Mensuales', value: `$${totals.ventasMensuales.toLocaleString('es-CL')}`, sub: 'Total de ingresos', trend: '+12%', up: true, icon: <TrendingUp className="w-5 h-5 text-[#d65391]" />, iconBg: 'bg-[#fdf2f8]' },
+          { label: 'Pedidos Totales', value: totals.ventasTotales.toLocaleString('es-CL'), sub: 'Órdenes registradas', trend: '+8%', up: true, icon: <ShoppingCart className="w-5 h-5 text-[#d65391]" />, iconBg: 'bg-[#fdf2f8]' },
+          { label: 'Clientes Activos', value: totals.clientesActivos.toLocaleString('es-CL'), sub: 'Usuarios registrados', trend: '+5%', up: true, icon: <Users className="w-5 h-5 text-[#d65391]" />, iconBg: 'bg-[#fdf2f8]' },
+          { label: 'Productos Activos', value: totals.productosStock.toLocaleString('es-CL'), sub: 'Productos en catálogo', trend: '-3%', up: false, icon: <Package className="w-5 h-5 text-[#d65391]" />, iconBg: 'bg-[#fdf2f8]' },
+        ].map((card) => (
+          <div key={card.label} className="bg-white rounded-xl p-6 border border-gray-100 transition-shadow duration-200 cursor-default"
+            style={cardShadow}
+            onMouseEnter={e => Object.assign((e.currentTarget as HTMLElement).style, cardShadowHover)}
+            onMouseLeave={e => Object.assign((e.currentTarget as HTMLElement).style, cardShadow)}>
+            <div className="flex items-center justify-between mb-5">
+              <div className={`w-10 h-10 ${card.iconBg} rounded-xl flex items-center justify-center`}>
+                {card.icon}
+              </div>
+              <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className={`text-xs font-semibold flex items-center gap-0.5 ${card.up ? 'text-emerald-600' : 'text-red-400'}`}>
+                {card.up ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                {card.trend}
+              </span>
             </div>
-            <div className="flex items-center gap-1 text-green-600 bg-green-50 px-2 py-1 rounded-full">
-              <TrendingUp className="w-3 h-3" />
-              <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs">+12%</span>
-            </div>
+            <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 mb-1 uppercase tracking-wide">{card.label}</p>
+            <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-3xl font-bold text-gray-800 mb-1">{card.value}</p>
+            <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">{card.sub}</p>
           </div>
-          <h3 style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-600 mb-1">
-            Ventas Mensuales
-          </h3>
-          <p style={{ fontFamily: 'Playfair Display, serif' }} className="text-[32px] text-gray-900 mb-1">
-            ${totals.ventasMensuales.toLocaleString('es-CL')}
-          </p>
-          <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">
-            Total de ingresos registrados
-          </p>
-        </div>
-
-        {/* Card 2 - Ventas Totales */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer">
-          <div className="flex items-start justify-between mb-4">
-            <div className="bg-gradient-to-br from-[#4169E1] to-[#87CEEB] p-3 rounded-lg">
-              <ShoppingCart className="w-6 h-6 text-white" />
-            </div>
-            <div className="flex items-center gap-1 text-green-600 bg-green-50 px-2 py-1 rounded-full">
-              <TrendingUp className="w-3 h-3" />
-              <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs">+8%</span>
-            </div>
-          </div>
-          <h3 style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-600 mb-1">
-            Pedidos Totales
-          </h3>
-          <p style={{ fontFamily: 'Playfair Display, serif' }} className="text-[32px] text-gray-900 mb-1">
-            {totals.ventasTotales.toLocaleString('es-CL')}
-          </p>
-          <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">
-            órdenes registradas
-          </p>
-        </div>
-
-        {/* Card 3 - Clientes Activos */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer">
-          <div className="flex items-start justify-between mb-4">
-            <div className="bg-gradient-to-br from-[#90EE90] to-[#98FB98] p-3 rounded-lg">
-              <Users className="w-6 h-6 text-white" />
-            </div>
-            <div className="flex items-center gap-1 text-green-600 bg-green-50 px-2 py-1 rounded-full">
-              <TrendingUp className="w-3 h-3" />
-              <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs">+5%</span>
-            </div>
-          </div>
-          <h3 style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-600 mb-1">
-            Clientes Activos
-          </h3>
-          <p style={{ fontFamily: 'Playfair Display, serif' }} className="text-[32px] text-gray-900 mb-1">
-            {totals.clientesActivos.toLocaleString('es-CL')}
-          </p>
-          <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">
-            usuarios registrados
-          </p>
-        </div>
-
-        {/* Card 4 - Productos Stock */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer">
-          <div className="flex items-start justify-between mb-4">
-            <div className="bg-gradient-to-br from-[#FFB347] to-[#FFA500] p-3 rounded-lg">
-              <Package className="w-6 h-6 text-white" />
-            </div>
-            <div className="flex items-center gap-1 text-red-600 bg-red-50 px-2 py-1 rounded-full">
-              <TrendingDown className="w-3 h-3" />
-              <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs">-3%</span>
-            </div>
-          </div>
-          <h3 style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-600 mb-1">
-            Productos Activos
-          </h3>
-          <p style={{ fontFamily: 'Playfair Display, serif' }} className="text-[32px] text-gray-900 mb-1">
-            {totals.productosStock.toLocaleString('es-CL')}
-          </p>
-          <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">
-            productos registrados
-          </p>
-        </div>
+        ))}
       </div>
 
-      {/* Encabezado de sección de gráficas con selector de fechas */}
-      <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6">
-        <h2 style={{ fontFamily: 'Playfair Display, serif' }} className="text-[24px] text-gray-900">
-          Análisis de Ventas
-        </h2>
-        <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-4 py-2.5 shadow-sm">
-          <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 whitespace-nowrap">
-            Desde
-          </span>
-          <input
-            type="date"
-            value={toInputValue(dateRange.from)}
-            max={toInputValue(dateRange.to)}
-            onChange={(e) => {
-              const val = e.target.value;
-              if (val) setDateRange((prev) => ({ ...prev, from: new Date(val + 'T00:00:00') }));
-            }}
-            className="text-sm text-gray-700 border-none outline-none bg-transparent cursor-pointer"
-            style={{ fontFamily: 'Inter, sans-serif' }}
-          />
+      {/* Selector de fechas */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <h2 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-lg font-semibold text-gray-800">Análisis de Ventas</h2>
+        <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-4 py-2.5" style={cardShadow}>
+          <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 whitespace-nowrap">Desde</span>
+          <input type="date" value={toInputValue(dateRange.from)} max={toInputValue(dateRange.to)}
+            onChange={(e) => { const val = e.target.value; if (val) setDateRange((prev) => ({ ...prev, from: new Date(val + 'T00:00:00') })); }}
+            className="text-sm text-gray-600 border-none outline-none bg-transparent cursor-pointer" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} />
           <span className="text-gray-300">—</span>
-          <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 whitespace-nowrap">
-            Hasta
-          </span>
-          <input
-            type="date"
-            value={toInputValue(dateRange.to)}
-            min={toInputValue(dateRange.from)}
-            max={toInputValue(new Date())}
-            onChange={(e) => {
-              const val = e.target.value;
-              if (val) setDateRange((prev) => ({ ...prev, to: new Date(val + 'T00:00:00') }));
-            }}
-            className="text-sm text-gray-700 border-none outline-none bg-transparent cursor-pointer"
-            style={{ fontFamily: 'Inter, sans-serif' }}
-          />
-          <button
-            onClick={() => setDateRange(defaultDateRange())}
-            className="ml-1 text-xs text-[#d65391] hover:text-[#c14a7f] whitespace-nowrap transition-colors"
-            style={{ fontFamily: 'Inter, sans-serif' }}
-            title="Restablecer a últimos 30 días"
-          >
+          <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 whitespace-nowrap">Hasta</span>
+          <input type="date" value={toInputValue(dateRange.to)} min={toInputValue(dateRange.from)} max={toInputValue(new Date())}
+            onChange={(e) => { const val = e.target.value; if (val) setDateRange((prev) => ({ ...prev, to: new Date(val + 'T00:00:00') })); }}
+            className="text-sm text-gray-600 border-none outline-none bg-transparent cursor-pointer" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} />
+          <button onClick={() => setDateRange(defaultDateRange())}
+            className="ml-1 text-xs text-[#d65391] hover:text-[#c14a7f] whitespace-nowrap transition-colors" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
             Resetear
           </button>
         </div>
       </div>
 
-      {/* Gráficos principales */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        {/* Gráfico de Ventas */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <div className="flex items-center justify-between mb-6">
+      {/* Gráficos */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <div className="bg-white rounded-xl p-6 border border-gray-100" style={cardShadow}>
+          <div className="flex items-start justify-between mb-5">
             <div>
-              <h3 style={{ fontFamily: 'Playfair Display, serif' }} className="text-[22px] text-gray-900 mb-1">
-                Ventas por Período
-              </h3>
-              <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-500">
-                {dateRangeLabel}
-              </p>
+              <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-gray-700 mb-0.5">Ventas por Período</h3>
+              <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">{dateRangeLabel}</p>
             </div>
-            <button
-              onClick={() => handleExport('Ventas Mensuales')}
-              className="p-2 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
-              title="Exportar reporte"
-            >
-              <Download className="w-5 h-5 text-gray-600" />
+            <button onClick={() => handleExport('Ventas Mensuales')} className="p-2 hover:bg-[#fdf2f8] rounded-lg transition-colors" title="Exportar">
+              <Download className="w-4 h-4 text-[#d65391]" />
             </button>
           </div>
           <ResponsiveContainer width="100%" height={250}>
             <LineChart data={salesData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis
-                dataKey="name"
-                style={{ fontFamily: 'Inter, sans-serif', fontSize: '12px' }}
-                stroke="#9CA3AF"
-              />
-              <YAxis
-                style={{ fontFamily: 'Inter, sans-serif', fontSize: '12px' }}
-                stroke="#9CA3AF"
-              />
-              <Tooltip
-                contentStyle={{
-                  fontFamily: 'Inter, sans-serif',
-                  borderRadius: '8px',
-                  border: '1px solid #e5e7eb'
-                }}
-              />
-              <Legend wrapperStyle={{ fontFamily: 'Inter, sans-serif', fontSize: '14px' }} />
-              <Line
-                type="monotone"
-                dataKey="value"
-                name="Ventas"
-                stroke="#d65391"
-                strokeWidth={3}
-                dot={{ fill: '#d65391', r: 4 }}
-                activeDot={{ r: 6 }}
-              />
+              <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+              <XAxis dataKey="name" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: '11px' }} stroke="#e5e7eb" tick={{ fill: '#9ca3af' }} />
+              <YAxis style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: '11px' }} stroke="#e5e7eb" tick={{ fill: '#9ca3af' }} />
+              <Tooltip contentStyle={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', borderRadius: '10px', border: '1px solid #fce7f3', fontSize: '12px' }} />
+              <Line type="monotone" dataKey="value" name="Ventas" stroke="#d65391" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: '#d65391', stroke: '#fff', strokeWidth: 2 }} />
             </LineChart>
           </ResponsiveContainer>
         </div>
 
-        {/* Gráfico de Productos Más Vendidos */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <div className="flex items-center justify-between mb-6">
+        <div className="bg-white rounded-xl p-6 border border-gray-100" style={cardShadow}>
+          <div className="flex items-start justify-between mb-5">
             <div>
-              <h3 style={{ fontFamily: 'Playfair Display, serif' }} className="text-[22px] text-gray-900 mb-1">
-                Productos Más Vendidos
-              </h3>
-              <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-500">
-                {dateRangeLabel}
-              </p>
+              <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-gray-700 mb-0.5">Productos Más Vendidos</h3>
+              <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">{dateRangeLabel}</p>
             </div>
-            <button
-              onClick={() => handleExport('Productos Más Vendidos')}
-              className="p-2 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
-              title="Exportar reporte"
-            >
-              <Download className="w-5 h-5 text-gray-600" />
+            <button onClick={() => handleExport('Productos Más Vendidos')} className="p-2 hover:bg-[#fdf2f8] rounded-lg transition-colors" title="Exportar">
+              <Download className="w-4 h-4 text-[#d65391]" />
             </button>
           </div>
           <ResponsiveContainer width="100%" height={250}>
             <BarChart data={topProductsData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis
-                dataKey="name"
-                style={{ fontFamily: 'Inter, sans-serif', fontSize: '12px' }}
-                stroke="#9CA3AF"
-              />
-              <YAxis
-                style={{ fontFamily: 'Inter, sans-serif', fontSize: '12px' }}
-                stroke="#9CA3AF"
-              />
-              <Tooltip
-                contentStyle={{
-                  fontFamily: 'Inter, sans-serif',
-                  borderRadius: '8px',
-                  border: '1px solid #e5e7eb'
-                }}
-              />
-              <Bar dataKey="value" fill="#d65391" radius={[8, 8, 0, 0]} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+              <XAxis dataKey="name" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: '11px' }} stroke="#e5e7eb" tick={{ fill: '#9ca3af' }} />
+              <YAxis style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: '11px' }} stroke="#e5e7eb" tick={{ fill: '#9ca3af' }} />
+              <Tooltip contentStyle={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', borderRadius: '10px', border: '1px solid #fce7f3', fontSize: '12px' }} />
+              <Bar dataKey="value" fill="#d65391" radius={[6, 6, 0, 0]} opacity={0.85} />
             </BarChart>
           </ResponsiveContainer>
         </div>
       </div>
 
-      {/* Distribución por Categoría (Donut) */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-8">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h3 style={{ fontFamily: 'Playfair Display, serif' }} className="text-[22px] text-gray-900 mb-1">
-              Distribución por Categoría
-            </h3>
-            <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-500">
-              Productos activos en catálogo
-            </p>
-          </div>
-          <button
-            onClick={() => handleExport('Distribución por Categoría')}
-            className="p-2 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
-            title="Exportar reporte"
-          >
-            <Download className="w-5 h-5 text-gray-600" />
-          </button>
-        </div>
-        <ResponsiveContainer width="100%" height={300}>
-          <PieChart>
-            <Pie
-              data={categoryData}
-              cx="50%"
-              cy="50%"
-              innerRadius={60}
-              outerRadius={100}
-              paddingAngle={5}
-              dataKey="value"
-              label={({ name, value }) => `${name}: ${value}`}
-            >
-              {categoryData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-              ))}
-            </Pie>
-            <Tooltip
-              contentStyle={{
-                fontFamily: 'Inter, sans-serif',
-                borderRadius: '8px',
-                border: '1px solid #e5e7eb'
-              }}
-              formatter={(value) => `${value} producto(s)`}
-            />
-            <Legend
-              wrapperStyle={{ fontFamily: 'Inter, sans-serif', fontSize: '14px' }}
-              formatter={(value, props) => `${props.payload.name}: ${props.payload.value}`}
-            />
-          </PieChart>
-        </ResponsiveContainer>
-      </div>
-
-      {/* Últimas Ventas */}
-      <div className="grid grid-cols-1 gap-6">
-        {/* Últimas Ventas */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <div className="flex items-center justify-between mb-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        {/* Donut */}
+        <div className="bg-white rounded-xl p-6 border border-gray-100" style={cardShadow}>
+          <div className="flex items-start justify-between mb-5">
             <div>
-              <h3 style={{ fontFamily: 'Playfair Display, serif' }} className="text-[20px] text-gray-900">
-                Últimas Ventas
-              </h3>
-              <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 mt-0.5">
-                {dateRangeLabel}
-              </p>
+              <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-gray-700 mb-0.5">Distribución por Categoría</h3>
+              <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">Productos activos en catálogo</p>
             </div>
-            <button
-              onClick={() => setSalesDetailOpen(true)}
-              className="text-sm text-[#d65391] hover:text-[#c14a7f] transition-colors flex items-center gap-1"
-              style={{ fontFamily: 'Inter, sans-serif' }}
-            >
-              Ver todo
-              <ChevronRight className="w-4 h-4" />
+            <button onClick={() => handleExport('Distribución por Categoría')} className="p-2 hover:bg-[#fdf2f8] rounded-lg transition-colors" title="Exportar">
+              <Download className="w-4 h-4 text-[#d65391]" />
             </button>
           </div>
-          <div className="space-y-3">
-            {recentSales.slice(0, 4).map((sale) => (
-              <div key={sale.id} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
-                <div className="w-10 h-10 bg-gradient-to-br from-[#d65391] to-[#f8a9c5] rounded-lg flex items-center justify-center flex-shrink-0">
-                  <ShoppingCart className="w-5 h-5 text-white" />
+          <ResponsiveContainer width="100%" height={280}>
+            <PieChart>
+              <Pie data={categoryData} cx="50%" cy="50%" innerRadius={60} outerRadius={100} paddingAngle={4} dataKey="value">
+                {categoryData.map((_, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip contentStyle={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', borderRadius: '10px', border: '1px solid #fce7f3', fontSize: '12px' }} formatter={(value) => `${value} producto(s)`} />
+              <Legend wrapperStyle={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: '12px' }} formatter={(_, props: any) => `${props.payload.name}: ${props.payload.value}`} />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Últimas Ventas */}
+        <div className="bg-white rounded-xl p-6 border border-gray-100" style={cardShadow}>
+          <div className="flex items-center justify-between mb-5">
+            <div>
+              <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-gray-700 mb-0.5">Últimas Ventas</h3>
+              <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">{dateRangeLabel}</p>
+            </div>
+            <button onClick={() => setSalesDetailOpen(true)}
+              className="text-xs text-[#d65391] hover:text-[#c14a7f] transition-colors flex items-center gap-1" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+              Ver todo <ChevronRight className="w-3 h-3" />
+            </button>
+          </div>
+          <div className="space-y-1">
+            {recentSales.slice(0, 5).map((sale) => (
+              <div key={sale.id} className="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-[#fdf2f8] transition-colors">
+                <div className="w-9 h-9 bg-[#fdf2f8] rounded-lg flex items-center justify-center flex-shrink-0">
+                  <ShoppingCart className="w-4 h-4 text-[#d65391]" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-1">
-                    <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-900 truncate">
-                      {sale.cliente}
-                    </p>
-                    <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">
-                      {sale.fecha}
-                    </span>
-                  </div>
-                  <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-600 truncate">
-                    {sale.producto} ({sale.cantidad} {sale.cantidad === 1 ? 'producto' : 'productos'})
-                  </p>
-                  <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-[#d65391] mt-1">
-                    ${sale.monto.toLocaleString()}
-                  </p>
+                  <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 truncate">{sale.cliente}</p>
+                  <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 truncate">{sale.producto}</p>
+                </div>
+                <div className="text-right flex-shrink-0">
+                  <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#d65391]">${sale.monto.toLocaleString()}</p>
+                  <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">{sale.fecha}</p>
                 </div>
               </div>
             ))}
             {recentSales.length === 0 && (
-              <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-400 text-center py-6">
-                Sin ventas en el período seleccionado
-              </p>
+              <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-400 text-center py-8">Sin ventas en el período</p>
             )}
           </div>
         </div>
-
       </div>
 
-      {/* Modal de Generar Reporte */}
+      {/* Modal Reporte */}
       <Dialog open={reportModalOpen} onOpenChange={setReportModalOpen}>
         <DialogContent className="max-w-md p-0 gap-0 overflow-hidden">
-          <div className="bg-gradient-to-r from-[#d65391] to-[#e87ab5] px-8 py-6">
-            <div className="flex items-center gap-3 mb-1">
-              <div className="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center">
-                <Download className="w-5 h-5 text-white" />
-              </div>
-              <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl text-white">
-                Generar Reporte
-              </DialogTitle>
-            </div>
-            <DialogDescription style={{ fontFamily: 'Inter, sans-serif' }} className="text-white/80 text-sm ml-12">
-              Período: {dateRangeLabel}
-            </DialogDescription>
-          </div>
-
-          <div className="px-8 py-6 space-y-5">
-            <div className="flex items-center gap-3 bg-[#fdf2f8] border border-[#f9a8d4] rounded-xl px-4 py-3">
-              <div className="w-8 h-8 bg-[#d65391] rounded-lg flex items-center justify-center flex-shrink-0">
-                <FileText className="w-4 h-4 text-white" />
+          <DialogHeader className="px-8 pt-6 pb-4 border-b border-gray-100">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 bg-[#fdf2f8] rounded-xl flex items-center justify-center">
+                <Download className="w-4 h-4 text-[#d65391]" />
               </div>
               <div>
-                <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-semibold text-[#9d174d]">{reportType}</p>
-                <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-[#be185d]">Datos del período seleccionado</p>
+                <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-base font-semibold text-gray-800">Generar Reporte</DialogTitle>
+                <DialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 mt-0.5">Período: {dateRangeLabel}</DialogDescription>
+              </div>
+            </div>
+          </DialogHeader>
+
+          <div className="px-8 py-6 space-y-5">
+            <div className="flex items-center gap-3 bg-[#fdf2f8] border border-[#fce7f3] rounded-xl px-4 py-3">
+              <div className="w-8 h-8 bg-[#fce7f3] rounded-lg flex items-center justify-center flex-shrink-0">
+                <FileText className="w-4 h-4 text-[#d65391]" />
+              </div>
+              <div>
+                <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-gray-700">{reportType}</p>
+                <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">Datos del período seleccionado</p>
               </div>
             </div>
 
             <div>
-              <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Formato de descarga</p>
+              <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Formato</p>
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { value: 'xlsx', label: 'Excel', ext: '.xlsx', icon: '📊' },
-                  { value: 'pdf', label: 'PDF', ext: '.pdf', icon: '📄' },
+                  { value: 'xlsx', label: 'Excel', ext: '.xlsx', icon: <FileSpreadsheet className="w-4 h-4 text-emerald-500" /> },
+                  { value: 'pdf', label: 'PDF', ext: '.pdf', icon: <FileText className="w-4 h-4 text-red-400" /> },
                 ].map(opt => (
                   <label key={opt.value}
-                    className="flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-all has-[:checked]:border-[#d65391] has-[:checked]:bg-[#fdf2f8] border-gray-200 hover:border-gray-300">
-                    <input type="radio" name="report-format-radio" value={opt.value} id={`fmt-${opt.value}`}
-                      defaultChecked={opt.value === 'xlsx'} className="accent-[#d65391]" />
+                    className="flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-all has-[:checked]:border-[#d65391] has-[:checked]:bg-[#fdf2f8] border-gray-200 hover:border-pink-200">
+                    <input type="radio" name="report-format-radio" value={opt.value} defaultChecked={opt.value === 'xlsx'} className="accent-[#d65391]" />
                     <div>
-                      <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-semibold text-gray-800">{opt.icon} {opt.label}</p>
-                      <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-400">{opt.ext}</p>
+                      <div className="flex items-center gap-1.5 mb-0.5">{opt.icon}
+                        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-gray-700">{opt.label}</p>
+                      </div>
+                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">{opt.ext}</p>
                     </div>
                   </label>
                 ))}
@@ -749,9 +559,8 @@ export const DashboardHome: React.FC = () => {
           </div>
 
           <div className="flex gap-3 px-8 pb-6">
-            <button type="button" onClick={() => setReportModalOpen(false)}
-              style={{ fontFamily: 'Inter, sans-serif' }}
-              className="flex-1 py-2.5 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors text-sm font-medium">
+            <button type="button" onClick={() => setReportModalOpen(false)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+              className="flex-1 py-2.5 bg-gray-100 text-gray-600 rounded-xl hover:bg-gray-200 transition-colors text-sm font-medium">
               Cancelar
             </button>
             <button type="button" onClick={() => {
@@ -764,8 +573,7 @@ export const DashboardHome: React.FC = () => {
                 toast.success(`Reporte de ${reportType} generado`);
                 setReportModalOpen(false);
               } catch { toast.error('Error generando el reporte'); }
-            }}
-              style={{ fontFamily: 'Inter, sans-serif' }}
+            }} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
               className="flex-1 py-2.5 bg-[#d65391] text-white rounded-xl hover:bg-[#c14a7f] transition-colors text-sm font-semibold flex items-center justify-center gap-2">
               <Download className="w-4 h-4" /> Descargar
             </button>
@@ -773,58 +581,41 @@ export const DashboardHome: React.FC = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Modal Ver Todo - Últimas Ventas */}
+      {/* Modal Últimas Ventas */}
       <Dialog open={salesDetailOpen} onOpenChange={setSalesDetailOpen}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl">
-              Ventas del Período
-            </DialogTitle>
-            <DialogDescription style={{ fontFamily: 'Inter, sans-serif' }}>
+        <DialogContent className="max-w-2xl p-0 gap-0">
+          <DialogHeader className="px-8 pt-6 pb-4 border-b border-gray-100">
+            <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-base font-semibold text-gray-800">Ventas del Período</DialogTitle>
+            <DialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">
               {dateRangeLabel} · {recentSales.length} venta{recentSales.length !== 1 ? 's' : ''}
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-3 max-h-[500px] overflow-y-auto">
+          <div className="divide-y divide-gray-50 max-h-[480px] overflow-y-auto">
             {recentSales.map((sale) => (
-              <div key={sale.id} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                <div className="w-12 h-12 bg-gradient-to-br from-[#d65391] to-[#f8a9c5] rounded-lg flex items-center justify-center flex-shrink-0">
-                  <ShoppingCart className="w-6 h-6 text-white" />
+              <div key={sale.id} className="flex items-center gap-4 px-8 py-4 hover:bg-[#fdf2f8] transition-colors">
+                <div className="w-9 h-9 bg-[#fdf2f8] rounded-lg flex items-center justify-center flex-shrink-0">
+                  <ShoppingCart className="w-4 h-4 text-[#d65391]" />
                 </div>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between mb-1">
-                    <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-900">
-                      {sale.id} - {sale.cliente}
-                    </p>
-                    <span className={`px-2 py-1 rounded-full text-xs ${sale.estado === 'Completada' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
-                      {sale.estado}
-                    </span>
-                  </div>
-                  <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-600">
-                    {sale.producto} - {sale.cantidad} {sale.cantidad === 1 ? 'producto' : 'productos'}
-                  </p>
-                  <div className="flex items-center justify-between mt-2">
-                    <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-[#d65391]">
-                      ${sale.monto.toLocaleString()}
-                    </p>
-                    <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">
-                      {sale.fecha}
-                    </span>
+                <div className="flex-1 min-w-0">
+                  <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700">{sale.id} — {sale.cliente}</p>
+                  <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">{sale.producto} · {sale.cantidad} {sale.cantidad === 1 ? 'unidad' : 'unidades'}</p>
+                </div>
+                <div className="text-right flex-shrink-0">
+                  <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#d65391]">${sale.monto.toLocaleString()}</p>
+                  <div className="flex items-center gap-2 justify-end mt-0.5">
+                    <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">{sale.fecha}</span>
+                    <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className={`text-xs font-medium px-2 py-0.5 rounded-full ${sale.estado === 'Completada' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>{sale.estado}</span>
                   </div>
                 </div>
               </div>
             ))}
             {recentSales.length === 0 && (
-              <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-400 text-center py-10">
-                Sin ventas en el período seleccionado
-              </p>
+              <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-400 text-center py-12">Sin ventas en el período seleccionado</p>
             )}
           </div>
-          <DialogFooter>
-            <button
-              onClick={() => setSalesDetailOpen(false)}
-              style={{ fontFamily: 'Inter, sans-serif' }}
-              className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
-            >
+          <DialogFooter className="px-8 py-4 border-t border-gray-100">
+            <button onClick={() => setSalesDetailOpen(false)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+              className="px-5 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors text-sm">
               Cerrar
             </button>
           </DialogFooter>

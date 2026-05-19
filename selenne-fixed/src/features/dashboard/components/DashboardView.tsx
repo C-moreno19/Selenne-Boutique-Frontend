@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { DashboardSidebar } from './DashboardSidebar';
 import { DashboardHeader } from './DashboardHeader';
 import { DashboardHome } from '../pages/DashboardHome';
@@ -55,25 +55,39 @@ interface DashboardViewProps {
   onLogout: () => void;
 }
 
+// Secciones principales a las que redirigir si la actual no es accesible
+const REDIRECT_PRIORITY: DashboardSection[] = [
+  'home', 'ventas', 'pedidos', 'productos', 'clientes',
+  'compras', 'usuarios', 'roles', 'perfil',
+];
+
 export const DashboardView: React.FC<DashboardViewProps> = ({ onLogout }) => {
-  const { refreshPermisos } = useAuth();
+  const { user, refreshPermisos } = useAuth();
   const { canAccessSection } = usePermisos();
   const { isOpen } = useSidebar();
 
-  // Al montar el dashboard, refrescar el JWT para tener permisos actualizados del servidor
-  React.useEffect(() => {
-    refreshPermisos();
-  }, []);
   const [currentSection, setCurrentSectionState] = useState<DashboardSection>(() => {
     const saved = localStorage.getItem('currentSection') as DashboardSection;
-    if (saved) return saved;
-    return 'home';
+    return saved || 'home';
   });
 
   const setCurrentSection = (section: DashboardSection) => {
     setCurrentSectionState(section);
     localStorage.setItem('currentSection', section);
   };
+
+  // Refrescar permisos del servidor al montar
+  React.useEffect(() => {
+    refreshPermisos();
+  }, []);
+
+  // Cuando cambian los permisos, redirigir si la sección actual ya no es accesible
+  React.useEffect(() => {
+    if (!canAccessSection(currentSection)) {
+      const first = REDIRECT_PRIORITY.find(s => canAccessSection(s)) ?? 'perfil';
+      setCurrentSection(first);
+    }
+  }, [user?.permisos]);
 
   const renderContent = () => {
     // Verificar permisos antes de renderizar
@@ -82,13 +96,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onLogout }) => {
         <div className="flex items-center justify-center min-h-[70vh]">
           <div className="text-center max-w-md mx-auto px-6">
             <div className="mb-6 text-7xl">🔒</div>
-            <h2 style={{ fontFamily: 'Playfair Display, serif' }} className="text-3xl text-gray-900 mb-3">
+            <h2 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-3xl text-gray-900 mb-3">
               Sin acceso
             </h2>
-            <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-500 mb-2">
+            <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-500 mb-2">
               No tienes permisos para ver esta sección.
             </p>
-            <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-400 text-sm">
+            <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-400 text-sm">
               Pídele al administrador que te asigne los permisos necesarios.
             </p>
           </div>

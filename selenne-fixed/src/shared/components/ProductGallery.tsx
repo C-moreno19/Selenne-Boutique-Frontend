@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, ZoomIn, Share2, Heart } from 'lucide-react';
 
 interface ProductImage {
@@ -147,7 +147,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
       {/* Image Counter */}
       {images.length > 1 && (
         <div
-          style={{ fontFamily: 'Inter, sans-serif' }}
+          style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
           className="text-center text-sm text-gray-500"
         >
           {currentImageIndex + 1} / {images.length}
