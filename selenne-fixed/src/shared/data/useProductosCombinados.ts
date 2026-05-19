@@ -42,6 +42,7 @@ export const useProductosCombinados = (): Producto[] => {
           rating: 4.5,
           badge: (p.isSale || p.precioOriginal) ? 'Sale' : null,
           nuevo: false,
+          descripcion: p.descripcion || '',
         };
       });
   }, [productosAdmin]);

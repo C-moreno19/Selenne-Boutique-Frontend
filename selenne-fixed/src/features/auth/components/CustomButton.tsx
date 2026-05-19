@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { motion } from 'motion/react';
 
 interface CustomButtonProps {
@@ -32,7 +32,7 @@ export const CustomButton: React.FC<CustomButtonProps> = ({
       className={`${baseClasses} ${variantClasses} disabled:opacity-50 disabled:cursor-not-allowed`}
       style={{ 
         borderRadius: '6px',
-        fontFamily: 'Inter, sans-serif',
+        fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
         fontWeight: '600',
         height: '44px',
       }}

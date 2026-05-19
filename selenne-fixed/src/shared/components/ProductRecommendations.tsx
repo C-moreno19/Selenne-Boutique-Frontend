@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { Heart, ShoppingCart, Star, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface RecommendedProduct {
@@ -81,12 +81,12 @@ export const ProductRecommendations: React.FC<ProductRecommendationsProps> = ({
       {/* Header */}
       <div className="mb-8 px-4 sm:px-0">
         <h2
-          style={{ fontFamily: 'Playfair Display, serif' }}
+          style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
           className="text-3xl font-bold text-gray-900 mb-2"
         >
           {title}
         </h2>
-        <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-600">
+        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-600">
           {description}
         </p>
       </div>
@@ -178,7 +178,7 @@ export const ProductRecommendations: React.FC<ProductRecommendationsProps> = ({
                   <div className="p-4 flex flex-col flex-grow">
                     {/* Product Name */}
                     <h3
-                      style={{ fontFamily: 'Playfair Display, serif' }}
+                      style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                       className="font-semibold text-gray-900 mb-2 line-clamp-2 cursor-pointer hover:text-[#d65391] transition-colors"
                       onClick={() => onProductClick?.(product.id)}
                     >
@@ -200,7 +200,7 @@ export const ProductRecommendations: React.FC<ProductRecommendationsProps> = ({
                         ))}
                       </div>
                       <span
-                        style={{ fontFamily: 'Inter, sans-serif' }}
+                        style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                         className="text-xs text-gray-500 ml-1"
                       >
                         ({product.reviews})
@@ -211,14 +211,14 @@ export const ProductRecommendations: React.FC<ProductRecommendationsProps> = ({
                     <div className="mb-4">
                       <div className="flex items-baseline gap-2">
                         <span
-                          style={{ fontFamily: 'Playfair Display, serif' }}
+                          style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                           className="text-xl font-bold text-[#d65391]"
                         >
                           ${product.precio.toLocaleString()}
                         </span>
                         {product.precioOriginal && (
                           <span
-                            style={{ fontFamily: 'Inter, sans-serif' }}
+                            style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                             className="text-sm text-gray-500 line-through"
                           >
                             ${product.precioOriginal.toLocaleString()}

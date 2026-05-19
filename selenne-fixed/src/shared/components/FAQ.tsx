@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { ChevronDown, HelpCircle, Send } from 'lucide-react';
 
 interface FAQItem {
@@ -59,7 +59,7 @@ export const FAQ: React.FC<FAQProps> = ({
         <div className="flex items-center justify-center gap-2 mb-4">
           <HelpCircle className="w-6 h-6 text-[#d65391]" />
           <h2
-            style={{ fontFamily: 'Playfair Display, serif' }}
+            style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
             className="text-3xl md:text-4xl font-bold text-gray-900"
           >
             {title}
@@ -67,7 +67,7 @@ export const FAQ: React.FC<FAQProps> = ({
         </div>
         {subtitle && (
           <p
-            style={{ fontFamily: 'Inter, sans-serif' }}
+            style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
             className="text-gray-600 text-lg"
           >
             {subtitle}
@@ -82,7 +82,7 @@ export const FAQ: React.FC<FAQProps> = ({
           placeholder="Buscar preguntas..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          style={{ fontFamily: 'Inter, sans-serif' }}
+          style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
           className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391] transition-all duration-200"
         />
       </div>
@@ -117,14 +117,14 @@ export const FAQ: React.FC<FAQProps> = ({
             >
               <div className="text-left flex-1">
                 <h3
-                  style={{ fontFamily: 'Playfair Display, serif' }}
+                  style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                   className="text-lg font-semibold text-gray-900"
                 >
                   {item.question}
                 </h3>
                 {item.category && (
                   <span
-                    style={{ fontFamily: 'Inter, sans-serif' }}
+                    style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                     className="text-xs text-gray-500 mt-1 inline-block"
                   >
                     {item.category}
@@ -143,7 +143,7 @@ export const FAQ: React.FC<FAQProps> = ({
             {expandedId === item.id && (
               <div className="border-t border-gray-200 p-6 bg-gray-50 animate-in fade-in slide-in-from-top-2 duration-300">
                 <p
-                  style={{ fontFamily: 'Inter, sans-serif' }}
+                  style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                   className="text-gray-700 leading-relaxed mb-4"
                 >
                   {item.answer}
@@ -151,7 +151,7 @@ export const FAQ: React.FC<FAQProps> = ({
 
                 <div className="flex items-center gap-4 text-sm">
                   <span
-                    style={{ fontFamily: 'Inter, sans-serif' }}
+                    style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                     className="text-gray-600"
                   >
                     ¿Fue útil?
@@ -171,7 +171,7 @@ export const FAQ: React.FC<FAQProps> = ({
         {filteredItems.length === 0 && (
           <div className="text-center py-12">
             <p
-              style={{ fontFamily: 'Inter, sans-serif' }}
+              style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
               className="text-gray-600"
             >
               No encontramos respuestas para "{searchQuery}"
@@ -184,14 +184,14 @@ export const FAQ: React.FC<FAQProps> = ({
       {showForm && (
         <div className="max-w-2xl mx-auto px-4 sm:px-0 bg-gradient-to-r from-[#d65391]/10 to-[#f8a9c5]/10 rounded-xl p-8">
           <h3
-            style={{ fontFamily: 'Playfair Display, serif' }}
+            style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
             className="text-2xl font-bold text-gray-900 mb-4"
           >
             ¿No encontraste lo que buscas?
           </h3>
 
           <p
-            style={{ fontFamily: 'Inter, sans-serif' }}
+            style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
             className="text-gray-600 mb-6"
           >
             Contáctanos y nuestro equipo te responderá lo antes posible.
@@ -205,7 +205,7 @@ export const FAQ: React.FC<FAQProps> = ({
             <form onSubmit={handleSubmitQuestion} className="space-y-4">
               <div>
                 <label
-                  style={{ fontFamily: 'Inter, sans-serif' }}
+                  style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                   className="block text-sm font-medium text-gray-900 mb-2"
                 >
                   Tu correo electrónico
@@ -216,14 +216,14 @@ export const FAQ: React.FC<FAQProps> = ({
                   onChange={(e) => setQuestionEmail(e.target.value)}
                   placeholder="tu@email.com"
                   required
-                  style={{ fontFamily: 'Inter, sans-serif' }}
+                  style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391]"
                 />
               </div>
 
               <div>
                 <label
-                  style={{ fontFamily: 'Inter, sans-serif' }}
+                  style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                   className="block text-sm font-medium text-gray-900 mb-2"
                 >
                   Tu pregunta
@@ -234,7 +234,7 @@ export const FAQ: React.FC<FAQProps> = ({
                   placeholder="Cuéntanos cómo podemos ayudarte..."
                   required
                   rows={4}
-                  style={{ fontFamily: 'Inter, sans-serif' }}
+                  style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391] resize-none"
                 />
               </div>

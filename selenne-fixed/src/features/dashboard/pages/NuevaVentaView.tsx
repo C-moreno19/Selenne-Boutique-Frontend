@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { ArrowLeft, Plus, Trash2, ShoppingCart } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../components/ui/select';
 import { Input } from '../../../components/ui/input';
@@ -151,10 +151,10 @@ export const NuevaVentaView: React.FC<NuevaVentaViewProps> = ({ onBack, onSucces
           <ArrowLeft className="w-5 h-5 text-gray-600" />
         </button>
         <div>
-          <h1 style={{ fontFamily: 'Playfair Display, serif' }} className="text-[32px] text-gray-900">
+          <h1 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-[32px] text-gray-900">
             Nueva Venta
           </h1>
-          <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-600">
+          <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-600">
             Crea una nueva venta y selecciona los productos
           </p>
         </div>
@@ -165,12 +165,12 @@ export const NuevaVentaView: React.FC<NuevaVentaViewProps> = ({ onBack, onSucces
         <div className="lg:col-span-2 space-y-6">
           {/* Cliente */}
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-            <h2 style={{ fontFamily: 'Playfair Display, serif' }} className="text-xl text-gray-900 mb-4">
+            <h2 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xl text-gray-900 mb-4">
               Información del Cliente
             </h2>
             <div className="space-y-4">
               <div>
-                <Label htmlFor="cliente" className="text-sm text-gray-700 block mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>
+                <Label htmlFor="cliente" className="text-sm text-gray-700 block mb-2" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                   Cliente *
                 </Label>
                 <Select value={clienteSeleccionado} onValueChange={setClienteSeleccionado}>
@@ -188,7 +188,7 @@ export const NuevaVentaView: React.FC<NuevaVentaViewProps> = ({ onBack, onSucces
               </div>
 
               <div>
-                <Label htmlFor="metodoPago" className="text-sm text-gray-700 block mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>
+                <Label htmlFor="metodoPago" className="text-sm text-gray-700 block mb-2" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                   Método de Pago
                 </Label>
                 <Select value={metodoPago} onValueChange={setMetodoPago}>
@@ -208,12 +208,12 @@ export const NuevaVentaView: React.FC<NuevaVentaViewProps> = ({ onBack, onSucces
 
           {/* Agregar Productos */}
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-            <h2 style={{ fontFamily: 'Playfair Display, serif' }} className="text-xl text-gray-900 mb-4">
+            <h2 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xl text-gray-900 mb-4">
               Agregar Productos
             </h2>
             <div className="space-y-4">
               <div>
-                <Label htmlFor="producto" className="text-sm text-gray-700 block mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>
+                <Label htmlFor="producto" className="text-sm text-gray-700 block mb-2" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                   Producto
                 </Label>
                 <Select value={productoSeleccionadoId} onValueChange={setProductoSeleccionadoId}>
@@ -232,7 +232,7 @@ export const NuevaVentaView: React.FC<NuevaVentaViewProps> = ({ onBack, onSucces
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="cantidad" className="text-sm text-gray-700 block mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>
+                  <Label htmlFor="cantidad" className="text-sm text-gray-700 block mb-2" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                     Cantidad
                   </Label>
                   <Input
@@ -246,10 +246,10 @@ export const NuevaVentaView: React.FC<NuevaVentaViewProps> = ({ onBack, onSucces
 
                 {productoSeleccionado && (
                   <div>
-                    <Label className="text-sm text-gray-700 block mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>
+                    <Label className="text-sm text-gray-700 block mb-2" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                       Precio Unitario
                     </Label>
-                    <div className="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-gray-900" style={{ fontFamily: 'Inter, sans-serif' }}>
+                    <div className="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-gray-900" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                       {formatPrecio(productoSeleccionado.precioVenta)}
                     </div>
                   </div>
@@ -259,7 +259,7 @@ export const NuevaVentaView: React.FC<NuevaVentaViewProps> = ({ onBack, onSucces
               <button
                 onClick={handleAgregarProducto}
                 className="w-full px-4 py-3 bg-[#d65391] text-white rounded-lg hover:bg-[#c44880] transition-colors flex items-center justify-center gap-2"
-                style={{ fontFamily: 'Inter, sans-serif' }}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
               >
                 <Plus className="w-5 h-5" />
                 Agregar al Carrito
@@ -269,14 +269,14 @@ export const NuevaVentaView: React.FC<NuevaVentaViewProps> = ({ onBack, onSucces
 
           {/* Carrito */}
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-            <h2 style={{ fontFamily: 'Playfair Display, serif' }} className="text-xl text-gray-900 mb-4">
+            <h2 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xl text-gray-900 mb-4">
               Carrito
             </h2>
             
             {productosVenta.length === 0 ? (
               <div className="bg-gray-50 rounded-lg p-8 text-center border-2 border-dashed border-gray-200">
                 <ShoppingCart className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-500">
+                <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500">
                   No hay productos en el carrito
                 </p>
               </div>
@@ -285,10 +285,10 @@ export const NuevaVentaView: React.FC<NuevaVentaViewProps> = ({ onBack, onSucces
                 {productosVenta.map((producto) => (
                   <div key={producto.id} className="flex items-center justify-between bg-gray-50 p-4 rounded-lg border border-gray-200">
                     <div className="flex-1">
-                      <p style={{ fontFamily: 'Playfair Display, serif' }} className="text-gray-900 font-semibold">
+                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-900 font-semibold">
                         {producto.nombre}
                       </p>
-                      <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-600">
+                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-600">
                         {formatPrecio(producto.precioUnitario)} c/u
                       </p>
                     </div>
@@ -301,7 +301,7 @@ export const NuevaVentaView: React.FC<NuevaVentaViewProps> = ({ onBack, onSucces
                         onChange={(e) => handleActualizarProducto(producto.id, Number(e.target.value))}
                         className="w-16 text-center"
                       />
-                      <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-900 font-semibold w-20 text-right">
+                      <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-900 font-semibold w-20 text-right">
                         {formatPrecio(producto.total)}
                       </span>
                       <button
@@ -322,34 +322,34 @@ export const NuevaVentaView: React.FC<NuevaVentaViewProps> = ({ onBack, onSucces
         {/* Resumen Lateral */}
         <div className="lg:col-span-1">
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 sticky top-24">
-            <h2 style={{ fontFamily: 'Playfair Display, serif' }} className="text-xl text-gray-900 mb-6">
+            <h2 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xl text-gray-900 mb-6">
               Resumen
             </h2>
 
             <div className="space-y-4 mb-6">
               <div className="flex justify-between items-center">
-                <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-600">
+                <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-600">
                   Subtotal
                 </span>
-                <span style={{ fontFamily: 'Playfair Display, serif' }} className="text-gray-900">
+                <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-900">
                   {formatPrecio(subtotal)}
                 </span>
               </div>
 
               <div className="flex justify-between items-center">
-                <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-600">
+                <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-600">
                   IVA (19%)
                 </span>
-                <span style={{ fontFamily: 'Playfair Display, serif' }} className="text-gray-900">
+                <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-900">
                   {formatPrecio(impuesto)}
                 </span>
               </div>
 
               <div className="border-t border-gray-200 pt-4 flex justify-between items-center">
-                <span style={{ fontFamily: 'Playfair Display, serif' }} className="text-lg text-gray-900">
+                <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-lg text-gray-900">
                   Total
                 </span>
-                <span style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl text-[#d65391]">
+                <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-2xl text-[#d65391]">
                   {formatPrecio(total)}
                 </span>
               </div>
@@ -359,7 +359,7 @@ export const NuevaVentaView: React.FC<NuevaVentaViewProps> = ({ onBack, onSucces
               onClick={handleGuardarVenta}
               disabled={!clienteSeleccionado || productosVenta.length === 0}
               className="w-full px-4 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
-              style={{ fontFamily: 'Inter, sans-serif' }}
+              style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
             >
               Guardar Venta
             </button>
@@ -367,21 +367,21 @@ export const NuevaVentaView: React.FC<NuevaVentaViewProps> = ({ onBack, onSucces
             <button
               onClick={onBack}
               className="w-full mt-2 px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
-              style={{ fontFamily: 'Inter, sans-serif' }}
+              style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
             >
               Cancelar
             </button>
 
             {/* Resumen de Productos */}
             <div className="mt-6 pt-6 border-t border-gray-200">
-              <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-600 mb-2">
+              <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-600 mb-2">
                 Productos en carrito
               </p>
-              <p style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl text-gray-900">
+              <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-2xl text-gray-900">
                 {productosVenta.length}
               </p>
               {productosVenta.length > 0 && (
-                <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 mt-2">
+                <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500 mt-2">
                   {productosVenta.reduce((sum, p) => sum + p.cantidad, 0)} {productosVenta.reduce((sum, p) => sum + p.cantidad, 0) === 1 ? 'artículo' : 'artículos'}
                 </p>
               )}

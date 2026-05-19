@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { ShoppingBag, X, ArrowRight, Plus, Minus, Trash2 } from 'lucide-react';
 
 interface CartItem {
@@ -51,7 +51,7 @@ export const MiniCart: React.FC<MiniCartProps> = ({
           <div className="flex items-center gap-2">
             <ShoppingBag className="w-5 h-5 text-[#d65391]" />
             <h2
-              style={{ fontFamily: 'Playfair Display, serif' }}
+              style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
               className="text-xl font-bold text-gray-900"
             >
               Tu Carrito
@@ -72,13 +72,13 @@ export const MiniCart: React.FC<MiniCartProps> = ({
             <div className="flex flex-col items-center justify-center h-full px-6 text-center">
               <ShoppingBag className="w-16 h-16 text-gray-300 mb-4" />
               <h3
-                style={{ fontFamily: 'Playfair Display, serif' }}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className="text-lg font-semibold text-gray-900 mb-2"
               >
                 Tu carrito está vacío
               </h3>
               <p
-                style={{ fontFamily: 'Inter, sans-serif' }}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className="text-gray-600 mb-6"
               >
                 Agrega productos para comenzar
@@ -109,7 +109,7 @@ export const MiniCart: React.FC<MiniCartProps> = ({
                   {/* Content */}
                   <div className="flex-1 min-w-0">
                     <h4
-                      style={{ fontFamily: 'Playfair Display, serif' }}
+                      style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                       className="font-semibold text-gray-900 text-sm line-clamp-2 mb-1"
                     >
                       {item.nombre}
@@ -118,7 +118,7 @@ export const MiniCart: React.FC<MiniCartProps> = ({
                     {/* Attributes */}
                     {(item.talla || item.color) && (
                       <p
-                        style={{ fontFamily: 'Inter, sans-serif' }}
+                        style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                         className="text-xs text-gray-600 mb-2"
                       >
                         {item.talla && `Talla: ${item.talla}`}
@@ -129,7 +129,7 @@ export const MiniCart: React.FC<MiniCartProps> = ({
 
                     {/* Price */}
                     <p
-                      style={{ fontFamily: 'Playfair Display, serif' }}
+                      style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                       className="text-sm font-bold text-[#d65391]"
                     >
                       ${item.precio.toLocaleString()}
@@ -150,7 +150,7 @@ export const MiniCart: React.FC<MiniCartProps> = ({
                       </button>
 
                       <span
-                        style={{ fontFamily: 'Inter, sans-serif' }}
+                        style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                         className="w-6 text-center text-xs font-medium"
                       >
                         {item.cantidad}
@@ -186,13 +186,13 @@ export const MiniCart: React.FC<MiniCartProps> = ({
             {/* Subtotal */}
             <div className="flex justify-between">
               <span
-                style={{ fontFamily: 'Inter, sans-serif' }}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className="text-gray-600"
               >
                 Subtotal
               </span>
               <span
-                style={{ fontFamily: 'Playfair Display, serif' }}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className="font-semibold text-gray-900"
               >
                 ${subtotal.toLocaleString()}
@@ -202,13 +202,13 @@ export const MiniCart: React.FC<MiniCartProps> = ({
             {/* Shipping */}
             <div className="flex justify-between">
               <span
-                style={{ fontFamily: 'Inter, sans-serif' }}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className="text-gray-600"
               >
                 Envío {envio === 0 && '(Gratis)'}
               </span>
               <span
-                style={{ fontFamily: 'Playfair Display, serif' }}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className={`font-semibold ${
                   envio === 0 ? 'text-green-600' : 'text-gray-900'
                 }`}
@@ -220,13 +220,13 @@ export const MiniCart: React.FC<MiniCartProps> = ({
             {/* Total */}
             <div className="border-t border-gray-200 pt-4 flex justify-between">
               <span
-                style={{ fontFamily: 'Playfair Display, serif' }}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className="font-bold text-gray-900"
               >
                 Total
               </span>
               <span
-                style={{ fontFamily: 'Playfair Display, serif' }}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className="text-xl font-bold text-[#d65391]"
               >
                 ${total.toLocaleString()}

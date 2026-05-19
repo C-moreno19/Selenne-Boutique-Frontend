@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { ChevronRight, Home, Search, Package } from 'lucide-react';
 
 interface NotFoundPageProps {
@@ -23,7 +23,7 @@ export const NotFoundPage: React.FC<NotFoundPageProps> = ({
             404
           </div>
           <p
-            style={{ fontFamily: 'Inter, sans-serif' }}
+            style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
             className="text-gray-500 text-sm uppercase tracking-widest"
           >
             Página no encontrada
@@ -40,14 +40,14 @@ export const NotFoundPage: React.FC<NotFoundPageProps> = ({
 
         {/* Main Message */}
         <h1
-          style={{ fontFamily: 'Playfair Display, serif' }}
+          style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
           className="text-3xl md:text-4xl font-bold text-gray-900 mb-4"
         >
           Oops, parece que algo falló
         </h1>
 
         <p
-          style={{ fontFamily: 'Inter, sans-serif' }}
+          style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
           className="text-gray-600 mb-8 leading-relaxed"
         >
           La página que buscas no existe o ha sido movida. Explora nuestras colecciones o regresa al inicio.
@@ -81,7 +81,7 @@ export const NotFoundPage: React.FC<NotFoundPageProps> = ({
         {/* Quick Links */}
         <div className="space-y-2 text-sm">
           <p
-            style={{ fontFamily: 'Inter, sans-serif' }}
+            style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
             className="text-gray-500 mb-3"
           >
             Navegación rápida:
@@ -113,7 +113,7 @@ export const NotFoundPage: React.FC<NotFoundPageProps> = ({
 
         {/* Footer Info */}
         <div
-          style={{ fontFamily: 'Inter, sans-serif' }}
+          style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
           className="mt-12 pt-8 border-t border-gray-200 text-xs text-gray-500"
         >
           <p>Código de error: 404 | Selenne Boutique Authentication UI</p>

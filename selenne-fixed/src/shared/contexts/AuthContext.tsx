@@ -1,5 +1,8 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import api, { setTokensFromAuthResponse, clearAuthTokens } from '../../services/api';
+
+// Limpia claves de versiones anteriores que guardaban tokens y usuario en localStorage
+['accessToken', 'refreshToken', 'currentUser'].forEach(k => localStorage.removeItem(k));
 
 export type UserRole = 'Administrador' | 'Empleado' | 'Cliente';
 

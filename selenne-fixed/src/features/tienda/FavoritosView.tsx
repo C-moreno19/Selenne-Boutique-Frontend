@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { ArrowLeft, Heart, Star, ShoppingBag } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
@@ -31,12 +31,12 @@ export const FavoritosView: React.FC<FavoritosViewProps> = ({
       {/* Banner */}
       <div className="pt-8 pb-2 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2
-          style={{ fontFamily: "Playfair Display, serif", fontSize: "32px", fontWeight: 700, letterSpacing: "0.08em" }}
+          style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: "32px", fontWeight: 700, letterSpacing: "0.08em" }}
           className="text-[#1a1a1a] uppercase"
         >
           Favoritos
         </h2>
-        <p style={{ fontFamily: "Inter, sans-serif" }} className="text-sm text-gray-500 mt-1">
+        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500 mt-1">
           {productosFavoritos.length} {productosFavoritos.length === 1 ? 'producto guardado' : 'productos guardados'}
         </p>
       </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { Check, X } from 'lucide-react';
 import { CustomInput } from '../components/CustomInput';
 import { CustomButton } from '../components/CustomButton';
@@ -229,28 +229,30 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
         <SatinBackground />
         <div className="max-w-[450px] ml-12 relative z-10 space-y-7">
           {/* Título */}
-          <h1 
-            className="text-[#000000]"
-            style={{ 
-              fontFamily: 'Playfair Display, serif',
-              fontSize: '64px',
+          <h1
+            style={{
+              fontFamily: '"Times New Roman", Times, serif',
+              fontSize: '88px',
               lineHeight: '1.1',
               fontWeight: 'bold',
               letterSpacing: '-0.02em',
+              color: '#000000',
             }}
           >
-            Selenne Boutique
+            <span className="block" style={{ fontFamily: '"Times New Roman", Times, serif' }}>Selenne</span>
+            <span className="block" style={{ fontFamily: '"Times New Roman", Times, serif', paddingLeft: '5.5rem' }}>Boutique</span>
           </h1>
-          
+
           {/* Frase inspiradora */}
-          <p 
-            className="text-[#1a1a1a]" 
-            style={{ 
-              fontFamily: 'Playfair Display, serif',
-              fontSize: '22px', 
+          <p
+            style={{
+              fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+              fontSize: '18px',
               lineHeight: '1.6',
-              fontWeight: '500',
+              fontWeight: '400',
               fontStyle: 'italic',
+              color: '#000000',
+              textAlign: 'center',
             }}
           >
             "Descubre prendas que realzan tu belleza y te hacen sentir única. Cada pieza está diseñada para acompañarte a brillar en cada momento."
@@ -271,7 +273,7 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
             <h1
               className="text-[#000000] text-center"
               style={{
-                fontFamily: 'Playfair Display, serif',
+                fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
                 fontSize: '36px',
                 fontWeight: 'bold',
               }}
@@ -324,7 +326,7 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
                     <X className="w-3.5 h-3.5 text-gray-300 shrink-0" />
                   )}
                   <span
-                    style={{ fontFamily: 'Inter, sans-serif', fontSize: '12px' }}
+                    style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: '12px' }}
                     className={ok ? 'text-green-500' : 'text-gray-300'}
                   >
                     {label}
@@ -368,7 +370,7 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
               <button
                 onClick={onBackToLogin}
                 className="text-[#1a1a1a] hover:text-[#c84a8f] transition-all"
-                style={{ fontFamily: 'Inter, sans-serif', fontSize: '14px' }}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: '14px' }}
               >
                 ¿Ya tienes una cuenta? <span className="underline">Inicia sesión</span>
               </button>

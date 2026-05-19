@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+﻿import React, { useState, useEffect, useCallback } from 'react';
 import { Search, Eye, Trash2, ChevronRight, Loader2, RefreshCw, ArrowLeft } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../../../components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../../../components/ui/alert-dialog';
@@ -83,25 +83,25 @@ export const HistorialComprasView: React.FC<HistorialComprasViewProps> = ({ onBa
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
       <div className="flex items-center gap-2 mb-4">
-        <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-500">Dashboard</span>
+        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500">Dashboard</span>
         <ChevronRight className="w-4 h-4 text-gray-400" />
-        <button onClick={onBack} style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-500 hover:text-gray-700">Gestión de Compras</button>
+        <button onClick={onBack} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500 hover:text-gray-700">Gestión de Compras</button>
         <ChevronRight className="w-4 h-4 text-gray-400" />
-        <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium text-gray-900">Historial</span>
+        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-900">Historial</span>
       </div>
 
       <div className="flex items-center gap-4 mb-6">
         <button onClick={onBack} className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <h1 style={{ fontFamily: 'Playfair Display, serif' }} className="text-4xl text-gray-900">Historial de Compras</h1>
+        <h1 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-4xl text-gray-900">Historial de Compras</h1>
       </div>
 
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex flex-col lg:flex-row gap-4 mb-6">
         <div className="flex-1 relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           <input type="text" placeholder="Buscar por orden o proveedor..." value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)} style={{ fontFamily: 'Inter, sans-serif' }}
+            onChange={e => setSearchQuery(e.target.value)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
             className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391]" />
         </div>
         <button onClick={() => { setLoading(true); loadData(); }} className="px-4 py-3 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
@@ -115,7 +115,7 @@ export const HistorialComprasView: React.FC<HistorialComprasViewProps> = ({ onBa
             <tr>
               {['ORDEN FACTURA', 'PROVEEDOR', 'FECHA', 'TOTAL', 'ESTADO', 'ACCIONES'].map(h => (
                 <th key={h} className="px-6 py-4 text-left">
-                  <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs font-semibold uppercase tracking-wider text-gray-500">{h}</span>
+                  <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs font-semibold uppercase tracking-wider text-gray-500">{h}</span>
                 </th>
               ))}
             </tr>
@@ -123,12 +123,12 @@ export const HistorialComprasView: React.FC<HistorialComprasViewProps> = ({ onBa
           <tbody className="divide-y divide-gray-100">
             {filtered.map(compra => (
               <tr key={compra.compraID} className="hover:bg-gray-50 transition-colors">
-                <td className="px-6 py-4"><span style={{ fontFamily: 'Inter, sans-serif' }} className="font-medium text-gray-900">{compra.ordenFactura}</span></td>
-                <td className="px-6 py-4"><span style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-700">{compra.proveedorNombre || '—'}</span></td>
-                <td className="px-6 py-4"><span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-600">{new Date(compra.fecha).toLocaleDateString('es-CO')}</span></td>
-                <td className="px-6 py-4"><span style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-gray-900">{fmt(compra.total)}</span></td>
+                <td className="px-6 py-4"><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-medium text-gray-900">{compra.ordenFactura}</span></td>
+                <td className="px-6 py-4"><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-700">{compra.proveedorNombre || '—'}</span></td>
+                <td className="px-6 py-4"><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-600">{new Date(compra.fecha).toLocaleDateString('es-CO')}</span></td>
+                <td className="px-6 py-4"><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-gray-900">{fmt(compra.total)}</span></td>
                 <td className="px-6 py-4">
-                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${estadoColor(compra.estado)}`} style={{ fontFamily: 'Inter, sans-serif' }}>
+                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${estadoColor(compra.estado)}`} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                     {compra.estado}
                   </span>
                 </td>
@@ -149,12 +149,12 @@ export const HistorialComprasView: React.FC<HistorialComprasViewProps> = ({ onBa
               </tr>
             ))}
             {filtered.length === 0 && (
-              <tr><td colSpan={6} className="px-6 py-12 text-center text-gray-400" style={{ fontFamily: 'Inter, sans-serif' }}>No hay compras en el historial</td></tr>
+              <tr><td colSpan={6} className="px-6 py-12 text-center text-gray-400" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>No hay compras en el historial</td></tr>
             )}
           </tbody>
         </table>
         <div className="px-6 py-4 border-t border-gray-100">
-          <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-500">
+          <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500">
             Mostrando <span className="font-medium text-gray-800">{filtered.length}</span> compras en historial
           </span>
         </div>
@@ -164,28 +164,28 @@ export const HistorialComprasView: React.FC<HistorialComprasViewProps> = ({ onBa
       <Dialog open={viewOpen} onOpenChange={setViewOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl">Detalles de Compra</DialogTitle>
+            <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-2xl">Detalles de Compra</DialogTitle>
           </DialogHeader>
           {selectedCompra && (
             <div className="space-y-4 py-2">
               <div className="grid grid-cols-2 gap-4">
-                <div><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">Orden / Factura</p><p style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold">{selectedCompra.ordenFactura}</p></div>
-                <div><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">Proveedor</p><p style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold">{selectedCompra.proveedorNombre}</p></div>
-                <div><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">Fecha</p><p style={{ fontFamily: 'Inter, sans-serif' }}>{new Date(selectedCompra.fecha).toLocaleDateString('es-CO')}</p></div>
-                <div><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">Estado</p>
+                <div><p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500">Orden / Factura</p><p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold">{selectedCompra.ordenFactura}</p></div>
+                <div><p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500">Proveedor</p><p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold">{selectedCompra.proveedorNombre}</p></div>
+                <div><p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500">Fecha</p><p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>{new Date(selectedCompra.fecha).toLocaleDateString('es-CO')}</p></div>
+                <div><p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500">Estado</p>
                   <span className={`px-2 py-0.5 rounded-full text-xs ${estadoColor(selectedCompra.estado)}`}>{selectedCompra.estado}</span>
                 </div>
-                <div className="col-span-2"><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">Total</p><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xl font-bold text-[#d65391]">{fmt(selectedCompra.total)}</p></div>
-                {selectedCompra.notas && <div className="col-span-2"><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">Notas</p><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm">{selectedCompra.notas}</p></div>}
+                <div className="col-span-2"><p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500">Total</p><p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xl font-bold text-[#d65391]">{fmt(selectedCompra.total)}</p></div>
+                {selectedCompra.notas && <div className="col-span-2"><p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500">Notas</p><p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm">{selectedCompra.notas}</p></div>}
               </div>
               {selectedCompra.detalles && selectedCompra.detalles.length > 0 && (
                 <div>
-                  <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs font-semibold text-gray-500 uppercase mb-2">Productos</p>
+                  <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs font-semibold text-gray-500 uppercase mb-2">Productos</p>
                   <div className="space-y-2">
                     {selectedCompra.detalles.map((d, i) => (
                       <div key={i} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                        <div><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium">{d.nombreProducto}</p><p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">{d.cantidad} x {fmt(d.precioUnitario)}</p></div>
-                        <p style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-sm">{fmt(d.total)}</p>
+                        <div><p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium">{d.nombreProducto}</p><p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500">{d.cantidad} x {fmt(d.precioUnitario)}</p></div>
+                        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-sm">{fmt(d.total)}</p>
                       </div>
                     ))}
                   </div>
@@ -194,7 +194,7 @@ export const HistorialComprasView: React.FC<HistorialComprasViewProps> = ({ onBa
             </div>
           )}
           <DialogFooter>
-            <button onClick={() => setViewOpen(false)} style={{ fontFamily: 'Inter, sans-serif' }} className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">Cerrar</button>
+            <button onClick={() => setViewOpen(false)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">Cerrar</button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -202,15 +202,15 @@ export const HistorialComprasView: React.FC<HistorialComprasViewProps> = ({ onBa
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle style={{ fontFamily: 'Playfair Display, serif' }}>¿Eliminar compra?</AlertDialogTitle>
-            <AlertDialogDescription style={{ fontFamily: 'Inter, sans-serif' }}>
+            <AlertDialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>¿Eliminar compra?</AlertDialogTitle>
+            <AlertDialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
               Vas a eliminar la compra <strong>{selectedCompra?.ordenFactura}</strong>. Esta acción no se puede deshacer.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel style={{ fontFamily: 'Inter, sans-serif' }}>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Cancelar</AlertDialogCancel>
             <AlertDialogAction onClick={eliminarCompra} disabled={saving}
-              className="bg-red-600 hover:bg-red-700 flex items-center gap-2" style={{ fontFamily: 'Inter, sans-serif' }}>
+              className="bg-red-600 hover:bg-red-700 flex items-center gap-2" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
               {saving && <Loader2 className="w-4 h-4 animate-spin" />} Eliminar
             </AlertDialogAction>
           </AlertDialogFooter>

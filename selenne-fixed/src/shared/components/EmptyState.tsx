@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { AlertCircle, ShoppingBag, Heart, Search, PackageX, MessageSquare } from 'lucide-react';
 
 interface EmptyStateProps {
@@ -79,11 +79,11 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
         {displayIcon}
       </div>
       
-      <h3 style={{ fontFamily: 'Playfair Display, serif' }} className="text-xl font-semibold text-gray-900 mb-2 text-center">
+      <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xl font-semibold text-gray-900 mb-2 text-center">
         {displayTitle}
       </h3>
       
-      <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-600 text-center mb-6 max-w-sm">
+      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-600 text-center mb-6 max-w-sm">
         {displayDescription}
       </p>
 

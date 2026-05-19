@@ -187,7 +187,7 @@ async function cargarDesdeApi(soloActivos = false): Promise<ProductoAdmin[]> {
       const raw = await getJson(path);
       return extraerLista(raw);
     } else {
-      const res = await fetch(apiBase + '/api/productos?estado=activo');
+      const res = await fetch(apiBase + '/api/productos?estado=activo', { cache: 'no-store' });
       if (!res.ok) return [];
       return extraerLista(await res.json());
     }
@@ -206,10 +206,12 @@ async function cargarTodosDesdeApi(): Promise<ProductoAdmin[]> {
     // Carga activos e inactivos en paralelo
     const [activos, inactivos] = await Promise.all([
       fetch(apiBase + '/api/productos?estado=activo', {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
+        cache: 'no-store',
       }).then(r => r.json()),
       fetch(apiBase + '/api/productos?estado=inactivo', {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
+        cache: 'no-store',
       }).then(r => r.json()),
     ]);
 

@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { CheckCircle2, Clock, Truck, Package, MapPin, Calendar } from 'lucide-react';
 
 export type OrderStatus = 'confirmado' | 'procesando' | 'enviado' | 'entregado' | 'cancelado';
@@ -72,13 +72,13 @@ export const OrderTracking: React.FC<OrderTrackingProps> = ({
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3
-              style={{ fontFamily: 'Playfair Display, serif' }}
+              style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
               className="text-lg font-bold text-gray-900"
             >
               Rastreo de Pedido
             </h3>
             <p
-              style={{ fontFamily: 'Inter, sans-serif' }}
+              style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
               className="text-sm text-gray-500"
             >
               Pedido #{orderNumber}
@@ -142,7 +142,7 @@ export const OrderTracking: React.FC<OrderTrackingProps> = ({
                   {/* Content */}
                   <div className="pb-4">
                     <h4
-                      style={{ fontFamily: 'Playfair Display, serif' }}
+                      style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                       className={`font-semibold ${
                         isActive ? 'text-gray-900' : 'text-gray-500'
                       }`}
@@ -151,7 +151,7 @@ export const OrderTracking: React.FC<OrderTrackingProps> = ({
                     </h4>
                     {step.description && (
                       <p
-                        style={{ fontFamily: 'Inter, sans-serif' }}
+                        style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                         className="text-sm text-gray-600 mt-1"
                       >
                         {step.description}
@@ -171,13 +171,13 @@ export const OrderTracking: React.FC<OrderTrackingProps> = ({
           {details.carrier && (
             <div className="flex items-center justify-between">
               <span
-                style={{ fontFamily: 'Inter, sans-serif' }}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className="text-sm text-gray-600"
               >
                 Transportista:
               </span>
               <span
-                style={{ fontFamily: 'Inter, sans-serif' }}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className="text-sm font-medium text-gray-900"
               >
                 {details.carrier}
@@ -188,13 +188,13 @@ export const OrderTracking: React.FC<OrderTrackingProps> = ({
           {details.trackingNumber && (
             <div className="flex items-center justify-between">
               <span
-                style={{ fontFamily: 'Inter, sans-serif' }}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className="text-sm text-gray-600"
               >
                 Número de rastreo:
               </span>
               <span
-                style={{ fontFamily: 'Inter, sans-serif' }}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className="text-sm font-mono font-medium text-gray-900"
               >
                 {details.trackingNumber}
@@ -206,7 +206,7 @@ export const OrderTracking: React.FC<OrderTrackingProps> = ({
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4 text-[#d65391]" />
               <span
-                style={{ fontFamily: 'Inter, sans-serif' }}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className="text-sm text-gray-600"
               >
                 Entrega estimada: <strong>{details.estimatedDelivery}</strong>
@@ -227,7 +227,7 @@ export const OrderTracking: React.FC<OrderTrackingProps> = ({
       {estimatedDate && !isCancelled && (
         <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
           <p
-            style={{ fontFamily: 'Inter, sans-serif' }}
+            style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
             className="text-sm text-blue-900"
           >
             <strong>Fecha estimada de entrega:</strong> {estimatedDate}

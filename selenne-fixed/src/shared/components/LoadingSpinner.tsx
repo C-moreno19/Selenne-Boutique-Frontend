@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 
 interface LoadingSpinnerProps {
   size?: 'sm' | 'md' | 'lg';
@@ -48,7 +48,7 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
 
         {message && (
           <p
-            style={{ fontFamily: 'Inter, sans-serif' }}
+            style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
             className="text-gray-600 text-sm font-medium"
           >
             {message}

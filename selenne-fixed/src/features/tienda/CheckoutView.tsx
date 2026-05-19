@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { ArrowLeft, CreditCard, Truck, ShieldCheck, MapPin, Upload, X, CheckCircle, AlertCircle } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -359,7 +359,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
       {/* Contenido Principal */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <h1
-          style={{ fontFamily: 'Playfair Display, serif' }}
+          style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
           className="text-4xl text-gray-900 mb-8"
         >
           Finalizar <span className="text-[#d65391]">Compra</span>
@@ -372,12 +372,12 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
             {!emailValidado && (
               <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
                 <h2
-                  style={{ fontFamily: 'Playfair Display, serif' }}
+                  style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                   className="text-2xl text-gray-900 mb-6"
                 >
                   Validar Correo Electrónico
                 </h2>
-                <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-600 mb-6">
+                <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-600 mb-6">
                   Ingresa tu correo electrónico para continuar con la compra. Si ya tienes una cuenta, se rellenarán automáticamente tus datos.
                 </p>
                 <div className="space-y-4">
@@ -445,7 +445,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                 <div className="flex items-center">
                   <MapPin className="w-6 h-6 text-[#d65391] mr-2" />
                   <h2
-                    style={{ fontFamily: 'Playfair Display, serif' }}
+                    style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                     className="text-2xl text-gray-900"
                   >
                     Información de Envío
@@ -577,7 +577,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
               <div className="flex items-center mb-6">
                 <CreditCard className="w-6 h-6 text-[#d65391] mr-2" />
                 <h2
-                  style={{ fontFamily: 'Playfair Display, serif' }}
+                  style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                   className="text-2xl text-gray-900"
                 >
                   Método de Pago
@@ -611,7 +611,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                   {/* Información de cuenta y QR */}
                   <div className="border border-gray-200 rounded-lg p-6 bg-gray-50">
                     <h3 
-                      style={{ fontFamily: 'Playfair Display, serif' }}
+                      style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                       className="text-lg text-gray-900 mb-4"
                     >
                       Datos para Transferencia
@@ -727,7 +727,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
             <div className="bg-gradient-to-r from-[#d65391] to-[#f8a9c5] rounded-lg p-6 text-white">
               <div className="flex items-center mb-4">
                 <ShieldCheck className="w-6 h-6 mr-2" />
-                <h3 style={{ fontFamily: 'Playfair Display, serif' }} className="text-xl">
+                <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xl">
                   Compra Segura
                 </h3>
               </div>
@@ -745,7 +745,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200 sticky top-24">
               <h2
-                style={{ fontFamily: 'Playfair Display, serif' }}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className="text-2xl text-gray-900 mb-6"
               >
                 Resumen del Pedido
@@ -789,13 +789,13 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
 
               <div className="flex justify-between mb-6">
                 <span
-                  style={{ fontFamily: 'Playfair Display, serif' }}
+                  style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                   className="text-xl text-gray-900"
                 >
                   Total:
                 </span>
                 <span
-                  style={{ fontFamily: 'Playfair Display, serif' }}
+                  style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                   className="text-xl text-[#d65391]"
                 >
                   {formatPrecio(getTotalCarrito())}
@@ -809,7 +809,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
               <Button
                 onClick={handleFinalizarCompra}
                 className="w-full bg-black hover:bg-gray-800 text-white h-12"
-                style={{ fontFamily: 'Inter, sans-serif' }}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
               >
                 {metodoPago === 'transferencia' ? 'Enviar Pedido' : 'Confirmar Compra'}
               </Button>

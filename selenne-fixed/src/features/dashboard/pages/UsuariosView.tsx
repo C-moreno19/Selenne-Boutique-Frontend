@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+﻿import React, { useState, useEffect, useCallback } from 'react';
 import {
   Plus, Search, MoreVertical, Edit, Power,
-  Trash2, ChevronRight, Eye, Shield, Loader2, RefreshCw, FileSpreadsheet, FileText
+  Trash2, ChevronRight, Eye, Shield, Loader2, RefreshCw, FileSpreadsheet, FileText, User
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
@@ -13,6 +13,7 @@ import { Input } from '../../../components/ui/input';
 import { Label } from '../../../components/ui/label';
 import { toast } from 'sonner';
 import api from '../../../services/api';
+import { usePedidosAdmin } from '../../../shared/contexts/PedidosAdminContext';
 
 interface ApiUser {
   usuarioID: number;
@@ -26,6 +27,7 @@ interface ApiUser {
   estado: string;
   emailVerificado: boolean;
   fechaRegistro: string;
+  fotoPerfil?: string;
 }
 
 interface ApiRole {
@@ -113,19 +115,9 @@ const MODULOS_PERMISOS = [
   },
 ];
 
-const getRolColor = (r?: string) => {
-  const n = (r || "").toLowerCase();
-  if (n.includes("admin")) return "bg-purple-100 text-purple-700";
-  if (n.includes("empleado") || n.includes("vendedor")) return "bg-blue-100 text-blue-700";
-  return "bg-pink-100 text-pink-700";
-};
+const getRolColor = (_?: string) => "bg-gray-100 text-gray-700";
 
-const getAvatarColor = (r?: string) => {
-  const n = (r || "").toLowerCase();
-  if (n.includes("admin")) return "from-purple-500 to-purple-600";
-  if (n.includes("empleado") || n.includes("vendedor")) return "from-blue-500 to-blue-600";
-  return "from-pink-500 to-pink-600";
-};
+const getAvatarColor = (_?: string) => "from-gray-500 to-gray-600";
 
 const getInitials = (nombre: string) => {
   const p = nombre.trim().split(" ");
@@ -138,11 +130,13 @@ const fmtDate = (d: string) => {
 
 export const UsuariosView: React.FC = () => {
   const { hasPermission } = useAuth();
+  const { pedidos } = usePedidosAdmin();
   const puedeCrear = hasPermission('usuarios:crear');
   const puedeEditar = hasPermission('usuarios:editar');
   const puedeEliminar = hasPermission('usuarios:eliminar');
   const [users, setUsers] = useState<ApiUser[]>([]);
   const [roles, setRoles] = useState<ApiRole[]>([]);
+  const [allPedidos, setAllPedidos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
@@ -191,7 +185,11 @@ export const UsuariosView: React.FC = () => {
 
   const loadUsers = useCallback(async () => {
     try {
-      const res = await api.getJson("/api/usuarios");
+      const [res, pedidosRes] = await Promise.all([
+        api.getJson("/api/usuarios"),
+        api.getJson("/api/pedidos").catch(() => null),
+      ]);
+      setAllPedidos(pedidosRes?.data || pedidosRes || []);
       const list = (res?.data || res || []).map((u: any) => ({
         usuarioID: u.usuarioID ?? u.UsuarioID,
         nombreCompleto: u.nombreCompleto ?? u.NombreCompleto ?? "",
@@ -204,6 +202,7 @@ export const UsuariosView: React.FC = () => {
         estado: u.estado ?? u.Estado ?? "activo",
         emailVerificado: u.emailVerificado ?? false,
         fechaRegistro: u.fechaRegistro ?? u.FechaRegistro ?? "",
+        fotoPerfil: u.fotoPerfil ?? u.FotoPerfil ?? "",
       }));
       setUsers(list);
     } catch { toast.error("Error cargando usuarios"); }
@@ -386,23 +385,23 @@ export const UsuariosView: React.FC = () => {
   if (loading) return (
     <div className="flex items-center justify-center min-h-screen">
       <Loader2 className="w-8 h-8 animate-spin text-[#d65391]" />
-      <span className="ml-3 text-gray-600" style={{ fontFamily: "Inter, sans-serif" }}>Cargando usuarios...</span>
+      <span className="ml-3 text-gray-600" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Cargando usuarios...</span>
     </div>
   );
 
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
       <div className="flex items-center gap-2 mb-4">
-        <span style={{ fontFamily: "Inter, sans-serif" }} className="text-sm text-gray-500">Dashboard</span>
+        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500">Dashboard</span>
         <ChevronRight className="w-4 h-4 text-gray-400" />
-        <span style={{ fontFamily: "Inter, sans-serif" }} className="text-sm text-gray-900">Gestión de Usuarios</span>
+        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-900">Gestión de Usuarios</span>
       </div>
       <div className="mb-6">
         <div className="flex items-center gap-3 mb-2">
-          <h1 style={{ fontFamily: "Playfair Display, serif" }} className="text-[36px] text-gray-900">Gestión de Usuarios</h1>
-          <span className="px-3 py-1 bg-[#d65391] text-white rounded-full text-sm" style={{ fontFamily: "Inter, sans-serif" }}>{users.length}</span>
+          <h1 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-3xl font-bold text-gray-900">Gestión de Usuarios</h1>
+          <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded text-sm font-medium" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>{users.length}</span>
         </div>
-        <p style={{ fontFamily: "Inter, sans-serif" }} className="text-gray-600">Administra todos los usuarios del sistema</p>
+        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-600">Administra todos los usuarios del sistema</p>
       </div>
 
       <div className="space-y-6">
@@ -410,22 +409,22 @@ export const UsuariosView: React.FC = () => {
           <div className="flex flex-col lg:flex-row gap-4">
             <div className="flex-1 relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input type="text" placeholder="Buscar por nombre, email o rol..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} style={{ fontFamily: "Inter, sans-serif" }} className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391]" />
+              <input type="text" placeholder="Buscar por nombre, email o rol..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391]" />
             </div>
             <div className="flex gap-3">
               <button onClick={() => { setLoading(true); loadUsers().finally(() => setLoading(false)); }} className="px-4 py-3 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
                 <RefreshCw className="w-5 h-5" />
               </button>
-              <button onClick={exportarExcel} style={{ fontFamily: "Inter, sans-serif" }} className="px-4 py-3 bg-white border border-gray-200 text-green-700 rounded-lg hover:bg-green-50 hover:border-green-300 transition-colors flex items-center gap-2" title="Exportar a Excel">
+              <button onClick={exportarExcel} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="px-4 py-3 bg-white border border-gray-200 text-green-700 rounded-lg hover:bg-green-50 hover:border-green-300 transition-colors flex items-center gap-2" title="Exportar a Excel">
                 <FileSpreadsheet className="w-5 h-5" />
                 <span className="hidden sm:inline">Excel</span>
               </button>
-              <button onClick={exportarPDF} style={{ fontFamily: "Inter, sans-serif" }} className="px-4 py-3 bg-white border border-gray-200 text-red-600 rounded-lg hover:bg-red-50 hover:border-red-300 transition-colors flex items-center gap-2" title="Exportar a PDF">
+              <button onClick={exportarPDF} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="px-4 py-3 bg-white border border-gray-200 text-red-600 rounded-lg hover:bg-red-50 hover:border-red-300 transition-colors flex items-center gap-2" title="Exportar a PDF">
                 <FileText className="w-5 h-5" />
                 <span className="hidden sm:inline">PDF</span>
               </button>
               {puedeCrear && (
-              <button onClick={handleCreate} style={{ fontFamily: "Inter, sans-serif" }} className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2">
+              <button onClick={handleCreate} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2">
                 <Plus className="w-5 h-5" /> Nuevo Usuario
               </button>
               )}
@@ -435,39 +434,50 @@ export const UsuariosView: React.FC = () => {
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           <div>
-            <table className="w-full">
+            <table className="w-full" style={{ tableLayout: 'fixed' }}>
+              <colgroup>
+                <col style={{ width: '22%' }} />
+                <col style={{ width: '22%' }} />
+                <col style={{ width: '12%' }} />
+                <col style={{ width: '20%' }} />
+                <col style={{ width: '14%' }} />
+                <col style={{ width: '10%' }} />
+              </colgroup>
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  {["USUARIO","ROL","CORREO ELECTRÓNICO","ESTADO","FECHA REGISTRO","ACCIONES"].map(h => (
-                    <th key={h} className="px-6 py-4 text-left"><span style={{ fontFamily: "Inter, sans-serif" }} className="text-xs uppercase tracking-wider text-gray-600">{h}</span></th>
+                  {["USUARIO","CORREO ELECTRÓNICO","TELÉFONO","DIRECCIÓN","ROL","ACCIONES"].map(h => (
+                    <th key={h} className="px-6 py-4 text-left"><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs uppercase tracking-wider text-gray-600">{h}</span></th>
                   ))}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {filtered.map(u => (
                   <tr key={u.usuarioID} className="hover:bg-gray-50 transition-colors">
+                    {/* Avatar + nombre */}
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className={`w-10 h-10 bg-gradient-to-br ${getAvatarColor(u.rolNombre)} rounded-full flex items-center justify-center flex-shrink-0`}>
-                          <span style={{ fontFamily: "Inter, sans-serif" }} className="text-white text-sm font-medium">{getInitials(u.nombreCompleto)}</span>
+                          <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-white text-sm font-medium">{getInitials(u.nombreCompleto)}</span>
                         </div>
-                        <div>
-                          <div style={{ fontFamily: "Inter, sans-serif" }} className="text-gray-900 font-medium">{u.nombreCompleto}</div>
-                          <div style={{ fontFamily: "Inter, sans-serif" }} className="text-xs text-gray-500">{u.cargo || "Sin cargo"}</div>
-                        </div>
+                        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-900 font-medium">{u.nombreCompleto}</span>
                       </div>
                     </td>
+                    {/* Email */}
+                    <td className="px-6 py-4"><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-600 truncate block" title={u.email}>{u.email}</span></td>
+                    {/* Teléfono */}
+                    <td className="px-6 py-4"><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-600">{u.telefono || "—"}</span></td>
+                    {/* Dirección */}
+                    <td className="px-6 py-4"><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-600 truncate block">{(() => {
+                      if (u.direccion) return u.direccion;
+                      const pedido = [...allPedidos, ...pedidos]
+                        .filter((p: any) => (p.emailCliente ?? p.email ?? '').toLowerCase() === u.email.toLowerCase())
+                        .sort((a: any, b: any) => new Date(b.fechaPedido ?? b.fecha ?? 0).getTime() - new Date(a.fechaPedido ?? a.fecha ?? 0).getTime())[0];
+                      return pedido?.direccionEnvio || pedido?.direccion || '—';
+                    })()}</span></td>
+                    {/* Rol */}
                     <td className="px-6 py-4">
-                      <span style={{ fontFamily: "Inter, sans-serif" }} className={`px-3 py-1 rounded-full text-xs font-medium ${getRolColor(u.rolNombre)}`}>{(u.rolNombre||"SIN ROL").toUpperCase()}</span>
+                      <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className={`px-3 py-1 rounded text-xs font-medium ${getRolColor(u.rolNombre)}`}>{(u.rolNombre || "SIN ROL").toUpperCase()}</span>
                     </td>
-                    <td className="px-6 py-4"><span style={{ fontFamily: "Inter, sans-serif" }} className="text-sm text-gray-600">{u.email}</span></td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <span className={`w-2 h-2 rounded-full ${u.estado === "activo" ? "bg-green-500" : "bg-gray-400"}`} />
-                        <span style={{ fontFamily: "Inter, sans-serif" }} className={`px-3 py-1 rounded-full text-xs font-medium ${u.estado === "activo" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"}`}>{u.estado === "activo" ? "Activo" : "Inactivo"}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4"><span style={{ fontFamily: "Inter, sans-serif" }} className="text-sm text-gray-600">{fmtDate(u.fechaRegistro)}</span></td>
                     <td className="px-6 py-4">
                       <div className="relative">
                         <button onClick={(e) => {
@@ -486,28 +496,28 @@ export const UsuariosView: React.FC = () => {
                             <div className="fixed inset-0 z-40" onClick={() => setActiveDropdown(null)} />
                             <div className="fixed bg-white rounded-lg shadow-xl border border-gray-200 py-2 min-w-[200px] z-50" style={{ top: dropdownPos.top, right: dropdownPos.right }}>
                               <button onClick={() => { setSelectedUser(u); setViewOpen(true); setActiveDropdown(null); }} className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 text-left">
-                                <Eye className="w-4 h-4 text-gray-600" /><span style={{ fontFamily: "Inter, sans-serif" }} className="text-sm text-gray-700">Ver Detalles</span>
+                                <Eye className="w-4 h-4 text-gray-600" /><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-700">Ver Detalles</span>
                               </button>
                               {puedeEditar && (
                               <button onClick={() => handleEdit(u)} className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 text-left">
-                                <Edit className="w-4 h-4 text-gray-600" /><span style={{ fontFamily: "Inter, sans-serif" }} className="text-sm text-gray-700">Editar</span>
+                                <Edit className="w-4 h-4 text-gray-600" /><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-700">Editar</span>
                               </button>
                               )}
                               {u.roleID && (
                                 <button onClick={() => handlePermisos(u)} className="w-full flex items-center gap-3 px-4 py-2 hover:bg-blue-50 text-left">
-                                  <Shield className="w-4 h-4 text-blue-600" /><span style={{ fontFamily: "Inter, sans-serif" }} className="text-sm text-blue-700">Configurar Permisos</span>
+                                  <Shield className="w-4 h-4 text-blue-600" /><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-blue-700">Configurar Permisos</span>
                                 </button>
                               )}
                               {puedeEditar && (
                               <button onClick={() => handleToggleStatus(u)} className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 text-left">
-                                <Power className="w-4 h-4 text-gray-600" /><span style={{ fontFamily: "Inter, sans-serif" }} className="text-sm text-gray-700">{u.estado === "activo" ? "Desactivar" : "Activar"}</span>
+                                <Power className="w-4 h-4 text-gray-600" /><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-700">{u.estado === "activo" ? "Desactivar" : "Activar"}</span>
                               </button>
                               )}
                               {puedeEliminar && (
                               <>
                               <div className="border-t border-gray-200 my-1" />
                               <button onClick={() => handleDelete(u)} className="w-full flex items-center gap-3 px-4 py-2 hover:bg-red-50 text-left">
-                                <Trash2 className="w-4 h-4 text-red-600" /><span style={{ fontFamily: "Inter, sans-serif" }} className="text-sm text-red-600">Eliminar</span>
+                                <Trash2 className="w-4 h-4 text-red-600" /><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-red-600">Eliminar</span>
                               </button>
                               </>
                               )}
@@ -519,13 +529,13 @@ export const UsuariosView: React.FC = () => {
                   </tr>
                 ))}
                 {filtered.length === 0 && (
-                  <tr><td colSpan={6} className="px-6 py-12 text-center text-gray-500" style={{ fontFamily: "Inter, sans-serif" }}>No se encontraron usuarios</td></tr>
+                  <tr><td colSpan={6} className="px-6 py-12 text-center text-gray-500" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>No se encontraron usuarios</td></tr>
                 )}
               </tbody>
             </table>
           </div>
           <div className="px-6 py-4 border-t border-gray-200">
-            <span style={{ fontFamily: "Inter, sans-serif" }} className="text-sm text-gray-600">Mostrando <span className="font-medium text-gray-900">{filtered.length}</span> de {users.length} usuarios</span>
+            <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-600">Mostrando <span className="font-medium text-gray-900">{filtered.length}</span> de {users.length} usuarios</span>
           </div>
         </div>
       </div>
@@ -534,10 +544,10 @@ export const UsuariosView: React.FC = () => {
       <Dialog open={viewOpen} onOpenChange={setViewOpen}>
         <DialogContent className="max-w-2xl h-auto flex flex-col p-0 gap-0">
           <DialogHeader className="px-8 pt-6 pb-4 border-b border-gray-200 flex-shrink-0">
-            <DialogTitle style={{ fontFamily: "Playfair Display, serif" }} className="text-2xl">
+            <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-2xl">
               {selectedUser?.nombreCompleto}
             </DialogTitle>
-            <DialogDescription style={{ fontFamily: "Inter, sans-serif" }}>
+            <DialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
               {(selectedUser?.rolNombre || "Sin rol").toUpperCase()} — {selectedUser?.cargo || "Sin cargo"}
             </DialogDescription>
           </DialogHeader>
@@ -546,36 +556,36 @@ export const UsuariosView: React.FC = () => {
               <div className="space-y-6 py-6 px-8">
                 <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
                   <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
-                    <h3 style={{ fontFamily: "Inter, sans-serif" }} className="font-semibold text-gray-800 text-base">👤 Información del Usuario</h3>
+                    <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-gray-800 text-base flex items-center gap-2"><User className="w-4 h-4 text-gray-400" />Información del Usuario</h3>
                   </div>
                   <div className="p-6 grid grid-cols-2 gap-6">
                     <div className="flex flex-col gap-1">
-                      <p style={{ fontFamily: "Inter, sans-serif" }} className="text-xs text-gray-500 font-medium uppercase">Nombre</p>
-                      <p style={{ fontFamily: "Inter, sans-serif" }} className="text-sm font-semibold text-gray-900">{selectedUser.nombreCompleto}</p>
+                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500 font-medium uppercase">Nombre</p>
+                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-gray-900">{selectedUser.nombreCompleto}</p>
                     </div>
                     <div className="flex flex-col gap-1">
-                      <p style={{ fontFamily: "Inter, sans-serif" }} className="text-xs text-gray-500 font-medium uppercase">Teléfono</p>
-                      <p style={{ fontFamily: "Inter, sans-serif" }} className="text-sm font-semibold text-gray-900">{selectedUser.telefono || "—"}</p>
+                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500 font-medium uppercase">Teléfono</p>
+                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-gray-900">{selectedUser.telefono || "—"}</p>
                     </div>
                     <div className="flex flex-col gap-1 col-span-2">
-                      <p style={{ fontFamily: "Inter, sans-serif" }} className="text-xs text-gray-500 font-medium uppercase">Correo</p>
-                      <p style={{ fontFamily: "Inter, sans-serif" }} className="text-sm font-semibold text-gray-900 break-all">{selectedUser.email}</p>
+                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500 font-medium uppercase">Correo</p>
+                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-gray-900 break-all">{selectedUser.email}</p>
                     </div>
                     {selectedUser.direccion && (
                       <div className="flex flex-col gap-1 col-span-2">
-                        <p style={{ fontFamily: "Inter, sans-serif" }} className="text-xs text-gray-500 font-medium uppercase">Dirección</p>
-                        <p style={{ fontFamily: "Inter, sans-serif" }} className="text-sm font-semibold text-gray-900">{selectedUser.direccion}</p>
+                        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500 font-medium uppercase">Dirección</p>
+                        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-gray-900">{selectedUser.direccion}</p>
                       </div>
                     )}
                     <div className="flex flex-col gap-1">
-                      <p style={{ fontFamily: "Inter, sans-serif" }} className="text-xs text-gray-500 font-medium uppercase">Estado</p>
+                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500 font-medium uppercase">Estado</p>
                       <span className={`inline-flex w-fit px-3 py-1 rounded-full text-xs font-semibold ${selectedUser.estado === "activo" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"}`}>
                         {selectedUser.estado === "activo" ? "Activo" : "Inactivo"}
                       </span>
                     </div>
                     <div className="flex flex-col gap-1">
-                      <p style={{ fontFamily: "Inter, sans-serif" }} className="text-xs text-gray-500 font-medium uppercase">Fecha Registro</p>
-                      <p style={{ fontFamily: "Inter, sans-serif" }} className="text-sm font-semibold text-gray-900">{fmtDate(selectedUser.fechaRegistro)}</p>
+                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500 font-medium uppercase">Fecha Registro</p>
+                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-gray-900">{fmtDate(selectedUser.fechaRegistro)}</p>
                     </div>
                   </div>
                 </div>
@@ -583,7 +593,7 @@ export const UsuariosView: React.FC = () => {
             </div>
           )}
           <DialogFooter className="gap-2 px-8 py-5 border-t border-gray-200 flex-shrink-0">
-            <button onClick={() => setViewOpen(false)} className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors" style={{ fontFamily: "Inter, sans-serif" }}>Cerrar</button>
+            <button onClick={() => setViewOpen(false)} className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Cerrar</button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -592,14 +602,14 @@ export const UsuariosView: React.FC = () => {
       <Dialog open={createOpen || editOpen} onOpenChange={o => { if (!o) { setCreateOpen(false); setEditOpen(false); } }}>
         <DialogContent className="max-w-2xl h-auto flex flex-col p-0 gap-0">
           <DialogHeader className="px-8 pt-6 pb-4 border-b border-gray-200 flex-shrink-0">
-            <DialogTitle style={{ fontFamily: "Playfair Display, serif" }} className="text-2xl">{editOpen ? "Editar Usuario" : "Nuevo Usuario"}</DialogTitle>
-            <DialogDescription style={{ fontFamily: "Inter, sans-serif" }}>{editOpen ? "Modifica la información del usuario" : "Completa los datos para registrar un nuevo usuario"}</DialogDescription>
+            <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-2xl">{editOpen ? "Editar Usuario" : "Nuevo Usuario"}</DialogTitle>
+            <DialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>{editOpen ? "Modifica la información del usuario" : "Completa los datos para registrar un nuevo usuario"}</DialogDescription>
           </DialogHeader>
           <div className="flex-1 overflow-y-auto">
             <div className="space-y-6 py-6 px-8">
               <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
                 <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
-                  <h3 style={{ fontFamily: "Inter, sans-serif" }} className="font-semibold text-gray-800 text-base">👤 Información del Usuario</h3>
+                  <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-gray-800 text-base flex items-center gap-2"><User className="w-4 h-4 text-gray-400" />Información del Usuario</h3>
                 </div>
                 <div className="p-6 space-y-4">
                   <div className="grid grid-cols-2 gap-4">
@@ -629,7 +639,7 @@ export const UsuariosView: React.FC = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label className="text-sm text-gray-700 mb-1 block">Rol *</Label>
-                      <select value={form.roleID} onChange={e => setForm({...form, roleID: e.target.value})} className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391] text-sm" style={{ fontFamily: "Inter, sans-serif" }}>
+                      <select value={form.roleID} onChange={e => setForm({...form, roleID: e.target.value})} className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391] text-sm" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                         <option value="">Selecciona un rol</option>
                         {roles.map(r => <option key={r.roleID} value={r.roleID}>{r.nombre}</option>)}
                       </select>
@@ -637,7 +647,7 @@ export const UsuariosView: React.FC = () => {
                     </div>
                     <div>
                       <Label className="text-sm text-gray-700 mb-1 block">Estado</Label>
-                      <select value={form.estado} onChange={e => setForm({...form, estado: e.target.value})} className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391] text-sm" style={{ fontFamily: "Inter, sans-serif" }}>
+                      <select value={form.estado} onChange={e => setForm({...form, estado: e.target.value})} className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391] text-sm" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                         <option value="activo">Activo</option>
                         <option value="inactivo">Inactivo</option>
                       </select>
@@ -650,15 +660,15 @@ export const UsuariosView: React.FC = () => {
                   </div>
                   <div>
                     <Label className="text-sm text-gray-700 mb-1 block">Dirección</Label>
-                    <textarea value={form.direccion} onChange={e => setForm({...form, direccion: e.target.value})} className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391] text-sm min-h-[70px] resize-none" style={{ fontFamily: "Inter, sans-serif" }} placeholder="Calle 123 #45-67, Ciudad" />
+                    <textarea value={form.direccion} onChange={e => setForm({...form, direccion: e.target.value})} className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391] text-sm min-h-[70px] resize-none" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} placeholder="Calle 123 #45-67, Ciudad" />
                   </div>
                 </div>
               </div>
             </div>
           </div>
           <DialogFooter className="gap-2 px-8 py-5 border-t border-gray-200 flex-shrink-0">
-            <button onClick={() => { setCreateOpen(false); setEditOpen(false); }} className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200" style={{ fontFamily: "Inter, sans-serif" }}>Cancelar</button>
-            <button onClick={editOpen ? saveEdit : saveCreate} disabled={saving} className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 flex items-center gap-2" style={{ fontFamily: "Inter, sans-serif" }}>
+            <button onClick={() => { setCreateOpen(false); setEditOpen(false); }} className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Cancelar</button>
+            <button onClick={editOpen ? saveEdit : saveCreate} disabled={saving} className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 flex items-center gap-2" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
               {saving && <Loader2 className="w-4 h-4 animate-spin" />}
               {editOpen ? "Guardar Cambios" : "Crear Usuario"}
             </button>
@@ -670,14 +680,14 @@ export const UsuariosView: React.FC = () => {
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle style={{ fontFamily: "Playfair Display, serif" }}>¿Eliminar usuario?</AlertDialogTitle>
-            <AlertDialogDescription style={{ fontFamily: "Inter, sans-serif" }}>
+            <AlertDialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>¿Eliminar usuario?</AlertDialogTitle>
+            <AlertDialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
               Vas a eliminar permanentemente a <strong>{selectedUser?.nombreCompleto}</strong> ({selectedUser?.email}). Esta acción <strong>no se puede deshacer</strong> y el usuario será removido de la base de datos.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel style={{ fontFamily: "Inter, sans-serif" }}>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} disabled={saving} className="bg-red-600 hover:bg-red-700 flex items-center gap-2" style={{ fontFamily: "Inter, sans-serif" }}>
+            <AlertDialogCancel style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} disabled={saving} className="bg-red-600 hover:bg-red-700 flex items-center gap-2" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
               {saving && <Loader2 className="w-4 h-4 animate-spin" />} Eliminar permanentemente
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -688,16 +698,16 @@ export const UsuariosView: React.FC = () => {
       <Dialog open={permisosOpen} onOpenChange={setPermisosOpen}>
         <DialogContent className="max-w-2xl h-auto flex flex-col p-0 gap-0">
           <DialogHeader className="px-8 pt-6 pb-4 border-b border-gray-200 flex-shrink-0">
-            <DialogTitle style={{ fontFamily: "Playfair Display, serif" }} className="text-2xl">
+            <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-2xl">
               Configurar Permisos
             </DialogTitle>
-            <DialogDescription style={{ fontFamily: "Inter, sans-serif" }}>
+            <DialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
               Rol: {selectedRole?.nombre?.toUpperCase()} — {selectedUser?.nombreCompleto}
             </DialogDescription>
           </DialogHeader>
           <div className="flex-1 overflow-y-auto">
             <div className="space-y-3 py-6 px-8">
-              {MODULOS_PERMISOS.map(({ modulo, icon, permisos }) => {
+              {MODULOS_PERMISOS.map(({ modulo, permisos }) => {
                 const allSel = permisos.every(p => permisosSet.has(p.nombre));
                 const someSel = permisos.some(p => permisosSet.has(p.nombre));
                 return (
@@ -706,7 +716,7 @@ export const UsuariosView: React.FC = () => {
                       <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors ${allSel ? "bg-[#d65391] border-[#d65391]" : someSel ? "bg-pink-200 border-[#d65391]" : "border-gray-300"}`}>
                         {(allSel || someSel) && <span className="text-white text-xs font-bold">✓</span>}
                       </div>
-                      <span style={{ fontFamily: "Inter, sans-serif" }} className="font-semibold text-gray-800">{icon} Módulo {modulo}</span>
+                      <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-gray-800">Módulo {modulo}</span>
                     </button>
                     <div className="px-6 py-3 space-y-1 bg-white">
                       {permisos.map(p => (
@@ -714,7 +724,7 @@ export const UsuariosView: React.FC = () => {
                           <div className={`w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors ${permisosSet.has(p.nombre) ? "bg-[#d65391] border-[#d65391]" : "border-gray-300 hover:border-[#d65391]"}`}>
                             {permisosSet.has(p.nombre) && <span className="text-white text-xs font-bold">✓</span>}
                           </div>
-                          <span style={{ fontFamily: "Inter, sans-serif" }} className="text-sm text-gray-700">{p.label}</span>
+                          <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-700">{p.label}</span>
                         </label>
                       ))}
                     </div>
@@ -724,8 +734,8 @@ export const UsuariosView: React.FC = () => {
             </div>
           </div>
           <DialogFooter className="gap-2 px-8 py-5 border-t border-gray-200 flex-shrink-0">
-            <button onClick={() => setPermisosOpen(false)} className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200" style={{ fontFamily: "Inter, sans-serif" }}>Cancelar</button>
-            <button onClick={savePermisos} disabled={savingPermisos} className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 flex items-center gap-2" style={{ fontFamily: "Inter, sans-serif" }}>
+            <button onClick={() => setPermisosOpen(false)} className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Cancelar</button>
+            <button onClick={savePermisos} disabled={savingPermisos} className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 flex items-center gap-2" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
               {savingPermisos && <Loader2 className="w-4 h-4 animate-spin" />} Guardar Permisos
             </button>
           </DialogFooter>

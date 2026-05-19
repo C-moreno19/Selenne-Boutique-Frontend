@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { 
   LayoutDashboard, 
   Users, 
@@ -176,7 +176,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
           >
             <img src={imgLogo} alt="Selenne Boutique" className="h-8 w-auto" />
             <span 
-              style={{ fontFamily: 'Playfair Display, serif' }} 
+              style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} 
               className="text-[18px] text-gray-900"
             >
               Selenne Boutique
@@ -188,7 +188,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
       <nav className="flex-1 overflow-y-auto py-6 px-3">
         <div className="mb-4 px-3">
           <span 
-            style={{ fontFamily: 'Inter, sans-serif' }} 
+            style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} 
             className="text-xs text-gray-500 uppercase tracking-wider"
           >
             NAVEGACIÓN
@@ -212,20 +212,21 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                       onSectionChange(item.id);
                     }
                   }}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 transition-all ${
                     isActive
-                      ? 'bg-[#d65391] text-white shadow-sm'
+                      ? 'text-gray-900 font-medium bg-gray-50'
                       : 'text-gray-700 hover:bg-gray-50'
-                  }`} 
+                  }`}
+                  style={isActive ? { boxShadow: '0 3px 0 rgba(214, 83, 145, 0.3)' } : {}}
                 >
-                  <span className={isActive ? 'text-white' : 'text-gray-500'}>
+                  <span className={isActive ? 'text-[#d65391]' : 'text-gray-500'}>
                     {item.icon}
                   </span>
-                  <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm flex-1 text-left">
+                  <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm flex-1 text-left">
                     {item.label}
                   </span>
                   {item.subItems && (
-                    <span className={isActive ? 'text-white' : 'text-gray-500'}>
+                    <span className={isActive ? 'text-[#d65391]' : 'text-gray-500'}>
                       {isExpanded ? (
                         <ChevronDown className="w-4 h-4" />
                       ) : (
@@ -253,13 +254,14 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                                 onSectionChange(subItem.id);
                               }
                             }}
-                            className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg transition-all text-left ${
+                            className={`w-full flex items-center gap-2 px-3 py-2 transition-all text-left ${
                               isSubActive
-                                ? 'bg-[#d65391] text-white shadow-sm'
+                                ? 'text-gray-900 font-medium bg-gray-50'
                                 : 'text-gray-700 hover:bg-gray-50'
                             }`}
+                            style={isSubActive ? { boxShadow: '0 3px 0 rgba(214, 83, 145, 0.3)' } : {}}
                           >
-                            <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm flex-1">
+                            <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm flex-1">
                               {subItem.label}
                             </span>
                             {subItem.subItems && (
@@ -284,13 +286,14 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                                       onSectionChange(nestedItem.id);
                                     }
                                   }}
-                                  className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all text-left ${
+                                  className={`w-full flex items-center gap-2 px-3 py-1.5 transition-all text-left ${
                                     currentSection === nestedItem.id
-                                      ? 'bg-[#d65391] text-white shadow-sm'
+                                      ? 'text-gray-900 font-medium bg-gray-50'
                                       : 'text-gray-600 hover:bg-gray-50'
                                   }`}
+                                  style={currentSection === nestedItem.id ? { boxShadow: '0 3px 0 rgba(214, 83, 145, 0.3)' } : {}}
                                 >
-                                  <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs">
+                                  <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs">
                                     {nestedItem.label}
                                   </span>
                                 </button>
@@ -315,10 +318,10 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
               <UserCog className="w-5 h-5 text-white" />
             </div>
             <div className="flex-1 min-w-0">
-              <div style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-900 truncate">
+              <div style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-900 truncate">
                 {user?.name}
               </div>
-              <div style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-[#d65391] truncate">
+              <div style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-[#d65391] truncate">
                 {user?.role}
               </div>
             </div>
