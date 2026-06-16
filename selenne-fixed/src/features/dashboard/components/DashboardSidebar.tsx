@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
-import { 
-  LayoutDashboard, 
-  Users, 
-  UserCog, 
-  Package, 
-  ShoppingCart, 
+﻿import React, { useState } from 'react';
+import {
+  LayoutDashboard,
+  Users,
+  Package,
+  ShoppingCart,
   ChevronDown,
   ChevronRight,
   Settings
@@ -73,11 +72,11 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
       ]
     },
     { 
-      label: 'Ventas', 
+      label: 'Gestión de Ventas', 
       icon: <ShoppingCart className="w-5 h-5" />,
       subItems: [
-        { id: 'ventas', label: 'Gestión de Ventas' },
         { id: 'pedidos', label: 'Pedidos' },
+        { id: 'ventas', label: 'Ventas' },
         { id: 'clientes', label: 'Clientes' }
       ]
     },
@@ -99,16 +98,31 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
     }
   ];
 
+  const isAdmin = (user?.role || '').toLowerCase().includes('admin');
+
   const visibleMenuItems = menuItems.filter(item => {
-    if (!item.requiredPermissions) return true;
-    // Para items sin id específico, revisar si alguno de sus subitems tiene acceso
-    if (!item.id && item.subItems) {
-      return item.subItems.some(subItem => {
-        if (subItem.id) return canAccessSection(subItem.id);
-        return true;
-      });
+    // Admin ve todo
+    if (isAdmin) return true;
+    // Item directo sin subitems (ej: Dashboard)
+    if (item.id && !item.subItems) {
+      return canAccessSection(item.id);
     }
-    return item.id ? canAccessSection(item.id) : true;
+    // Item con subitems: visible si al menos uno es accesible
+    if (item.subItems) {
+      return item.subItems.some(subItem =>
+        subItem.id ? canAccessSection(subItem.id) : false
+      );
+    }
+    return false;
+  }).map(item => {
+    // Filtrar subitems también
+    if (isAdmin || !item.subItems) return item;
+    return {
+      ...item,
+      subItems: item.subItems.filter(subItem =>
+        !subItem.id || canAccessSection(subItem.id)
+      )
+    };
   });
 
   // expandExclusive removed — la apertura exclusiva ahora ocurre solo al hacer click (gestión en `toggleMenu`).
@@ -160,8 +174,8 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
             onClick={() => onSectionChange('home')}
           >
             <img src={imgLogo} alt="Selenne Boutique" className="h-8 w-auto" />
-            <span 
-              style={{ fontFamily: 'Playfair Display, serif' }} 
+            <span
+              style={{ fontFamily: '"Times New Roman", Times, serif' }}
               className="text-[18px] text-gray-900"
             >
               Selenne Boutique
@@ -173,7 +187,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
       <nav className="flex-1 overflow-y-auto py-6 px-3">
         <div className="mb-4 px-3">
           <span 
-            style={{ fontFamily: 'Inter, sans-serif' }} 
+            style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} 
             className="text-xs text-gray-500 uppercase tracking-wider"
           >
             NAVEGACIÓN
@@ -197,20 +211,21 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                       onSectionChange(item.id);
                     }
                   }}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 transition-all ${
                     isActive
-                      ? 'bg-[#d65391] text-white shadow-sm'
+                      ? 'text-gray-900 font-medium bg-gray-50'
                       : 'text-gray-700 hover:bg-gray-50'
-                  }`} 
+                  }`}
+                  style={isActive ? { boxShadow: '0 3px 0 rgba(214, 83, 145, 0.3)' } : {}}
                 >
-                  <span className={isActive ? 'text-white' : 'text-gray-500'}>
+                  <span className={isActive ? 'text-[#d65391]' : 'text-gray-500'}>
                     {item.icon}
                   </span>
-                  <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm flex-1 text-left">
+                  <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm flex-1 text-left">
                     {item.label}
                   </span>
                   {item.subItems && (
-                    <span className={isActive ? 'text-white' : 'text-gray-500'}>
+                    <span className={isActive ? 'text-[#d65391]' : 'text-gray-500'}>
                       {isExpanded ? (
                         <ChevronDown className="w-4 h-4" />
                       ) : (
@@ -238,13 +253,14 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                                 onSectionChange(subItem.id);
                               }
                             }}
-                            className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg transition-all text-left ${
+                            className={`w-full flex items-center gap-2 px-3 py-2 transition-all text-left ${
                               isSubActive
-                                ? 'bg-[#d65391] text-white shadow-sm'
+                                ? 'text-gray-900 font-medium bg-gray-50'
                                 : 'text-gray-700 hover:bg-gray-50'
                             }`}
+                            style={isSubActive ? { boxShadow: '0 3px 0 rgba(214, 83, 145, 0.3)' } : {}}
                           >
-                            <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm flex-1">
+                            <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm flex-1">
                               {subItem.label}
                             </span>
                             {subItem.subItems && (
@@ -269,13 +285,14 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                                       onSectionChange(nestedItem.id);
                                     }
                                   }}
-                                  className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all text-left ${
+                                  className={`w-full flex items-center gap-2 px-3 py-1.5 transition-all text-left ${
                                     currentSection === nestedItem.id
-                                      ? 'bg-[#d65391] text-white shadow-sm'
+                                      ? 'text-gray-900 font-medium bg-gray-50'
                                       : 'text-gray-600 hover:bg-gray-50'
                                   }`}
+                                  style={currentSection === nestedItem.id ? { boxShadow: '0 3px 0 rgba(214, 83, 145, 0.3)' } : {}}
                                 >
-                                  <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs">
+                                  <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs">
                                     {nestedItem.label}
                                   </span>
                                 </button>
@@ -293,22 +310,6 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
         </div>
       </nav>
 
-        {/* User Info Footer */}
-        <div className="p-4 border-t border-gray-200">
-          <div className="flex items-center gap-3 px-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-[#d65391] to-[#f8a9c5] rounded-full flex items-center justify-center flex-shrink-0">
-              <UserCog className="w-5 h-5 text-white" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-900 truncate">
-                {user?.name}
-              </div>
-              <div style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-[#d65391] truncate">
-                {user?.role}
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </aside>
   );

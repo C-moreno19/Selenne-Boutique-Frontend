@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { ShoppingBag, DollarSign } from 'lucide-react';
 
 export const EmpleadoHome: React.FC = () => {
@@ -10,10 +10,10 @@ export const EmpleadoHome: React.FC = () => {
   return (
     <div className="p-8">
       <div className="mb-8">
-        <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: '32px' }} className="mb-2">
+        <h1 style={{ fontFamily: '"Times New Roman", Times, serif', fontSize: '32px' }} className="mb-2">
           Mi Panel
         </h1>
-        <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-600">
+        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-600">
           Tus ventas y actividad del día
         </p>
       </div>
@@ -27,10 +27,10 @@ export const EmpleadoHome: React.FC = () => {
                 <stat.icon className="w-6 h-6 text-white" />
               </div>
             </div>
-            <h3 style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-600 text-sm mb-1">
+            <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-600 text-sm mb-1">
               {stat.label}
             </h3>
-            <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-2xl">
+            <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-2xl">
               {stat.value}
             </p>
           </div>
@@ -39,19 +39,19 @@ export const EmpleadoHome: React.FC = () => {
 
       {/* Recent Sales */}
       <div className="bg-white rounded-lg shadow p-6">
-        <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: '24px' }} className="mb-4">
+        <h2 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: '24px' }} className="mb-4">
           Ventas Recientes
         </h2>
         <div className="space-y-4">
           {[1, 2, 3].map((item) => (
             <div key={item} className="flex items-center justify-between py-3 border-b last:border-b-0">
               <div>
-                <p style={{ fontFamily: 'Inter, sans-serif' }}>Venta #{1000 + item}</p>
-                <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-500">
+                <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Venta #{1000 + item}</p>
+                <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500">
                   Hace {item * 15} minutos
                 </p>
               </div>
-              <span className="text-green-600" style={{ fontFamily: 'Inter, sans-serif' }}>
+              <span className="text-green-600" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                 +${(Math.random() * 200 + 50).toFixed(2)}
               </span>
             </div>

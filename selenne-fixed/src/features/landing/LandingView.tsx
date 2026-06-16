@@ -1,8 +1,9 @@
-import React, { useState, useMemo, useEffect } from "react";
+﻿import React, { useState, useMemo, useEffect, useRef } from "react";
 import {
   ShoppingBag,
   Heart,
   Search,
+  User,
   Menu,
   X,
   Star,
@@ -11,9 +12,13 @@ import {
   ShoppingCart,
   ChevronLeft,
   ChevronRight,
+  ChevronUp,
   Zap,
   LogIn,
-  User,
+  SlidersHorizontal,
+  Package,
+  Globe,
+  Lock,
 } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
@@ -25,9 +30,6 @@ import {
   DialogTitle,
   DialogDescription,
 } from "../../components/ui/dialog";
-import { usePedidosAdmin } from '../../shared/contexts/PedidosAdminContext';
-import { toast } from 'sonner';
-
 import {
   Sheet,
   SheetContent,
@@ -42,11 +44,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../components/ui/select";
-import { SizeSelector } from "../../components/ui/size-selector";
 import { Separator } from "../../components/ui/separator";
+import { ImageCarousel } from "../../components/figma/ImageCarousel";
 import { useProductosCombinados } from "../../shared/data/useProductosCombinados";
 import { useTienda } from "../../shared/contexts/TiendaContext";
 import { useSubcategorias } from "../../shared/contexts/SubcategoriasContext";
+import { getJson } from "../../services/api";
+import { formatCurrency } from "../../shared/utils";
 import type { Producto } from "../../shared/contexts/TiendaContext";
 
 type Categoria = "mujer" | "accesorios" | "sale";
@@ -55,47 +59,57 @@ interface LandingViewProps {
   onNavigateToLogin: () => void;
   onNavigateToRegister: () => void;
   onNavigateToCheckout?: () => void;
+  onNavigateToLoginForCheckout?: () => void;
 }
 
 export const LandingView: React.FC<LandingViewProps> = ({
   onNavigateToLogin,
   onNavigateToRegister,
   onNavigateToCheckout,
+  onNavigateToLoginForCheckout,
 }) => {
   const [mostrarTelefono, setMostrarTelefono] = useState(false);
-  const [categoriaActiva, setCategoriaActiva] =
-    useState<Categoria>("mujer");
+  const [telefonoContacto, setTelefonoContacto] = useState('+57 304 292 8493');
+  const [categoriaActiva, setCategoriaActiva] = useState<Categoria>("mujer");
   const [busqueda, setBusqueda] = useState("");
-  const [productoSeleccionado, setProductoSeleccionado] =
-    useState<Producto | null>(null);
-  const [tallaSeleccionada, setTallaSeleccionada] =
-    useState("");
-  const [colorSeleccionado, setColorSeleccionado] =
-    useState("");
-  const [cantidadSeleccionada, setCantidadSeleccionada] =
-    useState(1);
+  const [productoSeleccionado, setProductoSeleccionado] = useState<Producto | null>(null);
+  const [tallaSeleccionada, setTallaSeleccionada] = useState("");
+  const [colorSeleccionado, setColorSeleccionado] = useState("");
+  const [cantidadSeleccionada, setCantidadSeleccionada] = useState(1);
   const [imagenActual, setImagenActual] = useState(0);
   const [ordenar, setOrdenar] = useState("destacados");
-  const [menuMovilAbierto, setMenuMovilAbierto] =
-    useState(false);
-  const [filtroTalla, setFiltroTalla] = useState<string>("");
+  const [menuMovilAbierto, setMenuMovilAbierto] = useState(false);
+  const [favoritosOpen, setFavoritosOpen] = useState(false);
+  const [carritoAbierto, setCarritoAbierto] = useState(false);
+  const [busquedaModalAbierta, setBusquedaModalAbierta] = useState(false);
+  const [busquedaModal, setBusquedaModal] = useState('');
+  const [filtroTalla, setFiltroTalla] = useState<string[]>([]);
   const [filtroColor, setFiltroColor] = useState<string>("");
   const [filtroMaterial, setFiltroMaterial] = useState<string>("");
   const [filtroTipoProducto, setFiltroTipoProducto] = useState<string>("");
   const [filtroCategoriaRopa, setFiltroCategoriaRopa] = useState<string>("");
   const [filtroPrecioMin, setFiltroPrecioMin] = useState<number | null>(null);
   const [filtroPrecioMax, setFiltroPrecioMax] = useState<number | null>(null);
-  const [mostrarModalLoginPerfil, setMostrarModalLoginPerfil] =
-    useState(false);
+  const [mostrarModalLoginCarrito, setMostrarModalLoginCarrito] = useState(false);
+  const [paginaActual, setPaginaActual] = useState(1);
+  const PRODUCTOS_POR_PAGINA = 12;
+  const [filtrosAbiertos, setFiltrosAbiertos] = useState(false);
+  const [seccionesAbiertas, setSeccionesAbiertas] = useState({ precio: true, talla: true, tipo: true, categoria: true });
+  const [precioMinLocal, setPrecioMinLocal] = useState(0);
+  const [precioMaxLocal, setPrecioMaxLocal] = useState(0);
+  const [activeRangeThumb, setActiveRangeThumb] = useState<'min' | 'max' | null>(null);
+  const rangeContainerRef = useRef<HTMLDivElement>(null);
+  const [tallaLocal, setTallaLocal] = useState<string[]>([]);
+  const [tipoLocal, setTipoLocal] = useState("");
+  const [categoriaLocal, setCategoriaLocal] = useState("");
 
   const productosData = useProductosCombinados();
-
   const { colores, tallas } = useSubcategorias();
 
   const {
-    agregarAlCarrito,
     carritoItems,
     favoritos,
+    agregarAlCarrito,
     removerDelCarrito,
     actualizarCantidad,
     toggleFavorito,
@@ -108,55 +122,23 @@ export const LandingView: React.FC<LandingViewProps> = ({
     return color?.hexColor || '#808080';
   };
 
-  // NOTE: quick checkout modal removed — navigation to full checkout handled by parent via `onNavigateToCheckout`
-
-  // Detectar si el producto seleccionado está en el carrito y actualizar automáticamente
-  React.useEffect(() => {
-    if (productoSeleccionado && carritoItems.length > 0) {
-      const itemEnCarrito = carritoItems.find(
-        (item) =>
-          item.id === productoSeleccionado.id &&
-          item.tallaSeleccionada === tallaSeleccionada &&
-          item.colorSeleccionado === (colorSeleccionado || '')
-      );
-      
-      if (itemEnCarrito && itemEnCarrito.cantidad !== cantidadSeleccionada) {
-        // El producto está en el carrito con estos detalles pero diferente cantidad
-        // Actualizar la cantidad
-        const diferencia = cantidadSeleccionada - itemEnCarrito.cantidad;
-        if (diferencia > 0) {
-          for (let i = 0; i < diferencia; i++) {
-            actualizarCantidad(itemEnCarrito.id, itemEnCarrito.cantidad + i + 1);
-          }
-        } else {
-          for (let i = 0; i < Math.abs(diferencia); i++) {
-            actualizarCantidad(itemEnCarrito.id, itemEnCarrito.cantidad - i - 1);
-          }
-        }
-      }
-    }
-  }, [cantidadSeleccionada, productoSeleccionado, tallaSeleccionada, colorSeleccionado, carritoItems, actualizarCantidad]);
-
-  // Opciones disponibles para filtros (según categoría)
   const productosParaFiltros = useMemo(() => {
     return productosData.filter((p) => {
       if (categoriaActiva === "sale") {
-        return (
-          p.precioOriginal !== null &&
-          p.precioOriginal !== undefined
-        );
+        return p.precioOriginal !== null && p.precioOriginal !== undefined;
       }
       return p.categoria === categoriaActiva;
     });
   }, [categoriaActiva, productosData]);
 
-  // Usar tallas del contexto en lugar de calcularlas de productos
   const tallasDisponibles = useMemo(() => {
     return tallas.map(t => t.nombre);
   }, [tallas]);
-  
-  // Mantener la variable original por compatibilidad con código que la usa
-  const tallasDelContexto = tallas;
+
+  const favoritosValidos = useMemo(
+    () => favoritos.filter(id => productosData.some(p => p.id === id)),
+    [favoritos, productosData]
+  );
 
   const coloresDisponibles = useMemo(() => {
     const set = new Set<string>();
@@ -167,7 +149,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
   const materialesDisponibles = useMemo(() => {
     const set = new Set<string>();
     productosParaFiltros.forEach((p) => {
-      if (p.materiales) set.add(p.materiales);
+      if (p.materiales) (Array.isArray(p.materiales) ? p.materiales : [p.materiales]).forEach((m: string) => set.add(m));
     });
     return Array.from(set);
   }, [productosParaFiltros]);
@@ -186,53 +168,42 @@ export const LandingView: React.FC<LandingViewProps> = ({
     return Array.from(set).sort();
   }, [productosParaFiltros]);
 
-  // Filtrar productos según la categoría activa y filtros
   const productosFiltrados = useMemo(() => {
     let productos = productosData.filter((p) => {
       if (categoriaActiva === "sale") {
-        return (
-          p.precioOriginal !== null &&
-          p.precioOriginal !== undefined
-        );
+        return p.precioOriginal !== null && p.precioOriginal !== undefined;
       }
       return p.categoria === categoriaActiva;
     });
 
-    // Búsqueda
     if (busqueda) {
       productos = productos.filter((p) =>
         p.nombre.toLowerCase().includes(busqueda.toLowerCase()),
       );
     }
 
-    // Filtro por tipo de producto
     if (filtroTipoProducto && filtroTipoProducto !== "all") {
       const filtroLower = filtroTipoProducto.toLowerCase();
       productos = productos.filter((p) => (p.tipoProducto || "").toLowerCase() === filtroLower);
     }
 
-    // Filtro por categoría de ropa (Vestido, Blusa, Pantalón, etc.)
     if (filtroCategoriaRopa && filtroCategoriaRopa !== "all") {
       const filtroCatLower = filtroCategoriaRopa.toLowerCase();
       productos = productos.filter((p) => (p.subcategoria || "").toLowerCase() === filtroCatLower);
     }
 
-    // Filtro por talla
-    if (filtroTalla && filtroTalla !== "all") {
-      productos = productos.filter((p) => p.tallas.includes(filtroTalla));
+    if (filtroTalla.length > 0) {
+      productos = productos.filter((p) => filtroTalla.some(t => p.tallas.includes(t)));
     }
 
-    // Filtro por color
     if (filtroColor && filtroColor !== "all") {
       productos = productos.filter((p) => p.colores?.includes(filtroColor));
     }
 
-    // Filtro por material
     if (filtroMaterial && filtroMaterial !== "all") {
       productos = productos.filter((p) => p.materiales && p.materiales.includes(filtroMaterial));
     }
 
-    // Filtro por rango de precios
     if (filtroPrecioMin !== null) {
       productos = productos.filter((p) => p.precio >= filtroPrecioMin);
     }
@@ -240,73 +211,157 @@ export const LandingView: React.FC<LandingViewProps> = ({
       productos = productos.filter((p) => p.precio <= filtroPrecioMax);
     }
 
-    // Ordenar
     if (ordenar === "precio-menor") {
       productos.sort((a, b) => a.precio - b.precio);
     } else if (ordenar === "precio-mayor") {
       productos.sort((a, b) => b.precio - a.precio);
     } else if (ordenar === "nombre") {
-      productos.sort((a, b) =>
-        a.nombre.localeCompare(b.nombre),
-      );
+      productos.sort((a, b) => a.nombre.localeCompare(b.nombre));
     }
 
     return productos;
   }, [categoriaActiva, busqueda, ordenar, filtroTipoProducto, filtroCategoriaRopa, filtroTalla, filtroColor, filtroMaterial, filtroPrecioMin, filtroPrecioMax, productosData]);
 
+  const maxPrecioGlobal = useMemo(() => {
+    const precios = productosData.map(p => p.precio);
+    return precios.length ? Math.max(...precios) : 1000000;
+  }, [productosData]);
+
+  const contadorFiltros = useMemo(() => {
+    let c = 0;
+    if (filtroTipoProducto && filtroTipoProducto !== 'all') c++;
+    if (filtroCategoriaRopa && filtroCategoriaRopa !== 'all') c++;
+    if (filtroTalla.length > 0) c++;
+    if (filtroPrecioMin !== null) c++;
+    if (filtroPrecioMax !== null) c++;
+    return c;
+  }, [filtroTipoProducto, filtroCategoriaRopa, filtroTalla, filtroPrecioMin, filtroPrecioMax]);
+
+  const abrirFiltros = () => {
+    setPrecioMinLocal(filtroPrecioMin ?? 0);
+    setPrecioMaxLocal(filtroPrecioMax ?? maxPrecioGlobal);
+    setTallaLocal([...filtroTalla]);
+    setTipoLocal(filtroTipoProducto);
+    setCategoriaLocal(filtroCategoriaRopa);
+    setFiltrosAbiertos(true);
+  };
+
+  const getRangeValue = (clientX: number) => {
+    if (!rangeContainerRef.current) return 0;
+    const rect = rangeContainerRef.current.getBoundingClientRect();
+    const pct = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    return Math.round((pct * maxPrecioGlobal) / 1000) * 1000;
+  };
+  const handleRangePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    if (!rangeContainerRef.current) return;
+    const val = getRangeValue(e.clientX);
+    const thumb = Math.abs(val - precioMinLocal) <= Math.abs(val - precioMaxLocal) ? 'min' : 'max';
+    setActiveRangeThumb(thumb);
+    rangeContainerRef.current.setPointerCapture(e.pointerId);
+    if (thumb === 'min') setPrecioMinLocal(Math.min(val, precioMaxLocal - 1000));
+    else setPrecioMaxLocal(Math.max(val, precioMinLocal + 1000));
+  };
+  const handleRangePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!activeRangeThumb || !(e.buttons & 1)) return;
+    const val = getRangeValue(e.clientX);
+    if (activeRangeThumb === 'min') setPrecioMinLocal(Math.min(val, precioMaxLocal - 1000));
+    else setPrecioMaxLocal(Math.max(val, precioMinLocal + 1000));
+  };
+  const handleRangePointerUp = () => setActiveRangeThumb(null);
+
+  const aplicarFiltros = () => {
+    setFiltroPrecioMin(precioMinLocal > 0 ? precioMinLocal : null);
+    setFiltroPrecioMax(precioMaxLocal < maxPrecioGlobal ? precioMaxLocal : null);
+    setFiltroTalla(tallaLocal);
+    setFiltroTipoProducto(tipoLocal);
+    setFiltroCategoriaRopa(categoriaLocal);
+    setFiltrosAbiertos(false);
+  };
+
+  const limpiarFiltros = () => {
+    setPrecioMinLocal(0);
+    setPrecioMaxLocal(maxPrecioGlobal);
+    setTallaLocal([]);
+    setTipoLocal('');
+    setCategoriaLocal('');
+  };
+
+  // Resetear página al cambiar filtros o categoría
+  useEffect(() => { setPaginaActual(1); }, [categoriaActiva, busqueda, ordenar, filtroTipoProducto, filtroCategoriaRopa, filtroTalla, filtroColor, filtroMaterial, filtroPrecioMin, filtroPrecioMax]);
+
+  const totalPaginasLanding = Math.ceil(productosFiltrados.length / PRODUCTOS_POR_PAGINA);
+  const productosPaginaLanding = productosFiltrados.slice((paginaActual - 1) * PRODUCTOS_POR_PAGINA, paginaActual * PRODUCTOS_POR_PAGINA);
+
+  useEffect(() => {
+    getJson('/api/config/banco').then((d: any) => {
+      if (d?.data?.whatsapp) {
+        const n = d.data.whatsapp.replace(/\D/g, '');
+        setTelefonoContacto(`+${n.slice(0, 2)} ${n.slice(2, 5)} ${n.slice(5, 8)} ${n.slice(8)}`);
+      }
+    }).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (productoSeleccionado) {
+      const productoActualizado = productosData.find(p => p.id === productoSeleccionado.id);
+      if (productoActualizado) {
+        setProductoSeleccionado(productoActualizado);
+      }
+    }
+  }, [productosData]);
+
+  useEffect(() => {
+    if (productoSeleccionado) {
+      if (productoSeleccionado.colores && productoSeleccionado.colores.length > 0) {
+        setColorSeleccionado(prev => prev || (productoSeleccionado.colores?.[0] ?? ''));
+      } else {
+        setColorSeleccionado('');
+      }
+      setImagenActual(0);
+    }
+  }, [productoSeleccionado]);
+
   const cambiarImagen = (direccion: "prev" | "next") => {
     if (!productoSeleccionado?.imagenes) return;
     const totalImagenes = productoSeleccionado.imagenes.length;
     if (direccion === "prev") {
-      setImagenActual((prev) =>
-        prev === 0 ? totalImagenes - 1 : prev - 1,
-      );
+      setImagenActual((prev) => prev === 0 ? totalImagenes - 1 : prev - 1);
     } else {
-      setImagenActual((prev) =>
-        prev === totalImagenes - 1 ? 0 : prev + 1,
-      );
+      setImagenActual((prev) => prev === totalImagenes - 1 ? 0 : prev + 1);
     }
   };
 
-  const formatPrecio = (precio: number) => {
-    return `$${precio.toLocaleString("es-CO")}`;
-  };
+  const formatPrecio = (precio: number) => formatCurrency(precio);
 
-  const calcularDescuento = (
-    precio: number,
-    precioOriginal: number,
-  ) => {
-    const descuento =
-      ((precioOriginal - precio) / precioOriginal) * 100;
+  const calcularDescuento = (precio: number, precioOriginal: number) => {
+    const descuento = ((precioOriginal - precio) / precioOriginal) * 100;
     return Math.round(descuento);
   };
 
   const handleAgregarAlCarrito = () => {
-    if (!productoSeleccionado) return;
-    const talla = tallaSeleccionada || 'Única';
-    agregarAlCarrito(productoSeleccionado, talla, colorSeleccionado || undefined, cantidadSeleccionada);
-    setProductoSeleccionado(null);
+    if (!productoSeleccionado || !tallaSeleccionada) return;
+    agregarAlCarrito(productoSeleccionado, tallaSeleccionada, colorSeleccionado, cantidadSeleccionada);
+    setMostrarModalLoginCarrito(true);
   };
 
-  
-
-  const handleToggleFavorito = (productoId: number) => {
-    toggleFavorito(productoId);
+  const handleComprarAhora = () => {
+    if (!productoSeleccionado || !tallaSeleccionada) return;
+    agregarAlCarrito(productoSeleccionado, tallaSeleccionada, colorSeleccionado, cantidadSeleccionada);
+    setMostrarModalLoginCarrito(true);
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white flex flex-col">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
-            <div className="flex items-center">
+            <div className="flex items-center gap-2">
               <button
-                className="lg:hidden mr-4 p-2 hover:bg-gray-100 rounded-lg"
-                onClick={() =>
-                  setMenuMovilAbierto(!menuMovilAbierto)
-                }
+                className="lg:hidden mr-2 p-2 hover:bg-gray-100 rounded-lg"
+                onClick={() => setMenuMovilAbierto(!menuMovilAbierto)}
               >
                 {menuMovilAbierto ? (
                   <X className="w-6 h-6" />
@@ -314,22 +369,22 @@ export const LandingView: React.FC<LandingViewProps> = ({
                   <Menu className="w-6 h-6" />
                 )}
               </button>
-              <h1
-                style={{
-                  fontFamily: "Playfair Display, serif",
-                }}
-                className="text-3xl text-gray-900"
+              <button
+                onClick={() => setCategoriaActiva("mujer")}
+                className="flex items-center justify-center hover:opacity-75 transition-opacity"
+                title="Selenne Boutique — Inicio"
               >
-                Selenne{" "}
-                <span className="text-[#d65391]">Boutique</span>
-              </h1>
+                <span className="text-2xl font-bold tracking-wide text-black" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
+                  Selenne Boutique
+                </span>
+              </button>
             </div>
 
             {/* Navegación Desktop */}
             <nav className="hidden lg:flex items-center space-x-8">
               <button
                 onClick={() => setCategoriaActiva("mujer")}
-                style={{ fontFamily: "Inter, sans-serif" }}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className={`py-2 px-1 border-b-2 transition-colors ${
                   categoriaActiva === "mujer"
                     ? "border-[#d65391] text-[#d65391]"
@@ -340,7 +395,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
               </button>
               <button
                 onClick={() => setCategoriaActiva("accesorios")}
-                style={{ fontFamily: "Inter, sans-serif" }}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className={`py-2 px-1 border-b-2 transition-colors ${
                   categoriaActiva === "accesorios"
                     ? "border-[#d65391] text-[#d65391]"
@@ -351,7 +406,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
               </button>
               <button
                 onClick={() => setCategoriaActiva("sale")}
-                style={{ fontFamily: "Inter, sans-serif" }}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className={`py-2 px-1 border-b-2 transition-colors ${
                   categoriaActiva === "sale"
                     ? "border-[#d65391] text-[#d65391]"
@@ -363,42 +418,131 @@ export const LandingView: React.FC<LandingViewProps> = ({
             </nav>
 
             {/* Acciones */}
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onNavigateToLogin}
+                className="hidden md:flex items-center gap-1 text-gray-700 hover:text-[#d65391]"
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+              >
+                <LogIn className="w-4 h-4" />
+                Iniciar Sesión
+              </Button>
+              <Button
+                size="sm"
+                onClick={onNavigateToRegister}
+                className="hidden md:flex bg-[#d65391] hover:bg-[#c04380] text-white"
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+              >
+                Registrarse
+              </Button>
               <button
-                onClick={() => setMostrarModalLoginPerfil(true)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                onClick={() => onNavigateToLogin()}
+                className="md:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
               >
                 <User className="w-6 h-6 text-gray-700" />
               </button>
-              <Sheet>
+              <Sheet open={busquedaModalAbierta} onOpenChange={v => { setBusquedaModalAbierta(v); if (!v) setBusquedaModal(''); }}>
+                <SheetTrigger asChild>
+                  <button
+                    onClick={() => setBusquedaModal('')}
+                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                    title="Buscar"
+                  >
+                    <Search className="w-6 h-6 text-gray-700" />
+                  </button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-full sm:max-w-md flex flex-col p-0">
+                  <SheetHeader className="px-4 py-3 border-b border-gray-100">
+                    <SheetTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Buscar</SheetTitle>
+                  </SheetHeader>
+                  <div className="mt-0 flex flex-col gap-0 flex-1 overflow-hidden">
+                    <div className="flex items-center gap-2 border-b border-gray-200 px-4 py-3">
+                      <Search className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                      <input
+                        autoFocus
+                        type="text"
+                        value={busquedaModal}
+                        onChange={e => setBusquedaModal(e.target.value)}
+                        placeholder="Buscar productos..."
+                        className="flex-1 text-sm outline-none text-gray-900 placeholder-gray-400"
+                        style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                      />
+                      {busquedaModal && (
+                        <button onClick={() => setBusquedaModal('')} className="text-gray-400 hover:text-gray-600">
+                          <X className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                    <div className="overflow-y-auto flex-1">
+                      {busquedaModal.trim() === '' ? (
+                        <p className="text-center text-sm text-gray-400 py-10">Empieza a escribir para buscar productos</p>
+                      ) : (() => {
+                        const resultados = productosData.filter(p =>
+                          p.nombre.toLowerCase().includes(busquedaModal.toLowerCase()) ||
+                          (p.descripcion || '').toLowerCase().includes(busquedaModal.toLowerCase())
+                        );
+                        return resultados.length === 0 ? (
+                          <p className="text-center text-sm text-gray-400 py-10">Sin resultados para "{busquedaModal}"</p>
+                        ) : (
+                          <div>
+                            {resultados.map(p => (
+                              <button key={p.id} type="button"
+                                onClick={() => {
+                                  setProductoSeleccionado(p);
+                                  setTallaSeleccionada(p.tallas[0] || '');
+                                  setColorSeleccionado(p.colores?.[0] || '');
+                                  setCantidadSeleccionada(1);
+                                  setImagenActual(0);
+                                  setBusquedaModalAbierta(false);
+                                }}
+                                className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0"
+                              >
+                                <img src={p.imagen} alt={p.nombre} className="w-14 h-14 object-cover flex-shrink-0" />
+                                <div className="flex-1 text-left min-w-0">
+                                  <p className="text-sm font-medium text-gray-900 truncate" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>{p.nombre}</p>
+                                  {p.descripcion && <p className="text-xs text-gray-400 truncate mt-0.5">{p.descripcion}</p>}
+                                  <p className="text-sm font-bold text-gray-900 mt-0.5">{formatPrecio(p.precio)}</p>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  </div>
+                </SheetContent>
+              </Sheet>
+              <Sheet open={favoritosOpen} onOpenChange={setFavoritosOpen}>
                 <SheetTrigger asChild>
                   <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors relative">
                     <Heart className="w-6 h-6 text-gray-700" />
-                    {favoritos.length > 0 && (
+                    {favoritosValidos.length > 0 && (
                       <span className="absolute -top-1 -right-1 bg-[#d65391] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                        {favoritos.length}
+                        {favoritosValidos.length}
                       </span>
                     )}
                   </button>
                 </SheetTrigger>
                 <SheetContent>
                   <SheetHeader>
-                    <SheetTitle style={{ fontFamily: 'Playfair Display, serif' }}>
+                    <SheetTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                       Favoritos
                     </SheetTitle>
                   </SheetHeader>
                   <div className="mt-6">
-                    {favoritos.length === 0 ? (
+                    {favoritosValidos.length === 0 ? (
                       <div className="text-center py-12">
                         <Heart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                         <p className="text-gray-500 mb-4">No tienes productos en favoritos</p>
-                        <Button onClick={() => setMenuMovilAbierto(false)} className="w-full bg-[#d65391] text-white">
+                        <Button onClick={() => setFavoritosOpen(false)} className="w-full bg-[#d65391] text-white">
                           Seguir comprando
                         </Button>
                       </div>
                     ) : (
                       <div className="space-y-4">
-                        {favoritos.map((id) => {
+                        {favoritosValidos.map((id) => {
                           const prod = productosData.find(p => p.id === id);
                           if (!prod) return null;
                           return (
@@ -406,11 +550,22 @@ export const LandingView: React.FC<LandingViewProps> = ({
                               <img src={prod.imagen} alt={prod.nombre} className="w-16 h-16 object-cover rounded" />
                               <div className="flex-1">
                                 <div className="flex justify-between items-center">
-                                  <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium">{prod.nombre}</span>
+                                  <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium">{prod.nombre}</span>
                                   <span className="text-sm text-gray-600">{formatPrecio(prod.precio)}</span>
                                 </div>
                                 <div className="mt-2 flex gap-2">
-                                  <Button size="sm" onClick={() => { setProductoSeleccionado(prod); setTallaSeleccionada(prod.tallas?.[0] || 'Única'); setColorSeleccionado(prod.colores?.[0] || ''); }}>
+                                  <Button size="sm" onClick={() => {
+                                    setProductoSeleccionado(prod);
+                                    const colorInicial = prod.colores?.[0] || '';
+                                    const primeraDisponible = prod.tallas?.find((t: string) => {
+                                      if (!(prod as any).variantes?.length) return true;
+                                      const v = (prod as any).variantes.find((x: any) => x.tallaNombre === t && (!colorInicial || x.colorNombre === colorInicial));
+                                      return v ? v.stock > 0 : true;
+                                    });
+                                    setTallaSeleccionada(primeraDisponible || prod.tallas?.[0] || 'Única');
+                                    setColorSeleccionado(colorInicial);
+                                    setFavoritosOpen(false);
+                                  }}>
                                     Ver
                                   </Button>
                                   <Button size="sm" variant="outline" onClick={() => toggleFavorito(prod.id)}>
@@ -426,7 +581,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                   </div>
                 </SheetContent>
               </Sheet>
-              <Sheet>
+              <Sheet open={carritoAbierto} onOpenChange={setCarritoAbierto}>
                 <SheetTrigger asChild>
                   <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors relative">
                     <ShoppingBag className="w-6 h-6 text-gray-700" />
@@ -439,67 +594,112 @@ export const LandingView: React.FC<LandingViewProps> = ({
                 </SheetTrigger>
                 <SheetContent>
                   <SheetHeader>
-                    <SheetTitle
-                      style={{
-                        fontFamily: "Playfair Display, serif",
-                      }}
-                    >
+                    <SheetTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                       Carrito de Compras
                     </SheetTitle>
                   </SheetHeader>
-                  <div className="mt-6 space-y-4">
+                  <div className="mt-8 space-y-4">
                     {carritoItems.length === 0 ? (
                       <div className="text-center py-12">
                         <ShoppingCart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                        <p className="text-gray-500 mb-4">Tu carrito está vacío</p>
-                        <Button onClick={() => setMenuMovilAbierto(false)} className="w-full bg-[#d65391] text-white">
-                          Seguir comprando
-                        </Button>
+                        <p className="text-gray-500">Tu carrito está vacío</p>
                       </div>
                     ) : (
-                      <div className="space-y-4">
-                        {carritoItems.map((item) => (
-                          <div 
-                            key={`${item.id}-${item.tallaSeleccionada}`} 
-                            className="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
-                            onClick={() => { 
-                              setProductoSeleccionado(item); 
-                              setTallaSeleccionada(item.tallaSeleccionada); 
-                              setColorSeleccionado(item.colorSeleccionado || ''); 
-                              setCantidadSeleccionada(item.cantidad); 
-                              setImagenActual(0); 
-                            }}
-                          >
-                            <img src={item.imagen} alt={item.nombre} className="w-16 h-16 object-cover rounded" />
-                            <div className="flex-1">
-                              <div className="flex justify-between items-center">
-                                <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-medium">{item.nombre}</span>
-                                <span className="text-sm text-gray-600">{formatPrecio(item.precio)}</span>
-                              </div>
-                              <div className="text-xs text-gray-500 mt-1">
-                                Talla: {item.tallaSeleccionada} {item.colorSeleccionado && `| Color: ${item.colorSeleccionado}`}
-                              </div>
-                              <div className="mt-2 flex items-center gap-2">
-                                <button onClick={(e: React.MouseEvent) => { e.stopPropagation(); actualizarCantidad(item.id, item.cantidad - 1); }} className="px-2 py-1 border rounded">-</button>
-                                <span className="px-2">{item.cantidad}</span>
-                                <button onClick={(e: React.MouseEvent) => { e.stopPropagation(); actualizarCantidad(item.id, item.cantidad + 1); }} className="px-2 py-1 border rounded">+</button>
-                                <Button variant="outline" className="ml-4 text-xs" onClick={(e: React.MouseEvent) => { e.stopPropagation(); removerDelCarrito(item.id); }}>Eliminar</Button>
+                      <>
+                        <div className="space-y-4">
+                          {carritoItems.map((item) => (
+                            <div
+                              key={`${item.carritoID}`}
+                              className="flex gap-4 bg-gray-50 p-3 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
+                              onClick={() => {
+                                const fullProduct = productosData.find(p => p.id === item.id);
+                                setProductoSeleccionado(fullProduct || item);
+                                setTallaSeleccionada(item.tallaSeleccionada);
+                                setColorSeleccionado(item.colorSeleccionado || "");
+                                setCantidadSeleccionada(item.cantidad);
+                                setImagenActual(0);
+                              }}
+                            >
+                              <img
+                                src={item.imagen}
+                                alt={item.nombre}
+                                className="w-20 h-20 object-cover rounded"
+                              />
+                              <div className="flex-1">
+                                <h4 className="text-sm text-gray-900">{item.nombre}</h4>
+                                <p className="text-xs text-gray-500">
+                                  Talla: {item.tallaSeleccionada}
+                                  {item.colorSeleccionado && ` | Color: ${item.colorSeleccionado}`}
+                                </p>
+                                <p className="text-sm text-[#d65391] mt-1">
+                                  {formatPrecio(item.precio)}
+                                </p>
+                                <div className="flex items-center gap-2 mt-2">
+                                  <button
+                                    onClick={(e: React.MouseEvent) => {
+                                      e.stopPropagation();
+                                      actualizarCantidad(item.carritoID, item.cantidad - 1);
+                                    }}
+                                    className="p-1 hover:bg-gray-200 rounded"
+                                  >
+                                    <Minus className="w-3 h-3" />
+                                  </button>
+                                  <span className="text-sm">{item.cantidad}</span>
+                                  <button
+                                    onClick={(e: React.MouseEvent) => {
+                                      e.stopPropagation();
+                                      actualizarCantidad(item.carritoID, item.cantidad + 1);
+                                    }}
+                                    className="p-1 hover:bg-gray-200 rounded"
+                                  >
+                                    <Plus className="w-3 h-3" />
+                                  </button>
+                                  <button
+                                    onClick={(e: React.MouseEvent) => {
+                                      e.stopPropagation();
+                                      removerDelCarrito(item.carritoID);
+                                    }}
+                                    className="ml-auto text-xs text-red-500 hover:text-red-700"
+                                  >
+                                    Eliminar
+                                  </button>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        ))}
-
-                        <div className="pt-4">
-                          <div className="flex justify-between items-center mb-3">
-                            <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-700">Total:</span>
-                            <span className="text-lg font-semibold">{formatPrecio(carritoItems.reduce((s, it) => s + it.precio * it.cantidad, 0))}</span>
-                          </div>
-                          <p className="text-xs text-gray-500 mb-4 text-center">*IVA incluido en el precio</p>
-                          <Button className="w-full bg-[#d65391] text-white" onClick={() => onNavigateToCheckout ? onNavigateToCheckout() : onNavigateToLogin()}>
-                            <ShoppingBag className="w-4 h-4 mr-2" />Ir a Pagar
-                          </Button>
+                          ))}
                         </div>
-                      </div>
+                        <Separator />
+                        <div className="space-y-2">
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Subtotal:</span>
+                            <span className="text-gray-900">{formatPrecio(getTotalCarrito())}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Envío:</span>
+                            <span className="text-gray-900">Gratis</span>
+                          </div>
+                          <Separator />
+                          <div className="flex justify-between">
+                            <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-lg text-gray-900">
+                              Total:
+                            </span>
+                            <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-lg text-[#d65391]">
+                              {formatPrecio(getTotalCarrito())}
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-500 mt-3 text-center">*IVA incluido en el precio</p>
+                        </div>
+                        <Button
+                          onClick={() => {
+                            setCarritoAbierto(false);
+                            setMostrarModalLoginCarrito(true);
+                          }}
+                          className="w-full bg-black hover:bg-gray-800 text-white h-11"
+                          style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                        >
+                          Proceder al Pago
+                        </Button>
+                      </>
                     )}
                   </div>
                 </SheetContent>
@@ -511,43 +711,28 @@ export const LandingView: React.FC<LandingViewProps> = ({
           {menuMovilAbierto && (
             <nav className="lg:hidden py-4 space-y-2 border-t border-gray-200">
               <button
-                onClick={() => {
-                  setCategoriaActiva("mujer");
-                  setMenuMovilAbierto(false);
-                }}
-                style={{ fontFamily: "Inter, sans-serif" }}
+                onClick={() => { setCategoriaActiva("mujer"); setMenuMovilAbierto(false); }}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className={`block w-full text-left px-4 py-2 rounded-lg ${
-                  categoriaActiva === "mujer"
-                    ? "bg-[#f8a9c5] text-white"
-                    : "text-gray-700 hover:bg-gray-100"
+                  categoriaActiva === "mujer" ? "bg-[#f8a9c5] text-white" : "text-gray-700 hover:bg-gray-100"
                 }`}
               >
                 Mujer
               </button>
               <button
-                onClick={() => {
-                  setCategoriaActiva("accesorios");
-                  setMenuMovilAbierto(false);
-                }}
-                style={{ fontFamily: "Inter, sans-serif" }}
+                onClick={() => { setCategoriaActiva("accesorios"); setMenuMovilAbierto(false); }}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className={`block w-full text-left px-4 py-2 rounded-lg ${
-                  categoriaActiva === "accesorios"
-                    ? "bg-[#f8a9c5] text-white"
-                    : "text-gray-700 hover:bg-gray-100"
+                  categoriaActiva === "accesorios" ? "bg-[#f8a9c5] text-white" : "text-gray-700 hover:bg-gray-100"
                 }`}
               >
                 Accesorios
               </button>
               <button
-                onClick={() => {
-                  setCategoriaActiva("sale");
-                  setMenuMovilAbierto(false);
-                }}
-                style={{ fontFamily: "Inter, sans-serif" }}
+                onClick={() => { setCategoriaActiva("sale"); setMenuMovilAbierto(false); }}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className={`block w-full text-left px-4 py-2 rounded-lg ${
-                  categoriaActiva === "sale"
-                    ? "bg-[#f8a9c5] text-white"
-                    : "text-gray-700 hover:bg-gray-100"
+                  categoriaActiva === "sale" ? "bg-[#f8a9c5] text-white" : "text-gray-700 hover:bg-gray-100"
                 }`}
               >
                 Sale
@@ -555,7 +740,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
               <Separator className="my-4" />
               <Button
                 variant="default"
-                className="w-full"
+                className="w-full bg-[#d65391] hover:bg-[#c04380]"
                 onClick={onNavigateToLogin}
               >
                 <LogIn className="w-4 h-4 mr-2" />
@@ -573,649 +758,565 @@ export const LandingView: React.FC<LandingViewProps> = ({
         </div>
       </header>
 
-      {/* Barra de Búsqueda y Filtros */}
-      <div className="bg-gray-50 border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
-          {/* Búsqueda */}
-          <div className="relative w-full mb-2">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <Input
-              type="text"
-              placeholder="Buscar productos..."
-              value={busqueda}
-              onChange={(e) => setBusqueda(e.target.value)}
-              className="pl-10 bg-white w-full"
-              style={{ fontFamily: "Inter, sans-serif" }}
-            />
-          </div>
-          
-          {/* Filtros principales - Horizontal compacto */}
-          <div className="flex gap-3 items-center justify-between w-full">
-            {/* Tipo de Producto */}
-            <Select value={filtroTipoProducto || "all"} onValueChange={setFiltroTipoProducto}>
-              <SelectTrigger className="flex-1 bg-white px-3 py-1 h-9 text-sm">
-                <SelectValue placeholder="Todos" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos</SelectItem>
-                {tiposProductoDisponibles.map((tipo) => (
-                  <SelectItem key={tipo} value={tipo}>{tipo}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            {/* Categoría de Ropa */}
-            <Select value={filtroCategoriaRopa || "all"} onValueChange={setFiltroCategoriaRopa}>
-              <SelectTrigger className="flex-1 bg-white px-3 py-1 h-9 text-sm">
-                <SelectValue placeholder="Todos" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas</SelectItem>
-                {categoriasRopaDisponibles.map((cat) => (
-                  <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            {/* Rango de Precio */}
-            <Input
-              type="number"
-              placeholder="Min"
-              value={filtroPrecioMin === null ? "" : filtroPrecioMin}
-              onChange={(e) => setFiltroPrecioMin(e.target.value === "" ? null : parseInt(e.target.value) || null)}
-              className="bg-white w-20 px-2 py-1 h-9 text-sm"
-            />
-            <Input
-              type="number"
-              placeholder="Máx"
-              value={filtroPrecioMax === null ? "" : filtroPrecioMax}
-              onChange={(e) => setFiltroPrecioMax(e.target.value === "" ? null : parseInt(e.target.value) || null)}
-              className="bg-white w-20 px-2 py-1 h-9 text-sm"
-            />
-
-            {/* Talla */}
-            <Select value={filtroTalla || "all"} onValueChange={setFiltroTalla}>
-              <SelectTrigger className="flex-1 bg-white px-3 py-1 h-9 text-sm">
-                <SelectValue placeholder="Todas" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas</SelectItem>
-                {tallasDisponibles.map((t) => (
-                  <SelectItem key={t} value={t}>{t}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            {/* Ordenar por */}
-            <Select value={ordenar} onValueChange={setOrdenar}>
-              <SelectTrigger className="flex-1 bg-white px-3 py-1 h-9 text-sm">
-                <SelectValue placeholder="Destacados" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="destacados">Destacados</SelectItem>
-                <SelectItem value="precio-menor">Precio: Menor a Mayor</SelectItem>
-                <SelectItem value="precio-mayor">Precio: Mayor a Menor</SelectItem>
-                <SelectItem value="nombre">Nombre A-Z</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-      </div>
-
-      {/* Banner de Categoría */}
-      <div className="bg-gradient-to-r from-[#d65391] to-[#f8a9c5] text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2
-            style={{ fontFamily: "Playfair Display, serif" }}
-            className="text-4xl md:text-5xl mb-2"
-          >
-            {categoriaActiva === "mujer" && "Colección Mujer"}
-            {categoriaActiva === "accesorios" && "Accesorios"}
-            {categoriaActiva === "sale" && "Sale"}
-          </h2>
-          <p
-            style={{ fontFamily: "Inter, sans-serif" }}
-            className="text-lg opacity-90"
-          >
-            {categoriaActiva === "mujer" &&
-              "Descubre nuestra elegante colección de ropa femenina"}
-            {categoriaActiva === "accesorios" &&
-              "Complementa tu look con nuestros accesorios exclusivos"}
-            {categoriaActiva === "sale" &&
-              "Productos seleccionados con descuentos especiales"}
-          </p>
-        </div>
-      </div>
-
-      {/* Grid de Productos */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div className="mb-4 flex justify-between items-center">
-          <p
-            style={{ fontFamily: "Inter, sans-serif" }}
-            className="text-gray-600"
-          >
-            {productosFiltrados.length} productos encontrados
-          </p>
+      <div className="flex-1 flex flex-col">
+        {/* Banner de categoría */}
+        <div className="w-full">
+          <img
+            src={
+              categoriaActiva === "mujer"
+                ? "/banners/banner-mujer.png"
+                : categoriaActiva === "accesorios"
+                ? "/banners/banner-accesorios.png"
+                : "/banners/banner-sale.png"
+            }
+            alt={categoriaActiva}
+            className="w-full h-auto block"
+          />
         </div>
 
-        {productosFiltrados.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-500 text-lg">
-              No se encontraron productos
-            </p>
+        {/* Barra de Búsqueda y Filtros */}
+        <div className="bg-white border-b border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div className="flex items-center justify-between gap-3">
+              <Select value={ordenar} onValueChange={setOrdenar}>
+                <SelectTrigger className="w-52 bg-white h-9 text-sm" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="destacados">Ordenar: Destacados</SelectItem>
+                  <SelectItem value="precio-menor">Precio: Menor a Mayor</SelectItem>
+                  <SelectItem value="precio-mayor">Precio: Mayor a Menor</SelectItem>
+                  <SelectItem value="nombre">Nombre A-Z</SelectItem>
+                </SelectContent>
+              </Select>
+              <button onClick={abrirFiltros}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:border-gray-900 transition-colors">
+                <SlidersHorizontal className="w-4 h-4" />
+                FILTROS
+                {contadorFiltros > 0 && (
+                  <span className="bg-black text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">{contadorFiltros}</span>
+                )}
+              </button>
+            </div>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {productosFiltrados.map((producto) => (
-              <div
-                key={producto.id}
-                className="bg-white rounded-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow duration-300 group"
-              >
-                <div className="relative overflow-hidden">
-                  <img
-                    src={producto.imagen}
-                    alt={producto.nombre}
-                    className="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  {producto.badge && (
-                    <Badge
-                      className={`absolute top-3 left-3 ${
-                        producto.badge === "Sale"
-                          ? "bg-red-500 hover:bg-red-600"
-                          : "bg-[#d65391] hover:bg-[#d65391]"
-                      }`}
-                    >
-                      {producto.badge}
-                    </Badge>
-                  )}
-                  {producto.precioOriginal && (
-                    <Badge className="absolute top-3 right-3 bg-black hover:bg-black text-white">
-                      -
-                      {calcularDescuento(
-                        producto.precio,
-                        producto.precioOriginal,
-                      )}
-                      %
-                    </Badge>
-                  )}
-                  {producto.nuevo && (
-                    <Badge className="absolute top-3 right-3 bg-green-500 hover:bg-green-600">
-                      Nuevo
-                    </Badge>
-                  )}
-                  <button
-                    onClick={() => handleToggleFavorito(producto.id)}
-                    className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-md hover:bg-gray-100 transition-colors"
-                  >
-                    <Heart
-                      className={`w-5 h-5 ${
-                        esFavorito(producto.id)
-                          ? "fill-[#d65391] text-[#d65391]"
-                          : "text-gray-600"
-                      }`}
-                    />
+        </div>
+
+        {/* Panel de Filtros */}
+        {filtrosAbiertos && (
+          <>
+            <div className="fixed inset-0 bg-black/40 z-40" onClick={() => setFiltrosAbiertos(false)} />
+            <div className="fixed right-0 top-0 h-full w-80 bg-white z-50 flex flex-col shadow-2xl" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+              {/* Header */}
+              <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+                <span className="text-xs font-bold tracking-widest text-gray-900">APLICAR FILTROS</span>
+                <button onClick={() => setFiltrosAbiertos(false)} className="flex items-center gap-1 text-xs font-bold tracking-widest text-gray-900 hover:text-gray-600">
+                  CERCA <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto">
+                {/* PRECIO */}
+                <div className="px-5 py-4 border-b border-gray-100">
+                  <button onClick={() => setSeccionesAbiertas(s => ({ ...s, precio: !s.precio }))}
+                    className="w-full flex items-center justify-between mb-3">
+                    <span className="text-xs font-bold tracking-widest text-gray-900">PRECIO</span>
+                    <ChevronUp className={`w-4 h-4 text-gray-500 transition-transform ${seccionesAbiertas.precio ? '' : 'rotate-180'}`} />
                   </button>
+                  {seccionesAbiertas.precio && (
+                    <>
+                      <div ref={rangeContainerRef} className="relative h-6 mb-4 cursor-pointer touch-none select-none"
+                        onPointerDown={handleRangePointerDown}
+                        onPointerMove={handleRangePointerMove}
+                        onPointerUp={handleRangePointerUp}>
+                        <div className="absolute top-1/2 -translate-y-1/2 w-full h-[2px] bg-gray-200 rounded-full">
+                          <div className="absolute h-full bg-black rounded-full"
+                            style={{ left: `${(precioMinLocal / maxPrecioGlobal) * 100}%`, width: `${((precioMaxLocal - precioMinLocal) / maxPrecioGlobal) * 100}%` }} />
+                        </div>
+                        <div className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-black rounded-full border-2 border-white shadow pointer-events-none"
+                          style={{ left: `calc(${(precioMinLocal / maxPrecioGlobal) * 100}% - 8px)` }} />
+                        <div className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-black rounded-full border-2 border-white shadow pointer-events-none"
+                          style={{ left: `calc(${(precioMaxLocal / maxPrecioGlobal) * 100}% - 8px)` }} />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 border border-gray-200 rounded px-3 py-2 text-sm text-gray-700">
+                          {formatCurrency(precioMinLocal)}
+                        </div>
+                        <span className="text-gray-400">—</span>
+                        <div className="flex-1 border border-gray-200 rounded px-3 py-2 text-sm text-gray-700">
+                          {formatCurrency(precioMaxLocal)}
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
-                <div className="p-4">
-                  <div className="flex items-center mb-2">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`w-4 h-4 ${
-                          i < Math.floor(producto.rating)
-                            ? "fill-yellow-400 text-yellow-400"
-                            : "text-gray-300"
-                        }`}
-                      />
-                    ))}
-                    <span className="text-xs text-gray-500 ml-2">
-                      {producto.rating}
-                    </span>
-                  </div>
-                  <h3
-                    style={{ fontFamily: "Inter, sans-serif" }}
-                    className="text-gray-900 mb-2 h-12 line-clamp-2"
-                  >
-                    {producto.nombre}
-                  </h3>
-                  <div className="flex items-center gap-2 mb-3">
-                    {producto.precioOriginal ? (
-                      <>
-                        <span
-                          style={{
-                            fontFamily:
-                              "Playfair Display, serif",
-                          }}
-                          className="text-xl text-[#d65391]"
-                        >
-                          {formatPrecio(producto.precio)}
-                        </span>
-                        <span className="text-sm text-gray-400 line-through">
-                          {formatPrecio(
-                            producto.precioOriginal,
-                          )}
-                        </span>
-                      </>
-                    ) : (
-                      <span
-                        style={{
-                          fontFamily: "Playfair Display, serif",
-                        }}
-                        className="text-xl text-gray-900"
-                      >
-                        {formatPrecio(producto.precio)}
-                      </span>
+
+                {/* TALLA */}
+                {tallasDisponibles.length > 0 && (
+                  <div className="px-5 py-4 border-b border-gray-100">
+                    <button onClick={() => setSeccionesAbiertas(s => ({ ...s, talla: !s.talla }))}
+                      className="w-full flex items-center justify-between mb-3">
+                      <span className="text-xs font-bold tracking-widest text-gray-900">TALLA</span>
+                      <ChevronUp className={`w-4 h-4 text-gray-500 transition-transform ${seccionesAbiertas.talla ? '' : 'rotate-180'}`} />
+                    </button>
+                    {seccionesAbiertas.talla && (
+                      <div className="flex flex-wrap gap-2">
+                        {tallasDisponibles.map(t => (
+                          <button key={t} onClick={() => setTallaLocal(tallaLocal.includes(t) ? tallaLocal.filter(x => x !== t) : [...tallaLocal, t])}
+                            className={`px-3 py-1.5 text-sm border rounded transition-colors ${tallaLocal.includes(t) ? 'border-black bg-black text-white' : 'border-gray-300 text-gray-700 hover:border-gray-900'}`}>
+                            {t}
+                          </button>
+                        ))}
+                      </div>
                     )}
                   </div>
-                  <div className="flex gap-1 mb-3 flex-wrap">
-                    {producto.tallas.map((talla) => (
-                      <span
-                        key={talla}
-                        className="px-2 py-1 text-xs border border-gray-300 rounded"
-                      >
-                        {talla}
-                      </span>
-                    ))}
+                )}
+
+                {/* TIPO DE PRODUCTO */}
+                {tiposProductoDisponibles.length > 0 && (
+                  <div className="px-5 py-4 border-b border-gray-100">
+                    <button onClick={() => setSeccionesAbiertas(s => ({ ...s, tipo: !s.tipo }))}
+                      className="w-full flex items-center justify-between mb-3">
+                      <span className="text-xs font-bold tracking-widest text-gray-900">TIPO DE PRODUCTO</span>
+                      <ChevronUp className={`w-4 h-4 text-gray-500 transition-transform ${seccionesAbiertas.tipo ? '' : 'rotate-180'}`} />
+                    </button>
+                    {seccionesAbiertas.tipo && (
+                      <div className="flex flex-wrap gap-2">
+                        {tiposProductoDisponibles.map(t => (
+                          <button key={t} onClick={() => setTipoLocal(tipoLocal === t ? '' : t)}
+                            className={`px-3 py-1.5 text-sm border rounded transition-colors ${tipoLocal === t ? 'border-black bg-black text-white' : 'border-gray-300 text-gray-700 hover:border-gray-900'}`}>
+                            {t}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                  <div className="flex gap-2">
-                    <Button
+                )}
+
+                {/* CATEGORÍA */}
+                {categoriasRopaDisponibles.length > 0 && (
+                  <div className="px-5 py-4 border-b border-gray-100">
+                    <button onClick={() => setSeccionesAbiertas(s => ({ ...s, categoria: !s.categoria }))}
+                      className="w-full flex items-center justify-between mb-3">
+                      <span className="text-xs font-bold tracking-widest text-gray-900">CATEGORÍA</span>
+                      <ChevronUp className={`w-4 h-4 text-gray-500 transition-transform ${seccionesAbiertas.categoria ? '' : 'rotate-180'}`} />
+                    </button>
+                    {seccionesAbiertas.categoria && (
+                      <div className="flex flex-wrap gap-2">
+                        {categoriasRopaDisponibles.map(c => (
+                          <button key={c} onClick={() => setCategoriaLocal(categoriaLocal === c ? '' : c)}
+                            className={`px-3 py-1.5 text-sm border rounded transition-colors ${categoriaLocal === c ? 'border-black bg-black text-white' : 'border-gray-300 text-gray-700 hover:border-gray-900'}`}>
+                            {c}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Limpiar filtros */}
+                {(tallaLocal.length > 0 || tipoLocal || categoriaLocal || precioMinLocal > 0 || precioMaxLocal < maxPrecioGlobal) && (
+                  <button onClick={limpiarFiltros} className="w-full px-5 py-3 text-xs text-gray-500 hover:text-gray-900 underline transition-colors">
+                    Limpiar filtros
+                  </button>
+                )}
+              </div>
+
+              {/* Footer */}
+              <div className="px-5 py-4 border-t border-gray-100">
+                <button onClick={aplicarFiltros}
+                  className="w-full bg-black text-white py-3 text-xs font-bold tracking-widest hover:bg-gray-800 transition-colors">
+                  MOSTRAR ARTÍCULOS
+                </button>
+              </div>
+            </div>
+          </>
+        )}
+
+
+        {/* Grid de Productos */}
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="mb-4 flex justify-between items-center">
+            <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-600">
+              {productosFiltrados.length} productos encontrados
+            </p>
+          </div>
+
+          {productosFiltrados.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-gray-500 text-lg">No se encontraron productos</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {productosPaginaLanding.map((producto) => (
+                <div key={producto.id} className="bg-white overflow-hidden group">
+                  <div className="relative overflow-hidden">
+                    <img
+                      src={producto.imagen}
+                      alt={producto.nombre}
+                      className="w-full h-96 object-cover group-hover:scale-105 transition-transform duration-500 will-change-transform"
+                    />
+                    {producto.badge && (
+                      <Badge
+                        className={`absolute top-3 left-3 ${
+                          producto.badge === "Sale"
+                            ? "bg-red-500 hover:bg-red-600"
+                            : "bg-[#d65391] hover:bg-[#d65391]"
+                        }`}
+                      >
+                        {producto.badge}
+                      </Badge>
+                    )}
+                    <button
                       onClick={() => {
                         setProductoSeleccionado(producto);
-                        setTallaSeleccionada(
-                          producto.tallas?.[0] || 'Única',
-                        );
-                        setColorSeleccionado(
-                          producto.colores?.[0] || "",
-                        );
+                        const colorIni = (producto as any).colores?.[0] || '';
+                        const tallasP: string[] = (producto as any).tallas || [];
+                        const variantesP: any[] = (producto as any).variantes || [];
+                        const tallaIni = tallasP.find((t: string) => {
+                          if (!variantesP.length) return true;
+                          const v = variantesP.find((x: any) => x.tallaNombre === t && (!colorIni || x.colorNombre === colorIni));
+                          return v ? v.stock > 0 : true;
+                        });
+                        setTallaSeleccionada(tallaIni || tallasP[0] || 'Única');
+                        setColorSeleccionado(colorIni);
                         setCantidadSeleccionada(1);
                         setImagenActual(0);
                       }}
-                      className="flex-1 bg-black hover:bg-gray-800 text-white h-11"
-                      style={{
-                        fontFamily: "Inter, sans-serif",
-                      }}
+                      style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                      className="absolute top-3 right-3 bg-white/90 hover:bg-white text-gray-900 text-xs font-bold tracking-widest px-3 py-1.5 transition-colors"
                     >
-                      Ver Detalles
-                    </Button>
+                      DETALLE
+                    </button>
+                    <button
+                      onClick={() => toggleFavorito(producto.id)}
+                      className="absolute bottom-3 right-3 p-2 bg-white rounded-full shadow-md hover:bg-gray-100 transition-colors"
+                    >
+                      <Heart className={`w-5 h-5 ${esFavorito(producto.id) ? "fill-[#d65391] text-[#d65391]" : "text-gray-600"}`} />
+                    </button>
+                    {(producto as any).agotado && (
+                      <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+                        <span className="bg-white text-gray-800 text-xs font-bold px-3 py-1 rounded-full shadow">Agotado</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="pt-3 pb-4 px-1">
+                    <h3
+                      style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                      className="text-gray-900 text-sm font-semibold uppercase tracking-wide mb-1 line-clamp-2"
+                    >
+                      {producto.nombre}
+                    </h3>
+                    <div className="flex items-center gap-2">
+                      {producto.precioOriginal ? (
+                        <>
+                          <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-[#d65391]">
+                            {formatPrecio(producto.precio)}
+                          </span>
+                          <span className="text-sm text-gray-400 line-through">
+                            {formatPrecio(producto.precioOriginal)}
+                          </span>
+                        </>
+                      ) : (
+                        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-900">
+                          {formatPrecio(producto.precio)}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </main>
+              ))}
+            </div>
+          )}
 
-      {/* Modal de Detalle del Producto */}
-      <Dialog
-        open={!!productoSeleccionado}
-        onOpenChange={() => setProductoSeleccionado(null)}
-      >
-        <DialogContent className="max-w-xl max-h-[90vh] overflow-hidden p-0 flex flex-col w-[95vw]">
+          {/* Paginación */}
+          {totalPaginasLanding > 1 && (
+            <div className="flex items-center justify-center gap-4 mt-8 mb-4">
+              <button
+                onClick={() => { setPaginaActual(p => p - 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                disabled={paginaActual === 1}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                className="px-5 py-2 text-sm border border-gray-300 rounded-lg hover:border-[#d65391] hover:text-[#d65391] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                ← Anterior
+              </button>
+              <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-600">
+                {paginaActual} / {totalPaginasLanding}
+              </span>
+              <button
+                onClick={() => { setPaginaActual(p => p + 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                disabled={paginaActual === totalPaginasLanding}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                className="px-5 py-2 text-sm border border-gray-300 rounded-lg hover:border-[#d65391] hover:text-[#d65391] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                Siguiente →
+              </button>
+            </div>
+          )}
+        </main>
+      </div>
+
+      {/* Modal Detalle Producto */}
+      <Dialog open={!!productoSeleccionado} onOpenChange={() => setProductoSeleccionado(null)}>
+        <DialogContent className="max-w-4xl p-0 overflow-hidden" style={{ height: '85vh' }}>
           <DialogDescription className="sr-only">
             {productoSeleccionado?.nombre || "Detalle del Producto"}
           </DialogDescription>
-          <div className="overflow-y-auto flex-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-            {/* Encabezado Compacto */}
-            <div className="sticky top-0 bg-white border-b border-gray-200 px-3 py-2 flex items-center justify-between z-10">
-              <div>
-                <h1
-                  style={{ fontFamily: "Playfair Display, serif" }}
-                  className="text-lg font-bold text-gray-900"
-                >
-                  {productoSeleccionado?.nombre || "Detalle del Producto"}
-                </h1>
-                <p className="text-xs text-gray-500 mt-0.5">
-                  {productoSeleccionado?.codigo} • {productoSeleccionado?.marca}
-                </p>
-              </div>
-              <button
-                onClick={() => setProductoSeleccionado(null)}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-              >
-                <X className="w-6 h-6 text-gray-600" />
-              </button>
-            </div>
+          {productoSeleccionado && (() => {
+            const ps = productoSeleccionado as any;
+            const imagenesPorColor = productoSeleccionado.imagenesPorColor || {};
+            const imgsForColor = colorSeleccionado && imagenesPorColor[colorSeleccionado] && imagenesPorColor[colorSeleccionado].length > 0
+              ? imagenesPorColor[colorSeleccionado]
+              : (productoSeleccionado.imagenes && productoSeleccionado.imagenes.length > 0 ? productoSeleccionado.imagenes : [productoSeleccionado.imagen]);
+            return (
+              <div style={{ display: 'flex', height: '85vh', overflow: 'hidden' }}>
+                {/* LEFT: Image panel — all dimensions via inline style so nothing depends on Tailwind arbitrary classes */}
+                <div style={{ position: 'relative', width: '44%', minWidth: '44%', height: '85vh', overflow: 'hidden', flexShrink: 0, backgroundColor: '#f9fafb' }}>
+                  <ImageCarousel
+                    key={`${productoSeleccionado.id}-${colorSeleccionado || 'default'}`}
+                    imagenes={imgsForColor}
+                    nombre={productoSeleccionado.nombre}
+                    className="w-full h-full"
+                  />
+                </div>
 
-            {productoSeleccionado && (
-              <div className="px-3 py-3">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                  
-                  {/* SECCIÓN IZQUIERDA: Galería */}
-                  <div>
-                    <div className="sticky top-32">
-                      <div className="relative rounded-md overflow-hidden h-56 bg-gray-100 mb-2 flex items-center justify-center">
-                        {productoSeleccionado.badge && (
-                          <Badge
-                            className={`absolute top-3 right-3 z-10 ${
-                              productoSeleccionado.badge === "Sale"
-                                ? "bg-red-500 hover:bg-red-600"
-                                : "bg-[#d65391] hover:bg-[#d65391]"
-                            }`}
-                          >
-                            {productoSeleccionado.badge}
-                          </Badge>
-                        )}
-                        {/* Imagen principal — prioriza imágenes del color seleccionado */}
-                        {(() => {
-                          const imgsPorColor = colorSeleccionado && productoSeleccionado.imagenesPorColor?.[colorSeleccionado];
-                          const galeria = (imgsPorColor && imgsPorColor.length > 0)
-                            ? imgsPorColor
-                            : productoSeleccionado.imagenes;
-                          const src = galeria?.[imagenActual] || productoSeleccionado.imagen;
-                          return (
-                            <img
-                              src={src}
-                              alt={productoSeleccionado.nombre}
-                              className="w-full h-full object-cover"
-                            />
-                          );
-                        })()}
-                        {productoSeleccionado.imagenes &&
-                          productoSeleccionado.imagenes.length > 1 && (
-                            <>
-                              <button
-                                onClick={() => cambiarImagen("prev")}
-                                className="absolute left-2 top-1/2 -translate-y-1/2 p-1 bg-white/80 hover:bg-white rounded-full shadow-md transition-colors"
-                              >
-                                <ChevronLeft className="w-4 h-4 text-gray-700" />
-                              </button>
-                              <button
-                                onClick={() => cambiarImagen("next")}
-                                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 bg-white/80 hover:bg-white rounded-full shadow-md transition-colors"
-                              >
-                                <ChevronRight className="w-4 h-4 text-gray-700" />
-                              </button>
-                            </>
-                          )}
-                      </div>
-                      
-                      {/* Miniaturas — usa imágenes del color o generales */}
-                      {(() => {
-                        const imgsPorColor = colorSeleccionado && productoSeleccionado.imagenesPorColor?.[colorSeleccionado];
-                        const galeria = (imgsPorColor && imgsPorColor.length > 0)
-                          ? imgsPorColor
-                          : productoSeleccionado.imagenes;
-                        return galeria && galeria.length > 1 ? (
-                          <div className="flex gap-1 mt-1">
-                            {galeria.slice(0, 4).map((img, idx) => (
-                              <img
-                                key={idx}
-                                src={img}
-                                alt={`Vista ${idx + 1}`}
-                                onClick={() => setImagenActual(idx)}
-                                className={`w-12 h-12 rounded-md object-cover border-2 cursor-pointer transition-all ${
-                                  imagenActual === idx
-                                    ? 'border-[#d65391] shadow-md'
-                                    : 'border-gray-200 hover:border-[#d65391]'
-                                }`}
-                              />
-                            ))}
-                          </div>
-                        ) : null;
-                      })()}
+                {/* RIGHT: Details panel */}
+                <div style={{ flex: 1, height: '85vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '12px', padding: '28px 32px' }}>
+
+                  {/* Name */}
+                  <h1
+                    style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                    className="text-3xl font-black uppercase text-gray-900 leading-tight"
+                  >
+                    {productoSeleccionado.nombre}
+                  </h1>
+
+                  {/* Price */}
+                  <div className="flex items-baseline gap-3">
+                    <span className="text-xl font-bold text-gray-900">
+                      {formatPrecio(productoSeleccionado.precio)}
+                    </span>
+                    {productoSeleccionado.precioOriginal && (
+                      <>
+                        <span className="text-sm text-gray-400 line-through">
+                          {formatPrecio(productoSeleccionado.precioOriginal)}
+                        </span>
+                        <span className="text-xs font-semibold text-red-500">
+                          -{calcularDescuento(productoSeleccionado.precio, productoSeleccionado.precioOriginal)}%
+                        </span>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Description */}
+                  {(productoSeleccionado.descripcion || ps.descripcion) && (
+                    <p className="text-sm text-gray-600 leading-relaxed mt-4 mb-2">
+                      {productoSeleccionado.descripcion || ps.descripcion}
+                    </p>
+                  )}
+
+                  {/* Info icons */}
+                  <div className="border-t border-gray-100 pt-3 flex flex-col text-xs text-gray-500">
+                    <div className="flex items-center gap-3 py-2 border-b border-gray-100">
+                      <Package className="w-4 h-4 flex-shrink-0" />
+                      <span className="uppercase tracking-wide font-medium">Envío estándar 3-5 días hábiles</span>
+                    </div>
+                    <div className="flex items-center gap-3 py-2 border-b border-gray-100">
+                      <Globe className="w-4 h-4 flex-shrink-0" />
+                      <span className="uppercase tracking-wide font-medium">Envíos a todo el país</span>
+                    </div>
+                    <div className="flex items-center gap-3 py-2">
+                      <Lock className="w-4 h-4 flex-shrink-0" />
+                      <span className="uppercase tracking-wide font-medium">Pago 100% seguro y encriptado</span>
                     </div>
                   </div>
 
-                  {/* SECCIÓN DERECHA: Información y Controles */}
-                  <div className="space-y-2">
-                    
-                    {/* Rating */}
-                    <div className="flex items-center gap-1 mb-2 pb-2 border-b border-gray-200">
-                      <div className="flex items-center gap-1">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`w-3 h-3 ${
-                              i < Math.floor(productoSeleccionado.rating)
-                                ? "fill-yellow-400 text-yellow-400"
-                                : "text-gray-300"
-                            }`}
-                          />
-                        ))}
-                      </div>
-                      <span className="text-xs text-gray-600 font-medium">
-                        ({productoSeleccionado.rating})
-                      </span>
-                    </div>
+                  <Separator />
 
-                    {/* DESCRIPCIÓN */}
-                    {productoSeleccionado.descripcion && (
-                      <p className="text-xs text-gray-600 leading-relaxed mb-2 pb-2 border-b border-gray-100">
-                        {productoSeleccionado.descripcion}
-                      </p>
-                    )}
-
-                    {/* PRECIOS Y DESCUENTO */}
-                    <div className="mb-3">
-                      <div className="flex items-baseline gap-2 mb-1">
-                        <span
-                          style={{ fontFamily: "Playfair Display, serif" }}
-                          className="text-2xl font-bold text-gray-900"
-                        >
-                          {formatPrecio(productoSeleccionado.precio)}
-                        </span>
-                        {productoSeleccionado.precioOriginal && (
-                          <span className="text-sm text-gray-400 line-through">
-                            {formatPrecio(productoSeleccionado.precioOriginal)}
-                          </span>
-                        )}
-                        {productoSeleccionado.precioOriginal && (
-                          <Badge className="bg-red-500 hover:bg-red-600 text-white text-xs ml-auto">
-                            -{calcularDescuento(
-                              productoSeleccionado.precio,
-                              productoSeleccionado.precioOriginal,
-                            )}%
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* SELECTOR DE COLOR */}
-                    {productoSeleccionado.colores && productoSeleccionado.colores.length > 0 && (
+                  {/* Colors */}
+                  {(() => {
+                    const coloresProducto = productoSeleccionado.colores && productoSeleccionado.colores.length > 0
+                      ? productoSeleccionado.colores
+                      : colores.map((c: any) => c.nombre);
+                    if (coloresProducto.length === 0) return null;
+                    return (
                       <div>
-                        <label className="block text-xs font-semibold text-gray-900 mb-2">
-                          Color:
-                        </label>
-                        <div className="flex gap-4 flex-wrap mb-3">
-                          {productoSeleccionado.colores.map((color) => {
+                        <p className="text-sm font-semibold text-gray-900 mb-2">Color</p>
+                        <div className="flex gap-3 flex-wrap">
+                          {coloresProducto.map((color) => {
                             const hexColor = getColorHex(color);
                             return (
-                              <div key={color} className="flex flex-col items-center">
-                                <button
-                                  onClick={() => {
-                                    setColorSeleccionado(color);
-                                    // Cambiar a imágenes del color seleccionado
-                                    const imgsPorColor = productoSeleccionado.imagenesPorColor?.[color];
-                                    if (imgsPorColor && imgsPorColor.length > 0) {
-                                      setImagenActual(0);
-                                    }
-                                  }}
-                                  className={`w-10 h-10 rounded-full transition-all border-2 shadow-sm hover:shadow-md ${
-                                    colorSeleccionado === color
-                                      ? "border-[#d65391] ring-2 ring-[#d65391] ring-offset-2"
-                                      : "border-gray-300 hover:border-[#d65391]"
-                                  }`}
-                                  style={{ backgroundColor: hexColor }}
-                                  title={color}
-                                />
-                                <p className="text-xs text-gray-600 mt-1">{color}</p>
-                              </div>
+                              <button
+                                key={color}
+                                onClick={() => {
+                                  setColorSeleccionado(color);
+                                  const imgsPorColor = productoSeleccionado.imagenesPorColor?.[color];
+                                  if (imgsPorColor && imgsPorColor.length > 0) setImagenActual(0);
+                                }}
+                                className={`w-8 h-8 rounded-full border-2 transition-all ${
+                                  colorSeleccionado === color
+                                    ? 'border-gray-900 ring-2 ring-gray-900 ring-offset-2'
+                                    : 'border-gray-200 hover:border-gray-500'
+                                }`}
+                                style={{ backgroundColor: hexColor }}
+                                title={color}
+                              />
                             );
                           })}
                         </div>
                       </div>
-                    )}
+                    );
+                  })()}
 
-                    {/* MATERIAL */}
-                    {productoSeleccionado.materiales && productoSeleccionado.materiales.length > 0 && (
-                      <div className="flex items-center gap-2 text-xs text-gray-600 bg-gray-50 rounded-lg px-3 py-2">
-                        <span className="text-base">🧵</span>
-                        <span>
-                          <span className="font-semibold text-gray-800">Material: </span>
-                          {Array.isArray(productoSeleccionado.materiales)
-                            ? productoSeleccionado.materiales.join(', ')
-                            : productoSeleccionado.materiales}
-                        </span>
+                  {/* Sizes */}
+                  {(() => {
+                    const tallasProducto: string[] = (productoSeleccionado as any).tallas || [];
+                    const variantes: any[] = (productoSeleccionado as any).variantes || [];
+                    const tallasConStock: any[] = (productoSeleccionado as any).tallasConStock || [];
+                    const stockGeneral: number = (productoSeleccionado as any).stock ?? 0;
+                    const tallasGlobales = tallas.map((t: any) => t.nombre);
+                    const tallasMostrar: string[] = tallasProducto;
+                    if (tallasMostrar.length === 0) return null;
+                    const todosVariantesCero = variantes.length > 0 && variantes.every((x: any) => (x.stock ?? 0) <= 0);
+                    return (
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900 mb-2">Talla</p>
+                        <div className="flex flex-wrap gap-2">
+                          {tallasMostrar.map((talla) => {
+                            let sinStock = false;
+                            let stockDisponible = 0;
+                            if (talla === 'Única') {
+                              sinStock = stockGeneral <= 0;
+                              stockDisponible = stockGeneral;
+                            } else if (variantes.length > 0 && !todosVariantesCero) {
+                              const colorEfectivo = colorSeleccionado || (productoSeleccionado.colores?.length === 1 ? productoSeleccionado.colores[0] : null);
+                              if (colorEfectivo) {
+                                const v = variantes.find((x: any) => x.tallaNombre === talla && x.colorNombre === colorEfectivo);
+                                stockDisponible = v?.stock ?? 0;
+                              } else {
+                                stockDisponible = variantes.filter((x: any) => x.tallaNombre === talla).reduce((s: number, x: any) => s + (x.stock ?? 0), 0);
+                              }
+                              sinStock = stockDisponible <= 0;
+                            } else {
+                              const tallaInfo = tallasConStock.find((t: any) => t.nombre === talla);
+                              const stockTalla = tallaInfo ? tallaInfo.stock : (stockGeneral > 0 ? stockGeneral : 10);
+                              sinStock = stockTalla <= 0;
+                              stockDisponible = stockTalla;
+                            }
+                            const seleccionada = tallaSeleccionada === talla;
+                            return (
+                              <button
+                                key={talla}
+                                type="button"
+                                disabled={sinStock}
+                                onClick={() => !sinStock && setTallaSeleccionada(talla)}
+                                className={`w-12 h-10 border text-sm font-medium transition-all ${
+                                  sinStock
+                                    ? 'border-gray-200 text-gray-300 bg-gray-50 cursor-not-allowed line-through'
+                                    : seleccionada
+                                      ? 'border-gray-900 bg-gray-900 text-white'
+                                      : 'border-gray-300 text-gray-700 hover:border-gray-900'
+                                }`}
+                                title={sinStock ? 'Agotado' : `${talla} — ${stockDisponible} disponibles`}
+                              >
+                                {talla}
+                              </button>
+                            );
+                          })}
+                        </div>
                       </div>
-                    )}
+                    );
+                  })()}
 
-                    {/* SELECTOR DE TALLA */}
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-900 mb-2">
-                        Selecciona tu talla:
-                      </label>
-                      <SizeSelector
-                        sizes={productoSeleccionado.tallas}
-                        value={tallaSeleccionada}
-                        onChange={setTallaSeleccionada}
-                      />
-                    </div>
-
-                    {/* CANTIDAD */}
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-900 mb-2">
-                        Cantidad:
-                      </label>
-                      <div className="flex items-center gap-3 bg-gray-50 rounded-lg p-2 w-fit">
-                        <button
-                          onClick={() =>
-                            setCantidadSeleccionada(
-                              Math.max(1, cantidadSeleccionada - 1),
-                            )
-                          }
-                          className="p-2 hover:bg-white rounded-lg transition-colors"
-                        >
-                          <Minus className="w-4 h-4 text-gray-600" />
-                        </button>
-                        <input
-                          type="number"
-                          min="1"
-                          value={cantidadSeleccionada}
-                          onChange={(e) => setCantidadSeleccionada(Math.max(1, parseInt(e.target.value) || 1))}
-                          className="w-10 text-center font-bold text-sm border-0 bg-transparent"
-                        />
-                        <button
-                          onClick={() =>
-                            setCantidadSeleccionada(cantidadSeleccionada + 1)
-                          }
-                          className="p-2 hover:bg-white rounded-lg transition-colors"
-                        >
-                          <Plus className="w-4 h-4 text-gray-600" />
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* BOTONES DE ACCIÓN */}
-                    <div className="space-y-1 pt-2 border-t border-gray-200">
-                          <Button
-                        onClick={() => {
-                          if (!productoSeleccionado) return;
-                          const talla = tallaSeleccionada || 'Única';
-                          agregarAlCarrito(productoSeleccionado, talla, colorSeleccionado || undefined, cantidadSeleccionada);
-                          setProductoSeleccionado(null);
-                          onNavigateToCheckout?.();
-                        }}
-                        className="w-full bg-[#d65391] hover:bg-[#c04380] text-white h-9 font-semibold text-xs shadow-md hover:shadow-lg transition-all"
-                        style={{ fontFamily: "Inter, sans-serif" }}
+                  {/* Quantity + Add to cart + Favorite */}
+                  <div className="flex items-center gap-3 mt-1" style={{ flexShrink: 0 }}>
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => setCantidadSeleccionada(Math.max(1, cantidadSeleccionada - 1))}
+                        className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors text-gray-600"
                       >
-                        <Zap className="w-4 h-4 mr-2" />
-                        Comprar Ahora
-                      </Button>
-                      <Button
-                        onClick={handleAgregarAlCarrito}
-                        className="w-full bg-black hover:bg-gray-800 text-white h-9 font-semibold text-xs transition-all"
-                        style={{ fontFamily: "Inter, sans-serif" }}
+                        <Minus className="w-3 h-3" />
+                      </button>
+                      <span className="text-sm font-medium w-4 text-center">{cantidadSeleccionada}</span>
+                      <button
+                        onClick={() => setCantidadSeleccionada(cantidadSeleccionada + 1)}
+                        className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors text-gray-600"
                       >
-                        <ShoppingBag className="w-4 h-4 mr-2" />
-                        Agregar al Carrito
-                      </Button>
-                      <Button
-                        onClick={() =>
-                          handleToggleFavorito(productoSeleccionado.id)
-                        }
-                        variant="outline"
-                        className="w-full border-2 border-[#d65391] text-[#d65391] hover:bg-[#d65391] hover:text-white h-9 font-semibold text-xs transition-all"
-                        style={{ fontFamily: "Inter, sans-serif" }}
-                      >
-                        <Heart
-                          className={`w-4 h-4 mr-2 ${
-                            esFavorito(productoSeleccionado.id)
-                              ? "fill-current"
-                              : ""
-                          }`}
-                        />
-                        {esFavorito(productoSeleccionado.id)
-                          ? "En Favoritos"
-                          : "Agregar a Favoritos"}
-                      </Button>
+                        <Plus className="w-3 h-3" />
+                      </button>
                     </div>
+                    <button
+                      disabled={ps.agotado}
+                      onClick={handleAgregarAlCarrito}
+                      className={`flex-1 h-10 border text-xs font-semibold uppercase tracking-wider transition-all ${
+                        ps.agotado
+                          ? 'border-gray-200 text-gray-300 cursor-not-allowed'
+                          : 'border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white'
+                      }`}
+                    >
+                      {ps.agotado ? 'Agotado' : 'Agregar al Carrito'}
+                    </button>
+                    <button
+                      onClick={() => onNavigateToLogin()}
+                      title="Inicia sesión para guardar en favoritos"
+                      className="w-10 h-10 border border-gray-300 flex items-center justify-center transition-all flex-shrink-0 text-gray-500 hover:border-[#d65391] hover:text-[#d65391]"
+                    >
+                      <Heart className="w-4 h-4" fill="none" />
+                    </button>
                   </div>
+
+                  {/* Buy Now */}
+                  <button
+                    disabled={ps.agotado}
+                    onClick={handleComprarAhora}
+                    style={{ flexShrink: 0 }}
+                    className={`w-full h-10 text-xs font-semibold uppercase tracking-wider text-white transition-all ${
+                      ps.agotado ? 'bg-gray-300 cursor-not-allowed' : 'bg-[#d65391] hover:bg-[#c04380]'
+                    }`}
+                  >
+                    {ps.agotado ? 'Agotado' : 'Comprar Ahora'}
+                  </button>
                 </div>
               </div>
-            )}
-          </div>
+            );
+          })()}
         </DialogContent>
       </Dialog>
 
-      {/* Quick checkout removed — use full Checkout page instead */}
 
-      
-
-      {/* Modal de Login para Perfil */}
-      <Dialog
-        open={mostrarModalLoginPerfil}
-        onOpenChange={setMostrarModalLoginPerfil}
-      >
-        <DialogContent className="max-w-sm rounded-lg overflow-hidden">
-          <DialogHeader className="bg-gradient-to-r from-[#d65391] to-[#f8a9c5] text-white p-6 text-center">
-            <DialogTitle
-              style={{
-                fontFamily: "Playfair Display, serif",
-              }}
-              className="text-2xl"
-            >
-              Mi Perfil
-            </DialogTitle>
-            <DialogDescription>
-              Necesitas iniciar sesión para ver tu perfil
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4 px-6">
-            <p
-              style={{ fontFamily: "Inter, sans-serif" }}
-              className="text-center text-gray-600"
-            >
-              Para acceder a tu perfil, historial de compras y
-              configuración de cuenta, por favor inicia sesión.
-            </p>
-            <div className="space-y-2">
-              <Button
-                onClick={() => {
-                  setMostrarModalLoginPerfil(false);
-                  onNavigateToLogin();
-                }}
-                className="w-full bg-[#d65391] hover:bg-[#c14a7f] text-white h-11"
-                style={{
-                  fontFamily: "Inter, sans-serif",
-                }}
-              >
-                <LogIn className="w-5 h-5 mr-2" />
-                Iniciar Sesión
-              </Button>
-              <Button
-                onClick={() => {
-                  setMostrarModalLoginPerfil(false);
-                  onNavigateToRegister();
-                }}
-                variant="outline"
-                className="w-full border-[#d65391] text-[#d65391] hover:bg-[#d65391]/5 h-11"
-                style={{
-                  fontFamily: "Inter, sans-serif",
-                }}
-              >
-                Crear Cuenta
-              </Button>
+      {/* Modal Login para Carrito / Compra */}
+      <Dialog open={mostrarModalLoginCarrito} onOpenChange={setMostrarModalLoginCarrito}>
+        <DialogContent className="max-w-xs w-[90vw] rounded-2xl p-6 text-center">
+          <DialogDescription className="sr-only">Iniciar sesión para continuar con la compra</DialogDescription>
+          <div className="flex justify-center mb-3">
+            <div className="w-12 h-12 rounded-full bg-[#d65391]/10 flex items-center justify-center">
+              <ShoppingBag className="w-5 h-5 text-[#d65391]" />
             </div>
+          </div>
+          <DialogHeader className="mb-1">
+            <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xl text-gray-900">
+              ¡Un paso más!
+            </DialogTitle>
+          </DialogHeader>
+          <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500 mb-5">
+            Para agregar productos al carrito y realizar compras necesitas iniciar sesión.
+          </p>
+          <div className="space-y-2">
+            <Button
+              onClick={() => { setMostrarModalLoginCarrito(false); (onNavigateToLoginForCheckout ?? onNavigateToLogin)(); }}
+              className="w-full bg-[#d65391] hover:bg-[#c14a7f] text-white h-10 text-sm"
+              style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+            >
+              Iniciar Sesión
+            </Button>
+            <Button
+              onClick={() => { setMostrarModalLoginCarrito(false); onNavigateToRegister(); }}
+              variant="outline"
+              className="w-full border-gray-200 text-gray-600 hover:bg-gray-50 h-10 text-sm"
+              style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+            >
+              Crear cuenta
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -1226,115 +1327,60 @@ export const LandingView: React.FC<LandingViewProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
               <h3
-                style={{
-                  fontFamily: "Playfair Display, serif",
-                }}
+                style={{ fontFamily: '"Times New Roman", Times, serif', color: '#ffffff' }}
                 className="text-2xl mb-4"
               >
-                Selenne{" "}
-                <span className="text-[#f8a9c5]">Boutique</span>
+                Selenne Boutique
               </h3>
-              <p
-                style={{ fontFamily: "Inter, sans-serif" }}
-                className="text-gray-400 text-sm"
-              >
+              <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-400 text-sm">
                 Elegancia y estilo en cada prenda
               </p>
             </div>
             <div>
-              <h4
-                style={{ fontFamily: "Inter, sans-serif" }}
-                className="mb-4"
-              >
-                Compra
-              </h4>
+              <h4 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="mb-4">Compra</h4>
               <ul className="space-y-2 text-sm text-gray-400">
                 <li>
-                  <button
-                    onClick={() => setCategoriaActiva("mujer")}
-                    className="hover:text-[#f8a9c5]"
-                  >
+                  <button onClick={() => setCategoriaActiva("mujer")} className="hover:text-[#f8a9c5]">
                     Mujer
                   </button>
                 </li>
                 <li>
-                  <button
-                    onClick={() =>
-                      setCategoriaActiva("accesorios")
-                    }
-                    className="hover:text-[#f8a9c5]"
-                  >
+                  <button onClick={() => setCategoriaActiva("accesorios")} className="hover:text-[#f8a9c5]">
                     Accesorios
                   </button>
                 </li>
                 <li>
-                  <button
-                    onClick={() => setCategoriaActiva("sale")}
-                    className="hover:text-[#f8a9c5]"
-                  >
+                  <button onClick={() => setCategoriaActiva("sale")} className="hover:text-[#f8a9c5]">
                     Sale
                   </button>
                 </li>
               </ul>
             </div>
             <div>
-              <h4
-                style={{ fontFamily: "Inter, sans-serif" }}
-                className="mb-4"
-              >
-                Ayuda
-              </h4>
+              <h4 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="mb-4">Ayuda</h4>
               <ul className="space-y-2 text-sm text-gray-400">
                 <li>
-                  <button
-                    onClick={() => setMostrarTelefono((s) => !s)}
-                    className="hover:text-[#f8a9c5] text-left"
-                    aria-expanded={mostrarTelefono}
+                  <a
+                    href={`https://wa.me/${telefonoContacto.replace(/\D/g, '')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-[#f8a9c5]"
                   >
                     Contacto
-                  </button>
+                  </a>
                 </li>
-                {mostrarTelefono && (
-                  <li className="text-sm text-gray-300 mt-2">
-                    <a href="tel:+573001234567" className="hover:text-[#f8a9c5]">
-                      +57 300 123 4567
-                    </a>
-                  </li>
-                )}
               </ul>
             </div>
             <div>
-              <h4
-                style={{ fontFamily: "Inter, sans-serif" }}
-                className="mb-4"
-              >
-                Síguenos
-              </h4>
+              <h4 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="mb-4">Síguenos</h4>
               <ul className="space-y-2 text-sm text-gray-400">
-                <li>
-                  <a href="#" className="hover:text-[#f8a9c5]">
-                    Instagram
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-[#f8a9c5]">
-                    Facebook
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-[#f8a9c5]">
-                    Pinterest
-                  </a>
-                </li>
+                <li><a href="https://www.instagram.com/selenne_boutique_?igsh=MWJtaXR0Zm85MW13ZQ==" target="_blank" rel="noopener noreferrer" className="hover:text-[#f8a9c5]">Instagram</a></li>
               </ul>
             </div>
           </div>
           <Separator className="my-8 bg-gray-700" />
           <div className="text-center text-sm text-gray-400">
-            <p>
-              © 2024 Selenne Boutique. Todos los derechos
-              reservados.
-            </p>
+            <p>© 2024 Selenne Boutique. Todos los derechos reservados.</p>
           </div>
         </div>
       </footer>

@@ -1,14 +1,17 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { getJson, apiBase } from '../../services/api';
+import { getJson, getAccessToken, apiBase, fetchWithAuth } from '../../services/api';
+import { toast } from 'sonner';
 
 export interface ProductoAdmin {
   id: string;
   codigo: string;
   nombre: string;
-  categoria: string;       // CategoriaNombre  (ej: "Damas", "Caballeros")
-  categoriaMain: string;   // deducida para filtros de tienda: "mujer"|"accesorios"|"sale"
+  categoria: string;
+  categoriaMain: string;
   marca: string;
-  precio: number;
+  precio: number;          // precioVenta
+  precioCompra?: number;   // precio de costo
+  precioOferta?: number;   // precio en oferta
   precioOriginal?: number;
   stock: number;
   activo: boolean;
@@ -17,9 +20,13 @@ export interface ProductoAdmin {
   imagenes: string[];
   imagenesPorColor?: { [colorName: string]: string[] };
   tallas: string[];
+  tallasConStock: { nombre: string; stock: number }[];
   colores: string[];
+  variantes: { tallaNombre?: string; colorNombre?: string; stock: number }[];
+  agotado: boolean;
+  agotadoGeneral: boolean;
   materiales: string[];
-  tipoProducto: string;    // TipoNombre  (ej: "Camisa de cuello")
+  tipoProducto: string;
   descripcion: string;
   categoriaPrincipalID?: number;
   tipoProductoID?: number;
@@ -42,7 +49,7 @@ export interface CreateProductoPayload {
 interface ProductosContextType {
   productos: ProductoAdmin[];
   loading: boolean;
-  crearProducto: (payload: CreateProductoPayload, tallas?: string[], colores?: string[], tallasCtx?: any[], coloresCtx?: any[], imagenes?: string[], materiales?: string[], materialesCtx?: any[]) => Promise<boolean>;
+  crearProducto: (payload: CreateProductoPayload, tallas?: string[], colores?: string[], tallasCtx?: any[], coloresCtx?: any[], imagenes?: string[], materiales?: string[], materialesCtx?: any[]) => Promise<number | false>;
   actualizarProducto: (id: string, payload: Partial<CreateProductoPayload & { Estado: string }>, tallas?: string[], colores?: string[], tallasCtx?: any[], coloresCtx?: any[], imagenes?: string[], materiales?: string[], materialesCtx?: any[]) => Promise<boolean>;
   eliminarProducto: (id: string) => Promise<void>;
   obtenerProducto: (id: string) => ProductoAdmin | undefined;
@@ -82,7 +89,9 @@ function mapProducto(p: any): ProductoAdmin {
     categoriaMain: deducirCategoriaMain(categoriaNombre, isSale),
     marca: p.marcaNombre ?? p.MarcaNombre ?? p.marca ?? '',
     precio: Number(p.precioVenta ?? p.PrecioVenta ?? p.precio ?? 0),
-    precioOriginal: p.precioOferta ? Number(p.precioOferta) : undefined,
+    precioCompra: p.precioCompra != null ? Number(p.precioCompra) : p.PrecioCompra != null ? Number(p.PrecioCompra) : undefined,
+    precioOferta: p.precioOferta != null ? Number(p.precioOferta) : p.PrecioOferta != null ? Number(p.PrecioOferta) : undefined,
+    precioOriginal: p.precioOferta ? Number(p.precioVenta ?? p.PrecioVenta ?? p.precio ?? 0) : undefined,
     stock: Number(p.stock ?? p.Stock ?? 0),
     activo: activoVal,
     isSale,
@@ -112,6 +121,35 @@ function mapProducto(p: any): ProductoAdmin {
       const t = p.tallas ?? p.Tallas ?? [];
       return Array.isArray(t) ? t.map((x: any) => x?.nombre ?? x?.Nombre ?? String(x)).filter(Boolean) : [];
     })(),
+    tallasConStock: (() => {
+      const t = p.tallas ?? p.Tallas ?? [];
+      if (!Array.isArray(t)) return [];
+      return t.map((x: any) => ({
+        nombre: x?.nombre ?? x?.Nombre ?? String(x),
+        stock: x?.stock ?? x?.Stock ?? 10,
+      })).filter((x: any) => x.nombre);
+    })(),
+    variantes: (() => {
+      const v = p.variantes ?? p.Variantes ?? [];
+      console.log('[Variantes raw]', v);
+      if (!Array.isArray(v)) return [];
+      return v.map((x: any) => ({
+        tallaNombre: x?.tallaNombre ?? x?.TallaNombre ?? undefined,
+        colorNombre: x?.colorNombre ?? x?.ColorNombre ?? undefined,
+        stock: x?.stock ?? x?.Stock ?? 0,
+      }));
+    })(),
+    agotado: (() => {
+      const v = p.variantes ?? p.Variantes ?? [];
+      const stockGeneral = Number(p.stock ?? p.Stock ?? 0);
+      if (Array.isArray(v) && v.length > 0) {
+        const totalVariantes = v.reduce((s: number, x: any) => s + (x?.stock ?? x?.Stock ?? 0), 0);
+        // Agotado solo si TANTO variantes como stock general son 0
+        return totalVariantes <= 0 && stockGeneral <= 0;
+      }
+      return stockGeneral <= 0;
+    })(),
+    agotadoGeneral: p.agotadoGeneral ?? p.AgotadoGeneral ?? (p.stock ?? p.Stock ?? 0) <= 0,
     colores: (() => {
       const c = p.colores ?? p.Colores ?? [];
       return Array.isArray(c) ? c.map((x: any) => x?.nombre ?? x?.Nombre ?? String(x)).filter(Boolean) : [];
@@ -135,19 +173,21 @@ function extraerLista(raw: any): ProductoAdmin[] {
     console.warn('[Productos] respuesta inesperada:', raw);
     return [];
   }
+  // DEBUG: log first product variantes from raw API
+  if (lista.length > 0) {
+    console.log('[API raw] primer producto variantes:', lista[0]?.variantes ?? lista[0]?.Variantes ?? 'NO FIELD');
+  }
   return lista.map(mapProducto);
 }
 
 async function cargarDesdeApi(soloActivos = false): Promise<ProductoAdmin[]> {
   try {
-    const token = localStorage.getItem('accessToken');
     const path = soloActivos ? '/api/productos?estado=activo' : '/api/productos?estado=activo';
-
-    if (token) {
+    if (getAccessToken()) {
       const raw = await getJson(path);
       return extraerLista(raw);
     } else {
-      const res = await fetch(apiBase + '/api/productos?estado=activo');
+      const res = await fetch(apiBase + '/api/productos?estado=activo', { cache: 'no-store' });
       if (!res.ok) return [];
       return extraerLista(await res.json());
     }
@@ -160,16 +200,18 @@ async function cargarDesdeApi(soloActivos = false): Promise<ProductoAdmin[]> {
 // Para el dashboard: carga TODOS (activos + inactivos)
 async function cargarTodosDesdeApi(): Promise<ProductoAdmin[]> {
   try {
-    const token = localStorage.getItem('accessToken');
+    const token = getAccessToken();
     if (!token) return [];
 
     // Carga activos e inactivos en paralelo
     const [activos, inactivos] = await Promise.all([
       fetch(apiBase + '/api/productos?estado=activo', {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
+        cache: 'no-store',
       }).then(r => r.json()),
       fetch(apiBase + '/api/productos?estado=inactivo', {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
+        cache: 'no-store',
       }).then(r => r.json()),
     ]);
 
@@ -185,43 +227,27 @@ async function cargarTodosDesdeApi(): Promise<ProductoAdmin[]> {
 
 async function mutarProductoConId(method: string, path: string, body?: object): Promise<{ok: boolean, id?: number}> {
   try {
-    const token = localStorage.getItem('accessToken');
-    const res = await fetch(apiBase + path, {
+    const data = await fetchWithAuth(path, {
       method,
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: body ? JSON.stringify(body) : undefined,
     });
-    console.log(`[Productos] ${method} → ${res.status}`);
-    if (!res.ok) {
-      const err = await res.text();
-      console.error(`[Productos] ${method} → ${res.status}:`, err);
-      return { ok: false };
-    }
-    const data = await res.json();
     const id = data?.data?.productoID ?? data?.data?.ProductoID;
     return { ok: true, id };
-  } catch (e) { console.error(e); return { ok: false }; }
+  } catch (e: any) {
+    console.error(`[Productos] ${method} ${path} error:`, e);
+    return { ok: false };
+  }
 }
 
 async function mutarProducto(method: string, path: string, body?: object): Promise<boolean> {
   try {
-    const token = localStorage.getItem('accessToken');
-    console.log(`[Productos] ${method} ${apiBase + path}`, JSON.stringify(body));
-
-    const res = await fetch(apiBase + path, {
+    await fetchWithAuth(path, {
       method,
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
       body: body ? JSON.stringify(body) : undefined,
     });
-
-    const text = await res.text();
-    console.log(`[Productos] ${method} → ${res.status}:`, text);
-    return res.ok;
-  } catch (e) {
-    console.error(`[Productos] ${method} error:`, e);
+    return true;
+  } catch (e: any) {
+    console.error(`[Productos] ${method} ${path} error:`, e?.status, e?.data);
     return false;
   }
 }
@@ -232,8 +258,7 @@ export const ProductosProvider: React.FC<{ children: ReactNode }> = ({ children 
 
   const cargarProductos = async () => {
     setLoading(true);
-    const token = localStorage.getItem('accessToken');
-    const lista = token ? await cargarTodosDesdeApi() : await cargarDesdeApi();
+    const lista = getAccessToken() ? await cargarTodosDesdeApi() : await cargarDesdeApi();
     console.log(`[Productos] cargados: ${lista.length}`);
     setProductos(lista);
     setLoading(false);
@@ -242,16 +267,14 @@ export const ProductosProvider: React.FC<{ children: ReactNode }> = ({ children 
   useEffect(() => {
     cargarProductos();
 
-    const handleStorage = (e: StorageEvent) => {
-      if (e.key === 'accessToken') cargarProductos();
-    };
     const handleLogin = () => cargarProductos();
+    const handleLogout = () => cargarProductos(); // recarga en modo público
 
-    window.addEventListener('storage', handleStorage);
     window.addEventListener('auth:login', handleLogin);
+    window.addEventListener('auth:logout', handleLogout);
     return () => {
-      window.removeEventListener('storage', handleStorage);
       window.removeEventListener('auth:login', handleLogin);
+      window.removeEventListener('auth:logout', handleLogout);
     };
   }, []);
 
@@ -266,9 +289,14 @@ export const ProductosProvider: React.FC<{ children: ReactNode }> = ({ children 
     console.log('[Sync] colores recibidos:', colores, '| ctx:', coloresCtx.map((c:any)=>c.nombre));
 
     const tallaIDs = tallas
-      .map(nombre => tallasCtx.find((t: any) => t.nombre === nombre))
-      .filter(Boolean)
-      .map((t: any) => ({ TallaID: Number(t.id), Stock: 10 }));
+      .map(nombre => {
+        const ctx = tallasCtx.find((t: any) => t.nombre === nombre);
+        if (!ctx) return null;
+        // Use stock from talla object if available (formato {nombre, stock})
+        const stockVal = (nombre as any)?.stock ?? 10;
+        return { TallaID: Number(ctx.id), Stock: stockVal };
+      })
+      .filter(Boolean);
 
     const colorIDs = colores
       .map(nombre => coloresCtx.find((c: any) => c.nombre === nombre))
@@ -279,8 +307,11 @@ export const ProductosProvider: React.FC<{ children: ReactNode }> = ({ children 
     console.log('[Sync] colorIDs a enviar:', colorIDs);
 
     // Siempre sincronizar (incluso array vacío para limpiar)
-    await mutarProducto('POST', `/api/productos/${id}/tallas`, { Tallas: tallaIDs });
-    await mutarProducto('POST', `/api/productos/${id}/colores`, { ColorIDs: colorIDs });
+    const okTallas = await mutarProducto('POST', `/api/productos/${id}/tallas`, { Tallas: tallaIDs });
+    const okColores = await mutarProducto('POST', `/api/productos/${id}/colores`, { ColorIDs: colorIDs });
+    if (!okTallas || !okColores) {
+      toast.error('Error guardando tallas/colores. Verifica tu sesión e inténtalo de nuevo.');
+    }
   };
 
   const sincronizarImagenes = async (
@@ -316,6 +347,12 @@ export const ProductosProvider: React.FC<{ children: ReactNode }> = ({ children 
     await mutarProducto('POST', `/api/productos/${id}/materiales`, { MaterialIDs: materialIDs });
   };
 
+  const sincronizarVariantes = async (id: string, variantes: {tallaNombre?: string; colorNombre?: string; stock: number}[]) => {
+    if (!variantes.length) return;
+    console.log('[Sync] variantes a enviar:', variantes);
+    await mutarProducto('POST', `/api/productos/${id}/variantes`, { Variantes: variantes });
+  };
+
   const crearProducto = async (
     payload: CreateProductoPayload,
     tallas?: string[],
@@ -325,14 +362,15 @@ export const ProductosProvider: React.FC<{ children: ReactNode }> = ({ children 
     imagenes?: string[],
     materiales?: string[],
     materialesCtx?: any[]
-  ): Promise<boolean> => {
+  ): Promise<number | false> => {
     const res = await mutarProductoConId('POST', '/api/productos', payload);
     if (res.ok && res.id) {
       await sincronizarTallasColores(String(res.id), tallas || [], colores || [], tallasCtx || [], coloresCtx || []);
       if (imagenes?.length || payload.imagenesPorColor) await sincronizarImagenes(String(res.id), imagenes || [], (payload as any).imagenesPorColor);
+      if ((payload as any).variantes?.length) await sincronizarVariantes(String(res.id), (payload as any).variantes);
       if (materiales?.length && materialesCtx?.length) await sincronizarMateriales(String(res.id), materiales, materialesCtx);
       await cargarProductos();
-      return true;
+      return res.id;
     }
     return false;
   };
@@ -350,8 +388,10 @@ export const ProductosProvider: React.FC<{ children: ReactNode }> = ({ children 
   ): Promise<boolean> => {
     const ok = await mutarProducto('PUT', `/api/productos/${id}`, payload);
     if (ok) {
-      await sincronizarTallasColores(id, tallas || [], colores || [], tallasCtx || [], coloresCtx || []);
+      // Only sync if explicitly provided (undefined means "don't touch")
+      if (tallas !== undefined) await sincronizarTallasColores(id, tallas, colores || [], tallasCtx || [], coloresCtx || []);
       if (imagenes !== undefined) await sincronizarImagenes(id, imagenes, (payload as any).imagenesPorColor);
+      if ((payload as any).variantes !== undefined) await sincronizarVariantes(id, (payload as any).variantes);
       if (materiales !== undefined && materialesCtx?.length) await sincronizarMateriales(id, materiales, materialesCtx);
       await cargarProductos();
     }
@@ -359,13 +399,12 @@ export const ProductosProvider: React.FC<{ children: ReactNode }> = ({ children 
   };
 
   const eliminarProducto = async (id: string) => {
-    const ok = await mutarProducto('DELETE', `/api/productos/${id}`);
-    if (ok) {
-      // Reload from API to get fresh state
+    try {
+      await fetchWithAuth(`/api/productos/${id}`, { method: 'DELETE' });
       await cargarProductos();
-    } else {
-      // Fallback: remove locally
-      setProductos(prev => prev.filter(p => p.id !== id));
+    } catch (e: any) {
+      const msg = e?.data?.message || e?.data?.error || 'No se puede eliminar este producto. Puede tener pedidos u órdenes asociadas.';
+      throw new Error(msg);
     }
   };
 

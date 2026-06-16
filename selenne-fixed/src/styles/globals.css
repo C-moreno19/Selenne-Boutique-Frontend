@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@400;500;600&family=Roboto:wght@400;500;700&family=Kalnia:wght@400;500;600&display=swap');
 
 /* @custom-variant dark (&:is(.dark *)); */
 
@@ -190,10 +189,21 @@ html {
   font-size: var(--font-size);
 }
 
+*, *::before, *::after {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 400;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Playfair Display', serif;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 700;
+}
+
+nav, aside, [class*="sidebar"], [class*="menu"] {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 400;
 }

@@ -25,7 +25,7 @@ export const useProductosCombinados = (): Producto[] => {
         return {
           id: Number(p.id) || Math.abs(p.id.split('').reduce((a, c) => a + c.charCodeAt(0), 0)),
           nombre: p.nombre,
-          precio: Number(p.precio) || 0,
+          precio: Number(p.precioOferta ?? p.precio) || 0,
           precioOriginal: p.precioOriginal ? Number(p.precioOriginal) : null,
           imagen: p.imagen ?? '',
           imagenes,
@@ -36,9 +36,13 @@ export const useProductosCombinados = (): Producto[] => {
           tallas: Array.isArray(p.tallas) ? p.tallas : [],
           colores: Array.isArray(p.colores) ? p.colores : [],
           materiales: Array.isArray(p.materiales) ? p.materiales : [],
+          variantes: Array.isArray(p.variantes) ? p.variantes : [],
+          agotado: p.agotado ?? false,
+          stock: p.stock ?? 0,
           rating: 4.5,
           badge: (p.isSale || p.precioOriginal) ? 'Sale' : null,
           nuevo: false,
+          descripcion: p.descripcion || '',
         };
       });
   }, [productosAdmin]);

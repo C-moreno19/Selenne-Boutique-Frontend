@@ -1,4 +1,4 @@
-import { postForm } from './api';
+import { postForm, getAccessToken } from './api';
 
 export interface UploadProgress {
   loaded: number;
@@ -60,7 +60,7 @@ export async function uploadComprobante(
       xhr.addEventListener('abort', () => reject(new Error('Upload aborted')));
 
       // Set Authorization header if token exists
-      const token = localStorage.getItem('accessToken');
+      const token = getAccessToken();
       if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
 
       const endpoint = `/api/pedidos/upload-comprobante${orderId ? `/${orderId}` : ''}`;
@@ -132,7 +132,7 @@ export async function uploadImage(
       xhr.addEventListener('error', () => reject(new Error('Upload error')));
       xhr.addEventListener('abort', () => reject(new Error('Upload aborted')));
 
-      const token = localStorage.getItem('accessToken');
+      const token = getAccessToken();
       if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
 
       xhr.open('POST', apiBase + endpoint);

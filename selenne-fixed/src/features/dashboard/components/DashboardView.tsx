@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { DashboardSidebar } from './DashboardSidebar';
 import { DashboardHeader } from './DashboardHeader';
 import { DashboardHome } from '../pages/DashboardHome';
-import { EmpleadoHome } from '../pages/EmpleadoHome';
 import { VentasView } from '../pages/VentasView';
+import { HistorialVentasView } from '../pages/HistorialVentasView';
 import { ClientesView } from '../pages/ClientesView';
 import { NuevaCompraView } from '../pages/NuevaCompraView';
 import { NuevaVentaView } from '../pages/NuevaVentaView';
@@ -12,6 +12,7 @@ import { RolesView } from '../pages/RolesView';
 import { UsuariosView } from '../pages/UsuariosView';
 import { ProveedoresView } from '../pages/ProveedoresView';
 import { ComprasView } from '../pages/ComprasView';
+import { HistorialComprasView } from '../pages/HistorialComprasView';
 import { PerfilView } from '../pages/PerfilView';
 import { ProductosView } from '../pages/ProductosView';
 import { CategoriasView } from '../pages/CategoriasView';
@@ -38,12 +39,14 @@ export type DashboardSection =
   | 'roles'
   | 'usuarios'
   | 'ventas'
+  | 'historial-ventas'
   | 'nueva-venta'
   | 'pedidos'
   | 'clientes'
   | 'nueva-compra'
   | 'proveedores'
   | 'compras'
+  | 'historial-compras'
   | 'perfil'
   | 'mi-cuenta'
   | 'notificaciones';
@@ -52,26 +55,55 @@ interface DashboardViewProps {
   onLogout: () => void;
 }
 
+// Secciones principales a las que redirigir si la actual no es accesible
+const REDIRECT_PRIORITY: DashboardSection[] = [
+  'home', 'ventas', 'pedidos', 'productos', 'clientes',
+  'compras', 'usuarios', 'roles', 'perfil',
+];
+
 export const DashboardView: React.FC<DashboardViewProps> = ({ onLogout }) => {
-  const { user } = useAuth();
+  const { user, refreshPermisos } = useAuth();
   const { canAccessSection } = usePermisos();
   const { isOpen } = useSidebar();
-  const [currentSection, setCurrentSection] = useState<DashboardSection>(
-    user?.role === 'Empleado' ? 'productos' : 'home'
-  );
+
+  const [currentSection, setCurrentSectionState] = useState<DashboardSection>(() => {
+    const saved = localStorage.getItem('currentSection') as DashboardSection;
+    return saved || 'home';
+  });
+
+  const setCurrentSection = (section: DashboardSection) => {
+    setCurrentSectionState(section);
+    localStorage.setItem('currentSection', section);
+  };
+
+  // Refrescar permisos del servidor al montar
+  React.useEffect(() => {
+    refreshPermisos();
+  }, []);
+
+  // Cuando cambian los permisos, redirigir si la sección actual ya no es accesible
+  React.useEffect(() => {
+    if (!canAccessSection(currentSection)) {
+      const first = REDIRECT_PRIORITY.find(s => canAccessSection(s)) ?? 'perfil';
+      setCurrentSection(first);
+    }
+  }, [user?.permisos]);
 
   const renderContent = () => {
     // Verificar permisos antes de renderizar
     if (!canAccessSection(currentSection)) {
       return (
-        <div className="p-8 text-center">
-          <div className="max-w-md mx-auto">
-            <div className="mb-4 text-6xl">🔒</div>
-            <h2 style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl text-gray-900 mb-2">
-              Acceso Restringido
+        <div className="flex items-center justify-center min-h-[70vh]">
+          <div className="text-center max-w-md mx-auto px-6">
+            <div className="mb-6 text-7xl">🔒</div>
+            <h2 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-3xl text-gray-900 mb-3">
+              Sin acceso
             </h2>
-            <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-600">
-              No tienes permisos para acceder a esta sección
+            <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-500 mb-2">
+              No tienes permisos para ver esta sección.
+            </p>
+            <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-400 text-sm">
+              Pídele al administrador que te asigne los permisos necesarios.
             </p>
           </div>
         </div>
@@ -80,7 +112,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onLogout }) => {
 
     switch (currentSection) {
       case 'home':
-        return user?.role === 'Empleado' ? <EmpleadoHome /> : <DashboardHome />;
+        return <DashboardHome />;
       case 'productos':
         return <ProductosView />;
       case 'categorias':
@@ -100,7 +132,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onLogout }) => {
       case 'usuarios':
         return <UsuariosView />;
       case 'ventas':
-        return <VentasView onNavigateToNuevaVenta={() => setCurrentSection('nueva-venta')} />;
+        return <VentasView onNavigateToHistorial={() => setCurrentSection('historial-ventas')} />;
+      case 'historial-ventas':
+        return <HistorialVentasView onBack={() => setCurrentSection('ventas')} />;
       case 'nueva-venta':
         return <NuevaVentaView onBack={() => setCurrentSection('ventas')} onSuccess={() => setCurrentSection('ventas')} />;
       case 'pedidos':
@@ -112,7 +146,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onLogout }) => {
       case 'proveedores':
         return <ProveedoresView />;
       case 'compras':
-        return <ComprasView onNavigateToNuevaCompra={() => setCurrentSection('nueva-compra')} />;
+        return <ComprasView onNavigateToHistorial={() => setCurrentSection('historial-compras')} />;
+      case 'historial-compras':
+        return <HistorialComprasView onBack={() => setCurrentSection('compras')} />;
       case 'perfil':
       case 'mi-cuenta':
         return <PerfilView />;

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { ChevronRight, Mail, MessageCircle, AlertCircle, Check, Eye, Trash2, Clock } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../../../components/ui/dialog';
 import { useMensajes } from '../../../shared/contexts/MensajesContext';
@@ -81,11 +81,11 @@ export const NotificacionesAdminView: React.FC = () => {
     <div className="p-8 bg-gray-50 min-h-screen">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 mb-4">
-        <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-500">
+        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500">
           Dashboard
         </span>
         <ChevronRight className="w-4 h-4 text-gray-400" />
-        <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm text-gray-900">
+        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-900">
           Notificaciones
         </span>
       </div>
@@ -93,7 +93,7 @@ export const NotificacionesAdminView: React.FC = () => {
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center gap-3 mb-2">
-          <h1 style={{ fontFamily: 'Playfair Display, serif' }} className="text-[36px] text-gray-900">
+          <h1 style={{ fontFamily: '"Times New Roman", Times, serif' }} className="text-[36px] text-gray-900">
             🔔 Notificaciones
           </h1>
           {sinLeer > 0 && (
@@ -102,7 +102,7 @@ export const NotificacionesAdminView: React.FC = () => {
             </span>
           )}
         </div>
-        <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-600">
+        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-600">
           Respuestas de clientes y consultas recibidas
         </p>
       </div>
@@ -148,7 +148,7 @@ export const NotificacionesAdminView: React.FC = () => {
         {mensajesFiltrados.length === 0 ? (
           <div className="p-12 text-center">
             <div className="text-5xl mb-4">📭</div>
-            <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-600 text-lg">
+            <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-600 text-lg">
               No hay notificaciones en esta categoría
             </p>
           </div>
@@ -169,19 +169,19 @@ export const NotificacionesAdminView: React.FC = () => {
                     {getTypeIcon(msg.tipo)}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <p style={{ fontFamily: 'Inter, sans-serif' }} className="font-semibold text-gray-900">
+                        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-gray-900">
                           {getMensajePrincipal(msg)}
                         </p>
                         {!msg.leido && (
                           <span className="w-2 h-2 bg-blue-600 rounded-full"></span>
                         )}
                       </div>
-                      <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500 truncate">
+                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500 truncate">
                         {msg.contenido.substring(0, 100)}...
                       </p>
                       <div className="flex items-center gap-2 mt-2">
                         {getTypeBadge(msg.tipo)}
-                        <span style={{ fontFamily: 'Inter, sans-serif' }} className="text-xs text-gray-500">
+                        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500">
                           <Clock className="w-3 h-3 inline mr-1" />
                           {msg.fecha}
                         </span>
@@ -221,7 +221,7 @@ export const NotificacionesAdminView: React.FC = () => {
       <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl">
+            <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-2xl">
               {selectedMsg?.tipo === 'respuesta-cliente' ? '💬 Respuesta de Cliente' : '📧 Consulta'}
             </DialogTitle>
             <DialogDescription>
@@ -233,7 +233,7 @@ export const NotificacionesAdminView: React.FC = () => {
             <div className="space-y-4">
               {/* Info del Mensaje */}
               <div className="bg-gray-50 rounded-lg p-4">
-                <h3 style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-semibold text-gray-600 uppercase mb-2">
+                <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-gray-600 uppercase mb-2">
                   Información
                 </h3>
                 <div className="grid grid-cols-2 gap-4 text-sm">
@@ -258,10 +258,10 @@ export const NotificacionesAdminView: React.FC = () => {
 
               {/* Contenido del Mensaje */}
               <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                <h3 style={{ fontFamily: 'Inter, sans-serif' }} className="text-sm font-semibold text-blue-900 uppercase mb-2">
+                <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-blue-900 uppercase mb-2">
                   Mensaje
                 </h3>
-                <p style={{ fontFamily: 'Inter, sans-serif' }} className="text-gray-900 whitespace-pre-wrap">
+                <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-900 whitespace-pre-wrap">
                   {selectedMsg.contenido}
                 </p>
               </div>

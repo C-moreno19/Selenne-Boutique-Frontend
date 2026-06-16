@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
+import { Check, X } from 'lucide-react';
 import { CustomInput } from '../components/CustomInput';
 import { CustomButton } from '../components/CustomButton';
 import { SatinBackground } from '../components/SatinBackground';
 import api from '../../../services/api';
+import { useMensajes } from '../../../shared/contexts/MensajesContext';
 import imgLogo from 'figma:asset/8184a8c16f30f2f7daa53602475d236bcd50c9b3.png';
 
 interface RegisterViewProps {
@@ -20,6 +22,7 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
     password: '',
     confirmPassword: '',
     phone: '',
+    documento: '',
     address: '',
   });
 
@@ -29,28 +32,37 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
     password: '',
     confirmPassword: '',
     phone: '',
+    documento: '',
     address: '',
   });
 
   const [loading, setLoading] = useState(false);
+  const { crearMensaje } = useMensajes();
+
+  const passwordRules = {
+    minLength: formData.password.length >= 9,
+    maxLength: formData.password.length <= 20 && formData.password.length > 0,
+    twoNumbers: (formData.password.match(/\d/g) || []).length >= 2,
+    specialChar: /[^a-zA-Z0-9\s]/.test(formData.password),
+  };
 
   const updateField = (field: string, value: string) => {
     // Validación en tiempo real según el campo
     if (field === 'fullName') {
-      // Solo permitir letras y espacios
-      if (value && !/^[a-zA-Záéíóúñ\s]*$/.test(value)) {
-        setErrors(prev => ({ ...prev, fullName: 'Solo se permiten letras y espacios' }));
-        return; // No actualizar si contiene caracteres especiales
+      // Solo permitir letras y espacios (incluye acentos, ñ, ü)
+      if (value && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]*$/.test(value)) {
+        setErrors(prev => ({ ...prev, fullName: 'Solo se permiten letras' }));
+        return; // Bloquear el carácter inválido
       } else {
         setErrors(prev => ({ ...prev, fullName: '' }));
       }
-    } else if (field === 'phone') {
+    } else if (field === 'phone' || field === 'documento') {
       // Solo permitir números
       if (value && !/^\d*$/.test(value)) {
-        setErrors(prev => ({ ...prev, phone: 'Solo se permiten números' }));
-        return; // No actualizar si contiene caracteres no numéricos
+        setErrors(prev => ({ ...prev, [field]: 'Solo se permiten números' }));
+        return;
       } else {
-        setErrors(prev => ({ ...prev, phone: '' }));
+        setErrors(prev => ({ ...prev, [field]: '' }));
       }
     } else if (field === 'email') {
       // Validación básica de email
@@ -61,9 +73,11 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
         setErrors(prev => ({ ...prev, email: '' }));
       }
     }
-    
+
     setFormData((prev) => ({ ...prev, [field]: value }));
-    setErrors((prev) => ({ ...prev, [field]: '' }));
+    if (field !== 'email') {
+      setErrors((prev) => ({ ...prev, [field]: '' }));
+    }
   };
 
   const validateForm = (): boolean => {
@@ -73,6 +87,7 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
       password: '',
       confirmPassword: '',
       phone: '',
+      documento: '',
       address: '',
     };
 
@@ -82,7 +97,7 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
     if (!formData.fullName.trim()) {
       newErrors.fullName = 'Por favor ingresa tu nombre completo.';
       isValid = false;
-    } else if (!/^[a-zA-Záéíóúñ\s]+$/.test(formData.fullName)) {
+    } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/.test(formData.fullName)) {
       newErrors.fullName = 'El nombre no puede contener caracteres especiales.';
       isValid = false;
     }
@@ -103,8 +118,8 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
     if (!formData.password) {
       newErrors.password = 'Por favor ingresa una contraseña.';
       isValid = false;
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'La contraseña debe tener al menos 6 caracteres.';
+    } else if (!passwordRules.minLength || !passwordRules.maxLength || !passwordRules.twoNumbers || !passwordRules.specialChar) {
+      newErrors.password = 'La contraseña no cumple con los requisitos.';
       isValid = false;
     }
 
@@ -126,6 +141,15 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
       isValid = false;
     }
 
+    // Validate documento
+    if (!formData.documento.trim()) {
+      newErrors.documento = 'Ingresa tu número de documento.';
+      isValid = false;
+    } else if (!/^\d+$/.test(formData.documento)) {
+      newErrors.documento = 'El documento solo puede contener dígitos.';
+      isValid = false;
+    }
+
     // Validate address
     if (!formData.address.trim()) {
       newErrors.address = 'Por favor ingresa tu dirección.';
@@ -143,17 +167,27 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
         const payload = {
           NombreCompleto: formData.fullName,
           Email: formData.email.toLowerCase().trim(),
-          Contrasena: formData.password,  // Sin tilde, como espera el backend
+          Contrasena: formData.password,
           Telefono: formData.phone,
+          Documento: formData.documento,
+          Direccion: formData.address || '',
         };
-        
-        console.log('📤 Enviando signup con payload:', JSON.stringify(payload, null, 2));
         
         // Llamar a /api/auth/signup del backend
         const response = await api.postJson('/api/auth/signup', payload);
 
         console.log('✅ Respuesta exitosa del servidor:', response);
         setLoading(false);
+
+        // Notificar al admin
+        crearMensaje({
+          idVenta: '',
+          emailCliente: formData.email.toLowerCase().trim(),
+          remitente: 'cliente',
+          contenido: `Nueva cuenta registrada: ${formData.fullName} (${formData.email.toLowerCase().trim()})`,
+          tipo: 'nuevo-cliente',
+          destinatarios: ['admin'],
+        });
 
         // Éxito - mostrar mensaje
         onShowAlert('success', '✅ Cuenta creada exitosamente. Revisa tu correo para confirmar.');
@@ -208,28 +242,30 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
         <SatinBackground />
         <div className="max-w-[450px] ml-12 relative z-10 space-y-7">
           {/* Título */}
-          <h1 
-            className="text-[#000000]"
-            style={{ 
-              fontFamily: 'Playfair Display, serif',
-              fontSize: '64px',
+          <h1
+            style={{
+              fontFamily: '"Times New Roman", Times, serif',
+              fontSize: '88px',
               lineHeight: '1.1',
               fontWeight: 'bold',
               letterSpacing: '-0.02em',
+              color: '#000000',
             }}
           >
-            Selenne Boutique
+            <span className="block" style={{ fontFamily: '"Times New Roman", Times, serif' }}>Selenne</span>
+            <span className="block" style={{ fontFamily: '"Times New Roman", Times, serif', paddingLeft: '5.5rem' }}>Boutique</span>
           </h1>
-          
+
           {/* Frase inspiradora */}
-          <p 
-            className="text-[#1a1a1a]" 
-            style={{ 
-              fontFamily: 'Playfair Display, serif',
-              fontSize: '22px', 
+          <p
+            style={{
+              fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+              fontSize: '18px',
               lineHeight: '1.6',
-              fontWeight: '500',
+              fontWeight: '400',
               fontStyle: 'italic',
+              color: '#000000',
+              textAlign: 'center',
             }}
           >
             "Descubre prendas que realzan tu belleza y te hacen sentir única. Cada pieza está diseñada para acompañarte a brillar en cada momento."
@@ -250,7 +286,7 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
             <h1
               className="text-[#000000] text-center"
               style={{
-                fontFamily: 'Playfair Display, serif',
+                fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
                 fontSize: '36px',
                 fontWeight: 'bold',
               }}
@@ -288,6 +324,30 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
               showPasswordToggle
             />
 
+            {/* Indicador de requisitos de contraseña */}
+            <div className="-mt-2 px-1 space-y-1.5">
+              {[
+                { ok: passwordRules.minLength, label: 'Más de 8 caracteres' },
+                { ok: passwordRules.maxLength, label: 'Máximo 20 caracteres' },
+                { ok: passwordRules.twoNumbers, label: 'Al menos 2 números' },
+                { ok: passwordRules.specialChar, label: 'Al menos 1 carácter especial (!@#$%...)' },
+              ].map(({ ok, label }) => (
+                <div key={label} className="flex items-center gap-2">
+                  {ok ? (
+                    <Check className="w-3.5 h-3.5 text-green-500 shrink-0" />
+                  ) : (
+                    <X className="w-3.5 h-3.5 text-gray-300 shrink-0" />
+                  )}
+                  <span
+                    style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: '12px' }}
+                    className={ok ? 'text-green-500' : 'text-gray-300'}
+                  >
+                    {label}
+                  </span>
+                </div>
+              ))}
+            </div>
+
             <CustomInput
               type="password"
               label="Confirmar contraseña *"
@@ -308,6 +368,14 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
             />
 
             <CustomInput
+              label="Número de documento *"
+              value={formData.documento}
+              onChange={(value) => updateField('documento', value)}
+              error={errors.documento}
+              placeholder="1234567890"
+            />
+
+            <CustomInput
               label="Dirección *"
               value={formData.address}
               onChange={(value) => updateField('address', value)}
@@ -323,7 +391,7 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
               <button
                 onClick={onBackToLogin}
                 className="text-[#1a1a1a] hover:text-[#c84a8f] transition-all"
-                style={{ fontFamily: 'Inter, sans-serif', fontSize: '14px' }}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: '14px' }}
               >
                 ¿Ya tienes una cuenta? <span className="underline">Inicia sesión</span>
               </button>

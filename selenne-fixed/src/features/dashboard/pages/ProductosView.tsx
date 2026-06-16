@@ -1,1516 +1,1135 @@
-import React, { useMemo, useState } from 'react';
-import { Plus, Search, ChevronRight, Eye, Edit, Trash2, CheckCircle2, Circle, Tag, Shirt, Ruler, Palette, Package, X, Upload } from 'lucide-react';
+﻿import React, { useMemo, useState } from 'react';
+import { Search, Eye, Edit, Trash2, ChevronRight, Package, X, Loader2, Plus, Upload, Image as ImageIcon, ClipboardList, FileText, Tag, Ruler, Palette, Layers } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '../../../components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../../../components/ui/alert-dialog';
 import { Input } from '../../../components/ui/input';
 import { Label } from '../../../components/ui/label';
-import { Badge } from '../../../components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../components/ui/select';
 import { Textarea } from '../../../components/ui/textarea';
 import { toast } from 'sonner';
-import { useProductos, ProductoAdmin } from '../../../shared/contexts/ProductosContext';
+import { useProductos, ProductoAdmin, CreateProductoPayload } from '../../../shared/contexts/ProductosContext';
 import { useSubcategorias } from '../../../shared/contexts/SubcategoriasContext';
 import { useProductosAdmin } from '../../../shared/data/useProductosAdmin';
+import { useAuth } from '../../../shared/contexts/AuthContext';
+import { apiBase, getAccessToken } from '../../../services/api';
 
-interface Product extends ProductoAdmin {}
+const fmt = (n?: number) =>
+  n != null ? `$${new Intl.NumberFormat('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(n)} COP` : '—';
+
+const stockColor = (stock: number) => {
+  if (stock === 0) return 'text-red-600 bg-red-50';
+  if (stock < 5) return 'text-orange-600 bg-orange-50';
+  return 'text-green-700 bg-green-50';
+};
+
+interface Variante { tallaNombre: string; colorNombre: string; stock: number; }
+interface FormData {
+  nombre: string; codigo: string; descripcion: string;
+  categoriaPrincipalID: string; tipoProductoID: string; marcaID: string;
+  precioCompra: string; precioVenta: string; precioOferta: string;
+  stock: string; imagenPrincipal: string;
+  tallasSeleccionadas: string[]; coloresSeleccionados: string[]; materialesSeleccionados: string[];
+  variantes: Variante[];
+  imagenesPorColor: Record<string, string[]>;
+  imagenesAdicionales: string[];
+}
+
+const EMPTY: FormData = {
+  nombre: '', codigo: '', descripcion: '',
+  categoriaPrincipalID: '', tipoProductoID: '', marcaID: '',
+  precioCompra: '', precioVenta: '', precioOferta: '',
+  stock: '0', imagenPrincipal: '',
+  tallasSeleccionadas: [], coloresSeleccionados: [], materialesSeleccionados: [], variantes: [],
+  imagenesPorColor: {},
+  imagenesAdicionales: [],
+};
+
+// Input de precio tipo tarjeta — sin flechas del navegador
+const PriceCard: React.FC<{
+  label: string; value: string; required?: boolean; note?: string;
+  color?: 'default' | 'pink';
+  onChange: (v: string) => void;
+}> = ({ label, value, required, note, color = 'default', onChange }) => (
+  <div className={`rounded-xl border-2 p-4 transition-colors focus-within:border-[#d65391] ${
+    color === 'pink' ? 'border-[#d65391]/30 bg-pink-50/40' : 'border-gray-200 bg-white'
+  }`}>
+    <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className={`text-xs font-semibold uppercase tracking-wide mb-3 ${color === 'pink' ? 'text-[#d65391]/70' : 'text-gray-500'}`}>
+      {label}{required && <span className="text-red-500 ml-1">*</span>}
+    </p>
+    <div className="flex items-baseline gap-1">
+      <span className={`text-sm font-medium ${color === 'pink' ? 'text-[#d65391]/50' : 'text-gray-400'}`}>$</span>
+      <input
+        inputMode="numeric"
+        value={value}
+        onChange={e => onChange(e.target.value.replace(/[^0-9]/g, ''))}
+        placeholder={required ? '0' : '—'}
+        style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+        className={`flex-1 text-xl font-bold outline-none bg-transparent w-full min-w-0 ${
+          color === 'pink' ? 'text-[#d65391] placeholder:text-[#d65391]/25' : 'text-gray-900 placeholder:text-gray-300'
+        }`}
+      />
+    </div>
+    <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className={`text-xs mt-1 ${color === 'pink' ? 'text-[#d65391]/40' : 'text-gray-400'}`}>
+      {note || 'COP'}
+    </p>
+  </div>
+);
 
 export const ProductosView: React.FC = () => {
-  const { crearProducto, actualizarProducto, eliminarProducto } = useProductos();
-  const { colores, tallas, materiales, marcas, categorias, categoriasRopa, tiposProducto } = useSubcategorias();
-  const todosLosProductos = useProductosAdmin(); // Obtener todos los productos (locales + admin)
+  const { crearProducto, actualizarProducto, eliminarProducto, recargar } = useProductos();
+  const { colores, tallas, marcas, categorias, tiposProducto, materiales } = useSubcategorias();
+  const todosLosProductos = useProductosAdmin();
+  const { hasPermission } = useAuth();
+  const puedeEditar = hasPermission('productos:editar');
+  const puedeEliminar = hasPermission('productos:eliminar');
+  const puedeCrear = hasPermission('productos:crear');
+
   const [searchQuery, setSearchQuery] = useState('');
-  const [precioMin, setPrecioMin] = useState<number | ''>('');
-  const [precioMax, setPrecioMax] = useState<number | ''>('');
-  const [estadoFiltro, setEstadoFiltro] = useState<'todos' | 'activo' | 'inactivo'>('todos');
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [editForm, setEditForm] = useState<Partial<Product>>({});
-  const [createForm, setCreateForm] = useState<Partial<Product>>({
-    nombre: '',
-    codigo: '',
-    categoria: '',
-    categoriaMain: '',
-    marca: '',
-    precio: 0,
-    precioOriginal: 0,
-    stock: 0,
-    activo: true,
-    isSale: false,
-    imagen: '',
-    imagenes: [],
-    imagenesPorColor: {},
-    tallas: [],
-    colores: [],
-    materiales: [],
-    tipoProducto: '',
-    descripcion: ''
-  });
-  const [editImageUrl, setEditImageUrl] = useState('');
-  const [createImageUrl, setCreateImageUrl] = useState('');
-  const [createErrors, setCreateErrors] = useState<{[key: string]: string}>({});
-  const [editErrors, setEditErrors] = useState<{[key: string]: string}>({});
-  const [editColorSelection, setEditColorSelection] = useState<{ color: string; imageUrl: string }>({ color: '', imageUrl: '' });
-  const [createColorSelection, setCreateColorSelection] = useState<{ color: string; imageUrl: string }>({ color: '', imageUrl: '' });
+  const [categoriaFiltro, setCategoriaFiltro] = useState('todas');
+  const [estadoFiltro, setEstadoFiltro] = useState('todos');
+  const [selectedProduct, setSelectedProduct] = useState<ProductoAdmin | null>(null);
+  const [viewOpen, setViewOpen] = useState(false);
+  const [formOpen, setFormOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [uploadingImg, setUploadingImg] = useState(false);
+  const [form, setForm] = useState<FormData>(EMPTY);
+  const [activeTab, setActiveTab] = useState<'info' | 'variantes' | 'imagenes'>('info');
+  const [uploadingColorImg, setUploadingColorImg] = useState<string | null>(null);
+  const [uploadingAdicional, setUploadingAdicional] = useState(false);
 
-  // Los productos ahora vienen de useProductosAdmin que combina productos locales + del contexto
+  // Imagen pendiente de subir (archivo local)
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>('');
 
-  const filteredProducts = useMemo(() => {
-    let filtered = todosLosProductos;
+  const categorias_unicas = useMemo(() =>
+    [...new Set(todosLosProductos.map(p => p.categoria))].filter(Boolean),
+    [todosLosProductos]
+  );
 
-    // Filtro de búsqueda
-    const q = searchQuery.trim().toLowerCase();
-    if (q) {
-      filtered = filtered.filter(p => (
-        p.nombre.toLowerCase().includes(q) ||
-        p.codigo.toLowerCase().includes(q) ||
-        p.categoria.toLowerCase().includes(q)
-      ));
+  const filtered = useMemo(() => {
+    let list = todosLosProductos;
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      list = list.filter(p => p.nombre.toLowerCase().includes(q) || p.codigo.toLowerCase().includes(q));
     }
+    if (categoriaFiltro !== 'todas') list = list.filter(p => p.categoria === categoriaFiltro);
+    if (estadoFiltro === 'publicado') list = list.filter(p => p.activo);
+    if (estadoFiltro === 'no_publicado') list = list.filter(p => !p.activo);
+    if (estadoFiltro === 'agotado') list = list.filter(p => p.stock === 0);
+    return list;
+  }, [todosLosProductos, searchQuery, categoriaFiltro, estadoFiltro]);
 
-    // Filtro de precio mínimo
-    if (precioMin !== '') {
-      filtered = filtered.filter(p => p.precio >= precioMin);
-    }
-
-    // Filtro de precio máximo
-    if (precioMax !== '') {
-      filtered = filtered.filter(p => p.precio <= precioMax);
-    }
-
-    // Filtro de estado
-    if (estadoFiltro === 'activo') {
-      filtered = filtered.filter(p => p.activo);
-    } else if (estadoFiltro === 'inactivo') {
-      filtered = filtered.filter(p => !p.activo);
-    }
-
-    return filtered;
-  }, [todosLosProductos, searchQuery, precioMin, precioMax, estadoFiltro]);
-
-  // pagination removed — show full filtered list
-
-  const handleToggleActivo = (id: string) => {
-    const product = todosLosProductos.find(p => p.id === id);
-    if (product) {
-      actualizarProducto(id, { activo: !product.activo });
-    }
-    toast.success('Estado del producto actualizado');
+  const toggleEstado = async (p: ProductoAdmin) => {
+    if (!puedeEditar) return;
+    try {
+      await actualizarProducto(p.id, { Estado: p.activo ? 'inactivo' : 'activo' });
+      toast.success(p.activo ? 'Producto despublicado' : 'Producto publicado');
+    } catch { toast.error('Error cambiando estado'); }
   };
 
-  const handleView = (product: Product) => {
-    setSelectedProduct(product);
-    setIsViewModalOpen(true);
+  const resetImageState = () => {
+    setImageFile(null);
+    setImagePreview('');
   };
 
-  const handleEdit = (product: Product) => {
-    setSelectedProduct(product);
-    // Mantener imagenesPorColor como está — no mezclar con imagenes generales
-    const imagenesPorColor = product.imagenesPorColor || {};
-    setEditForm({ ...product, categoriaMain: product.categoria || product.categoriaMain, imagenesPorColor });
-    setEditErrors({});
-    setEditColorSelection({ color: '', imageUrl: '' });
-    setIsEditModalOpen(true);
+  const subirImagenColor = async (colorNombre: string, file: File) => {
+    if (file.size > 5 * 1024 * 1024) { toast.error('La imagen no puede superar 5MB'); return; }
+    setUploadingColorImg(colorNombre);
+    try {
+      const token = getAccessToken() || '';
+      const fd = new FormData();
+      fd.append('file', file);
+      const res = await fetch(`${apiBase}/api/upload/imagen`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: fd,
+      });
+      const data = await res.json();
+      if (!res.ok) { toast.error(data?.message || 'Error subiendo imagen'); return; }
+      const url: string = data?.data?.url || data?.url || '';
+      if (!url) { toast.error('No se recibió la URL de la imagen'); return; }
+      setForm(f => ({
+        ...f,
+        imagenesPorColor: {
+          ...f.imagenesPorColor,
+          [colorNombre]: [...(f.imagenesPorColor[colorNombre] || []), url],
+        },
+      }));
+    } catch { toast.error('Error subiendo imagen'); }
+    finally { setUploadingColorImg(null); }
   };
 
-  const handleCreate = () => {
-    setCreateErrors({});
-    setIsCreateModalOpen(true);
+  const quitarImagenColor = (colorNombre: string, url: string) => {
+    setForm(f => ({
+      ...f,
+      imagenesPorColor: {
+        ...f.imagenesPorColor,
+        [colorNombre]: (f.imagenesPorColor[colorNombre] || []).filter(u => u !== url),
+      },
+    }));
   };
 
-  const handleDelete = (product: Product) => {
-    setSelectedProduct(product);
-    setIsDeleteModalOpen(true);
+  const subirImagenAdicional = async (file: File) => {
+    if (file.size > 5 * 1024 * 1024) { toast.error('La imagen no puede superar 5MB'); return; }
+    setUploadingAdicional(true);
+    try {
+      const token = getAccessToken() || '';
+      const fd = new FormData();
+      fd.append('file', file);
+      const res = await fetch(`${apiBase}/api/upload/imagen`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: fd,
+      });
+      const data = await res.json();
+      if (!res.ok) { toast.error(data?.message || 'Error subiendo imagen'); return; }
+      const url: string = data?.data?.url || data?.url || '';
+      if (!url) { toast.error('No se recibió la URL de la imagen'); return; }
+      setForm(f => ({ ...f, imagenesAdicionales: [...f.imagenesAdicionales, url] }));
+    } catch { toast.error('Error subiendo imagen'); }
+    finally { setUploadingAdicional(false); }
+  };
+
+  const quitarImagenAdicional = (url: string) => {
+    setForm(f => ({ ...f, imagenesAdicionales: f.imagenesAdicionales.filter(u => u !== url) }));
+  };
+
+  const openCreate = () => {
+    setForm(EMPTY);
+    setIsEditing(false);
+    setActiveTab('info');
+    resetImageState();
+    setFormOpen(true);
+  };
+
+  const openEdit = (p: ProductoAdmin) => {
+    setSelectedProduct(p);
+    setForm({
+      nombre: p.nombre, codigo: p.codigo, descripcion: p.descripcion || '',
+      categoriaPrincipalID: String(p.categoriaPrincipalID || ''),
+      tipoProductoID: String(p.tipoProductoID || ''),
+      marcaID: String(p.marcaID || ''),
+      precioCompra: p.precioCompra != null ? String(p.precioCompra) : '',
+      precioVenta: String(p.precio),
+      precioOferta: p.precioOferta != null ? String(p.precioOferta) : '',
+      stock: String(p.stock),
+      imagenPrincipal: p.imagen || '',
+      tallasSeleccionadas: p.tallas || [],
+      coloresSeleccionados: p.colores || [],
+      materialesSeleccionados: p.materiales || [],
+      variantes: p.variantes?.map(v => ({ tallaNombre: v.tallaNombre || '', colorNombre: v.colorNombre || '', stock: v.stock })) || [],
+      imagenesPorColor: p.imagenesPorColor || {},
+      imagenesAdicionales: (() => {
+        const colorImgs = new Set(Object.values(p.imagenesPorColor || {}).flat());
+        return (p.imagenes || []).filter(url => url !== p.imagen && !colorImgs.has(url));
+      })(),
+    });
+    setIsEditing(true);
+    setActiveTab('info');
+    resetImageState();
+    setFormOpen(true);
+  };
+
+  const handleImageFile = (file: File) => {
+    if (file.size > 5 * 1024 * 1024) { toast.error('La imagen no puede superar 5MB'); return; }
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+  };
+
+  const uploadImageFile = async (id: string, file: File) => {
+    setUploadingImg(true);
+    try {
+      const token = getAccessToken() || '';
+
+      // 1. Subir archivo al servidor
+      const fd = new FormData();
+      fd.append('file', file);
+      const uploadRes = await fetch(`${apiBase}/api/upload/imagen`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: fd,
+      });
+      const uploadData = await uploadRes.json();
+      if (!uploadRes.ok) {
+        toast.error(uploadData?.message || 'Error subiendo imagen');
+        return;
+      }
+      const url: string = uploadData?.data?.url || uploadData?.url || '';
+      if (!url) { toast.error('No se recibió la URL de la imagen'); return; }
+
+      // 2. Asociar la URL al producto
+      await fetch(`${apiBase}/api/productos/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ImagenPrincipal: url }),
+      });
+
+      setForm(f => ({ ...f, imagenPrincipal: url }));
+      toast.success('Imagen subida correctamente');
+      await recargar();
+    } catch (e: any) {
+      console.error('Upload error:', e);
+      toast.error('Error subiendo imagen');
+    } finally {
+      setUploadingImg(false);
+    }
+  };
+
+  const toggleTalla = (nombre: string) => {
+    if (form.tallasSeleccionadas.includes(nombre)) {
+      setForm(f => ({ ...f, tallasSeleccionadas: f.tallasSeleccionadas.filter(t => t !== nombre), variantes: f.variantes.filter(v => v.tallaNombre !== nombre) }));
+    } else {
+      setForm(f => {
+        const defaultStock = Math.max(1, Number(f.stock) || 1);
+        const newVariantes = [...f.variantes];
+        f.coloresSeleccionados.forEach(color => {
+          if (!newVariantes.find(v => v.tallaNombre === nombre && v.colorNombre === color))
+            newVariantes.push({ tallaNombre: nombre, colorNombre: color, stock: defaultStock });
+        });
+        return { ...f, tallasSeleccionadas: [...f.tallasSeleccionadas, nombre], variantes: newVariantes };
+      });
+    }
+  };
+
+  const toggleColor = (nombre: string) => {
+    if (form.coloresSeleccionados.includes(nombre)) {
+      setForm(f => ({ ...f, coloresSeleccionados: f.coloresSeleccionados.filter(c => c !== nombre), variantes: f.variantes.filter(v => v.colorNombre !== nombre) }));
+    } else {
+      setForm(f => {
+        const defaultStock = Math.max(1, Number(f.stock) || 1);
+        const newVariantes = [...f.variantes];
+        f.tallasSeleccionadas.forEach(talla => {
+          if (!newVariantes.find(v => v.tallaNombre === talla && v.colorNombre === nombre))
+            newVariantes.push({ tallaNombre: talla, colorNombre: nombre, stock: defaultStock });
+        });
+        return { ...f, coloresSeleccionados: [...f.coloresSeleccionados, nombre], variantes: newVariantes };
+      });
+    }
+  };
+
+  const updateStock = (tallaNombre: string, colorNombre: string, stock: number) => {
+    setForm(f => ({ ...f, variantes: f.variantes.map(v => v.tallaNombre === tallaNombre && v.colorNombre === colorNombre ? { ...v, stock } : v) }));
+  };
+
+  const guardar = async () => {
+    if (!form.nombre.trim()) { toast.error('El nombre es obligatorio'); return; }
+    if (!form.precioVenta || Number(form.precioVenta) <= 0) { toast.error('El precio de venta es obligatorio'); return; }
+    if (!form.categoriaPrincipalID) { toast.error('Selecciona una categoría'); return; }
+    setSaving(true);
+    try {
+      const payload: any = {
+        Codigo: form.codigo,
+        Nombre: form.nombre,
+        Descripcion: form.descripcion,
+        CategoriaPrincipalID: Number(form.categoriaPrincipalID),
+        TipoProductoID: Number(form.tipoProductoID) || 1,
+        MarcaID: Number(form.marcaID) || 1,
+        PrecioVenta: Number(form.precioVenta),
+        PrecioOferta: form.precioOferta ? Number(form.precioOferta) : undefined,
+        PrecioCompra: form.precioCompra ? Number(form.precioCompra) : undefined,
+        Stock: Number(form.stock) || 0,
+        ImagenPrincipal: form.imagenPrincipal || undefined,
+        variantes: form.variantes,
+      };
+
+      payload.imagenesPorColor = Object.keys(form.imagenesPorColor).length > 0 ? form.imagenesPorColor : undefined;
+
+      if (isEditing && selectedProduct) {
+        const ok = await actualizarProducto(
+          selectedProduct.id, payload,
+          form.tallasSeleccionadas, form.coloresSeleccionados, tallas, colores,
+          [...(form.imagenPrincipal ? [form.imagenPrincipal] : []), ...form.imagenesAdicionales],
+          form.materialesSeleccionados, materiales
+        );
+        if (ok) {
+          if (imageFile) await uploadImageFile(selectedProduct.id, imageFile);
+          toast.success('Producto actualizado');
+          setFormOpen(false);
+        } else {
+          toast.error('Error guardando producto');
+        }
+      } else {
+        const newId = await crearProducto(
+          payload,
+          form.tallasSeleccionadas, form.coloresSeleccionados, tallas, colores,
+          form.imagenesAdicionales.length > 0 ? form.imagenesAdicionales : undefined,
+          form.materialesSeleccionados, materiales
+        );
+        if (newId) {
+          if (imageFile) await uploadImageFile(String(newId), imageFile);
+          toast.success('Producto creado');
+          setFormOpen(false);
+        } else {
+          toast.error('Error creando producto');
+        }
+      }
+    } catch (e: any) {
+      toast.error(e?.data?.message || 'Error guardando producto');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const confirmDelete = async () => {
-    if (selectedProduct) {
-      await eliminarProducto(selectedProduct.id);
-      toast.success('Producto eliminado exitosamente');
-      setIsDeleteModalOpen(false);
-      setSelectedProduct(null);
-    }
-  };
-
-  // Funciones para manejar archivos
-  // Nota: fileToBase64 eliminado — siempre subimos al servidor para obtener URL real
-
-  // Manejo de imágenes por color
-  const addColorToForm = (color: string, isEdit: boolean = false) => {
-    if (!color || !color.trim()) return;
-    if (isEdit) {
-      const current = editForm.colores || [];
-      if (!current.includes(color)) {
-        updateEditForm('colores', [...current, color]);
-        const imgs = editForm.imagenesPorColor || {};
-        updateEditForm('imagenesPorColor', { ...imgs, [color]: imgs[color] || [] });
-        // auto-seleccionar el color recién agregado
-        setEditColorSelection({ ...editColorSelection, color });
-      }
-    } else {
-      const current = createForm.colores || [];
-      if (!current.includes(color)) {
-        updateCreateForm('colores', [...current, color]);
-        const imgs = createForm.imagenesPorColor || {};
-        updateCreateForm('imagenesPorColor', { ...imgs, [color]: imgs[color] || [] });
-        // auto-seleccionar el color recién agregado
-        setCreateColorSelection({ ...createColorSelection, color });
-      }
-    }
-  };
-
-  const handleFileUploadForColor = async (files: FileList, color: string, isEdit: boolean = false) => {
-    if (!color) {
-      toast.error('Selecciona primero un color');
-      return;
-    }
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      try {
-        toast.loading(`Subiendo "${file.name}"...`, { id: `color-upload-${i}` });
-        const url = await uploadImageToServer(file);
-        if (url) {
-          if (isEdit) {
-            const imgsMap = editForm.imagenesPorColor || {};
-            const arr = imgsMap[color] || [];
-            updateEditForm('imagenesPorColor', { ...imgsMap, [color]: [...arr, url] });
-          } else {
-            const imgsMap = createForm.imagenesPorColor || {};
-            const arr = imgsMap[color] || [];
-            updateCreateForm('imagenesPorColor', { ...imgsMap, [color]: [...arr, url] });
-          }
-          toast.success(`Imagen subida para color ${color}`, { id: `color-upload-${i}` });
-        } else {
-          toast.dismiss(`color-upload-${i}`);
-        }
-      } catch (error) {
-        toast.error(`Error al subir "${file.name}"`, { id: `color-upload-${i}` });
-      }
-    }
-  };
-
-  const addImageUrlForColor = (url: string, color: string, isEdit: boolean = false) => {
-    if (!url.trim()) {
-      toast.error('Por favor ingresa una URL válida');
-      return;
-    }
-    if (!color) {
-      toast.error('Selecciona primero un color');
-      return;
-    }
-    if (isEdit) {
-      const imgsMap = editForm.imagenesPorColor || {};
-      const arr = imgsMap[color] || [];
-      updateEditForm('imagenesPorColor', { ...imgsMap, [color]: [...arr, url] });
-    } else {
-      const imgsMap = createForm.imagenesPorColor || {};
-      const arr = imgsMap[color] || [];
-      updateCreateForm('imagenesPorColor', { ...imgsMap, [color]: [...arr, url] });
-    }
-    toast.success('Imagen agregada');
-  };
-
-  const removeImageByColor = (color: string, index: number, isEdit: boolean = false) => {
-    if (isEdit) {
-      const imgsMap = editForm.imagenesPorColor || {};
-      const arr = imgsMap[color] || [];
-      updateEditForm('imagenesPorColor', { ...imgsMap, [color]: arr.filter((_, i) => i !== index) });
-    } else {
-      const imgsMap = createForm.imagenesPorColor || {};
-      const arr = imgsMap[color] || [];
-      updateCreateForm('imagenesPorColor', { ...imgsMap, [color]: arr.filter((_, i) => i !== index) });
-    }
-    toast.success('Imagen eliminada');
-  };
-
-  const uploadImageToServer = async (file: File): Promise<string | null> => {
+    if (!selectedProduct) return;
+    setSaving(true);
     try {
-      const token = localStorage.getItem('accessToken');
-      const formData = new FormData();
-      formData.append('file', file);
-      const res = await fetch('http://localhost:5000/api/upload/imagen', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
-      });
-      if (!res.ok) {
-        const err = await res.json();
-        toast.error(err?.message || 'Error al subir imagen');
-        return null;
-      }
-      const data = await res.json();
-      return data?.data?.url ?? null;
-    } catch {
-      toast.error('No se pudo conectar con el servidor para subir la imagen');
-      return null;
+      await eliminarProducto(selectedProduct.id);
+      toast.success('Producto eliminado');
+      setDeleteOpen(false);
+    } catch (e: any) {
+      toast.error(e?.message || 'No se pudo eliminar el producto');
+    } finally {
+      setSaving(false);
     }
   };
 
-  const handleFileUpload = async (files: FileList, isEdit: boolean = false) => {
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      try {
-        toast.loading(`Subiendo "${file.name}"...`, { id: `upload-${i}` });
-        const url = await uploadImageToServer(file);
-        if (url) {
-          if (isEdit) {
-            const currentImages = editForm.imagenes || [];
-            updateEditForm('imagenes', [...currentImages, url]);
-          } else {
-            const currentImages = createForm.imagenes || [];
-            updateCreateForm('imagenes', [...currentImages, url]);
-          }
-          toast.success(`Imagen "${file.name}" subida`, { id: `upload-${i}` });
-        } else {
-          toast.dismiss(`upload-${i}`);
-        }
-      } catch (error) {
-        toast.error(`Error al subir "${file.name}"`, { id: `upload-${i}` });
-      }
-    }
-  };
-
-  const addImageUrl = (url: string, isEdit: boolean = false) => {
-    if (!url.trim()) {
-      toast.error('Por favor ingresa una URL válida');
-      return;
-    }
-    if (isEdit) {
-      const currentImages = editForm.imagenes || [];
-      updateEditForm('imagenes', [...currentImages, url]);
-      setEditImageUrl('');
-    } else {
-      const currentImages = createForm.imagenes || [];
-      updateCreateForm('imagenes', [...currentImages, url]);
-      setCreateImageUrl('');
-    }
-    toast.success('Imagen agregada');
-  };
-
-  const removeImage = (index: number, isEdit: boolean = false) => {
-    if (isEdit) {
-      const currentImages = editForm.imagenes || [];
-      updateEditForm('imagenes', currentImages.filter((_, i) => i !== index));
-    } else {
-      const currentImages = createForm.imagenes || [];
-      updateCreateForm('imagenes', currentImages.filter((_, i) => i !== index));
-    }
-    toast.success('Imagen eliminada');
-  };
-
-  const handleSaveEdit = async () => {
-    if (Object.values(editErrors).some(error => error !== '')) {
-      toast.error('Por favor, corrige los errores antes de guardar');
-      return;
-    }
-    if (!selectedProduct || !editForm.nombre) {
-      toast.error('El nombre es obligatorio');
-      return;
-    }
-
-    // Resolver IDs desde los nombres seleccionados
-    const categoriaPrincipalEditObj = categorias.find(c => c.nombre === editForm.categoriaMain);
-    const marcaObj = marcas.find(m => m.nombre === editForm.marca);
-    const tipoObj = tiposProducto.find(t => t.nombre === editForm.tipoProducto);
-
-    const catID = categoriaPrincipalEditObj ? Number(categoriaPrincipalEditObj.id) : selectedProduct.categoriaPrincipalID ?? 1;
-    const marcID = marcaObj ? Number(marcaObj.id) : selectedProduct.marcaID ?? 1;
-    const tipID = tipoObj ? Number(tipoObj.id) : selectedProduct.tipoProductoID ?? 1;
-
-    // Nunca guardar base64 — solo URLs reales
-    const imagenEdit = (editForm.imagen || '').startsWith('data:') ? '' : (editForm.imagen || '');
-
-    const payload = {
-      Nombre: editForm.nombre,
-      Descripcion: editForm.descripcion,
-      CategoriaPrincipalID: catID,
-      TipoProductoID: tipID,
-      MarcaID: marcID,
-      PrecioVenta: editForm.precio ?? 0,
-      PrecioOferta: (editForm.precioOriginal && editForm.precioOriginal > 0 && editForm.precioOriginal > (editForm.precio ?? 0)) ? editForm.precioOriginal : undefined,
-      Stock: Math.max(0, editForm.stock ?? 0),
-      ImagenPrincipal: imagenEdit || undefined,
-      Estado: editForm.activo ? 'activo' : 'inactivo',
-    };
-
-    // Imágenes generales (sin color asignado)
-    const imagenesEditUrls: string[] = (editForm.imagenes || []).filter((u: string) => u && !u.startsWith('data:'));
-    // Pasar imagenesPorColor en el payload para que se envíe con ColorNombre
-    const payloadConImagenes = { ...payload, imagenesPorColor: editForm.imagenesPorColor || {} };
-    console.log('[Edit] imagenesEditUrls:', imagenesEditUrls, 'imagenesPorColor:', editForm.imagenesPorColor);
-    const ok = await actualizarProducto(selectedProduct.id, payloadConImagenes, editForm.tallas || [], editForm.colores || [], tallas, colores, imagenesEditUrls, editForm.materiales || [], materiales);
-    if (ok) {
-      toast.success('Producto actualizado exitosamente');
-      setIsEditModalOpen(false);
-      setSelectedProduct(null);
-      setEditForm({});
-      setEditErrors({});
-    } else {
-      toast.error('Error al actualizar el producto');
-    }
-  };
-
-  const handleSaveCreate = async () => {
-    if (Object.values(createErrors).some(error => error !== '')) {
-      toast.error('Por favor, corrige los errores antes de guardar');
-      return;
-    }
-    if (!createForm.nombre) {
-      toast.error('El nombre del producto es obligatorio');
-      return;
-    }
-    if (!createForm.categoriaMain) {
-      toast.error('Selecciona una Categoría Principal');
-      return;
-    }
-    // Auto-generar código si está vacío
-    if (!createForm.codigo) {
-      updateCreateForm('codigo', `PROD-${Date.now()}`);
-    }
-
-    // Resolver IDs desde los nombres seleccionados
-    const categoriaPrincipalObj = categorias.find(c => c.nombre === createForm.categoriaMain);
-    const marcaObj = marcas.find(m => m.nombre === createForm.marca);
-    const tipoObj = tiposProducto.find(t => t.nombre === createForm.tipoProducto);
-
-    if (!categoriaPrincipalObj) { toast.error('Selecciona una Categoría Principal'); return; }
-    // Marca y tipo usan fallback al primero disponible si no se seleccionó
-    const marcaFinal = marcaObj ?? marcas[0];
-    const tipoFinal = tipoObj ?? tiposProducto[0];
-    if (!marcaFinal) { toast.error('No hay marcas disponibles, crea una primero'); return; }
-    if (!tipoFinal) { toast.error('No hay tipos de producto disponibles'); return; }
-
-    // Nunca guardar base64 — solo URLs reales
-    const imagen = (createForm.imagen || '').startsWith('data:') ? '' : (createForm.imagen || '');
-
-    const payload = {
-      Codigo: createForm.codigo || `PROD-${Date.now()}`,
-      Nombre: createForm.nombre,
-      Descripcion: createForm.descripcion ?? '',
-      CategoriaPrincipalID: Number(categoriaPrincipalObj.id),
-      TipoProductoID: Number(tipoFinal.id),
-      MarcaID: Number(marcaFinal.id),
-      PrecioVenta: createForm.precio ?? 0,
-      PrecioOferta: (createForm.precioOriginal && createForm.precioOriginal > 0 && createForm.precioOriginal > (createForm.precio ?? 0)) ? createForm.precioOriginal : undefined,
-      Stock: Math.max(0, createForm.stock ?? 0),
-      ImagenPrincipal: imagen || undefined,
-    };
-
-    const imagenesUrls: string[] = (createForm.imagenes || []).filter((u: string) => u && !u.startsWith('data:'));
-    const payloadConImagenes = { ...payload, imagenesPorColor: createForm.imagenesPorColor || {} };
-    console.log('[Create] imagenesUrls:', imagenesUrls, 'imagenesPorColor:', createForm.imagenesPorColor);
-    const ok = await crearProducto(payloadConImagenes, createForm.tallas || [], createForm.colores || [], tallas, colores, imagenesUrls, createForm.materiales || [], materiales);
-    if (ok) {
-      toast.success('Producto creado exitosamente');
-      setIsCreateModalOpen(false);
-      setCreateForm({
-        nombre: '', codigo: '', categoria: '', categoriaMain: '', marca: '',
-        precio: 0, precioOriginal: 0, stock: 0, activo: true, isSale: false,
-        imagen: '', imagenes: [], imagenesPorColor: {}, tallas: [], colores: [],
-        materiales: [], tipoProducto: '', descripcion: ''
-      });
-      setCreateImageUrl('');
-      setCreateErrors({});
-      setCreateColorSelection({ color: '', imageUrl: '' });
-    } else {
-      toast.error('Error al crear el producto. Verifica que el código no esté duplicado.');
-    }
-  };
-
-  const updateEditForm = (field: string, value: any) => {
-    setEditForm(prev => ({ ...prev, [field]: value }));
-  };
-
-  const updateCreateForm = (field: string, value: any) => {
-    setCreateForm(prev => ({ ...prev, [field]: value }));
-  };
-
-  const formatPrecio = (precio: number) => {
-    return `$${precio.toLocaleString('es-CO')}`;
-  };
-
-  const calcularDescuento = (precio: number, precioOriginal: number) => {
-    if (!precioOriginal) return 0;
-    const descuento = ((precioOriginal - precio) / precioOriginal) * 100;
-    return Math.round(descuento);
-  };
+  // Vista previa de la imagen en el formulario
+  const currentImageSrc = imagePreview || (form.imagenPrincipal
+    ? (form.imagenPrincipal.startsWith('http') ? form.imagenPrincipal : `${apiBase}${form.imagenPrincipal}`)
+    : '');
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="p-8 bg-gray-50 min-h-screen">
+      {/* Breadcrumb */}
       <div className="flex items-center gap-2 mb-4">
-        <span className="text-sm text-gray-500">Dashboard</span>
+        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500">Dashboard</span>
         <ChevronRight className="w-4 h-4 text-gray-400" />
-        <span className="text-sm text-gray-900">Gestión de Productos</span>
+        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-900">Inventario</span>
       </div>
 
-      <div className="mb-6 flex items-center gap-4">
-        <h1 className="text-2xl font-bold text-gray-900">Productos</h1>
-        <div className="ml-auto flex items-center gap-2">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <input
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              placeholder="Buscar productos..."
-              className="pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#d65391] focus:border-transparent"
-            />
-          </div>
-          <button 
-            onClick={handleCreate}
-            className="px-4 py-2 bg-[#d65391] text-white rounded-md hover:bg-[#c84a8f] transition-colors flex items-center gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            Nuevo Producto
-          </button>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 style={{ fontFamily: '"Times New Roman", Times, serif' }} className="text-4xl text-gray-900">Inventario de Productos</h1>
+          <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-500 text-sm mt-1">
+            {todosLosProductos.length} productos · los <strong>publicados</strong> son visibles para los clientes
+          </p>
         </div>
+        {puedeCrear && (
+          <button onClick={openCreate} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+            className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 flex items-center gap-2 transition-colors">
+            <Plus className="w-5 h-5" /> Nuevo Producto
+          </button>
+        )}
       </div>
 
-      {/* Grid de Productos */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {filteredProducts.map(product => (
-          <div key={product.id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
-            {/* Imagen del Producto */}
-            <div className="relative">
-              <img 
-                src={product.imagen} 
-                alt={product.nombre} 
-                className="w-full h-48 object-cover"
-              />
-              {product.precioOriginal && (
-                <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-medium">
-                  -{calcularDescuento(product.precio, product.precioOriginal)}%
-                </div>
+      {/* Filtros */}
+      <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 flex flex-wrap gap-3 mb-6">
+        <div className="flex-1 min-w-[200px] flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 focus-within:ring-2 focus-within:ring-[#d65391]">
+          <Search className="w-4 h-4 text-gray-400 shrink-0" />
+          <input type="text" placeholder="Buscar por nombre o referencia..." value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+            className="flex-1 bg-transparent py-2.5 text-sm focus:outline-none" />
+        </div>
+        <Select value={categoriaFiltro} onValueChange={setCategoriaFiltro}>
+          <SelectTrigger className="w-44 h-10 border-gray-200 text-sm"><SelectValue placeholder="Categoría" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="todas">Todas las categorías</SelectItem>
+            {categorias_unicas.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        <Select value={estadoFiltro} onValueChange={setEstadoFiltro}>
+          <SelectTrigger className="w-40 h-10 border-gray-200 text-sm"><SelectValue placeholder="Estado" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="todos">Todos</SelectItem>
+            <SelectItem value="publicado">Publicados</SelectItem>
+            <SelectItem value="no_publicado">No publicados</SelectItem>
+            <SelectItem value="agotado">Agotados</SelectItem>
+          </SelectContent>
+        </Select>
+        {(searchQuery || categoriaFiltro !== 'todas' || estadoFiltro !== 'todos') && (
+          <button onClick={() => { setSearchQuery(''); setCategoriaFiltro('todas'); setEstadoFiltro('todos'); }}
+            className="px-3 py-2 text-gray-400 hover:text-gray-600 flex items-center gap-1 text-sm">
+            <X className="w-4 h-4" /> Limpiar
+          </button>
+        )}
+        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="ml-auto self-center text-sm text-gray-500">
+          <strong className="text-gray-800">{filtered.length}</strong> de <strong className="text-gray-800">{todosLosProductos.length}</strong>
+        </span>
+      </div>
+
+      {/* Tabla */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50 border-b border-gray-200">
+              <tr>
+                <th className="px-4 py-3 w-14"></th>
+                {['PRODUCTO', 'MARCA / CATEGORÍA', 'COSTO', 'VENTA', 'OFERTA', 'STOCK', 'TALLAS', 'PUBLICADO', ''].map(h => (
+                  <th key={h} className="px-4 py-3 text-left">
+                    <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs font-semibold uppercase tracking-wider text-gray-400">{h}</span>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+              {filtered.map(p => (
+                <tr key={p.id} className="hover:bg-gray-50/70 transition-colors">
+                  {/* Imagen */}
+                  <td className="px-4 py-3">
+                    {p.imagen ? (
+                      <img src={p.imagen} alt={p.nombre} className="w-11 h-11 object-cover rounded-lg border border-gray-200" />
+                    ) : (
+                      <div className="w-11 h-11 bg-gray-100 rounded-lg flex items-center justify-center">
+                        <Package className="w-4 h-4 text-gray-300" />
+                      </div>
+                    )}
+                  </td>
+                  {/* Nombre + código */}
+                  <td className="px-4 py-3">
+                    <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-gray-900 text-sm">{p.nombre}</p>
+                    {p.codigo && <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 font-mono mt-0.5">{p.codigo}</p>}
+                  </td>
+                  {/* Marca / Categoría */}
+                  <td className="px-4 py-3">
+                    <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-700">{p.marca || '—'}</p>
+                    <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">{p.categoria}</p>
+                  </td>
+                  {/* Costo */}
+                  <td className="px-4 py-3">
+                    <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500">{fmt(p.precioCompra)}</span>
+                  </td>
+                  {/* Venta */}
+                  <td className="px-4 py-3">
+                    <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-gray-900">{fmt(p.precio)}</span>
+                  </td>
+                  {/* Oferta */}
+                  <td className="px-4 py-3">
+                    {p.precioOferta
+                      ? <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#d65391]">{fmt(p.precioOferta)}</span>
+                      : <span className="text-gray-300 text-sm">—</span>}
+                  </td>
+                  {/* Stock */}
+                  <td className="px-4 py-3">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-semibold ${stockColor(p.stock)}`}>
+                      {p.stock === 0 ? 'Agotado' : `${p.stock} uds`}
+                    </span>
+                  </td>
+                  {/* Tallas / Colores */}
+                  <td className="px-4 py-3">
+                    {p.tallas.length > 0 ? (
+                      <div className="flex flex-col gap-0.5">
+                        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-600">
+                          {p.tallas.slice(0, 3).join(', ')}{p.tallas.length > 3 ? ` +${p.tallas.length - 3}` : ''}
+                        </span>
+                        {p.colores.length > 0 && (
+                          <div className="flex gap-1">
+                            {p.colores.slice(0, 4).map(c => {
+                              const hex = colores.find((x: any) => x.nombre === c)?.hexColor || '#ccc';
+                              return <span key={c} className="w-3 h-3 rounded-full border border-gray-300 inline-block" style={{ backgroundColor: hex }} title={c} />;
+                            })}
+                            {p.colores.length > 4 && <span className="text-xs text-gray-400">+{p.colores.length - 4}</span>}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-orange-500 font-medium">Sin tallas</span>
+                    )}
+                  </td>
+                  {/* Toggle publicado */}
+                  <td className="px-4 py-3">
+                    <button
+                      onClick={() => toggleEstado(p)}
+                      disabled={!puedeEditar}
+                      style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
+                        p.activo
+                          ? 'bg-green-50 text-green-700 border-green-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200'
+                          : 'bg-gray-100 text-gray-500 border-gray-200 hover:bg-green-50 hover:text-green-700 hover:border-green-200'
+                      } ${!puedeEditar ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                      title={p.activo ? 'Clic para ocultar' : 'Clic para publicar'}
+                    >
+                      <span className={`w-1.5 h-1.5 rounded-full ${p.activo ? 'bg-green-500' : 'bg-gray-400'}`} />
+                      {p.activo ? 'Publicado' : 'Oculto'}
+                    </button>
+                  </td>
+                  {/* Acciones */}
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-1">
+                      <button onClick={() => { setSelectedProduct(p); setViewOpen(true); }}
+                        className="p-1.5 text-gray-400 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors" title="Ver detalle">
+                        <Eye className="w-4 h-4" />
+                      </button>
+                      {puedeEditar && (
+                        <button onClick={() => openEdit(p)}
+                          className="p-1.5 text-gray-400 hover:bg-amber-50 hover:text-amber-600 rounded-lg transition-colors" title="Editar">
+                          <Edit className="w-4 h-4" />
+                        </button>
+                      )}
+                      {puedeEliminar && (
+                        <button onClick={() => { setSelectedProduct(p); setDeleteOpen(true); }}
+                          className="p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors" title="Eliminar">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {filtered.length === 0 && (
+                <tr><td colSpan={9} className="px-6 py-16 text-center">
+                  <Package className="w-12 h-12 text-gray-200 mx-auto mb-3" />
+                  <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-400">No se encontraron productos</p>
+                </td></tr>
               )}
-              <div className={`absolute top-2 left-2 px-2 py-1 rounded text-xs font-medium ${
-                product.activo ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
-              }`}>
-                {product.activo ? 'Activo' : 'Inactivo'}
-              </div>
-            </div>
-
-            {/* Información del Producto */}
-            <div className="p-4">
-              <div className="mb-2">
-                <h3 className="font-semibold text-gray-900 text-lg mb-1">{product.nombre}</h3>
-                <p className="text-sm text-gray-600">{product.codigo}</p>
-              </div>
-
-              {/* Precios */}
-              <div className="mb-3">
-                <div className="flex items-center gap-2">
-                  <span className="text-xl font-bold text-[#d65391]">{formatPrecio(product.precio)}</span>
-                  {product.precioOriginal && (
-                    <span className="text-sm text-gray-500 line-through">{formatPrecio(product.precioOriginal)}</span>
-                  )}
-                </div>
-                <p className="text-sm text-gray-600">Stock: {product.stock} unidades</p>
-              </div>
-
-              {/* Especificaciones del Producto */}
-              <div className="grid grid-cols-2 gap-2 mb-4 text-xs">
-                <div className="flex items-center gap-2">
-                  <Tag className="w-4 h-4 text-[#d65391]" />
-                  <span className="text-gray-600">{product.categoria}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Tag className="w-4 h-4 text-pink-600" />
-                  <span className="text-gray-600">{product.categoriaMain}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Shirt className="w-4 h-4 text-purple-600" />
-                  <span className="text-gray-600">{product.marca}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Ruler className="w-4 h-4 text-green-600" />
-                  <span className="text-gray-600">{product.tallas.join(', ')}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Palette className="w-4 h-4 text-yellow-600" />
-                  <span className="text-gray-600">{product.colores.join(', ')}</span>
-                </div>
-              </div>
-
-              {/* Acciones */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1">
-                  <button 
-                    onClick={() => handleView(product)}
-                    className="p-2 text-gray-600 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
-                    title="Ver detalles"
-                  >
-                    <Eye className="w-4 h-4" />
-                  </button>
-                  <button 
-                    onClick={() => handleEdit(product)}
-                    className="p-2 text-gray-600 hover:bg-yellow-50 hover:text-yellow-600 rounded-lg transition-colors"
-                    title="Editar producto"
-                  >
-                    <Edit className="w-4 h-4" />
-                  </button>
-                  <button 
-                    onClick={() => handleDelete(product)}
-                    className="p-2 text-gray-600 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors"
-                    title="Eliminar producto"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-                <button
-                  onClick={() => handleToggleActivo(product.id)}
-                  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                    product.activo 
-                      ? 'bg-green-100 text-green-700 hover:bg-green-200' 
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                  title={product.activo ? 'Desactivar producto' : 'Activar producto'}
-                >
-                  {product.activo ? 'Activo' : 'Inactivo'}
-                </button>
-              </div>
-            </div>
-          </div>
-        ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="px-6 py-3 border-t border-gray-100">
+          <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">
+            {filtered.length} de {todosLosProductos.length} productos
+          </span>
+        </div>
       </div>
 
-      {filteredProducts.length === 0 && (
-        <div className="text-center py-12">
-          <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <p className="text-gray-500 mb-4">No se encontraron productos</p>
-          <button className="px-4 py-2 bg-[#d65391] text-white rounded-md hover:bg-[#c84a8f] transition-colors">
-            Agregar primer producto
-          </button>
-        </div>
-      )}
-
-      {/* Modal de Ver Detalles */}
-      <Dialog open={isViewModalOpen} onOpenChange={setIsViewModalOpen}>
-        <DialogContent className="max-w-5xl">
-          <DialogHeader>
-            <DialogTitle>Detalles del Producto</DialogTitle>
+      {/* ═══ MODAL VER ═══ */}
+      <Dialog open={viewOpen} onOpenChange={setViewOpen}>
+        <DialogContent className="max-w-2xl h-auto flex flex-col p-0 gap-0">
+          <DialogHeader className="px-8 pt-6 pb-4 border-b border-gray-200 flex-shrink-0">
+            <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-2xl">{selectedProduct?.nombre}</DialogTitle>
+            <DialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+              {selectedProduct?.codigo && <span className="font-mono">{selectedProduct.codigo}</span>}
+              {selectedProduct?.marca && <span> · {selectedProduct.marca}</span>}
+            </DialogDescription>
           </DialogHeader>
           {selectedProduct && (
-            <div className="space-y-6">
-              <div className="flex gap-6">
-                <img 
-                  src={selectedProduct.imagen} 
-                  alt={selectedProduct.nombre} 
-                  className="w-40 h-40 object-cover rounded-lg"
-                />
-                <div className="flex-1">
-                  <h3 className="text-2xl font-semibold">{selectedProduct.nombre}</h3>
-                  <p className="text-gray-600 text-lg">{selectedProduct.codigo}</p>
-                  <div className="flex items-center gap-4 mt-4">
-                    <p className="text-2xl font-bold text-[#d65391]">{formatPrecio(selectedProduct.precio)}</p>
-                    {selectedProduct.precioOriginal && (
-                      <p className="text-lg text-gray-500 line-through">{formatPrecio(selectedProduct.precioOriginal)}</p>
-                    )}
+            <div className="flex-1 overflow-y-auto">
+              <div className="space-y-6 py-6 px-8">
+
+                {/* Imagen + precios */}
+                <div className="flex gap-6 items-start">
+                  {selectedProduct.imagen ? (
+                    <img src={selectedProduct.imagen} alt={selectedProduct.nombre}
+                      className="w-32 h-32 object-cover rounded-xl border border-gray-200 flex-shrink-0" />
+                  ) : (
+                    <div className="w-32 h-32 bg-gray-100 rounded-xl flex items-center justify-center flex-shrink-0 border border-gray-200">
+                      <Package className="w-8 h-8 text-gray-300" />
+                    </div>
+                  )}
+                  <div className="flex-1 grid grid-cols-3 gap-4">
+                    {[
+                      { label: 'Precio de Costo', value: fmt(selectedProduct.precioCompra), cls: 'text-gray-900' },
+                      { label: 'Precio de Venta', value: fmt(selectedProduct.precio), cls: 'text-gray-900' },
+                      { label: 'Precio Oferta', value: selectedProduct.precioOferta ? fmt(selectedProduct.precioOferta) : 'Sin oferta', cls: selectedProduct.precioOferta ? 'text-[#d65391]' : 'text-gray-300' },
+                    ].map(({ label, value, cls }) => (
+                      <div key={label} className="bg-gray-50 rounded-xl p-4">
+                        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500 mb-2 uppercase tracking-wide">{label}</p>
+                        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className={`text-base font-bold ${cls}`}>{value}</p>
+                      </div>
+                    ))}
                   </div>
-                  <p className="text-lg text-gray-600 mt-2">Stock: {selectedProduct.stock} unidades</p>
-                  <div className="flex items-center gap-2 mt-3">
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      selectedProduct.activo ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
-                    }`}>
-                      {selectedProduct.activo ? 'Activo' : 'Inactivo'}
-                    </span>
+                </div>
+
+                {/* Info general */}
+                <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                  <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                    <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-gray-800 text-base flex items-center gap-2"><ClipboardList className="w-4 h-4 text-gray-400" />Información General</h3>
+                  </div>
+                  <div className="p-6 grid grid-cols-2 gap-6">
+                    {[
+                      ['Categoría', selectedProduct.categoria],
+                      ['Marca', selectedProduct.marca || '—'],
+                      ['Tipo de Prenda', selectedProduct.tipoProducto || '—'],
+                      ['Stock Total', `${selectedProduct.stock} unidades`],
+                      ['Estado', selectedProduct.activo ? '✅ Publicado' : '⭕ No publicado'],
+                      ['Materiales', selectedProduct.materiales?.join(', ') || '—'],
+                    ].map(([label, value]) => (
+                      <div key={label} className="flex flex-col gap-1">
+                        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500 font-medium uppercase">{label}</p>
+                        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-gray-900">{value}</p>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              </div>
-              
-              <div className="grid grid-cols-3 gap-4 text-sm">
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <strong className="text-gray-700 block mb-1">Categoría:</strong>
-                  <span className="text-gray-900">{selectedProduct.categoria}</span>
-                </div>
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <strong className="text-gray-700 block mb-1">Categoría Principal:</strong>
-                  <span className="text-gray-900">{selectedProduct.categoriaMain}</span>
-                </div>
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <strong className="text-gray-700 block mb-1">Marca:</strong>
-                  <span className="text-gray-900">{selectedProduct.marca}</span>
-                </div>
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <strong className="text-gray-700 block mb-1">Tallas:</strong>
-                  <span className="text-gray-900">{selectedProduct.tallas.join(', ')}</span>
-                </div>
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <strong className="text-gray-700 block mb-1">Colores:</strong>
-                  <span className="text-gray-900">{selectedProduct.colores.join(', ')}</span>
-                </div>
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <strong className="text-gray-700 block mb-1">Materiales:</strong>
-                  <span className="text-gray-900">{Array.isArray(selectedProduct.materiales) ? selectedProduct.materiales.join(', ') : selectedProduct.materiales}</span>
-                </div>
-                <div className="bg-gray-50 p-3 rounded-lg col-span-3">
-                  <strong className="text-gray-700 block mb-1">Descripción:</strong>
-                  <p className="text-gray-900 leading-relaxed">{selectedProduct.descripcion}</p>
-                </div>
+
+                {/* Variantes */}
+                {selectedProduct.variantes?.length > 0 && (
+                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                      <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-gray-800 text-base flex items-center gap-2"><Package className="w-4 h-4 text-gray-400" />Stock por Talla y Color</h3>
+                    </div>
+                    <div className="p-6">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b border-gray-100">
+                            <th className="pb-3 text-left text-xs text-gray-500 uppercase font-semibold">Talla</th>
+                            <th className="pb-3 text-left text-xs text-gray-500 uppercase font-semibold">Color</th>
+                            <th className="pb-3 text-right text-xs text-gray-500 uppercase font-semibold">Stock</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-50">
+                          {selectedProduct.variantes.map((v, i) => (
+                            <tr key={i}>
+                              <td className="py-3 text-gray-700 font-medium">{v.tallaNombre || '—'}</td>
+                              <td className="py-3 text-gray-700">{v.colorNombre || '—'}</td>
+                              <td className="py-3 text-right">
+                                <span className={`px-2 py-1 rounded-lg text-xs font-semibold ${stockColor(v.stock)}`}>
+                                  {v.stock === 0 ? 'Agotado' : v.stock}
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+
+                {/* Descripción */}
+                {selectedProduct.descripcion && (
+                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                      <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-gray-800 text-base flex items-center gap-2"><FileText className="w-4 h-4 text-gray-400" />Descripción</h3>
+                    </div>
+                    <div className="p-6">
+                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-700 leading-relaxed">{selectedProduct.descripcion}</p>
+                    </div>
+                  </div>
+                )}
+
               </div>
             </div>
           )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Modal de Editar */}
-      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Editar Producto</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-6">
-            {/* PASO 1: Información Básica */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h3 className="font-semibold text-gray-900 mb-3">Paso 1: Información Básica</h3>
-              <div className="space-y-3">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="edit-nombre">Nombre *</Label>
-                    <Input
-                      id="edit-nombre"
-                      value={editForm.nombre || ''}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        updateEditForm('nombre', value);
-                        if (!/^[a-zA-Z\s]+$/.test(value)) {
-                          setEditErrors({...editErrors, nombre: 'Solo se permiten letras y espacios'});
-                        } else {
-                          setEditErrors({...editErrors, nombre: ''});
-                        }
-                      }}
-                      placeholder="Nombre del producto"
-                    />
-                    {editErrors.nombre && <p className="text-red-500 text-sm">{editErrors.nombre}</p>}
-                  </div>
-                  <div>
-                    <Label htmlFor="edit-codigo">Código *</Label>
-                    <Input
-                      id="edit-codigo"
-                      value={editForm.codigo || ''}
-                      onChange={(e) => updateEditForm('codigo', e.target.value)}
-                      placeholder="Código único"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="edit-categoria">Categoría *</Label>
-                    <Select value={editForm.categoria || ''} onValueChange={(value) => updateEditForm('categoria', value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccionar categoría" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categoriasRopa.map((categoria) => (
-                          <SelectItem key={categoria.id} value={categoria.nombre}>{categoria.nombre}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="edit-categoriaMain">Categoría Principal *</Label>
-                    <Select value={editForm.categoriaMain || ''} onValueChange={(value) => updateEditForm('categoriaMain', value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccionar categoría principal" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categorias.map((cat) => (
-                          <SelectItem key={cat.id} value={cat.nombre}>{cat.nombre}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="edit-marca">Marca</Label>
-                    <Select value={editForm.marca || ''} onValueChange={(value) => updateEditForm('marca', value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccionar marca" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {marcas.map((marca) => (
-                          <SelectItem key={marca.id} value={marca.nombre}>
-                            {marca.nombre}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {editErrors.marca && <p className="text-red-500 text-sm">{editErrors.marca}</p>}
-                  </div>
-                  <div>
-                    <Label htmlFor="edit-tipoProducto">Tipo de Producto</Label>
-                    <Select value={editForm.tipoProducto || ''} onValueChange={(value) => updateEditForm('tipoProducto', value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccionar tipo" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {tiposProducto.map((tipo) => (
-                          <SelectItem key={tipo.id} value={tipo.nombre}>{tipo.nombre}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </div>
-
-              {/* Imagen Principal */}
-              <div className="mt-3">
-                <Label htmlFor="edit-imagen">Imagen Principal</Label>
-                <div className="flex gap-2 mt-1">
-                  <Input
-                    id="edit-imagen"
-                    value={editForm.imagen || ''}
-                    onChange={(e) => updateEditForm('imagen', e.target.value)}
-                    placeholder="https://... pega URL o sube desde PC"
-                  />
-                  {editForm.imagen && !editForm.imagen.startsWith('data:') && (
-                    <img src={editForm.imagen} alt="preview" className="w-12 h-12 object-cover rounded border" />
-                  )}
-                </div>
-                <div className="flex items-center gap-2 mt-2">
-                  <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs px-3 py-1.5 rounded border border-gray-300 flex items-center gap-1">
-                    <Upload className="w-3 h-3" />
-                    Subir desde PC
-                    <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
-                      if (e.target.files?.[0]) {
-                        toast.loading('Subiendo imagen...', { id: 'main-img-edit' });
-                        const url = await uploadImageToServer(e.target.files[0]);
-                        if (url) { updateEditForm('imagen', url); toast.success('Imagen subida', { id: 'main-img-edit' }); }
-                        else toast.dismiss('main-img-edit');
-                        e.target.value = '';
-                      }
-                    }} />
-                  </label>
-                  <span className="text-xs text-gray-400">o pega una URL arriba</span>
-                </div>
-              </div>
-            </div>
-
-            {/* PASO 2: Especificaciones (Colores, Tallas, Materiales) */}
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-              <h3 className="font-semibold text-gray-900 mb-3">Paso 2: Especificaciones</h3>
-              <div className="space-y-4">
-                {/* COLORES - PRIMERO */}
-                <div>
-                  <Label className="font-medium mb-2 block">Colores Disponibles</Label>
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    {colores.map(color => (
-                      <button
-                        key={color.id}
-                        type="button"
-                        onClick={() => {
-                          const currentColores = editForm.colores || [];
-                          const newColores = currentColores.includes(color.nombre)
-                            ? currentColores.filter(c => c !== color.nombre)
-                            : [...currentColores, color.nombre];
-                          updateEditForm('colores', newColores);
-                        }}
-                        className={`px-3 py-1 border rounded font-medium transition-all ${
-                          (editForm.colores || []).includes(color.nombre)
-                            ? 'bg-[#d65391] text-white border-[#d65391]'
-                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                        }`}
-                      >
-                        {color.nombre}
-                      </button>
-                    ))}
-                  </div>
-                  {editForm.colores && editForm.colores.length > 0 && (
-                    <div className="bg-white border border-green-300 rounded p-3">
-                      <p className="text-sm text-gray-600 mb-1">Colores seleccionados:</p>
-                      <div className="flex gap-2 flex-wrap">
-                        {editForm.colores.map(c => (
-                          <Badge key={c} className="bg-[#d65391]">{c}</Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Tallas */}
-                <div>
-                  <Label className="font-medium mb-2 block">Tallas</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {tallas.map(talla => (
-                      <button
-                        key={talla.id}
-                        type="button"
-                        onClick={() => {
-                          const currentTallas = editForm.tallas || [];
-                          const newTallas = currentTallas.includes(talla.nombre)
-                            ? currentTallas.filter(t => t !== talla.nombre)
-                            : [...currentTallas, talla.nombre];
-                          updateEditForm('tallas', newTallas);
-                        }}
-                        className={`px-3 py-1 border rounded ${
-                          (editForm.tallas || []).includes(talla.nombre)
-                            ? 'bg-[#d65391] text-white border-[#d65391]'
-                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                        }`}
-                      >
-                        {talla.nombre}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Materiales */}
-                <div>
-                  <Label className="font-medium mb-2 block">Materiales</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {materiales.map(material => (
-                      <button
-                        key={material.id}
-                        type="button"
-                        onClick={() => {
-                          const currentMateriales = editForm.materiales || [];
-                          const newMateriales = currentMateriales.includes(material.nombre)
-                            ? currentMateriales.filter(m => m !== material.nombre)
-                            : [...currentMateriales, material.nombre];
-                          updateEditForm('materiales', newMateriales);
-                        }}
-                        className={`px-3 py-1 border rounded ${
-                          (editForm.materiales || []).includes(material.nombre)
-                            ? 'bg-[#d65391] text-white border-[#d65391]'
-                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                        }`}
-                      >
-                        {material.nombre}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* PASO 3: Precios y Stock */}
-            <div className="bg-white border-2 border-gray-100 rounded-lg p-5 shadow-sm">
-              <h3 style={{ fontFamily: 'Playfair Display, serif' }} className="font-semibold text-gray-900 mb-4 text-lg">💰 Paso 3: Precios y Stock</h3>
-              <div className="space-y-4">
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <Label htmlFor="edit-precio">Precio *</Label>
-                    <Input
-                      id="edit-precio"
-                      type="number"
-                      value={editForm.precio ?? ''}
-                      onChange={(e) => updateEditForm('precio', e.target.value ? parseInt(e.target.value) : null)}
-                      placeholder="Ingresa el precio"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="edit-precio-original">Precio Tachado (si hay oferta)</Label>
-                    <Input
-                      id="edit-precio-original"
-                      type="number"
-                      value={editForm.precioOriginal ?? ''}
-                      onChange={(e) => updateEditForm('precioOriginal', e.target.value ? parseInt(e.target.value) : null)}
-                      placeholder="Ingresa el precio"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="edit-stock">Stock</Label>
-                    <Input
-                      id="edit-stock"
-                      type="number"
-                      value={editForm.stock ?? ''}
-                      onChange={(e) => updateEditForm('stock', e.target.value ? Math.max(0, parseInt(e.target.value)) : 0)}
-                      placeholder="Ingresa el stock"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-4">
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      id="edit-activo"
-                      checked={editForm.activo || false}
-                      onChange={(e) => updateEditForm('activo', e.target.checked)}
-                      className="rounded"
-                    />
-                    <Label htmlFor="edit-activo">Producto activo</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      id="edit-issale"
-                      checked={editForm.isSale ?? false}
-                      onChange={(e) => updateEditForm('isSale', e.target.checked)}
-                      className="rounded"
-                    />
-                    <Label htmlFor="edit-issale">Marcar como SALE</Label>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* PASO 4: Imágenes por Color */}
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-              <h3 className="font-semibold text-gray-900 mb-3">Paso 4: Imágenes por Color</h3>
-              {!editForm.colores || editForm.colores.length === 0 ? (
-                <div className="bg-yellow-50 border border-yellow-300 rounded p-3 mb-4">
-                  <p className="text-sm text-yellow-800">⚠️ Primero selecciona al menos un color en el Paso 2 para poder agregar imágenes</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {/* Selector de Color - VISIBLE */}
-                  <div>
-                    <Label className="font-medium mb-2 block">Selecciona color para las imágenes:</Label>
-                    <Select value={editColorSelection.color || ''} onValueChange={(v)=> setEditColorSelection({ ...editColorSelection, color: v })}>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Elige un color..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {(editForm.colores || []).map((c:any) => (
-                          <SelectItem key={c} value={c}>{c}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {editColorSelection.color && (
-                    <>
-                      {/* Cargar desde archivo */}
-                      <div className="border-2 border-dashed border-amber-300 rounded-lg p-4 bg-white">
-                        <div className="flex items-center gap-2 mb-3">
-                          <Upload className="w-5 h-5 text-amber-600" />
-                          <span className="text-sm text-gray-700 font-medium">Sube imágenes para el color <span className="text-[#d65391] font-bold">{editColorSelection.color}</span></span>
-                        </div>
-                        <input
-                          type="file"
-                          multiple
-                          accept="image/*"
-                          onChange={(e) => {
-                            if (e.target.files) {
-                              handleFileUploadForColor(e.target.files, editColorSelection.color || '', true);
-                              e.target.value = '';
-                            }
-                          }}
-                          className="w-full cursor-pointer"
-                        />
-                      </div>
-
-                      {/* Agregar URL */}
-                      <div className="flex gap-2">
-                        <Input
-                          placeholder={`Pegar URL de imagen para ${editColorSelection.color}...`}
-                          value={editColorSelection.imageUrl || ''}
-                          onChange={(e) => setEditColorSelection({ ...editColorSelection, imageUrl: e.target.value })}
-                          onKeyPress={(e) => {
-                            if (e.key === 'Enter') {
-                              addImageUrlForColor(editColorSelection.imageUrl || '', editColorSelection.color || '', true);
-                              setEditColorSelection({ ...editColorSelection, imageUrl: '' });
-                            }
-                          }}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => {
-                            addImageUrlForColor(editColorSelection.imageUrl || '', editColorSelection.color || '', true);
-                            setEditColorSelection({ ...editColorSelection, imageUrl: '' });
-                          }}
-                          className="px-4 py-2 bg-[#d65391] text-white rounded-md hover:bg-[#c84a8f] whitespace-nowrap"
-                        >
-                          Agregar URL
-                        </button>
-                      </div>
-                    </>
-                  )}
-
-                  {/* Galería por Color */}
-                  {/* Imágenes por color — muestra cada color con sus imágenes */}
-                  {editForm.imagenesPorColor && Object.keys(editForm.imagenesPorColor).some((c: any) => (editForm.imagenesPorColor||{})[c]?.length > 0) && (
-                    <div className="mt-4">
-                      <Label className="font-medium mb-2 block text-gray-800">📸 Imágenes guardadas por color:</Label>
-                      {Object.keys(editForm.imagenesPorColor).map((c: any) => {
-                        const imgs = (editForm.imagenesPorColor||{})[c] || [];
-                        if (imgs.length === 0) return null;
-                        return (
-                          <div key={c} className="mb-3 bg-white p-3 rounded-lg border border-gray-200">
-                            <p className="text-sm font-semibold text-gray-800 mb-2">{c} <span className="text-xs font-normal text-gray-500">({imgs.length} imagen{imgs.length !== 1 ? 'es' : ''})</span></p>
-                            <div className="flex flex-wrap gap-3">
-                              {imgs.map((img: string, idx: number) => (
-                                <div key={idx} className="relative w-20 h-20 flex-shrink-0">
-                                  <img src={img} alt={`${c} ${idx+1}`} className="w-full h-full object-cover rounded-lg border-2 border-gray-200" />
-                                  <button
-                                    type="button"
-                                    onClick={() => removeImageByColor(c, idx, true)}
-                                    className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center shadow-md transition-all hover:scale-110 z-10"
-                                    title="Eliminar imagen"
-                                  >
-                                    <X className="w-3 h-3" />
-                                  </button>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* PASO 5: Descripción */}
-            <div>
-              <Label htmlFor="edit-descripcion" className="font-medium">Descripción del Producto</Label>
-              <Textarea
-                id="edit-descripcion"
-                value={editForm.descripcion || ''}
-                onChange={(e) => updateEditForm('descripcion', e.target.value)}
-                placeholder="Describe el producto aquí..."
-                rows={3}
-                className="mt-2"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <button 
-              onClick={() => setIsEditModalOpen(false)}
-              className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
-            >
-              Cancelar
-            </button>
-            <button 
-              onClick={handleSaveEdit}
-              className="px-4 py-2 bg-[#d65391] text-white rounded-md hover:bg-[#c84a8f]"
-            >
-              Guardar Cambios
+          <DialogFooter className="gap-2 px-8 py-5 border-t border-gray-200 flex-shrink-0">
+            {puedeEditar && selectedProduct && (
+              <button onClick={() => { setViewOpen(false); openEdit(selectedProduct); }}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors">
+                Editar
+              </button>
+            )}
+            <button onClick={() => setViewOpen(false)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+              className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+              Cerrar
             </button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Modal de Crear Producto */}
-      <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }} className="text-2xl">Crear Nuevo Producto</DialogTitle>
-            <DialogDescription style={{ fontFamily: 'Inter, sans-serif' }}>
-              Completa todos los pasos para agregar un nuevo producto al catálogo
+      {/* ═══ MODAL CREAR / EDITAR ═══ */}
+      <Dialog open={formOpen} onOpenChange={open => { if (!saving) setFormOpen(open); }}>
+        <DialogContent className="max-w-3xl h-auto flex flex-col p-0 gap-0">
+          <DialogHeader className="px-8 pt-6 pb-4 border-b border-gray-200 flex-shrink-0">
+            <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-2xl">
+              {isEditing ? 'Editar Producto' : 'Nuevo Producto'}
+            </DialogTitle>
+            <DialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+              {isEditing ? `Modifica la información de ${selectedProduct?.nombre}` : 'Completa los datos para registrar un nuevo artículo'}
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-6 bg-gradient-to-b from-white to-gray-50 p-6 rounded-lg">
-            {/* PASO 1: Información Básica */}
-            <div className="bg-white border-2 border-gray-100 rounded-lg p-5 shadow-sm">
-              <h3 style={{ fontFamily: 'Playfair Display, serif' }} className="font-semibold text-gray-900 mb-4 text-lg">📦 Paso 1: Información Básica</h3>
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="create-nombre">Nombre *</Label>
-                    <Input
-                      id="create-nombre"
-                      value={createForm.nombre || ''}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        updateCreateForm('nombre', value);
-                        if (!/^[a-zA-Z\s]+$/.test(value)) {
-                          setCreateErrors({...createErrors, nombre: 'Solo se permiten letras y espacios'});
-                        } else {
-                          setCreateErrors({...createErrors, nombre: ''});
-                        }
-                      }}
-                      placeholder="Nombre del producto"
-                    />
-                    {createErrors.nombre && <p className="text-red-500 text-sm">{createErrors.nombre}</p>}
-                  </div>
-                  <div>
-                    <Label htmlFor="create-codigo">Código *</Label>
-                    <Input
-                      id="create-codigo"
-                      value={createForm.codigo || ''}
-                      onChange={(e) => updateCreateForm('codigo', e.target.value)}
-                      placeholder="Código único"
-                    />
-                  </div>
-                </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="create-categoria">Categoría *</Label>
-                    <Select value={createForm.categoria || ''} onValueChange={(value) => updateCreateForm('categoria', value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccionar categoría" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categoriasRopa.map((categoria) => (
-                          <SelectItem key={categoria.id} value={categoria.nombre}>{categoria.nombre}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="create-categoriaMain">Categoría Principal *</Label>
-                    <Select value={createForm.categoriaMain || ''} onValueChange={(value) => updateCreateForm('categoriaMain', value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccionar categoría principal" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categorias.map((cat) => (
-                          <SelectItem key={cat.id} value={cat.nombre}>{cat.nombre}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
+          {/* Tabs */}
+          <div className="flex border-b border-gray-200 px-8 flex-shrink-0">
+            {[
+              { key: 'info', label: 'Información y Precios' },
+              { key: 'variantes', label: 'Tallas, Colores y Stock' },
+              { key: 'imagenes', label: 'Imágenes' },
+            ].map(tab => (
+              <button key={tab.key} onClick={() => setActiveTab(tab.key as any)}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                className={`px-5 py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === tab.key ? 'border-[#d65391] text-[#d65391]' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
+                {tab.label}
+              </button>
+            ))}
+          </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="create-marca">Marca</Label>
-                    <Select value={createForm.marca || ''} onValueChange={(value) => updateCreateForm('marca', value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccionar marca" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {marcas.map((marca) => (
-                          <SelectItem key={marca.id} value={marca.nombre}>
-                            {marca.nombre}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {createErrors.marca && <p className="text-red-500 text-sm">{createErrors.marca}</p>}
-                  </div>
-                  <div>
-                    <Label htmlFor="create-tipoProducto">Tipo de Producto</Label>
-                    <Select value={createForm.tipoProducto || ''} onValueChange={(value) => updateCreateForm('tipoProducto', value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccionar tipo" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {tiposProducto.map((tipo) => (
-                          <SelectItem key={tipo.id} value={tipo.nombre}>{tipo.nombre}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div className="flex-1 overflow-y-auto max-h-[65vh]">
+            <div className="space-y-6 py-6 px-8">
 
-                          {/* Imagen Principal */}
-              <div className="mt-4 px-5 pb-5">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Imagen Principal
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={createForm.imagen || ''}
-                    onChange={(e) => updateCreateForm('imagen', e.target.value)}
-                    placeholder="https://... pega URL o sube desde PC"
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#d65391]"
-                  />
-                  {createForm.imagen && !createForm.imagen.startsWith('data:') && (
-                    <img src={createForm.imagen} alt="preview" className="w-12 h-12 object-cover rounded border flex-shrink-0" />
-                  )}
-                </div>
-              </div>
-
-            {/* PASO 2: Especificaciones (Colores, Tallas, Materiales) */}
-            <div className="bg-white border-2 border-gray-100 rounded-lg p-5 shadow-sm">
-              <h3 style={{ fontFamily: 'Playfair Display, serif' }} className="font-semibold text-gray-900 mb-4 text-lg">🎨 Paso 2: Especificaciones</h3>
-              <div className="space-y-5">
-                {/* COLORES - PRIMERO */}
-                <div>
-                  <Label className="font-medium mb-2 block">Colores Disponibles</Label>
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    {colores.map(color => (
-                      <button
-                        key={color.id}
-                        type="button"
-                        onClick={() => {
-                          const currentColores = createForm.colores || [];
-                          const newColores = currentColores.includes(color.nombre)
-                            ? currentColores.filter(c => c !== color.nombre)
-                            : [...currentColores, color.nombre];
-                          updateCreateForm('colores', newColores);
-                        }}
-                        className={`px-3 py-1 border rounded font-medium transition-all ${
-                          (createForm.colores || []).includes(color.nombre)
-                            ? 'bg-[#d65391] text-white border-[#d65391]'
-                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                        }`}
-                      >
-                        {color.nombre}
-                      </button>
-                    ))}
-                  </div>
-                  {createForm.colores && createForm.colores.length > 0 && (
-                    <div className="bg-white border border-green-300 rounded p-3">
-                      <p className="text-sm text-gray-600 mb-1">Colores seleccionados:</p>
-                      <div className="flex gap-2 flex-wrap">
-                        {createForm.colores.map(c => (
-                          <Badge key={c} className="bg-[#d65391]">{c}</Badge>
-                        ))}
-                      </div>
+              {/* ── TAB INFO ── */}
+              {activeTab === 'info' && (
+                <>
+                  {/* Sección: Datos básicos + Foto */}
+                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                      <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-gray-800 text-base">📋 Datos del Artículo</h3>
                     </div>
-                  )}
-                </div>
-
-                {/* Tallas */}
-                <div>
-                  <Label className="font-medium mb-2 block">Tallas</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {tallas.map(talla => (
-                      <button
-                        key={talla.id}
-                        type="button"
-                        onClick={() => {
-                          const currentTallas = createForm.tallas || [];
-                          const newTallas = currentTallas.includes(talla.nombre)
-                            ? currentTallas.filter(t => t !== talla.nombre)
-                            : [...currentTallas, talla.nombre];
-                          updateCreateForm('tallas', newTallas);
-                        }}
-                        className={`px-3 py-1 border rounded ${
-                          (createForm.tallas || []).includes(talla.nombre)
-                            ? 'bg-[#d65391] text-white border-[#d65391]'
-                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                        }`}
-                      >
-                        {talla.nombre}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Materiales */}
-                <div>
-                  <Label className="font-medium mb-2 block">Materiales</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {materiales.map(material => (
-                      <button
-                        key={material.id}
-                        type="button"
-                        onClick={() => {
-                          const currentMateriales = createForm.materiales || [];
-                          const newMateriales = currentMateriales.includes(material.nombre)
-                            ? currentMateriales.filter(m => m !== material.nombre)
-                            : [...currentMateriales, material.nombre];
-                          updateCreateForm('materiales', newMateriales);
-                        }}
-                        className={`px-3 py-1 border rounded ${
-                          (createForm.materiales || []).includes(material.nombre)
-                            ? 'bg-[#d65391] text-white border-[#d65391]'
-                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                        }`}
-                      >
-                        {material.nombre}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-              </div>
-            </div>
-
-            {/* PASO 3: Precios y Stock */}
-            <div className="bg-white border-2 border-gray-100 rounded-lg p-5 shadow-sm">
-              <h3 style={{ fontFamily: 'Playfair Display, serif' }} className="font-semibold text-gray-900 mb-4 text-lg">💰 Paso 3: Precios y Stock</h3>
-              <div className="space-y-4">
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <Label htmlFor="create-precio">Precio *</Label>
-                    <Input
-                      id="create-precio"
-                      type="number"
-                      value={createForm.precio ?? ''}
-                      onChange={(e) => updateCreateForm('precio', e.target.value ? parseInt(e.target.value) : null)}
-                      placeholder="Ingresa el precio"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="create-precio-original">Precio Tachado (si hay oferta)</Label>
-                    <Input
-                      id="create-precio-original"
-                      type="number"
-                      value={createForm.precioOriginal ?? ''}
-                      onChange={(e) => updateCreateForm('precioOriginal', e.target.value ? parseInt(e.target.value) : null)}
-                      placeholder="Ingresa el precio"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="create-stock">Stock</Label>
-                    <Input
-                      id="create-stock"
-                      type="number"
-                      value={createForm.stock ?? ''}
-                      onChange={(e) => updateCreateForm('stock', e.target.value ? Math.max(0, parseInt(e.target.value)) : 0)}
-                      placeholder="Ingresa el stock"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-4">
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      id="create-activo"
-                      checked={createForm.activo ?? true}
-                      onChange={(e) => updateCreateForm('activo', e.target.checked)}
-                      className="rounded"
-                    />
-                    <Label htmlFor="create-activo">Producto activo</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      id="create-issale"
-                      checked={createForm.isSale ?? false}
-                      onChange={(e) => updateCreateForm('isSale', e.target.checked)}
-                      className="rounded"
-                    />
-                    <Label htmlFor="create-issale">Marcar como SALE</Label>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* PASO 4: Imágenes por Color */}
-            <div className="bg-white border-2 border-gray-100 rounded-lg p-5 shadow-sm">
-              <h3 style={{ fontFamily: 'Playfair Display, serif' }} className="font-semibold text-gray-900 mb-4 text-lg">🖼️ Paso 4: Imágenes por Color</h3>
-              {!createForm.colores || createForm.colores.length === 0 ? (
-                <div className="bg-blue-50 border border-blue-300 rounded p-4 mb-4">
-                  <p className="text-sm text-blue-800">ℹ️ Primero selecciona al menos un color en el Paso 2 para poder agregar imágenes</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {/* Selector de Color - VISIBLE */}
-                  <div>
-                    <Label className="font-medium mb-2 block">Selecciona color para las imágenes:</Label>
-                    <Select value={createColorSelection.color || ''} onValueChange={(v)=> setCreateColorSelection({ ...createColorSelection, color: v })}>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Elige un color..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {(createForm.colores || []).map((c:any) => (
-                          <SelectItem key={c} value={c}>{c}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {createColorSelection.color && (
-                    <>
-                      {/* Cargar desde archivo */}
-                      <div className="border-2 border-dashed border-amber-300 rounded-lg p-4 bg-white">
-                        <div className="flex items-center gap-2 mb-3">
-                          <Upload className="w-5 h-5 text-amber-600" />
-                          <span className="text-sm text-gray-700 font-medium">Sube imágenes para el color <span className="text-[#d65391] font-bold">{createColorSelection.color}</span></span>
-                        </div>
-                        <input
-                          type="file"
-                          multiple
-                          accept="image/*"
-                          onChange={(e) => {
-                            if (e.target.files) {
-                              handleFileUploadForColor(e.target.files, createColorSelection.color || '', false);
-                              e.target.value = '';
-                            }
-                          }}
-                          className="w-full cursor-pointer"
-                        />
-                      </div>
-
-                      {/* Agregar URL */}
-                      <div className="flex gap-2">
-                        <Input
-                          placeholder={`Pegar URL de imagen para ${createColorSelection.color}...`}
-                          value={createColorSelection.imageUrl || ''}
-                          onChange={(e) => setCreateColorSelection({ ...createColorSelection, imageUrl: e.target.value })}
-                          onKeyPress={(e) => {
-                            if (e.key === 'Enter') {
-                              addImageUrlForColor(createColorSelection.imageUrl || '', createColorSelection.color || '', false);
-                              setCreateColorSelection({ ...createColorSelection, imageUrl: '' });
-                            }
-                          }}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => {
-                            addImageUrlForColor(createColorSelection.imageUrl || '', createColorSelection.color || '', false);
-                            setCreateColorSelection({ ...createColorSelection, imageUrl: '' });
-                          }}
-                          className="px-4 py-2 bg-[#d65391] text-white rounded-md hover:bg-[#c84a8f] whitespace-nowrap"
-                        >
-                          Agregar URL
-                        </button>
-                      </div>
-                    </>
-                  )}
-
-                  {/* Galería por Color */}
-                  {createForm.imagenesPorColor && Object.keys(createForm.imagenesPorColor).length > 0 && (
-                    <div className="mt-4">
-                      <Label className="font-medium mb-2 block">Imágenes agregadas:</Label>
-                      {(Object.keys(createForm.imagenesPorColor) || []).map((c:any) => (
-                        <div key={c} className="mb-4 bg-white p-3 rounded border border-gray-200">
-                          <p className="text-sm font-medium text-gray-900 mb-2">{c} ({(createForm.imagenesPorColor||{})[c]?.length || 0} imágenes)</p>
-                          <div className="grid grid-cols-6 gap-2">
-                            {((createForm.imagenesPorColor||{})[c] || []).map((img:string, idx:number) => (
-                              <div key={idx} className="relative group">
-                                <img src={img} alt={`${c} ${idx}`} className="w-full h-16 object-cover rounded border border-gray-200" />
-                                <span className="absolute left-1 top-1 bg-black bg-opacity-70 text-white text-xs px-1 rounded">{c}</span>
-                                <button type="button" onClick={()=> removeImageByColor(c, idx, false)} className="absolute -top-2 -right-2 bg-gradient-to-br from-red-600 to-red-700 text-white rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-200 w-5 h-5 flex items-center justify-center" title="Eliminar imagen"> <X className="w-3 h-3" /> </button>
+                    <div className="p-6">
+                      <div className="flex gap-6 items-start">
+                        {/* Foto */}
+                        <div className="flex-shrink-0">
+                          <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 mb-2 block">Foto</Label>
+                          <label className={`relative flex flex-col items-center justify-center w-32 h-32 rounded-xl border-2 border-dashed cursor-pointer transition-colors overflow-hidden group ${
+                            currentImageSrc ? 'border-transparent' : 'border-gray-300 hover:border-[#d65391] bg-gray-50 hover:bg-pink-50'
+                          } ${uploadingImg ? 'opacity-60 pointer-events-none' : ''}`}>
+                            {currentImageSrc ? (
+                              <>
+                                <img src={currentImageSrc} alt="preview" className="w-full h-full object-cover" />
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                  <Upload className="w-5 h-5 text-white" />
+                                </div>
+                              </>
+                            ) : (
+                              <div className="flex flex-col items-center gap-1 pointer-events-none">
+                                {uploadingImg ? <Loader2 className="w-6 h-6 text-[#d65391] animate-spin" /> : <ImageIcon className="w-7 h-7 text-gray-300" />}
+                                <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 text-center px-2">
+                                  {uploadingImg ? 'Subiendo...' : 'Subir foto'}
+                                </p>
                               </div>
-                            ))}
+                            )}
+                            <input type="file" accept="image/jpeg,image/jpg,image/png,image/webp" className="hidden"
+                              disabled={uploadingImg}
+                              onChange={e => { const f = e.target.files?.[0]; if (f) handleImageFile(f); e.target.value = ''; }} />
+                          </label>
+                          {currentImageSrc && (
+                            <button onClick={() => { resetImageState(); setForm(f => ({ ...f, imagenPrincipal: '' })); }}
+                              style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                              className="mt-1 text-xs text-red-400 hover:text-red-600 w-full text-center transition-colors">
+                              Quitar
+                            </button>
+                          )}
+                          <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 text-center mt-1">JPG, PNG · 5MB</p>
+                        </div>
+
+                        {/* Campos */}
+                        <div className="flex-1 grid grid-cols-2 gap-4">
+                          <div className="col-span-2">
+                            <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 mb-1 block">Nombre <span className="text-red-500">*</span></Label>
+                            <Input value={form.nombre} onChange={e => setForm(f => ({ ...f, nombre: e.target.value }))}
+                              placeholder="Ej: Vestido Floral Primavera" className="h-10 border-gray-300" />
+                          </div>
+                          <div>
+                            <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 mb-1 block">Referencia / Código</Label>
+                            <Input value={form.codigo} onChange={e => setForm(f => ({ ...f, codigo: e.target.value }))}
+                              placeholder="Ej: VES-001" className="h-10 border-gray-300 font-mono" />
+                          </div>
+                          <div>
+                            <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 mb-1 block">Categoría <span className="text-red-500">*</span></Label>
+                            <Select value={form.categoriaPrincipalID} onValueChange={v => setForm(f => ({ ...f, categoriaPrincipalID: v }))}>
+                              <SelectTrigger className="h-10 border-gray-300"><SelectValue placeholder="Selecciona..." /></SelectTrigger>
+                              <SelectContent>{categorias.map((c: any) => <SelectItem key={c.id} value={String(c.id)}>{c.nombre}</SelectItem>)}</SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 mb-1 block">Marca</Label>
+                            <Select value={form.marcaID} onValueChange={v => setForm(f => ({ ...f, marcaID: v }))}>
+                              <SelectTrigger className="h-10 border-gray-300"><SelectValue placeholder="Selecciona..." /></SelectTrigger>
+                              <SelectContent>{marcas.map((m: any) => <SelectItem key={m.id} value={String(m.id)}>{m.nombre}</SelectItem>)}</SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 mb-1 block">Tipo de Prenda</Label>
+                            <Select value={form.tipoProductoID} onValueChange={v => setForm(f => ({ ...f, tipoProductoID: v }))}>
+                              <SelectTrigger className="h-10 border-gray-300"><SelectValue placeholder="Selecciona..." /></SelectTrigger>
+                              <SelectContent>{tiposProducto.map((t: any) => <SelectItem key={t.id} value={String(t.id)}>{t.nombre}</SelectItem>)}</SelectContent>
+                            </Select>
                           </div>
                         </div>
+                      </div>
+
+                      {/* Descripción */}
+                      <div className="mt-4">
+                        <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 mb-1 block">Descripción</Label>
+                        <Textarea value={form.descripcion} onChange={e => setForm(f => ({ ...f, descripcion: e.target.value }))}
+                          placeholder="Describe el artículo: tela, diseño, ocasión de uso..." className="border-gray-300 resize-none" rows={2} />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Sección: Precios */}
+                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                      <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-gray-800 text-base flex items-center gap-2"><Tag className="w-4 h-4 text-gray-400" />Precios y Stock</h3>
+                    </div>
+                    <div className="p-6">
+                      <div className="grid grid-cols-3 gap-4 mb-4">
+                        <PriceCard label="Precio Costo" value={form.precioCompra} note="Lo que pagaste"
+                          onChange={v => setForm(f => ({ ...f, precioCompra: v }))} />
+                        <PriceCard label="Precio de Venta" value={form.precioVenta} required note="Precio al cliente"
+                          onChange={v => setForm(f => ({ ...f, precioVenta: v }))} />
+                        <PriceCard label="Precio Oferta" value={form.precioOferta} note="Opcional" color="pink"
+                          onChange={v => setForm(f => ({ ...f, precioOferta: v }))} />
+                      </div>
+                      <div className="flex items-center gap-4 pt-4 border-t border-gray-100">
+                        <div className="flex-1">
+                          <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700">Stock general</p>
+                          <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 mt-0.5">Si usas variantes por talla/color, el stock se suma automáticamente.</p>
+                        </div>
+                        <Input type="number" min="0" value={form.stock}
+                          onChange={e => setForm(f => ({ ...f, stock: e.target.value }))}
+                          className="w-24 h-10 border-gray-300 text-center font-semibold" />
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* ── TAB VARIANTES ── */}
+              {activeTab === 'variantes' && (
+                <>
+                  {/* Tallas */}
+                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                      <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-gray-800 text-base flex items-center gap-2"><Ruler className="w-4 h-4 text-gray-400" />Tallas disponibles</h3>
+                    </div>
+                    <div className="p-6 flex flex-wrap gap-3">
+                      {tallas.map((t: any) => (
+                        <button key={t.id} onClick={() => toggleTalla(t.nombre)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                          className={`px-5 py-2 rounded-lg text-sm border font-medium transition-colors ${form.tallasSeleccionadas.includes(t.nombre) ? 'bg-black text-white border-black' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'}`}>
+                          {t.nombre}
+                        </button>
                       ))}
+                      {tallas.length === 0 && <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-400">No hay tallas registradas.</p>}
+                    </div>
+                  </div>
+
+                  {/* Colores */}
+                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                      <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-gray-800 text-base flex items-center gap-2"><Palette className="w-4 h-4 text-gray-400" />Colores disponibles</h3>
+                    </div>
+                    <div className="p-6 flex flex-wrap gap-3">
+                      {colores.map((c: any) => (
+                        <button key={c.id} onClick={() => toggleColor(c.nombre)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm border transition-colors ${form.coloresSeleccionados.includes(c.nombre) ? 'border-[#d65391] bg-pink-50 text-[#d65391]' : 'bg-white border-gray-200 text-gray-600 hover:border-gray-400'}`}>
+                          {c.codigoHex && <span className="w-4 h-4 rounded-full border border-gray-200 flex-shrink-0" style={{ background: c.codigoHex }} />}
+                          {c.nombre}
+                        </button>
+                      ))}
+                      {colores.length === 0 && <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-400">No hay colores registrados.</p>}
+                    </div>
+                  </div>
+
+                  {/* Stock por combinación */}
+                  {form.variantes.length > 0 ? (
+                    <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                      <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                        <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-gray-800 text-base flex items-center gap-2">
+                          <Package className="w-4 h-4 text-gray-400" />Stock por combinación <span className="font-normal text-gray-400 text-sm">· {form.variantes.length} variantes</span>
+                        </h3>
+                      </div>
+                      <div className="p-6">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="border-b border-gray-100">
+                              <th className="pb-3 text-left text-xs text-gray-500 uppercase font-semibold">Talla</th>
+                              <th className="pb-3 text-left text-xs text-gray-500 uppercase font-semibold">Color</th>
+                              <th className="pb-3 text-right text-xs text-gray-500 uppercase font-semibold">Stock (unidades)</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-gray-50">
+                            {form.variantes.map((v, i) => (
+                              <tr key={i}>
+                                <td className="py-3 font-medium text-gray-700">{v.tallaNombre || '—'}</td>
+                                <td className="py-3 text-gray-700">{v.colorNombre || '—'}</td>
+                                <td className="py-3 text-right">
+                                  <Input type="number" min="0" value={v.stock}
+                                    onChange={e => updateStock(v.tallaNombre, v.colorNombre, Number(e.target.value))}
+                                    className="h-8 w-24 ml-auto border-gray-300 text-center text-sm" />
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+                      <Package className="w-10 h-10 mx-auto mb-2 text-gray-300" />
+                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-400">Selecciona tallas y colores para configurar el stock por variante</p>
                     </div>
                   )}
-                </div>
-              )}
-            </div>
 
-            {/* PASO 5: Descripción */}
-            <div className="bg-white border-2 border-gray-100 rounded-lg p-5 shadow-sm">
-              <h3 style={{ fontFamily: 'Playfair Display, serif' }} className="font-semibold text-gray-900 mb-4 text-lg">📝 Paso 5: Descripción</h3>
-              <Label htmlFor="create-descripcion" className="font-medium">Descripción del Producto</Label>
-              <Textarea
-                id="create-descripcion"
-                value={createForm.descripcion || ''}
-                onChange={(e) => updateCreateForm('descripcion', e.target.value)}
-                placeholder="Describe el producto aquí..."
-                rows={3}
-                className="mt-2"
-              />
+                  {/* Materiales */}
+                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                      <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-gray-800 text-base flex items-center gap-2"><Layers className="w-4 h-4 text-gray-400" />Materiales / Composición</h3>
+                    </div>
+                    <div className="p-6 flex flex-wrap gap-3">
+                      {materiales.map((m: any) => (
+                        <button key={m.id} onClick={() => setForm(f => ({
+                          ...f,
+                          materialesSeleccionados: f.materialesSeleccionados.includes(m.nombre)
+                            ? f.materialesSeleccionados.filter(x => x !== m.nombre)
+                            : [...f.materialesSeleccionados, m.nombre]
+                        }))} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                          className={`px-4 py-2 rounded-lg text-sm border transition-colors ${form.materialesSeleccionados.includes(m.nombre) ? 'bg-[#d65391] text-white border-[#d65391]' : 'bg-white text-gray-600 border-gray-200 hover:border-[#d65391]'}`}>
+                          {m.nombre}
+                        </button>
+                      ))}
+                      {materiales.length === 0 && <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-400">No hay materiales registrados.</p>}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* ── TAB IMÁGENES ── */}
+              {activeTab === 'imagenes' && (
+                <>
+                  {/* Imagen principal */}
+                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                      <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-gray-800 text-base flex items-center gap-2"><ImageIcon className="w-4 h-4 text-gray-400" />Imagen Principal</h3>
+                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 mt-1">La imagen que se muestra en la lista de productos</p>
+                    </div>
+                    <div className="p-6 flex items-start gap-4">
+                      {(imagePreview || form.imagenPrincipal) ? (
+                        <img
+                          src={imagePreview || (form.imagenPrincipal.startsWith('http') ? form.imagenPrincipal : `${apiBase}${form.imagenPrincipal}`)}
+                          alt="Principal"
+                          className="w-24 h-24 object-cover rounded-xl border border-gray-200"
+                        />
+                      ) : (
+                        <div className="w-24 h-24 bg-gray-100 rounded-xl border-2 border-dashed border-gray-200 flex items-center justify-center">
+                          <ImageIcon className="w-8 h-8 text-gray-300" />
+                        </div>
+                      )}
+                      <div className="flex flex-col gap-2">
+                        <label className="cursor-pointer px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors flex items-center gap-2" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                          <Upload className="w-4 h-4" />
+                          {uploadingImg ? 'Subiendo...' : 'Cambiar imagen'}
+                          <input type="file" accept="image/jpeg,image/jpg,image/png,image/webp" className="hidden"
+                            disabled={uploadingImg}
+                            onChange={e => { const f = e.target.files?.[0]; if (f) handleImageFile(f); e.target.value = ''; }} />
+                        </label>
+                        {(imagePreview || form.imagenPrincipal) && (
+                          <button onClick={() => { resetImageState(); setForm(f => ({ ...f, imagenPrincipal: '' })); }}
+                            style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                            className="text-xs text-red-400 hover:text-red-600 text-left transition-colors">
+                            Quitar imagen
+                          </button>
+                        )}
+                        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">JPG, PNG, WebP · máx. 5MB</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Imágenes adicionales */}
+                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                      <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-gray-800 text-base flex items-center gap-2"><ImageIcon className="w-4 h-4 text-gray-400" />Imágenes adicionales</h3>
+                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 mt-1">Fotos extras del producto que se muestran en la galería</p>
+                    </div>
+                    <div className="p-6">
+                      <div className="flex flex-wrap gap-3">
+                        {form.imagenesAdicionales.map(url => (
+                          <div key={url} className="relative group">
+                            <img
+                              src={url.startsWith('http') ? url : `${apiBase}${url}`}
+                              alt="adicional"
+                              className="w-20 h-20 object-cover rounded-lg border border-gray-200"
+                            />
+                            <button
+                              onClick={() => quitarImagenAdicional(url)}
+                              className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center shadow-sm hover:bg-red-600 transition-colors"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        ))}
+                        <label className={`w-20 h-20 border-2 border-dashed rounded-lg flex flex-col items-center justify-center cursor-pointer transition-colors ${uploadingAdicional ? 'border-gray-200 bg-gray-50' : 'border-gray-300 hover:border-[#d65391] hover:bg-pink-50'}`}>
+                          {uploadingAdicional
+                            ? <Loader2 className="w-5 h-5 text-[#d65391] animate-spin" />
+                            : <><Plus className="w-5 h-5 text-gray-400" /><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 mt-1">Agregar</span></>
+                          }
+                          <input type="file" accept="image/jpeg,image/jpg,image/png,image/webp" className="hidden"
+                            disabled={uploadingAdicional}
+                            onChange={e => { const f = e.target.files?.[0]; if (f) subirImagenAdicional(f); e.target.value = ''; }} />
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Imágenes por color */}
+                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                      <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-gray-800 text-base flex items-center gap-2"><Palette className="w-4 h-4 text-gray-400" />Imágenes por Color</h3>
+                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 mt-1">Cuando el cliente elija un color, verá solo las fotos de ese color</p>
+                    </div>
+                    <div className="p-6">
+                      {form.coloresSeleccionados.length === 0 ? (
+                        <div className="text-center py-10 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+                          <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-400">
+                            Primero selecciona los colores en la pestaña <strong>"Tallas, Colores y Stock"</strong>
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col gap-6">
+                          {form.coloresSeleccionados.map(colorNombre => {
+                            const imgColor = colores.find((c: any) => c.nombre === colorNombre);
+                            const hex = imgColor?.hexColor || '#ccc';
+                            const imgs = form.imagenesPorColor[colorNombre] || [];
+                            const subiendo = uploadingColorImg === colorNombre;
+                            return (
+                              <div key={colorNombre} className="border border-gray-100 rounded-xl p-4">
+                                <div className="flex items-center gap-2 mb-3">
+                                  <span className="w-5 h-5 rounded-full border border-gray-200 flex-shrink-0" style={{ background: hex }} />
+                                  <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-gray-700">{colorNombre}</span>
+                                  <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">({imgs.length} foto{imgs.length !== 1 ? 's' : ''})</span>
+                                </div>
+                                <div className="flex flex-wrap gap-3">
+                                  {imgs.map(url => (
+                                    <div key={url} className="relative group">
+                                      <img
+                                        src={url.startsWith('http') ? url : `${apiBase}${url}`}
+                                        alt={colorNombre}
+                                        className="w-20 h-20 object-cover rounded-lg border border-gray-200"
+                                      />
+                                      <button
+                                        onClick={() => quitarImagenColor(colorNombre, url)}
+                                        className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center shadow-sm hover:bg-red-600 transition-colors"
+                                      >
+                                        <X className="w-3 h-3" />
+                                      </button>
+                                    </div>
+                                  ))}
+                                  <label className={`w-20 h-20 border-2 border-dashed rounded-lg flex flex-col items-center justify-center cursor-pointer transition-colors ${subiendo ? 'border-gray-200 bg-gray-50' : 'border-gray-300 hover:border-[#d65391] hover:bg-pink-50'}`}>
+                                    {subiendo
+                                      ? <Loader2 className="w-5 h-5 text-[#d65391] animate-spin" />
+                                      : <><Plus className="w-5 h-5 text-gray-400" /><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 mt-1">Agregar</span></>
+                                    }
+                                    <input type="file" accept="image/jpeg,image/jpg,image/png,image/webp" className="hidden"
+                                      disabled={!!uploadingColorImg}
+                                      onChange={e => { const f = e.target.files?.[0]; if (f) subirImagenColor(colorNombre, f); e.target.value = ''; }} />
+                                  </label>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
+
             </div>
           </div>
-          <DialogFooter>
-            <button 
-              onClick={() => setIsCreateModalOpen(false)}
-              className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
-            >
+
+          <DialogFooter className="gap-2 px-8 py-5 border-t border-gray-200 flex-shrink-0">
+            <button onClick={() => setFormOpen(false)} disabled={saving} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+              className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50">
               Cancelar
             </button>
-            <button 
-              onClick={handleSaveCreate}
-              className="px-4 py-2 bg-[#d65391] text-white rounded-md hover:bg-[#c84a8f]"
-            >
-              Crear Producto
+            <button onClick={guardar} disabled={saving || uploadingImg} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+              className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 flex items-center gap-2 transition-colors">
+              {(saving || uploadingImg) && <Loader2 className="w-4 h-4 animate-spin" />}
+              {isEditing ? 'Guardar Cambios' : 'Crear Producto'}
             </button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <AlertDialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+
+      {/* ═══ MODAL ELIMINAR ═══ */}
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>¿Eliminar producto?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Esta acción no se puede deshacer. El producto "{selectedProduct?.nombre}" será eliminado permanentemente.
+            <AlertDialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>¿Eliminar producto?</AlertDialogTitle>
+            <AlertDialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+              Vas a eliminar <strong>{selectedProduct?.nombre}</strong>. Esta acción no se puede deshacer.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
-              Eliminar
+            <AlertDialogCancel style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} disabled={saving}
+              className="bg-red-600 hover:bg-red-700 flex items-center gap-2" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+              {saving && <Loader2 className="w-4 h-4 animate-spin" />} Eliminar
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -1518,5 +1137,3 @@ export const ProductosView: React.FC = () => {
     </div>
   );
 };
-
-export default ProductosView;
