@@ -1,8 +1,10 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import api, { setTokensFromAuthResponse, clearAuthTokens } from '../../services/api';
+import api, { apiBase, setTokensFromAuthResponse, clearAuthTokens, getSavedRefreshToken } from '../../services/api';
 
-// Limpia claves de versiones anteriores que guardaban tokens y usuario en localStorage
-['accessToken', 'refreshToken', 'currentUser'].forEach(k => localStorage.removeItem(k));
+// Limpia claves de versiones anteriores (localStorage y sessionStorage)
+['accessToken', 'refreshToken', 'currentUser', '_selenne_user', '_selenne_rt'].forEach(k => localStorage.removeItem(k));
+
+const USER_KEY = '_selenne_user';
 
 export type UserRole = 'Administrador' | 'Empleado' | 'Cliente';
 
@@ -23,6 +25,7 @@ interface AuthContextType {
   loginAsync: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
   isAuthenticated: boolean;
+  authLoading: boolean;
   refreshUser: () => Promise<void>;
   refreshPermisos: () => Promise<void>;
   hasPermission: (permiso: string) => boolean;
@@ -31,7 +34,62 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(() => {
+    try {
+      const saved = sessionStorage.getItem(USER_KEY);
+      return saved ? JSON.parse(saved) : null;
+    } catch { return null; }
+  });
+  const [authLoading, setAuthLoading] = useState(true);
+
+  const persistUser = (u: User | null) => {
+    if (u) sessionStorage.setItem(USER_KEY, JSON.stringify(u));
+    else sessionStorage.removeItem(USER_KEY);
+    setUser(u);
+  };
+
+  // Al montar la app: restaurar sesión desde el refresh token guardado
+  useEffect(() => {
+    const restore = async () => {
+      const rt = getSavedRefreshToken();
+      if (!rt) { setAuthLoading(false); return; }
+      try {
+        const res = await fetch(`${apiBase}/api/auth/refresh-token`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ refreshToken: rt }),
+          credentials: 'include',
+        });
+        if (!res.ok) { clearAuthTokens(); persistUser(null); setAuthLoading(false); return; }
+        const data = await res.json();
+        const newAccess = data?.accessToken || data?.data;
+        if (!newAccess) { clearAuthTokens(); persistUser(null); setAuthLoading(false); return; }
+        setTokensFromAuthResponse({ accessToken: newAccess, refreshToken: data?.refreshToken || rt });
+        // Obtener perfil actualizado con el nuevo token
+        try {
+          const savedUser: User | null = (() => {
+            try { const s = sessionStorage.getItem(USER_KEY); return s ? JSON.parse(s) : null; } catch { return null; }
+          })();
+          if (savedUser?.usuarioID) {
+            const perfil = await api.getJson(`/api/usuarios/${savedUser.usuarioID}`);
+            const pd = perfil?.data || perfil;
+            persistUser({
+              ...savedUser,
+              name: pd?.nombreCompleto || pd?.NombreCompleto || savedUser.name,
+              telefono: pd?.telefono || pd?.Telefono || '',
+              direccion: pd?.direccion || pd?.Direccion || '',
+              documento: pd?.documento || pd?.Documento || '',
+              ciudad: pd?.ciudad || pd?.Ciudad || '',
+              permisos: pd?.permisos || pd?.Permisos || savedUser.permisos || [],
+            });
+          }
+        } catch { /* usa el usuario guardado sin actualizar */ }
+        window.dispatchEvent(new Event('auth:login'));
+      } catch { clearAuthTokens(); persistUser(null); }
+      finally { setAuthLoading(false); }
+    };
+    restore();
+  }, []);
 
   const loginAsync = async (email: string, password: string): Promise<boolean> => {
     try {
@@ -57,7 +115,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         permisos: userObj?.Permisos || userObj?.permisos || [],
       };
 
-      setUser(userData);
+      persistUser(userData);
       window.dispatchEvent(new Event('auth:login'));
 
       if (userData.usuarioID) {
@@ -71,7 +129,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             documento: perfilData?.documento || perfilData?.Documento || '',
             ciudad: perfilData?.ciudad || perfilData?.Ciudad || '',
           };
-          setUser(updatedUser);
+          persistUser(updatedUser);
         } catch (e) {}
       }
 
@@ -119,7 +177,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const logout = () => {
-    setUser(null);
+    persistUser(null);
     clearAuthTokens();
     window.dispatchEvent(new Event('auth:logout'));
   };
@@ -130,6 +188,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       loginAsync,
       logout,
       isAuthenticated: !!user,
+      authLoading,
       refreshUser,
       refreshPermisos,
       hasPermission,

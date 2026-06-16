@@ -1,4 +1,4 @@
-﻿import React, { useState, useMemo, useEffect } from "react";
+﻿import React, { useState, useMemo, useEffect, useRef } from "react";
 import {
   ShoppingBag,
   Heart,
@@ -50,6 +50,7 @@ import { useProductosCombinados } from "../../shared/data/useProductosCombinados
 import { useTienda } from "../../shared/contexts/TiendaContext";
 import { useSubcategorias } from "../../shared/contexts/SubcategoriasContext";
 import { getJson } from "../../services/api";
+import { formatCurrency } from "../../shared/utils";
 import type { Producto } from "../../shared/contexts/TiendaContext";
 
 type Categoria = "mujer" | "accesorios" | "sale";
@@ -82,7 +83,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
   const [carritoAbierto, setCarritoAbierto] = useState(false);
   const [busquedaModalAbierta, setBusquedaModalAbierta] = useState(false);
   const [busquedaModal, setBusquedaModal] = useState('');
-  const [filtroTalla, setFiltroTalla] = useState<string>("");
+  const [filtroTalla, setFiltroTalla] = useState<string[]>([]);
   const [filtroColor, setFiltroColor] = useState<string>("");
   const [filtroMaterial, setFiltroMaterial] = useState<string>("");
   const [filtroTipoProducto, setFiltroTipoProducto] = useState<string>("");
@@ -96,7 +97,9 @@ export const LandingView: React.FC<LandingViewProps> = ({
   const [seccionesAbiertas, setSeccionesAbiertas] = useState({ precio: true, talla: true, tipo: true, categoria: true });
   const [precioMinLocal, setPrecioMinLocal] = useState(0);
   const [precioMaxLocal, setPrecioMaxLocal] = useState(0);
-  const [tallaLocal, setTallaLocal] = useState("");
+  const [activeRangeThumb, setActiveRangeThumb] = useState<'min' | 'max' | null>(null);
+  const rangeContainerRef = useRef<HTMLDivElement>(null);
+  const [tallaLocal, setTallaLocal] = useState<string[]>([]);
   const [tipoLocal, setTipoLocal] = useState("");
   const [categoriaLocal, setCategoriaLocal] = useState("");
 
@@ -106,6 +109,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
   const {
     carritoItems,
     favoritos,
+    agregarAlCarrito,
     removerDelCarrito,
     actualizarCantidad,
     toggleFavorito,
@@ -188,8 +192,8 @@ export const LandingView: React.FC<LandingViewProps> = ({
       productos = productos.filter((p) => (p.subcategoria || "").toLowerCase() === filtroCatLower);
     }
 
-    if (filtroTalla && filtroTalla !== "all") {
-      productos = productos.filter((p) => p.tallas.includes(filtroTalla));
+    if (filtroTalla.length > 0) {
+      productos = productos.filter((p) => filtroTalla.some(t => p.tallas.includes(t)));
     }
 
     if (filtroColor && filtroColor !== "all") {
@@ -227,7 +231,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
     let c = 0;
     if (filtroTipoProducto && filtroTipoProducto !== 'all') c++;
     if (filtroCategoriaRopa && filtroCategoriaRopa !== 'all') c++;
-    if (filtroTalla && filtroTalla !== 'all') c++;
+    if (filtroTalla.length > 0) c++;
     if (filtroPrecioMin !== null) c++;
     if (filtroPrecioMax !== null) c++;
     return c;
@@ -236,11 +240,35 @@ export const LandingView: React.FC<LandingViewProps> = ({
   const abrirFiltros = () => {
     setPrecioMinLocal(filtroPrecioMin ?? 0);
     setPrecioMaxLocal(filtroPrecioMax ?? maxPrecioGlobal);
-    setTallaLocal(filtroTalla);
+    setTallaLocal([...filtroTalla]);
     setTipoLocal(filtroTipoProducto);
     setCategoriaLocal(filtroCategoriaRopa);
     setFiltrosAbiertos(true);
   };
+
+  const getRangeValue = (clientX: number) => {
+    if (!rangeContainerRef.current) return 0;
+    const rect = rangeContainerRef.current.getBoundingClientRect();
+    const pct = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    return Math.round((pct * maxPrecioGlobal) / 1000) * 1000;
+  };
+  const handleRangePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    if (!rangeContainerRef.current) return;
+    const val = getRangeValue(e.clientX);
+    const thumb = Math.abs(val - precioMinLocal) <= Math.abs(val - precioMaxLocal) ? 'min' : 'max';
+    setActiveRangeThumb(thumb);
+    rangeContainerRef.current.setPointerCapture(e.pointerId);
+    if (thumb === 'min') setPrecioMinLocal(Math.min(val, precioMaxLocal - 1000));
+    else setPrecioMaxLocal(Math.max(val, precioMinLocal + 1000));
+  };
+  const handleRangePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!activeRangeThumb || !(e.buttons & 1)) return;
+    const val = getRangeValue(e.clientX);
+    if (activeRangeThumb === 'min') setPrecioMinLocal(Math.min(val, precioMaxLocal - 1000));
+    else setPrecioMaxLocal(Math.max(val, precioMinLocal + 1000));
+  };
+  const handleRangePointerUp = () => setActiveRangeThumb(null);
 
   const aplicarFiltros = () => {
     setFiltroPrecioMin(precioMinLocal > 0 ? precioMinLocal : null);
@@ -254,7 +282,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
   const limpiarFiltros = () => {
     setPrecioMinLocal(0);
     setPrecioMaxLocal(maxPrecioGlobal);
-    setTallaLocal('');
+    setTallaLocal([]);
     setTipoLocal('');
     setCategoriaLocal('');
   };
@@ -304,9 +332,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
     }
   };
 
-  const formatPrecio = (precio: number) => {
-    return `$${precio.toLocaleString("es-CO")}`;
-  };
+  const formatPrecio = (precio: number) => formatCurrency(precio);
 
   const calcularDescuento = (precio: number, precioOriginal: number) => {
     const descuento = ((precioOriginal - precio) / precioOriginal) * 100;
@@ -314,10 +340,14 @@ export const LandingView: React.FC<LandingViewProps> = ({
   };
 
   const handleAgregarAlCarrito = () => {
+    if (!productoSeleccionado || !tallaSeleccionada) return;
+    agregarAlCarrito(productoSeleccionado, tallaSeleccionada, colorSeleccionado, cantidadSeleccionada);
     setMostrarModalLoginCarrito(true);
   };
 
   const handleComprarAhora = () => {
+    if (!productoSeleccionado || !tallaSeleccionada) return;
+    agregarAlCarrito(productoSeleccionado, tallaSeleccionada, colorSeleccionado, cantidadSeleccionada);
     setMostrarModalLoginCarrito(true);
   };
 
@@ -473,7 +503,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                                 <div className="flex-1 text-left min-w-0">
                                   <p className="text-sm font-medium text-gray-900 truncate" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>{p.nombre}</p>
                                   {p.descripcion && <p className="text-xs text-gray-400 truncate mt-0.5">{p.descripcion}</p>}
-                                  <p className="text-sm font-bold text-gray-900 mt-0.5">${p.precio.toLocaleString('es-CO')}</p>
+                                  <p className="text-sm font-bold text-gray-900 mt-0.5">{formatPrecio(p.precio)}</p>
                                 </div>
                               </button>
                             ))}
@@ -795,17 +825,14 @@ export const LandingView: React.FC<LandingViewProps> = ({
                   </button>
                   {seccionesAbiertas.precio && (
                     <>
-                      <div className="relative h-6 mb-4">
+                      <div ref={rangeContainerRef} className="relative h-6 mb-4 cursor-pointer touch-none select-none"
+                        onPointerDown={handleRangePointerDown}
+                        onPointerMove={handleRangePointerMove}
+                        onPointerUp={handleRangePointerUp}>
                         <div className="absolute top-1/2 -translate-y-1/2 w-full h-[2px] bg-gray-200 rounded-full">
                           <div className="absolute h-full bg-black rounded-full"
                             style={{ left: `${(precioMinLocal / maxPrecioGlobal) * 100}%`, width: `${((precioMaxLocal - precioMinLocal) / maxPrecioGlobal) * 100}%` }} />
                         </div>
-                        <input type="range" min={0} max={maxPrecioGlobal} step={1000} value={precioMinLocal}
-                          onChange={e => setPrecioMinLocal(Math.min(Number(e.target.value), precioMaxLocal - 1000))}
-                          className="absolute w-full h-full opacity-0 cursor-pointer" style={{ zIndex: 3 }} />
-                        <input type="range" min={0} max={maxPrecioGlobal} step={1000} value={precioMaxLocal}
-                          onChange={e => setPrecioMaxLocal(Math.max(Number(e.target.value), precioMinLocal + 1000))}
-                          className="absolute w-full h-full opacity-0 cursor-pointer" style={{ zIndex: 4 }} />
                         <div className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-black rounded-full border-2 border-white shadow pointer-events-none"
                           style={{ left: `calc(${(precioMinLocal / maxPrecioGlobal) * 100}% - 8px)` }} />
                         <div className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-black rounded-full border-2 border-white shadow pointer-events-none"
@@ -813,11 +840,11 @@ export const LandingView: React.FC<LandingViewProps> = ({
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="flex-1 border border-gray-200 rounded px-3 py-2 text-sm text-gray-700">
-                          $ {precioMinLocal.toLocaleString('es-CO')}
+                          {formatCurrency(precioMinLocal)}
                         </div>
                         <span className="text-gray-400">—</span>
                         <div className="flex-1 border border-gray-200 rounded px-3 py-2 text-sm text-gray-700">
-                          $ {precioMaxLocal.toLocaleString('es-CO')}
+                          {formatCurrency(precioMaxLocal)}
                         </div>
                       </div>
                     </>
@@ -835,8 +862,8 @@ export const LandingView: React.FC<LandingViewProps> = ({
                     {seccionesAbiertas.talla && (
                       <div className="flex flex-wrap gap-2">
                         {tallasDisponibles.map(t => (
-                          <button key={t} onClick={() => setTallaLocal(tallaLocal === t ? '' : t)}
-                            className={`px-3 py-1.5 text-sm border rounded transition-colors ${tallaLocal === t ? 'border-black bg-black text-white' : 'border-gray-300 text-gray-700 hover:border-gray-900'}`}>
+                          <button key={t} onClick={() => setTallaLocal(tallaLocal.includes(t) ? tallaLocal.filter(x => x !== t) : [...tallaLocal, t])}
+                            className={`px-3 py-1.5 text-sm border rounded transition-colors ${tallaLocal.includes(t) ? 'border-black bg-black text-white' : 'border-gray-300 text-gray-700 hover:border-gray-900'}`}>
                             {t}
                           </button>
                         ))}
@@ -888,7 +915,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                 )}
 
                 {/* Limpiar filtros */}
-                {(tallaLocal || tipoLocal || categoriaLocal || precioMinLocal > 0 || precioMaxLocal < maxPrecioGlobal) && (
+                {(tallaLocal.length > 0 || tipoLocal || categoriaLocal || precioMinLocal > 0 || precioMaxLocal < maxPrecioGlobal) && (
                   <button onClick={limpiarFiltros} className="w-full px-5 py-3 text-xs text-gray-500 hover:text-gray-900 underline transition-colors">
                     Limpiar filtros
                   </button>
@@ -927,7 +954,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                     <img
                       src={producto.imagen}
                       alt={producto.nombre}
-                      className="w-full h-96 object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="w-full h-96 object-cover group-hover:scale-105 transition-transform duration-500 will-change-transform"
                     />
                     {producto.badge && (
                       <Badge
@@ -1148,9 +1175,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                     const tallasConStock: any[] = (productoSeleccionado as any).tallasConStock || [];
                     const stockGeneral: number = (productoSeleccionado as any).stock ?? 0;
                     const tallasGlobales = tallas.map((t: any) => t.nombre);
-                    const tallasMostrar: string[] = tallasProducto.length > 0
-                      ? tallasProducto
-                      : (tallasGlobales.length > 0 ? tallasGlobales : (stockGeneral > 0 ? ['Única'] : []));
+                    const tallasMostrar: string[] = tallasProducto;
                     if (tallasMostrar.length === 0) return null;
                     const todosVariantesCero = variantes.length > 0 && variantes.every((x: any) => (x.stock ?? 0) <= 0);
                     return (

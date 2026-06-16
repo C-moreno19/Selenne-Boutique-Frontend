@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { LoginView, RegisterView, RecoverPasswordModal, CustomAlert } from './features/auth';
 import { DashboardView } from './features/dashboard';
 import { ClienteView, CheckoutView } from './features/tienda';
@@ -23,11 +23,21 @@ interface Alert {
 }
 
 function MainApp() {
-  const [currentView, setCurrentView] = useState<View>('landing');
+  const { user, authLoading } = useAuth();
+  const [currentView, setCurrentView] = useState<View>(() => {
+    try { return sessionStorage.getItem('_selenne_user') ? 'dashboard' : 'landing'; }
+    catch { return 'landing'; }
+  });
   const [isRecoverModalOpen, setIsRecoverModalOpen] = useState(false);
   const [alert, setAlert] = useState<Alert | null>(null);
   const [pendingCheckout, setPendingCheckout] = useState(false);
-  const { user } = useAuth();
+
+  // Si la restauración de sesión termina y no hay usuario, volver al landing
+  useEffect(() => {
+    if (!authLoading && !user && currentView === 'dashboard') {
+      setCurrentView('landing');
+    }
+  }, [authLoading, user]);
 
   const showAlert = (type: 'success' | 'error' | 'info', message: string) => {
     setAlert({ type, message });
@@ -39,13 +49,9 @@ function MainApp() {
 
   const handleLoginSuccess = () => {
     showAlert('success', 'Inicio de sesión exitoso. Redirigiendo…');
+    setPendingCheckout(false);
     setTimeout(() => {
-      if (pendingCheckout) {
-        setPendingCheckout(false);
-        setCurrentView('checkout');
-      } else {
-        setCurrentView('dashboard');
-      }
+      setCurrentView('dashboard');
     }, 1500);
   };
 
@@ -53,6 +59,14 @@ function MainApp() {
     setCurrentView('landing');
     showAlert('info', 'Sesión cerrada exitosamente');
   };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="w-8 h-8 border-4 border-[#d65391] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="relative min-h-screen">

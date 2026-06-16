@@ -24,7 +24,7 @@ interface Pedido {
 
 const ESTADOS_ACTIVOS = ['Aprobado'];
 const ESTADOS_CAMBIO = ['Completado', 'Cancelado'];
-const fmt = (n: number) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n);
+const fmt = (n: number) => `$${new Intl.NumberFormat('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(n)} COP`;
 const estadoColor = (e: string) => {
   if (e === 'Aprobado') return 'bg-blue-100 text-blue-700';
   if (e === 'Completado') return 'bg-green-100 text-green-700';
@@ -197,7 +197,7 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
         <ChevronRight className="w-4 h-4 text-gray-400" />
         <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-900">Gestión de Ventas</span>
       </div>
-      <h1 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-4xl text-gray-900 mb-6">Gestión de Ventas</h1>
+      <h1 style={{ fontFamily: '"Times New Roman", Times, serif' }} className="text-4xl text-gray-900 mb-6">Gestión de Ventas</h1>
 
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex gap-4 mb-6">
         <div className="flex-1 relative">
@@ -265,10 +265,12 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
                       className="p-2 text-gray-500 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors" title="Ver detalles">
                       <Eye className="w-5 h-5" />
                     </button>
-                    <button onClick={() => { setSelectedPedido(p); setEmailGuiaOpen(true); }}
-                      className="p-2 text-gray-500 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors" title="Enviar correo de guía">
-                      <Truck className="w-5 h-5" />
-                    </button>
+                    {puedeEditar && (
+                      <button onClick={() => { setSelectedPedido(p); setEmailGuiaOpen(true); }}
+                        className="p-2 text-gray-500 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors" title="Enviar correo de guía">
+                        <Truck className="w-5 h-5" />
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>

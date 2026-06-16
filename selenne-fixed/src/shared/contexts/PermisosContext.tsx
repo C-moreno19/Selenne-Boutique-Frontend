@@ -26,7 +26,7 @@ const sectionToPermiso: { [key: string]: string } = {
   'tipos-producto':    'productos:ver',
   'ventas':            'ventas:ver',
   'nueva-venta':       'ventas:crear',
-  'pedidos':           'ventas:ver',
+  'pedidos':           'pedidos:ver',
   'historial-ventas':  'ventas:ver',
   'clientes':          'clientes:ver',
   'compras':           'compras:ver',
@@ -35,9 +35,7 @@ const sectionToPermiso: { [key: string]: string } = {
   'proveedores':       'compras:ver',
   'usuarios':          'usuarios:ver',
   'roles':             'roles:ver',
-  'reportes':          'reportes:ventas',
-  'configuracion':     'admin:dashboard',
-  'notificaciones':    'admin:dashboard',
+  'notificaciones':    'notif:ver',
 };
 
 export const PermisosProvider: React.FC<{ children: ReactNode }> = ({ children }) => {

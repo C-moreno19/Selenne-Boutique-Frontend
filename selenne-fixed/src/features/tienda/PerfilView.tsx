@@ -191,7 +191,7 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
     try {
       await api.fetchWithAuth(`/api/usuarios/${user?.usuarioID}`, { method: 'PUT', body: JSON.stringify({ NombreCompleto: formData.nombre, Telefono: formData.telefono, Direccion: formData.direccion, Ciudad: formData.ciudad, Documento: formData.documento }) });
       await refreshUser();
-      setProfileData({ telefono: formData.telefono, direccion: formData.direccion, ciudad: formData.ciudad, documento: formData.documento });
+      setProfileData({ telefono: formData.telefono, direccion: formData.direccion, ciudad: formData.ciudad, documento: formData.documento, emailVerificado: profileData.emailVerificado });
       setEditModalOpen(false);
       toast.success('Perfil actualizado correctamente');
     } catch (e: any) { toast.error('Error al guardar', { description: e?.data?.message }); }
@@ -268,7 +268,7 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
           <div className="px-5 py-4 flex items-center justify-between border-b border-gray-200">
             <span className="text-sm font-medium text-gray-900">{user?.name || 'Mi cuenta'}</span>
             <button type="button"
-              onClick={() => { setFormData({ nombre: user?.name || '', ...profileData }); setErrors({ nombre: '', telefono: '', direccion: '' }); setEditModalOpen(true); }}
+              onClick={() => { setFormData({ nombre: user?.name || '', ...profileData }); setErrors({ nombre: '', telefono: '', direccion: '', documento: '' }); setEditModalOpen(true); }}
               className="text-gray-400 hover:text-gray-600 transition-colors p-1"
             >
               <Edit className="w-4 h-4" />

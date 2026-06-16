@@ -14,7 +14,7 @@ interface Compra {
   detalles?: DetalleCompra[];
 }
 
-const fmt = (n: number) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n);
+const fmt = (n: number) => `$${new Intl.NumberFormat('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(n)} COP`;
 const estadoColor = (e: string) => e === 'Completado' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700';
 
 interface HistorialComprasViewProps { onBack?: () => void; }
@@ -94,7 +94,7 @@ export const HistorialComprasView: React.FC<HistorialComprasViewProps> = ({ onBa
         <button onClick={onBack} className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <h1 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-4xl text-gray-900">Historial de Compras</h1>
+        <h1 style={{ fontFamily: '"Times New Roman", Times, serif' }} className="text-4xl text-gray-900">Historial de Compras</h1>
       </div>
 
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex flex-col lg:flex-row gap-4 mb-6">

@@ -3,7 +3,8 @@ import { ArrowLeft, Plus, Trash2, ShoppingCart } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../components/ui/select';
 import { Input } from '../../../components/ui/input';
 import { Label } from '../../../components/ui/label';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
+import { formatCurrency } from '../../../shared/utils';
 
 interface Cliente {
   id: string;
@@ -127,8 +128,12 @@ export const NuevaVentaView: React.FC<NuevaVentaViewProps> = ({ onBack, onSucces
   const total = subtotal + impuesto;
 
   const handleGuardarVenta = () => {
-    if (!clienteSeleccionado || productosVenta.length === 0) {
-      toast.error('Debes seleccionar cliente y agregar al menos un producto');
+    if (!clienteSeleccionado) {
+      toast.error('Debes seleccionar un cliente para continuar');
+      return;
+    }
+    if (productosVenta.length === 0) {
+      toast.error('Agrega al menos un producto a la venta');
       return;
     }
 
@@ -137,7 +142,7 @@ export const NuevaVentaView: React.FC<NuevaVentaViewProps> = ({ onBack, onSucces
     onSuccess();
   };
 
-  const formatPrecio = (precio: number) => `$${precio.toLocaleString('es-CO')}`;
+  const formatPrecio = (precio: number) => formatCurrency(precio);
 
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
@@ -151,7 +156,7 @@ export const NuevaVentaView: React.FC<NuevaVentaViewProps> = ({ onBack, onSucces
           <ArrowLeft className="w-5 h-5 text-gray-600" />
         </button>
         <div>
-          <h1 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-[32px] text-gray-900">
+          <h1 style={{ fontFamily: '"Times New Roman", Times, serif' }} className="text-[32px] text-gray-900">
             Nueva Venta
           </h1>
           <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-600">

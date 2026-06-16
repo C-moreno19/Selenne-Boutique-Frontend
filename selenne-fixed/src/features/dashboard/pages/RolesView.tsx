@@ -1,5 +1,5 @@
 ﻿import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, Search, Edit, Trash2, Eye, ChevronRight, Loader2, RefreshCw, Shield, Ban, Users, Settings, Package, ShoppingBag, ShoppingCart, Warehouse, UserCog, BarChart2, Store, Briefcase, User, ClipboardList } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Eye, ChevronRight, Loader2, RefreshCw, Shield, Ban, Users, Settings, Package, ShoppingBag, ShoppingCart, UserCog, Briefcase, User, ClipboardList, Bell } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '../../../components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../../../components/ui/alert-dialog';
 import { Input } from '../../../components/ui/input';
@@ -31,23 +31,17 @@ interface PermModule {
 
 const MODULOS: PermModule[] = [
   {
-    id: 'administracion', name: 'Dashboard / Administración', icon: <Settings className="w-4 h-4" />,
+    id: 'administracion', name: 'Dashboard', icon: <Settings className="w-4 h-4" />,
     generalPermiso: 'admin:dashboard',
     permisos: [
       { id: 'admin:dashboard', label: 'Acceso al panel de administración' },
-      { id: 'config:sistema', label: 'Configuración del sistema' },
-      { id: 'config:empresa', label: 'Configuración de la empresa' },
-      { id: 'config:email', label: 'Configuración de correo' },
-      { id: 'config:integraciones', label: 'Gestionar integraciones' },
-      { id: 'config:auditoria', label: 'Ver auditoría del sistema' },
-      { id: 'config:backup', label: 'Gestionar copias de seguridad' },
     ]
   },
   {
     id: 'productos', name: 'Gestión de Productos', icon: <Package className="w-4 h-4" />,
     generalPermiso: 'productos:ver',
     permisos: [
-      { id: 'productos:ver', label: 'Ver listado de productos' },
+      { id: 'productos:ver', label: 'Ver listado de productos y catálogos' },
       { id: 'productos:crear', label: 'Crear productos' },
       { id: 'productos:editar', label: 'Editar productos' },
       { id: 'productos:eliminar', label: 'Eliminar productos' },
@@ -55,13 +49,21 @@ const MODULOS: PermModule[] = [
     ]
   },
   {
-    id: 'compras', name: 'Compras', icon: <ShoppingBag className="w-4 h-4" />,
-    generalPermiso: 'compras:ver',
+    id: 'pedidos', name: 'Pedidos', icon: <ClipboardList className="w-4 h-4" />,
+    generalPermiso: 'pedidos:ver',
     permisos: [
-      { id: 'compras:ver', label: 'Ver listado de compras' },
-      { id: 'compras:crear', label: 'Registrar nuevas compras' },
-      { id: 'compras:editar', label: 'Editar compras y cambiar estado' },
-      { id: 'compras:eliminar', label: 'Eliminar compras' },
+      { id: 'pedidos:ver', label: 'Ver pedidos pendientes' },
+      { id: 'pedidos:editar', label: 'Aprobar, rechazar y cambiar estado de pedidos' },
+    ]
+  },
+  {
+    id: 'ventas', name: 'Ventas', icon: <ShoppingCart className="w-4 h-4" />,
+    generalPermiso: 'ventas:ver',
+    permisos: [
+      { id: 'ventas:ver', label: 'Ver ventas e historial' },
+      { id: 'ventas:crear', label: 'Registrar ventas manuales' },
+      { id: 'ventas:editar', label: 'Editar ventas registradas' },
+      { id: 'ventas:eliminar', label: 'Eliminar ventas del historial' },
     ]
   },
   {
@@ -69,34 +71,17 @@ const MODULOS: PermModule[] = [
     generalPermiso: 'clientes:ver',
     permisos: [
       { id: 'clientes:ver', label: 'Ver listado de clientes' },
-      { id: 'clientes:crear', label: 'Registrar clientes' },
-      { id: 'clientes:editar', label: 'Editar información de clientes' },
-      { id: 'clientes:eliminar', label: 'Eliminar clientes' },
-      { id: 'clientes:bloquear', label: 'Bloquear / activar clientes' },
-      { id: 'clientes:historial', label: 'Ver historial de compras del cliente' },
+      { id: 'clientes:historial', label: 'Ver historial de pedidos del cliente' },
     ]
   },
   {
-    id: 'inventario', name: 'Inventario', icon: <Warehouse className="w-4 h-4" />,
-    generalPermiso: 'inventario:ver',
+    id: 'compras', name: 'Compras y Proveedores', icon: <ShoppingBag className="w-4 h-4" />,
+    generalPermiso: 'compras:ver',
     permisos: [
-      { id: 'inventario:ver', label: 'Ver inventario' },
-      { id: 'inventario:actualizar', label: 'Actualizar stock de productos' },
-      { id: 'inventario:ajustes', label: 'Realizar ajustes de inventario' },
-      { id: 'inventario:alertas', label: 'Gestionar alertas de stock bajo' },
-      { id: 'inventario:reportes', label: 'Ver reportes de inventario' },
-    ]
-  },
-  {
-    id: 'ventas', name: 'Gestión de Ventas', icon: <ShoppingCart className="w-4 h-4" />,
-    generalPermiso: 'ventas:ver',
-    permisos: [
-      { id: 'ventas:ver', label: 'Ver pedidos y ventas' },
-      { id: 'ventas:crear', label: 'Registrar ventas manuales' },
-      { id: 'ventas:editar', label: 'Editar, aprobar y cambiar estado de ventas' },
-      { id: 'ventas:eliminar', label: 'Eliminar / anular ventas' },
-      { id: 'ventas:devoluciones', label: 'Gestionar devoluciones' },
-      { id: 'ventas:reportes', label: 'Ver reportes de ventas' },
+      { id: 'compras:ver', label: 'Ver compras, proveedores e historial' },
+      { id: 'compras:crear', label: 'Registrar nuevas compras' },
+      { id: 'compras:editar', label: 'Editar compras y cambiar estado' },
+      { id: 'compras:eliminar', label: 'Eliminar compras del historial' },
     ]
   },
   {
@@ -124,26 +109,10 @@ const MODULOS: PermModule[] = [
     ]
   },
   {
-    id: 'reportes', name: 'Reportes', icon: <BarChart2 className="w-4 h-4" />,
-    generalPermiso: 'reportes:ventas',
+    id: 'notificaciones', name: 'Notificaciones', icon: <Bell className="w-4 h-4" />,
+    generalPermiso: 'notif:ver',
     permisos: [
-      { id: 'reportes:ventas', label: 'Reportes de ventas' },
-      { id: 'reportes:inventario', label: 'Reportes de inventario' },
-      { id: 'reportes:clientes', label: 'Reportes de clientes' },
-      { id: 'reportes:financiero', label: 'Reporte financiero' },
-      { id: 'reportes:descargar', label: 'Descargar reportes' },
-      { id: 'reportes:customizar', label: 'Personalizar reportes' },
-    ]
-  },
-  {
-    id: 'tienda', name: 'Tienda Online (cliente)', icon: <Store className="w-4 h-4" />,
-    generalPermiso: 'tienda:ver',
-    permisos: [
-      { id: 'tienda:ver', label: 'Ver tienda' },
-      { id: 'tienda:comprar', label: 'Realizar compras' },
-      { id: 'tienda:carrito', label: 'Gestionar carrito' },
-      { id: 'tienda:pedidos', label: 'Ver historial de pedidos propios' },
-      { id: 'tienda:ofertas', label: 'Ver ofertas especiales' },
+      { id: 'notif:ver', label: 'Ver notificaciones' },
     ]
   },
 ];
@@ -386,7 +355,7 @@ export const RolesView: React.FC = () => {
         <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-900">Gestión de Roles</span>
       </div>
 
-      <h1 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-3xl font-bold text-gray-900 mb-6">Gestión de Roles</h1>
+      <h1 style={{ fontFamily: '"Times New Roman", Times, serif' }} className="text-3xl font-bold text-gray-900 mb-6">Gestión de Roles</h1>
 
       <div className="space-y-6">
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex flex-col lg:flex-row gap-4">

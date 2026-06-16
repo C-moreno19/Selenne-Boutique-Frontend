@@ -18,6 +18,7 @@ import { postJson, postForm, getJson } from '../../services/api';
 import { useAuth } from '../../shared/contexts/AuthContext';
 import { useMensajes } from '../../shared/contexts/MensajesContext';
 import { generarContraseñaTemporal } from '../../shared/utils/credentialGenerator';
+import { formatCurrency } from '../../shared/utils';
 import { toast } from 'sonner';
 import { QRCodeSVG } from 'qrcode.react';
 
@@ -92,7 +93,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
   // Datos para transferencia — se cargan del backend
   const [datosBanco, setDatosBanco] = React.useState({
     banco: 'Bancolombia',
-    numeroCuenta: '1234567890',
+    numeroCuenta: '91292106179',
     titular: 'Selenne Boutique',
     tipoCuenta: 'Ahorros',
   });
@@ -103,11 +104,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
       .catch(() => {});
   }, []);
 
-  const datosQR = `Cuenta: ${datosBanco.numeroCuenta}\nBanco: ${datosBanco.banco}\nNombre: ${datosBanco.titular}\nMonto: $${getTotalCarrito().toLocaleString('es-CO')}`;
-
-  const formatPrecio = (precio: number) => {
-    return `$${precio.toLocaleString('es-CO')}`;
-  };
+  const formatPrecio = (precio: number) => formatCurrency(precio);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -639,7 +636,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                         <div>
                           <p className="text-xs text-gray-500">Monto a Transferir</p>
                           <p className="text-[#d65391]">
-                            ${getTotalCarrito().toLocaleString('es-CO')}
+                            {formatCurrency(getTotalCarrito())}
                           </p>
                         </div>
                       </div>
@@ -647,11 +644,10 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                       {/* Código QR */}
                       <div className="flex flex-col items-center justify-center bg-white p-4 rounded-lg border border-gray-200">
                         <p className="text-xs text-gray-500 mb-3">Escanea para transferir</p>
-                        <QRCodeSVG 
-                          value={datosQR}
-                          size={180}
-                          level="H"
-                          includeMargin={true}
+                        <img
+                          src="/qr-transferencia.png"
+                          alt="QR transferencia bancaria"
+                          className="w-44 h-44 object-contain"
                         />
                       </div>
                     </div>

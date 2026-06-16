@@ -9,11 +9,16 @@ import {
   FileText,
   FileSpreadsheet,
   ChevronRight,
+  CheckCircle,
+  XCircle,
+  Clock,
 } from 'lucide-react';
-import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '../../../components/ui/dialog';
-import { toast } from 'sonner@2.0.3';
-import { getJson } from '../../../services/api';
+import { toast } from 'sonner';
+import { getJson, putJson } from '../../../services/api';
+import { formatCurrency } from '../../../shared/utils';
+import { useAuth } from '../../../shared/contexts/AuthContext';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
@@ -57,11 +62,6 @@ interface RecentSale {
   cantidad: number;
 }
 
-interface CategoryItem {
-  name: string;
-  value: number;
-}
-
 interface DateRange { from: Date; to: Date; }
 
 const toInputValue = (d: Date) => d.toISOString().slice(0, 10);
@@ -77,13 +77,12 @@ const formatDate = (d: Date) =>
   d.toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' });
 
 export const DashboardHome: React.FC = () => {
+  const { hasPermission } = useAuth();
+  const puedeEditarVentas = hasPermission('pedidos:editar');
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [reportType, setReportType] = useState('');
   const [salesDetailOpen, setSalesDetailOpen] = useState(false);
-  const [stockDetailOpen, setStockDetailOpen] = useState(false);
   const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null);
-  const [lowStockProducts, setLowStockProducts] = useState<Array<StockProduct & { codigo: string; alerta: string; minimo: number }>>([]);
-  const [categoryData, setCategoryData] = useState<CategoryItem[]>([]);
   const [allPedidos, setAllPedidos] = useState<PedidoDto[]>([]);
   const [dateRange, setDateRange] = useState<DateRange>(defaultDateRange());
   const [loading, setLoading] = useState(false);
@@ -92,36 +91,18 @@ export const DashboardHome: React.FC = () => {
     const loadDashboard = async () => {
       setLoading(true);
       try {
-        const [statsRes, pedidosRes, productosRes] = await Promise.all([
+        const [statsRes, pedidosRes] = await Promise.all([
           getJson('/api/admin/dashboard'),
           getJson('/api/pedidos'),
-          getJson('/api/productos?estado=activo')
         ]);
 
         const stats = statsRes?.data || statsRes;
         if (stats) {
           setDashboardStats(stats);
-          setLowStockProducts((stats.productosStockBajo || []).map((product: StockProduct) => ({
-            ...product,
-            codigo: `PRO-${product.productoID.toString().padStart(3, '0')}`,
-            alerta: product.stock <= 0 ? 'agotado' : product.stock <= 3 ? 'crítico' : 'medio',
-            minimo: 5
-          })));
         }
 
         const pedidos = (pedidosRes?.data || pedidosRes || []) as PedidoDto[];
         setAllPedidos(pedidos);
-
-        const products = (productosRes?.data || productosRes || []) as any[];
-        const categoryCounts: Record<string, number> = {};
-        products.forEach((product) => {
-          const category = product.categoriaNombre || product.CategoriaNombre || 'Sin categoría';
-          categoryCounts[category] = (categoryCounts[category] || 0) + 1;
-        });
-        setCategoryData(Object.entries(categoryCounts)
-          .sort((a, b) => b[1] - a[1])
-          .slice(0, 5)
-          .map(([name, value]) => ({ name, value })));
 
       } catch (error: any) {
         console.error('Error cargando dashboard:', error);
@@ -208,16 +189,30 @@ export const DashboardHome: React.FC = () => {
     productosStock: dashboardStats?.totalProductos ?? 0,
   }), [dashboardStats]);
 
-  const getStockAlertColor = (alerta: string) => {
-    switch (alerta) {
-      case 'agotado': return 'bg-red-100 text-red-700 border-red-200';
-      case 'crítico': return 'bg-orange-100 text-orange-700 border-orange-200';
-      case 'medio': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
-      default: return 'bg-gray-100 text-gray-700 border-gray-200';
+  const pendingOrders = useMemo(() =>
+    allPedidos.filter(p => p.estado === 'Pendiente'),
+    [allPedidos]
+  );
+
+  const handleAprobar = async (pedidoId: number) => {
+    try {
+      await putJson(`/api/pedidos/${pedidoId}/estado`, { nuevoEstado: 'Aprobado' });
+      setAllPedidos(prev => prev.map(p => p.pedidoID === pedidoId ? { ...p, estado: 'Aprobado' } : p));
+      toast.success(`Pedido #${pedidoId} aprobado`);
+    } catch {
+      toast.error('Error al aprobar el pedido');
     }
   };
 
-  const COLORS = ['#d65391', '#f4a0c8', '#6366f1', '#10b981', '#f59e0b'];
+  const handleRechazar = async (pedidoId: number) => {
+    try {
+      await putJson(`/api/pedidos/${pedidoId}/estado`, { nuevoEstado: 'Rechazado' });
+      setAllPedidos(prev => prev.map(p => p.pedidoID === pedidoId ? { ...p, estado: 'Rechazado' } : p));
+      toast.error(`Pedido #${pedidoId} rechazado`);
+    } catch {
+      toast.error('Error al rechazar el pedido');
+    }
+  };
 
   const handleExport = (tipo: string) => {
     setReportType(tipo);
@@ -248,7 +243,7 @@ export const DashboardHome: React.FC = () => {
           startY: 40,
           head: [['Métrica', 'Valor']],
           body: [
-            ['Ventas del mes', `$${totals.ventasMensuales.toLocaleString('es-CO')}`],
+            ['Ventas del mes', formatCurrency(totals.ventasMensuales)],
             ['Pedidos totales', totals.ventasTotales.toLocaleString('es-CO')],
             ['Clientes activos', totals.clientesActivos.toLocaleString('es-CO')],
             ['Productos activos', totals.productosStock.toLocaleString('es-CO')],
@@ -265,7 +260,7 @@ export const DashboardHome: React.FC = () => {
         autoTable(doc, {
           startY: y1 + 4,
           head: [['#', 'Cliente', 'Producto', 'Monto', 'Fecha', 'Estado']],
-          body: recentSales.map(s => [s.id, s.cliente, s.producto, `$${s.monto.toLocaleString('es-CO')}`, s.fecha, s.estado]),
+          body: recentSales.map(s => [s.id, s.cliente, s.producto, formatCurrency(s.monto), s.fecha, s.estado]),
           headStyles: head_styles,
           alternateRowStyles: alt_row,
           styles: { fontSize: 9 },
@@ -284,17 +279,6 @@ export const DashboardHome: React.FC = () => {
         });
         break;
 
-      case 'Distribución por Categoría':
-        autoTable(doc, {
-          startY: 32,
-          head: [['Categoría', 'Cantidad de Productos']],
-          body: categoryData.map(c => [c.name, c.value.toString()]),
-          headStyles: head_styles,
-          alternateRowStyles: alt_row,
-          styles: { fontSize: 10 },
-          columnStyles: { 1: { halign: 'center' } },
-        });
-        break;
     }
 
     doc.save(filename);
@@ -330,12 +314,6 @@ export const DashboardHome: React.FC = () => {
         }));
         break;
 
-      case 'Distribución por Categoría':
-        data = categoryData.map(cat => ({
-          'Categoría': cat.name,
-          'Cantidad de Productos': cat.value
-        }));
-        break;
     }
 
     const ws = XLSX.utils.json_to_sheet(data);
@@ -351,7 +329,7 @@ export const DashboardHome: React.FC = () => {
     <div className="p-8 bg-gray-50 min-h-screen">
       {/* Header */}
       <div className="mb-8">
-        <h1 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-3xl font-bold text-gray-800 mb-1">Dashboard</h1>
+        <h1 style={{ fontFamily: '"Times New Roman", Times, serif' }} className="text-3xl font-bold text-gray-800 mb-1">Dashboard</h1>
         <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-400">
           {loading ? 'Cargando datos...' : 'Resumen general del sistema'}
         </p>
@@ -360,10 +338,10 @@ export const DashboardHome: React.FC = () => {
       {/* 4 Tarjetas de Métricas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {[
-          { label: 'Ventas Mensuales', value: `$${totals.ventasMensuales.toLocaleString('es-CL')}`, sub: 'Total de ingresos', trend: '+12%', up: true, icon: <TrendingUp className="w-5 h-5 text-[#d65391]" />, iconBg: 'bg-[#fdf2f8]' },
-          { label: 'Pedidos Totales', value: totals.ventasTotales.toLocaleString('es-CL'), sub: 'Órdenes registradas', trend: '+8%', up: true, icon: <ShoppingCart className="w-5 h-5 text-[#d65391]" />, iconBg: 'bg-[#fdf2f8]' },
-          { label: 'Clientes Activos', value: totals.clientesActivos.toLocaleString('es-CL'), sub: 'Usuarios registrados', trend: '+5%', up: true, icon: <Users className="w-5 h-5 text-[#d65391]" />, iconBg: 'bg-[#fdf2f8]' },
-          { label: 'Productos Activos', value: totals.productosStock.toLocaleString('es-CL'), sub: 'Productos en catálogo', trend: '-3%', up: false, icon: <Package className="w-5 h-5 text-[#d65391]" />, iconBg: 'bg-[#fdf2f8]' },
+          { label: 'Ventas Mensuales', value: formatCurrency(totals.ventasMensuales), sub: 'Total de ingresos', trend: '+12%', up: true, icon: <TrendingUp className="w-5 h-5 text-[#d65391]" />, iconBg: 'bg-[#fdf2f8]' },
+          { label: 'Pedidos Totales', value: totals.ventasTotales.toLocaleString('es-CO'), sub: 'Órdenes registradas', trend: '+8%', up: true, icon: <ShoppingCart className="w-5 h-5 text-[#d65391]" />, iconBg: 'bg-[#fdf2f8]' },
+          { label: 'Clientes Activos', value: totals.clientesActivos.toLocaleString('es-CO'), sub: 'Usuarios registrados', trend: '+5%', up: true, icon: <Users className="w-5 h-5 text-[#d65391]" />, iconBg: 'bg-[#fdf2f8]' },
+          { label: 'Productos Activos', value: totals.productosStock.toLocaleString('es-CO'), sub: 'Productos en catálogo', trend: '-3%', up: false, icon: <Package className="w-5 h-5 text-[#d65391]" />, iconBg: 'bg-[#fdf2f8]' },
         ].map((card) => (
           <div key={card.label} className="bg-white rounded-xl p-6 border border-gray-100 transition-shadow duration-200 cursor-default"
             style={cardShadow}
@@ -451,28 +429,61 @@ export const DashboardHome: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        {/* Donut */}
-        <div className="bg-white rounded-xl p-6 border border-gray-100" style={cardShadow}>
+        {/* Pedidos Pendientes */}
+        <div className="bg-white rounded-xl p-6 border border-gray-100 flex flex-col" style={cardShadow}>
           <div className="flex items-start justify-between mb-5">
             <div>
-              <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-gray-700 mb-0.5">Distribución por Categoría</h3>
-              <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">Productos activos en catálogo</p>
+              <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-gray-700 mb-0.5">Pedidos Pendientes</h3>
+              <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">
+                {pendingOrders.length === 0 ? 'Sin pedidos por revisar' : `${pendingOrders.length} pedido${pendingOrders.length !== 1 ? 's' : ''} por revisar`}
+              </p>
             </div>
-            <button onClick={() => handleExport('Distribución por Categoría')} className="p-2 hover:bg-[#fdf2f8] rounded-lg transition-colors" title="Exportar">
-              <Download className="w-4 h-4 text-[#d65391]" />
-            </button>
+            <div className="w-9 h-9 bg-amber-50 rounded-xl flex items-center justify-center flex-shrink-0">
+              <Clock className="w-4 h-4 text-amber-500" />
+            </div>
           </div>
-          <ResponsiveContainer width="100%" height={280}>
-            <PieChart>
-              <Pie data={categoryData} cx="50%" cy="50%" innerRadius={60} outerRadius={100} paddingAngle={4} dataKey="value">
-                {categoryData.map((_, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip contentStyle={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', borderRadius: '10px', border: '1px solid #fce7f3', fontSize: '12px' }} formatter={(value) => `${value} producto(s)`} />
-              <Legend wrapperStyle={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: '12px' }} formatter={(_, props: any) => `${props.payload.name}: ${props.payload.value}`} />
-            </PieChart>
-          </ResponsiveContainer>
+
+          <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
+            {pendingOrders.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-10 text-center">
+                <div className="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center mb-3">
+                  <CheckCircle className="w-6 h-6 text-emerald-400" />
+                </div>
+                <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-400">¡Todo al día! No hay pedidos pendientes.</p>
+              </div>
+            ) : pendingOrders.map((pedido) => (
+              <div key={pedido.pedidoID} className="flex items-center gap-3 px-3 py-3 bg-amber-50/60 border border-amber-100 rounded-xl">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs font-bold text-amber-600">PED-{pedido.pedidoID}</span>
+                    <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">
+                      {new Date(pedido.fechaPedido).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })}
+                    </span>
+                  </div>
+                  <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 truncate">{pedido.nombreCliente}</p>
+                  <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 truncate">
+                    {pedido.detalles?.[0]?.productoNombre}
+                    {(pedido.detalles?.length ?? 0) > 1 ? ` +${pedido.detalles.length - 1} más` : ''}
+                  </p>
+                </div>
+                <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-gray-800 flex-shrink-0 mr-1">
+                  {formatCurrency(pedido.total)}
+                </p>
+                {puedeEditarVentas && (
+                  <div className="flex gap-1.5 flex-shrink-0">
+                    <button onClick={() => handleAprobar(pedido.pedidoID)}
+                      className="p-1.5 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-100 transition-colors" title="Aprobar">
+                      <CheckCircle className="w-4 h-4" />
+                    </button>
+                    <button onClick={() => handleRechazar(pedido.pedidoID)}
+                      className="p-1.5 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition-colors" title="Rechazar">
+                      <XCircle className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Últimas Ventas */}
@@ -498,7 +509,7 @@ export const DashboardHome: React.FC = () => {
                   <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 truncate">{sale.producto}</p>
                 </div>
                 <div className="text-right flex-shrink-0">
-                  <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#d65391]">${sale.monto.toLocaleString()}</p>
+                  <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#d65391]">{formatCurrency(sale.monto)}</p>
                   <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">{sale.fecha}</p>
                 </div>
               </div>
@@ -601,7 +612,7 @@ export const DashboardHome: React.FC = () => {
                   <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">{sale.producto} · {sale.cantidad} {sale.cantidad === 1 ? 'unidad' : 'unidades'}</p>
                 </div>
                 <div className="text-right flex-shrink-0">
-                  <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#d65391]">${sale.monto.toLocaleString()}</p>
+                  <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#d65391]">{formatCurrency(sale.monto)}</p>
                   <div className="flex items-center gap-2 justify-end mt-0.5">
                     <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">{sale.fecha}</span>
                     <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className={`text-xs font-medium px-2 py-0.5 rounded-full ${sale.estado === 'Completada' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>{sale.estado}</span>

@@ -2,7 +2,8 @@
 import { ChevronRight, Package, Plus, ArrowLeft, Trash2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '../../../components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../components/ui/select';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
+import { formatCurrency } from '../../../shared/utils';
 import { Input } from '../../../components/ui/input';
 import { Label } from '../../../components/ui/label';
 import { useComprasAdmin, type Proveedor } from '../../../shared/contexts/ComprasAdminContext';
@@ -33,6 +34,7 @@ export const NuevaCompraView: React.FC<NuevaCompraViewProps> = ({ onBack, onSucc
   const { proveedores, agregarProveedor, agregarCompra } = useComprasAdmin();
   
   const [proveedor, setProveedor] = useState('');
+  const proveedorSeleccionado = proveedores.find(p => p.id === proveedor) ?? null;
   const [fecha, setFecha] = useState(new Date().toISOString().split('T')[0]);
   const [productosCompra, setProductosCompra] = useState<ProductoCompra[]>([]);
   const [showModalProveedor, setShowModalProveedor] = useState(false);
@@ -41,8 +43,9 @@ export const NuevaCompraView: React.FC<NuevaCompraViewProps> = ({ onBack, onSucc
     contacto: '',
     email: '',
     telefono: '',
+    documento: '',
   });
-  const [proveedorErrors, setProveedorErrors] = useState({ nombre: '', contacto: '', email: '', telefono: '' });
+  const [proveedorErrors, setProveedorErrors] = useState({ nombre: '', contacto: '', email: '', telefono: '', documento: '' });
 
   const updateProveedor = (field: string, value: string) => {
     if (field === 'nombre' || field === 'contacto') {
@@ -58,6 +61,13 @@ export const NuevaCompraView: React.FC<NuevaCompraViewProps> = ({ onBack, onSucc
         return;
       } else {
         setProveedorErrors(prev => ({ ...prev, telefono: '' }));
+      }
+    } else if (field === 'documento') {
+      if (value && !/^[\d\-]*$/.test(value)) {
+        setProveedorErrors(prev => ({ ...prev, documento: 'Solo se permiten números y guiones' }));
+        return;
+      } else {
+        setProveedorErrors(prev => ({ ...prev, documento: '' }));
       }
     } else if (field === 'email') {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -161,7 +171,7 @@ export const NuevaCompraView: React.FC<NuevaCompraViewProps> = ({ onBack, onSucc
       </div>
 
       <div className="mb-8">
-        <h1 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-[36px] text-gray-900 mb-2">
+        <h1 style={{ fontFamily: '"Times New Roman", Times, serif' }} className="text-[36px] text-gray-900 mb-2">
           Crear Nueva Compra
         </h1>
         <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-600">
@@ -205,6 +215,16 @@ export const NuevaCompraView: React.FC<NuevaCompraViewProps> = ({ onBack, onSucc
                     Crear Proveedor
                   </button>
                 </div>
+                {proveedorSeleccionado && (
+                  <div className="mt-2 px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg flex items-center gap-2">
+                    <span className="text-xs text-gray-500 font-medium">NIT / Documento:</span>
+                    <span className="text-sm text-gray-800 font-semibold">
+                      {proveedorSeleccionado.documento
+                        ? proveedorSeleccionado.documento
+                        : <span className="text-gray-400 font-normal italic">No registrado</span>}
+                    </span>
+                  </div>
+                )}
               </div>
 
               <div>
@@ -294,7 +314,7 @@ export const NuevaCompraView: React.FC<NuevaCompraViewProps> = ({ onBack, onSucc
                             <Label className="text-xs text-gray-600">Total</Label>
                             <div className="mt-1 px-3 py-2 bg-white border border-gray-200 rounded-lg">
                               <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-900">
-                                ${producto.total.toLocaleString('es-CO')}
+                                {formatCurrency(producto.total)}
                               </p>
                             </div>
                           </div>
@@ -330,7 +350,7 @@ export const NuevaCompraView: React.FC<NuevaCompraViewProps> = ({ onBack, onSucc
                     {prod.nombre} × {prod.cantidad}
                   </span>
                   <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-900">
-                    ${prod.total.toLocaleString('es-CO')}
+                    {formatCurrency(prod.total)}
                   </span>
                 </div>
               ))}
@@ -344,7 +364,7 @@ export const NuevaCompraView: React.FC<NuevaCompraViewProps> = ({ onBack, onSucc
                       Total
                     </span>
                     <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-2xl text-[#d65391]">
-                      ${totalCompra.toLocaleString('es-CO')}
+                      {formatCurrency(totalCompra)}
                     </span>
                   </div>
                 </div>
@@ -431,14 +451,28 @@ export const NuevaCompraView: React.FC<NuevaCompraViewProps> = ({ onBack, onSucc
               />
               {proveedorErrors.telefono && <p className="text-xs text-red-500 mt-1">{proveedorErrors.telefono}</p>}
             </div>
+
+            <div>
+              <Label htmlFor="prov-documento" className="text-sm text-gray-700 block mb-2">
+                NIT / Documento
+              </Label>
+              <Input
+                id="prov-documento"
+                placeholder="900123456-7"
+                value={formProveedor.documento}
+                onChange={(e) => updateProveedor('documento', e.target.value)}
+                className={proveedorErrors.documento ? 'border-red-500' : ''}
+              />
+              {proveedorErrors.documento && <p className="text-xs text-red-500 mt-1">{proveedorErrors.documento}</p>}
+            </div>
           </div>
 
           <DialogFooter className="gap-2">
             <button
               onClick={() => {
                 setShowModalProveedor(false);
-                setFormProveedor({ nombre: '', contacto: '', email: '', telefono: '' });
-                setProveedorErrors({ nombre: '', contacto: '', email: '', telefono: '' });
+                setFormProveedor({ nombre: '', contacto: '', email: '', telefono: '', documento: '' });
+                setProveedorErrors({ nombre: '', contacto: '', email: '', telefono: '', documento: '' });
               }}
               style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
               className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
@@ -447,8 +481,14 @@ export const NuevaCompraView: React.FC<NuevaCompraViewProps> = ({ onBack, onSucc
             </button>
             <button
               onClick={() => {
-                if (!formProveedor.nombre || !formProveedor.contacto || !formProveedor.email || !formProveedor.telefono) {
-                  toast.error('Completa todos los campos');
+                const errores: Record<string, string> = {};
+                if (!formProveedor.nombre.trim()) errores.nombre = 'El nombre del proveedor es obligatorio';
+                if (!formProveedor.contacto.trim()) errores.contacto = 'El nombre del contacto es obligatorio';
+                if (!formProveedor.email.trim()) errores.email = 'El email es obligatorio';
+                else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formProveedor.email)) errores.email = 'Formato de email inválido';
+                if (!formProveedor.telefono.trim()) errores.telefono = 'El teléfono es obligatorio';
+                if (Object.keys(errores).length > 0) {
+                  setProveedorErrors(prev => ({ ...prev, ...errores }));
                   return;
                 }
                 
@@ -458,6 +498,7 @@ export const NuevaCompraView: React.FC<NuevaCompraViewProps> = ({ onBack, onSucc
                   contacto: formProveedor.contacto,
                   email: formProveedor.email,
                   telefono: formProveedor.telefono,
+                  documento: formProveedor.documento || undefined,
                 };
 
                 agregarProveedor(nuevoProveedor);
@@ -465,8 +506,8 @@ export const NuevaCompraView: React.FC<NuevaCompraViewProps> = ({ onBack, onSucc
                 
                 toast.success('Proveedor creado exitosamente');
                 setShowModalProveedor(false);
-                setFormProveedor({ nombre: '', contacto: '', email: '', telefono: '' });
-                setProveedorErrors({ nombre: '', contacto: '', email: '', telefono: '' });
+                setFormProveedor({ nombre: '', contacto: '', email: '', telefono: '', documento: '' });
+                setProveedorErrors({ nombre: '', contacto: '', email: '', telefono: '', documento: '' });
               }}
               style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
               className="px-6 py-2 bg-[#d65391] text-white rounded-lg hover:bg-[#c44880] transition-colors"

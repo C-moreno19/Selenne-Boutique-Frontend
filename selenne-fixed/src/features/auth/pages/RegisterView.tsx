@@ -22,6 +22,7 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
     password: '',
     confirmPassword: '',
     phone: '',
+    documento: '',
     address: '',
   });
 
@@ -31,6 +32,7 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
     password: '',
     confirmPassword: '',
     phone: '',
+    documento: '',
     address: '',
   });
 
@@ -54,13 +56,13 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
       } else {
         setErrors(prev => ({ ...prev, fullName: '' }));
       }
-    } else if (field === 'phone') {
+    } else if (field === 'phone' || field === 'documento') {
       // Solo permitir números
       if (value && !/^\d*$/.test(value)) {
-        setErrors(prev => ({ ...prev, phone: 'Solo se permiten números' }));
-        return; // Bloquear el carácter inválido
+        setErrors(prev => ({ ...prev, [field]: 'Solo se permiten números' }));
+        return;
       } else {
-        setErrors(prev => ({ ...prev, phone: '' }));
+        setErrors(prev => ({ ...prev, [field]: '' }));
       }
     } else if (field === 'email') {
       // Validación básica de email
@@ -85,6 +87,7 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
       password: '',
       confirmPassword: '',
       phone: '',
+      documento: '',
       address: '',
     };
 
@@ -138,6 +141,15 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
       isValid = false;
     }
 
+    // Validate documento
+    if (!formData.documento.trim()) {
+      newErrors.documento = 'Ingresa tu número de documento.';
+      isValid = false;
+    } else if (!/^\d+$/.test(formData.documento)) {
+      newErrors.documento = 'El documento solo puede contener dígitos.';
+      isValid = false;
+    }
+
     // Validate address
     if (!formData.address.trim()) {
       newErrors.address = 'Por favor ingresa tu dirección.';
@@ -157,6 +169,7 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
           Email: formData.email.toLowerCase().trim(),
           Contrasena: formData.password,
           Telefono: formData.phone,
+          Documento: formData.documento,
           Direccion: formData.address || '',
         };
         
@@ -351,6 +364,14 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
               value={formData.phone}
               onChange={(value) => updateField('phone', value)}
               error={errors.phone}
+              placeholder="1234567890"
+            />
+
+            <CustomInput
+              label="Número de documento *"
+              value={formData.documento}
+              onChange={(value) => updateField('documento', value)}
+              error={errors.documento}
               placeholder="1234567890"
             />
 

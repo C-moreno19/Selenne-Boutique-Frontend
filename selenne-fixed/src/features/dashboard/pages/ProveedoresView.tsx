@@ -20,6 +20,7 @@ interface Proveedor {
 
 export const ProveedoresView: React.FC = () => {
   const { hasPermission } = useAuth();
+  const puedeCrear = hasPermission('compras:crear');
   const puedeAdmin = hasPermission('compras:editar');
 
   const [proveedores, setProveedores] = useState<Proveedor[]>([]);
@@ -165,7 +166,7 @@ export const ProveedoresView: React.FC = () => {
         <ChevronRight className="w-4 h-4 text-gray-400" />
         <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-900">Gestión de Proveedores</span>
       </div>
-      <h1 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-4xl text-gray-900 mb-6">Gestión de Proveedores</h1>
+      <h1 style={{ fontFamily: '"Times New Roman", Times, serif' }} className="text-4xl text-gray-900 mb-6">Gestión de Proveedores</h1>
 
       {/* Barra */}
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex flex-col lg:flex-row gap-4 mb-6">
@@ -179,7 +180,7 @@ export const ProveedoresView: React.FC = () => {
           <button onClick={() => { setLoading(true); loadData(); }} className="px-4 py-3 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
             <RefreshCw className="w-5 h-5" />
           </button>
-          {puedeAdmin && (
+          {puedeCrear && (
             <button onClick={openCreate} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
               className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 flex items-center gap-2 transition-colors">
               <Plus className="w-5 h-5" /> Nuevo Proveedor

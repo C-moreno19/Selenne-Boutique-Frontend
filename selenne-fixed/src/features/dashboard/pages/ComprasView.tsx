@@ -7,10 +7,10 @@ import { Input } from '../../../components/ui/input';
 import { Label } from '../../../components/ui/label';
 import { toast } from 'sonner';
 import { useAuth } from '../../../shared/contexts/AuthContext';
-import { getJson, postJson } from '../../../services/api';
+import { getJson, postJson, putJson } from '../../../services/api';
 import api from '../../../services/api';
 
-interface Proveedor { proveedorID: number; nombre: string; }
+interface Proveedor { proveedorID: number; nombre: string; documento?: string; }
 interface Producto { productoID: number; nombre: string; codigo: string; precioVenta: number; }
 interface DetalleCompra { productoID: number; nombreProducto: string; cantidad: number; precioUnitario: number; total: number; }
 interface Compra {
@@ -21,7 +21,7 @@ interface Compra {
 
 const ESTADOS = ['Pendiente', 'En Proceso', 'Completado', 'Cancelado'];
 const ESTADOS_ACTIVOS = ['Pendiente', 'En Proceso'];
-const fmt = (n: number) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n);
+const fmt = (n: number) => `$${new Intl.NumberFormat('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(n)} COP`;
 const estadoColor = (e: string) => {
   if (e === 'Pendiente') return 'bg-yellow-100 text-yellow-700';
   if (e === 'En Proceso') return 'bg-blue-100 text-blue-700';
@@ -71,6 +71,7 @@ export const ComprasView: React.FC<ComprasViewProps> = ({ onNavigateToHistorial 
         setProveedores(Array.isArray(provData) ? provData.map((p: any) => ({
           proveedorID: p.proveedorID ?? p.ProveedorID,
           nombre: p.nombre ?? p.Nombre ?? '',
+          documento: p.documento ?? p.Documento ?? undefined,
         })) : []);
       }
 
@@ -229,17 +230,14 @@ export const ComprasView: React.FC<ComprasViewProps> = ({ onNavigateToHistorial 
   const cambiarEstado = async (compra: Compra, estado: string) => {
     setSaving(true);
     try {
-      const res = await fetch(`http://localhost:5000/api/compras/${compra.compraID}/estado`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ Estado: estado }),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      await putJson(`/api/compras/${compra.compraID}/estado`, { Estado: estado });
       toast.success(`Estado cambiado a ${estado}`);
       loadData();
     } catch (e: any) { toast.error(`Error: ${e.message}`); }
     finally { setSaving(false); }
   };
+
+  const proveedorSeleccionado = proveedores.find(p => String(p.proveedorID) === proveedorID) ?? null;
 
   const formBodyJSX = (
     <div className="space-y-6 py-6 px-8">
@@ -261,6 +259,16 @@ export const ComprasView: React.FC<ComprasViewProps> = ({ onNavigateToHistorial 
               </SelectContent>
             </Select>
             {formErrors.proveedor && <p className="text-red-500 text-xs">{formErrors.proveedor}</p>}
+            {proveedorSeleccionado && (
+              <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg">
+                <span className="text-xs text-gray-500 font-medium">NIT / Documento:</span>
+                <span className="text-sm text-gray-800 font-semibold">
+                  {proveedorSeleccionado.documento
+                    ? proveedorSeleccionado.documento
+                    : <span className="text-gray-400 font-normal italic">No registrado</span>}
+                </span>
+              </div>
+            )}
           </div>
           <div className="flex flex-col gap-2">
             <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700">Orden / N° Factura <span className="text-red-500">*</span></Label>
@@ -359,7 +367,7 @@ export const ComprasView: React.FC<ComprasViewProps> = ({ onNavigateToHistorial 
         <ChevronRight className="w-4 h-4 text-gray-400" />
         <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-900">Gestión de Compras</span>
       </div>
-      <h1 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-4xl text-gray-900 mb-6">Gestión de Compras</h1>
+      <h1 style={{ fontFamily: '"Times New Roman", Times, serif' }} className="text-4xl text-gray-900 mb-6">Gestión de Compras</h1>
 
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex flex-col lg:flex-row gap-4 mb-6">
         <div className="flex-1 relative">
