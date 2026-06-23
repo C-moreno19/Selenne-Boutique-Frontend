@@ -4,6 +4,7 @@ import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { useTienda } from '../../shared/contexts/TiendaContext';
 import { useProductosCombinados } from '../../shared/data/useProductosCombinados';
+import { formatCurrency } from '../../shared/utils';
 
 interface FavoritosViewProps {
   onBack: () => void;
@@ -20,8 +21,7 @@ export const FavoritosView: React.FC<FavoritosViewProps> = ({
 
   const productosFavoritos = productosData.filter(p => favoritos.includes(p.id));
 
-  const formatPrecio = (precio: number) =>
-    `$${precio.toLocaleString('es-CO')}`;
+  const formatPrecio = (precio: number) => formatCurrency(precio);
 
   const calcularDescuento = (precio: number, precioOriginal: number) =>
     Math.round(((precioOriginal - precio) / precioOriginal) * 100);

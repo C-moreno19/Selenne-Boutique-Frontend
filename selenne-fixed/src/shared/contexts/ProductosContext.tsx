@@ -91,7 +91,7 @@ function mapProducto(p: any): ProductoAdmin {
     precio: Number(p.precioVenta ?? p.PrecioVenta ?? p.precio ?? 0),
     precioCompra: p.precioCompra != null ? Number(p.precioCompra) : p.PrecioCompra != null ? Number(p.PrecioCompra) : undefined,
     precioOferta: p.precioOferta != null ? Number(p.precioOferta) : p.PrecioOferta != null ? Number(p.PrecioOferta) : undefined,
-    precioOriginal: p.precioOferta ? Number(p.precioOferta) : undefined,
+    precioOriginal: p.precioOferta ? Number(p.precioVenta ?? p.PrecioVenta ?? p.precio ?? 0) : undefined,
     stock: Number(p.stock ?? p.Stock ?? 0),
     activo: activoVal,
     isSale,
@@ -401,7 +401,7 @@ export const ProductosProvider: React.FC<{ children: ReactNode }> = ({ children 
   const eliminarProducto = async (id: string) => {
     try {
       await fetchWithAuth(`/api/productos/${id}`, { method: 'DELETE' });
-      await cargarProductos();
+      setProductos(prev => prev.filter(p => p.id !== id));
     } catch (e: any) {
       const msg = e?.data?.message || e?.data?.error || 'No se puede eliminar este producto. Puede tener pedidos u órdenes asociadas.';
       throw new Error(msg);

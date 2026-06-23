@@ -1,10 +1,9 @@
 ﻿import React, { useState } from 'react';
-import { 
-  LayoutDashboard, 
-  Users, 
-  UserCog, 
-  Package, 
-  ShoppingCart, 
+import {
+  LayoutDashboard,
+  Users,
+  Package,
+  ShoppingCart,
   ChevronDown,
   ChevronRight,
   Settings
@@ -175,8 +174,8 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
             onClick={() => onSectionChange('home')}
           >
             <img src={imgLogo} alt="Selenne Boutique" className="h-8 w-auto" />
-            <span 
-              style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} 
+            <span
+              style={{ fontFamily: '"Times New Roman", Times, serif' }}
               className="text-[18px] text-gray-900"
             >
               Selenne Boutique
@@ -311,22 +310,6 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
         </div>
       </nav>
 
-        {/* User Info Footer */}
-        <div className="p-4 border-t border-gray-200">
-          <div className="flex items-center gap-3 px-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-[#d65391] to-[#f8a9c5] rounded-full flex items-center justify-center flex-shrink-0">
-              <UserCog className="w-5 h-5 text-white" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-900 truncate">
-                {user?.name}
-              </div>
-              <div style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-[#d65391] truncate">
-                {user?.role}
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </aside>
   );

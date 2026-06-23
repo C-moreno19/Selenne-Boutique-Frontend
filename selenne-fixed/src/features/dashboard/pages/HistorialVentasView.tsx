@@ -14,9 +14,9 @@ interface Pedido {
   notas?: string; detalles: PedidoDetalle[];
 }
 
-const fmt = (n: number) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n);
+const fmt = (n: number) => `$${new Intl.NumberFormat('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(n)} COP`;
 const estadoColor = (e: string) => {
-  if (e === 'Completado') return 'bg-green-100 text-green-700';
+  if (e === 'Completado' || e === 'Completada') return 'bg-green-100 text-green-700';
   if (e === 'Rechazado') return 'bg-orange-100 text-orange-700';
   return 'bg-red-100 text-red-700';
 };
@@ -49,7 +49,7 @@ export const HistorialVentasView: React.FC<HistorialVentasViewProps> = ({ onBack
           talla: d.talla ?? '', color: d.color ?? '',
         })),
       }));
-      setPedidos(all.filter((p: Pedido) => ['Completado', 'Cancelado', 'Rechazado'].includes(p.estado)));
+      setPedidos(all.filter((p: Pedido) => ['Completado', 'Completada', 'Cancelado', 'Cancelada', 'Rechazado', 'Rechazada'].includes(p.estado)));
     } catch { toast.error('Error cargando historial'); }
     finally { setLoading(false); }
   }, []);
@@ -91,7 +91,7 @@ export const HistorialVentasView: React.FC<HistorialVentasViewProps> = ({ onBack
         <button onClick={onBack} className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <h1 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-4xl text-gray-900">Historial de Ventas</h1>
+        <h1 style={{ fontFamily: '"Times New Roman", Times, serif' }} className="text-4xl text-gray-900">Historial de Ventas</h1>
       </div>
 
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex gap-4 mb-6">

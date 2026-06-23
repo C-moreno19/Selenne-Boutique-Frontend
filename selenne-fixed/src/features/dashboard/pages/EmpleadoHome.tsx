@@ -10,7 +10,7 @@ export const EmpleadoHome: React.FC = () => {
   return (
     <div className="p-8">
       <div className="mb-8">
-        <h1 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: '32px' }} className="mb-2">
+        <h1 style={{ fontFamily: '"Times New Roman", Times, serif', fontSize: '32px' }} className="mb-2">
           Mi Panel
         </h1>
         <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-600">

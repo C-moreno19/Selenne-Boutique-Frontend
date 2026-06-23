@@ -10,7 +10,9 @@ import { useAuth } from '../../../shared/contexts/AuthContext';
 
 export const ColoresView: React.FC = () => {
   const { hasPermission } = useAuth();
-  const puedeAdmin = hasPermission('productos:editar');
+  const puedeCrear = hasPermission('productos:crear');
+  const puedeEditar = hasPermission('productos:editar');
+  const puedeEliminar = hasPermission('productos:eliminar');
   const { colores, agregarColor, eliminarColor } = useSubcategorias();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -64,10 +66,10 @@ export const ColoresView: React.FC = () => {
       </div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-3xl font-bold text-gray-800">Colores</h1>
+          <h1 style={{ fontFamily: '"Times New Roman", Times, serif' }} className="text-3xl font-bold text-gray-800">Colores</h1>
           <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-500 text-sm mt-1">{filtered.length} colores registrados</p>
         </div>
-        {puedeAdmin && (
+        {puedeCrear && (
           <button onClick={openCreate} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
             className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 flex items-center gap-2 transition-colors">
             <Plus className="w-5 h-5" /> Nuevo Color
@@ -109,17 +111,17 @@ export const ColoresView: React.FC = () => {
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex items-center justify-end gap-2">
-                    {puedeAdmin && (
-                      <>
-                        <button onClick={() => openEdit(item)}
-                          className="p-2 text-gray-500 hover:bg-[#fdf2f8] hover:text-[#d65391] rounded-lg transition-colors" title="Editar">
-                          <Edit className="w-5 h-5" />
-                        </button>
-                        <button onClick={() => { setSelected(item); setDeleteOpen(true); }}
-                          className="p-2 text-gray-500 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors" title="Eliminar">
-                          <Trash2 className="w-5 h-5" />
-                        </button>
-                      </>
+                    {puedeEditar && (
+                      <button onClick={() => openEdit(item)}
+                        className="p-2 text-gray-500 hover:bg-[#fdf2f8] hover:text-[#d65391] rounded-lg transition-colors" title="Editar">
+                        <Edit className="w-5 h-5" />
+                      </button>
+                    )}
+                    {puedeEliminar && (
+                      <button onClick={() => { setSelected(item); setDeleteOpen(true); }}
+                        className="p-2 text-gray-500 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors" title="Eliminar">
+                        <Trash2 className="w-5 h-5" />
+                      </button>
                     )}
                   </div>
                 </td>

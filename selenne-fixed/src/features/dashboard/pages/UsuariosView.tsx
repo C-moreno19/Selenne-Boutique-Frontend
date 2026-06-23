@@ -20,8 +20,9 @@ interface ApiUser {
   nombreCompleto: string;
   email: string;
   telefono?: string;
+  documento?: string;
   direccion?: string;
-  cargo?: string;
+  ciudad?: string;
   roleID?: number;
   rolNombre?: string;
   estado: string;
@@ -45,19 +46,15 @@ interface ApiPermiso {
 
 const MODULOS_PERMISOS = [
   {
-    modulo: "Usuarios", icon: "👥",
+    modulo: "Dashboard", icon: "🏠",
     permisos: [
-      { nombre: "usuarios:ver", label: "Ver usuarios" },
-      { nombre: "usuarios:crear", label: "Crear usuarios" },
-      { nombre: "usuarios:editar", label: "Editar usuarios" },
-      { nombre: "usuarios:eliminar", label: "Eliminar usuarios" },
-      { nombre: "usuarios:bloquear", label: "Bloquear/activar usuarios" },
+      { nombre: "admin:dashboard", label: "Acceso al panel de administración" },
     ]
   },
   {
     modulo: "Productos", icon: "📦",
     permisos: [
-      { nombre: "productos:ver", label: "Ver listado de productos" },
+      { nombre: "productos:ver", label: "Ver listado de productos y catálogos" },
       { nombre: "productos:crear", label: "Crear productos" },
       { nombre: "productos:editar", label: "Editar productos" },
       { nombre: "productos:eliminar", label: "Eliminar productos" },
@@ -65,52 +62,63 @@ const MODULOS_PERMISOS = [
     ]
   },
   {
-    modulo: "Roles", icon: "🔐",
+    modulo: "Pedidos", icon: "📋",
     permisos: [
-      { nombre: "roles:ver", label: "Ver roles" },
-      { nombre: "roles:crear", label: "Crear roles" },
-      { nombre: "roles:editar", label: "Editar roles" },
-      { nombre: "roles:eliminar", label: "Eliminar roles" },
-      { nombre: "roles:permisos", label: "Gestionar permisos" },
+      { nombre: "pedidos:ver", label: "Ver pedidos pendientes" },
+      { nombre: "pedidos:editar", label: "Aprobar, rechazar y cambiar estado de pedidos" },
     ]
   },
   {
     modulo: "Ventas", icon: "🛒",
     permisos: [
-      { nombre: "ventas:ver", label: "Ver listado de ventas" },
-      { nombre: "ventas:editar", label: "Editar ventas" },
-      { nombre: "ventas:eliminar", label: "Eliminar/anular ventas" },
+      { nombre: "ventas:ver", label: "Ver ventas e historial" },
+      { nombre: "ventas:crear", label: "Registrar ventas manuales" },
+      { nombre: "ventas:editar", label: "Editar ventas registradas" },
+      { nombre: "ventas:eliminar", label: "Eliminar ventas del historial" },
     ]
   },
   {
-    modulo: "Tienda", icon: "🏪",
+    modulo: "Clientes", icon: "👤",
     permisos: [
-      { nombre: "tienda:carrito", label: "Gestionar carrito" },
-      { nombre: "tienda:comprar", label: "Realizar compras" },
-      { nombre: "tienda:ver", label: "Ver tienda" },
+      { nombre: "clientes:ver", label: "Ver listado de clientes" },
+      { nombre: "clientes:historial", label: "Ver historial de pedidos del cliente" },
     ]
   },
   {
-    modulo: "Reportes", icon: "📊",
+    modulo: "Compras y Proveedores", icon: "🧾",
     permisos: [
-      { nombre: "reportes:ver", label: "Ver reportes" },
-      { nombre: "reportes:ventas", label: "Reportes de ventas" },
-      { nombre: "reportes:inventario", label: "Reportes de inventario" },
-      { nombre: "reportes:clientes", label: "Reportes de clientes" },
-      { nombre: "reportes:financiero", label: "Reporte financiero" },
+      { nombre: "compras:ver", label: "Ver compras, proveedores e historial" },
+      { nombre: "compras:crear", label: "Registrar nuevas compras" },
+      { nombre: "compras:editar", label: "Editar compras y cambiar estado" },
+      { nombre: "compras:eliminar", label: "Eliminar compras del historial" },
+    ]
+  },
+  {
+    modulo: "Usuarios", icon: "👥",
+    permisos: [
+      { nombre: "usuarios:ver", label: "Ver usuarios" },
+      { nombre: "usuarios:crear", label: "Crear usuarios" },
+      { nombre: "usuarios:editar", label: "Editar usuarios" },
+      { nombre: "usuarios:eliminar", label: "Eliminar usuarios" },
+      { nombre: "usuarios:bloquear", label: "Bloquear / activar usuarios" },
+      { nombre: "usuarios:resetear_pass", label: "Restablecer contraseñas" },
+    ]
+  },
+  {
+    modulo: "Roles y Permisos", icon: "🔐",
+    permisos: [
+      { nombre: "roles:ver", label: "Ver roles" },
+      { nombre: "roles:crear", label: "Crear roles" },
+      { nombre: "roles:editar", label: "Editar roles" },
+      { nombre: "roles:eliminar", label: "Eliminar roles" },
+      { nombre: "roles:permisos", label: "Gestionar permisos de un rol" },
+      { nombre: "roles:asignar", label: "Asignar roles a usuarios" },
     ]
   },
   {
     modulo: "Notificaciones", icon: "🔔",
     permisos: [
-      { nombre: "notif:enviar", label: "Enviar notificaciones" },
-    ]
-  },
-  {
-    modulo: "Administración", icon: "⚙️",
-    permisos: [
-      { nombre: "admin:dashboard", label: "Ver dashboard admin" },
-      { nombre: "config:auditoria", label: "Ver auditoría del sistema" },
+      { nombre: "notif:ver", label: "Ver notificaciones" },
     ]
   },
 ];
@@ -150,7 +158,7 @@ export const UsuariosView: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<ApiUser | null>(null);
   const [selectedRole, setSelectedRole] = useState<ApiRole | null>(null);
 
-  const [form, setForm] = useState({ nombreCompleto: "", email: "", contrasena: "", cargo: "", telefono: "", direccion: "", roleID: "", estado: "activo" });
+  const [form, setForm] = useState({ nombreCompleto: "", email: "", contrasena: "", ciudad: "", telefono: "", documento: "", direccion: "", roleID: "", estado: "activo" });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
 
@@ -195,8 +203,9 @@ export const UsuariosView: React.FC = () => {
         nombreCompleto: u.nombreCompleto ?? u.NombreCompleto ?? "",
         email: u.email ?? u.Email ?? "",
         telefono: u.telefono ?? u.Telefono ?? "",
+        documento: u.documento ?? u.Documento ?? "",
         direccion: u.direccion ?? u.Direccion ?? "",
-        cargo: u.cargo ?? u.Cargo ?? u.ciudad ?? u.Ciudad ?? "",
+        ciudad: u.ciudad ?? u.Ciudad ?? "",
         roleID: u.roleID ?? u.RoleID,
         rolNombre: u.rolNombre ?? u.RolNombre ?? "",
         estado: u.estado ?? u.Estado ?? "activo",
@@ -235,21 +244,22 @@ export const UsuariosView: React.FC = () => {
     if (!form.email.trim()) e.email = "Email requerido";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = "Email inválido";
     if (!isEdit && !form.contrasena) e.contrasena = "Contraseña requerida";
-    if (!isEdit && form.contrasena && form.contrasena.length < 6) e.contrasena = "Mínimo 6 caracteres";
+    if (!isEdit && form.contrasena && !/^(?=(.*\d){2})(?=.*[^a-zA-Z0-9\s]).{9,20}$/.test(form.contrasena))
+      e.contrasena = "9–20 caracteres, mínimo 2 números y 1 carácter especial (ej: Abc12#45)";
     if (!form.roleID) e.roleID = "Selecciona un rol";
     setFormErrors(e);
     return Object.keys(e).length === 0;
   };
 
   const handleCreate = () => {
-    setForm({ nombreCompleto: "", email: "", contrasena: "", cargo: "", telefono: "", direccion: "", roleID: String(roles.find(r => !r.nombre.toLowerCase().includes("admin"))?.roleID || roles[0]?.roleID || ""), estado: "activo" });
+    setForm({ nombreCompleto: "", email: "", contrasena: "", ciudad: "", telefono: "", documento: "", direccion: "", roleID: String(roles.find(r => !r.nombre.toLowerCase().includes("admin"))?.roleID || roles[0]?.roleID || ""), estado: "activo" });
     setFormErrors({});
     setCreateOpen(true);
   };
 
   const handleEdit = (u: ApiUser) => {
     setSelectedUser(u);
-    setForm({ nombreCompleto: u.nombreCompleto, email: u.email, contrasena: "", cargo: u.cargo||"", telefono: u.telefono||"", direccion: u.direccion||"", roleID: String(u.roleID||""), estado: u.estado });
+    setForm({ nombreCompleto: u.nombreCompleto, email: u.email, contrasena: "", ciudad: u.ciudad||"", telefono: u.telefono||"", documento: u.documento||"", direccion: u.direccion||"", roleID: String(u.roleID||""), estado: u.estado });
     setFormErrors({});
     setEditOpen(true);
     setActiveDropdown(null);
@@ -279,7 +289,7 @@ export const UsuariosView: React.FC = () => {
     if (!validate()) return;
     setSaving(true);
     try {
-      await api.postJson("/api/usuarios", { NombreCompleto: form.nombreCompleto, Email: form.email, Contrasena: form.contrasena, Cargo: form.cargo, Telefono: form.telefono||null, Direccion: form.direccion||null, RoleID: parseInt(form.roleID), Estado: form.estado });
+      await api.postJson("/api/usuarios", { NombreCompleto: form.nombreCompleto, Email: form.email, Contrasena: form.contrasena, Ciudad: form.ciudad, Telefono: form.telefono||null, Documento: form.documento||null, Direccion: form.direccion||null, RoleID: parseInt(form.roleID), Estado: form.estado });
       toast.success(`Usuario creado. Se envió correo a ${form.email}`);
       setCreateOpen(false);
       loadUsers();
@@ -291,7 +301,7 @@ export const UsuariosView: React.FC = () => {
     if (!validate(true) || !selectedUser) return;
     setSaving(true);
     try {
-      await api.fetchWithAuth(`/api/usuarios/${selectedUser.usuarioID}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ NombreCompleto: form.nombreCompleto, Telefono: form.telefono||null, Direccion: form.direccion||null, Ciudad: form.cargo, RoleID: parseInt(form.roleID)||undefined, Estado: form.estado }) });
+      await api.fetchWithAuth(`/api/usuarios/${selectedUser.usuarioID}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ NombreCompleto: form.nombreCompleto, Telefono: form.telefono||null, Documento: form.documento||null, Direccion: form.direccion||null, Ciudad: form.ciudad||null, RoleID: parseInt(form.roleID)||undefined, Estado: form.estado }) });
       toast.success("Usuario actualizado");
       setEditOpen(false);
       loadUsers();
@@ -338,8 +348,9 @@ export const UsuariosView: React.FC = () => {
       'Nombre': u.nombreCompleto,
       'Email': u.email,
       'Teléfono': u.telefono || '—',
+      'Ciudad': u.ciudad || '—',
+      'Dirección': u.direccion || '—',
       'Rol': u.rolNombre || '—',
-      'Cargo': u.cargo || '—',
       'Estado': u.estado,
       'Email Verificado': u.emailVerificado ? 'Sí' : 'No',
       'Fecha Registro': fmtDate(u.fechaRegistro),
@@ -398,7 +409,7 @@ export const UsuariosView: React.FC = () => {
       </div>
       <div className="mb-6">
         <div className="flex items-center gap-3 mb-2">
-          <h1 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-3xl font-bold text-gray-900">Gestión de Usuarios</h1>
+          <h1 style={{ fontFamily: '"Times New Roman", Times, serif' }} className="text-3xl font-bold text-gray-900">Gestión de Usuarios</h1>
           <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded text-sm font-medium" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>{users.length}</span>
         </div>
         <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-600">Administra todos los usuarios del sistema</p>
@@ -548,7 +559,7 @@ export const UsuariosView: React.FC = () => {
               {selectedUser?.nombreCompleto}
             </DialogTitle>
             <DialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
-              {(selectedUser?.rolNombre || "Sin rol").toUpperCase()} — {selectedUser?.cargo || "Sin cargo"}
+              {(selectedUser?.rolNombre || "Sin rol").toUpperCase()}{selectedUser?.ciudad ? ` — ${selectedUser.ciudad}` : ""}
             </DialogDescription>
           </DialogHeader>
           {selectedUser && (
@@ -599,7 +610,7 @@ export const UsuariosView: React.FC = () => {
       </Dialog>
 
       {/* Crear / Editar */}
-      <Dialog open={createOpen || editOpen} onOpenChange={o => { if (!o) { setCreateOpen(false); setEditOpen(false); } }}>
+      <Dialog open={createOpen || editOpen} onOpenChange={(o: boolean) => { if (!o) { setCreateOpen(false); setEditOpen(false); } }}>
         <DialogContent className="max-w-2xl h-auto flex flex-col p-0 gap-0">
           <DialogHeader className="px-8 pt-6 pb-4 border-b border-gray-200 flex-shrink-0">
             <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-2xl">{editOpen ? "Editar Usuario" : "Nuevo Usuario"}</DialogTitle>
@@ -619,8 +630,8 @@ export const UsuariosView: React.FC = () => {
                       {formErrors.nombreCompleto && <p className="text-red-500 text-xs mt-1">{formErrors.nombreCompleto}</p>}
                     </div>
                     <div>
-                      <Label className="text-sm text-gray-700 mb-1 block">Cargo</Label>
-                      <Input value={form.cargo} onChange={e => setForm({...form, cargo: e.target.value})} placeholder="Vendedor" />
+                      <Label className="text-sm text-gray-700 mb-1 block">Ciudad</Label>
+                      <Input value={form.ciudad} onChange={e => setForm({...form, ciudad: e.target.value})} placeholder="Medellín" />
                     </div>
                   </div>
                   <div>
@@ -632,7 +643,8 @@ export const UsuariosView: React.FC = () => {
                   {!editOpen && (
                     <div>
                       <Label className="text-sm text-gray-700 mb-1 block">Contraseña *</Label>
-                      <Input type="password" value={form.contrasena} onChange={e => setForm({...form, contrasena: e.target.value})} placeholder="Mínimo 6 caracteres" />
+                      <Input type="password" value={form.contrasena} onChange={e => setForm({...form, contrasena: e.target.value})} placeholder="Ej: MiPass12#" />
+                      <p className="text-xs text-gray-400 mt-1">9–20 caracteres · 2 números · 1 carácter especial</p>
                       {formErrors.contrasena && <p className="text-red-500 text-xs mt-1">{formErrors.contrasena}</p>}
                     </div>
                   )}
@@ -653,10 +665,16 @@ export const UsuariosView: React.FC = () => {
                       </select>
                     </div>
                   </div>
-                  <div>
-                    <Label className="text-sm text-gray-700 mb-1 block">Teléfono</Label>
-                    <Input type="tel" value={form.telefono} onChange={e => updateForm('telefono', e.target.value)} placeholder="3001234567" className={formErrors.telefono ? 'border-red-500' : ''} />
-                    {formErrors.telefono && <p className="text-red-500 text-xs mt-1">{formErrors.telefono}</p>}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-sm text-gray-700 mb-1 block">Teléfono</Label>
+                      <Input type="tel" value={form.telefono} onChange={e => updateForm('telefono', e.target.value)} placeholder="3001234567" className={formErrors.telefono ? 'border-red-500' : ''} />
+                      {formErrors.telefono && <p className="text-red-500 text-xs mt-1">{formErrors.telefono}</p>}
+                    </div>
+                    <div>
+                      <Label className="text-sm text-gray-700 mb-1 block">Número de Documento</Label>
+                      <Input type="text" inputMode="numeric" value={form.documento} onChange={e => setForm({...form, documento: e.target.value.replace(/\D/g, '')})} placeholder="1234567890" />
+                    </div>
                   </div>
                   <div>
                     <Label className="text-sm text-gray-700 mb-1 block">Dirección</Label>

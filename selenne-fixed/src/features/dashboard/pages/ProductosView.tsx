@@ -14,7 +14,7 @@ import { useAuth } from '../../../shared/contexts/AuthContext';
 import { apiBase, getAccessToken } from '../../../services/api';
 
 const fmt = (n?: number) =>
-  n != null ? new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n) : '—';
+  n != null ? `$${new Intl.NumberFormat('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(n)} COP` : '—';
 
 const stockColor = (stock: number) => {
   if (stock === 0) return 'text-red-600 bg-red-50';
@@ -31,6 +31,7 @@ interface FormData {
   tallasSeleccionadas: string[]; coloresSeleccionados: string[]; materialesSeleccionados: string[];
   variantes: Variante[];
   imagenesPorColor: Record<string, string[]>;
+  imagenesAdicionales: string[];
 }
 
 const EMPTY: FormData = {
@@ -40,6 +41,7 @@ const EMPTY: FormData = {
   stock: '0', imagenPrincipal: '',
   tallasSeleccionadas: [], coloresSeleccionados: [], materialesSeleccionados: [], variantes: [],
   imagenesPorColor: {},
+  imagenesAdicionales: [],
 };
 
 // Input de precio tipo tarjeta — sin flechas del navegador
@@ -95,6 +97,7 @@ export const ProductosView: React.FC = () => {
   const [form, setForm] = useState<FormData>(EMPTY);
   const [activeTab, setActiveTab] = useState<'info' | 'variantes' | 'imagenes'>('info');
   const [uploadingColorImg, setUploadingColorImg] = useState<string | null>(null);
+  const [uploadingAdicional, setUploadingAdicional] = useState(false);
 
   // Imagen pendiente de subir (archivo local)
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -168,6 +171,31 @@ export const ProductosView: React.FC = () => {
     }));
   };
 
+  const subirImagenAdicional = async (file: File) => {
+    if (file.size > 5 * 1024 * 1024) { toast.error('La imagen no puede superar 5MB'); return; }
+    setUploadingAdicional(true);
+    try {
+      const token = getAccessToken() || '';
+      const fd = new FormData();
+      fd.append('file', file);
+      const res = await fetch(`${apiBase}/api/upload/imagen`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: fd,
+      });
+      const data = await res.json();
+      if (!res.ok) { toast.error(data?.message || 'Error subiendo imagen'); return; }
+      const url: string = data?.data?.url || data?.url || '';
+      if (!url) { toast.error('No se recibió la URL de la imagen'); return; }
+      setForm(f => ({ ...f, imagenesAdicionales: [...f.imagenesAdicionales, url] }));
+    } catch { toast.error('Error subiendo imagen'); }
+    finally { setUploadingAdicional(false); }
+  };
+
+  const quitarImagenAdicional = (url: string) => {
+    setForm(f => ({ ...f, imagenesAdicionales: f.imagenesAdicionales.filter(u => u !== url) }));
+  };
+
   const openCreate = () => {
     setForm(EMPTY);
     setIsEditing(false);
@@ -193,6 +221,10 @@ export const ProductosView: React.FC = () => {
       materialesSeleccionados: p.materiales || [],
       variantes: p.variantes?.map(v => ({ tallaNombre: v.tallaNombre || '', colorNombre: v.colorNombre || '', stock: v.stock })) || [],
       imagenesPorColor: p.imagenesPorColor || {},
+      imagenesAdicionales: (() => {
+        const colorImgs = new Set(Object.values(p.imagenesPorColor || {}).flat());
+        return (p.imagenes || []).filter(url => url !== p.imagen && !colorImgs.has(url));
+      })(),
     });
     setIsEditing(true);
     setActiveTab('info');
@@ -311,7 +343,7 @@ export const ProductosView: React.FC = () => {
         const ok = await actualizarProducto(
           selectedProduct.id, payload,
           form.tallasSeleccionadas, form.coloresSeleccionados, tallas, colores,
-          form.imagenPrincipal ? [form.imagenPrincipal] : [],
+          [...(form.imagenPrincipal ? [form.imagenPrincipal] : []), ...form.imagenesAdicionales],
           form.materialesSeleccionados, materiales
         );
         if (ok) {
@@ -325,7 +357,8 @@ export const ProductosView: React.FC = () => {
         const newId = await crearProducto(
           payload,
           form.tallasSeleccionadas, form.coloresSeleccionados, tallas, colores,
-          undefined, form.materialesSeleccionados, materiales
+          form.imagenesAdicionales.length > 0 ? form.imagenesAdicionales : undefined,
+          form.materialesSeleccionados, materiales
         );
         if (newId) {
           if (imageFile) await uploadImageFile(String(newId), imageFile);
@@ -358,7 +391,7 @@ export const ProductosView: React.FC = () => {
 
   // Vista previa de la imagen en el formulario
   const currentImageSrc = imagePreview || (form.imagenPrincipal
-    ? (form.imagenPrincipal.startsWith('http') ? form.imagenPrincipal : `http://localhost:5000${form.imagenPrincipal}`)
+    ? (form.imagenPrincipal.startsWith('http') ? form.imagenPrincipal : `${apiBase}${form.imagenPrincipal}`)
     : '');
 
   return (
@@ -373,7 +406,7 @@ export const ProductosView: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-4xl text-gray-900">Inventario de Productos</h1>
+          <h1 style={{ fontFamily: '"Times New Roman", Times, serif' }} className="text-4xl text-gray-900">Inventario de Productos</h1>
           <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-500 text-sm mt-1">
             {todosLosProductos.length} productos · los <strong>publicados</strong> son visibles para los clientes
           </p>
@@ -388,11 +421,11 @@ export const ProductosView: React.FC = () => {
 
       {/* Filtros */}
       <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 flex flex-wrap gap-3 mb-6">
-        <div className="flex-1 min-w-[200px] relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+        <div className="flex-1 min-w-[200px] flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 focus-within:ring-2 focus-within:ring-[#d65391]">
+          <Search className="w-4 h-4 text-gray-400 shrink-0" />
           <input type="text" placeholder="Buscar por nombre o referencia..." value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-            className="w-full pl-9 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#d65391]" />
+            className="flex-1 bg-transparent py-2.5 text-sm focus:outline-none" />
         </div>
         <Select value={categoriaFiltro} onValueChange={setCategoriaFiltro}>
           <SelectTrigger className="w-44 h-10 border-gray-200 text-sm"><SelectValue placeholder="Categoría" /></SelectTrigger>
@@ -938,7 +971,7 @@ export const ProductosView: React.FC = () => {
                     <div className="p-6 flex items-start gap-4">
                       {(imagePreview || form.imagenPrincipal) ? (
                         <img
-                          src={imagePreview || (form.imagenPrincipal.startsWith('http') ? form.imagenPrincipal : `http://localhost:5000${form.imagenPrincipal}`)}
+                          src={imagePreview || (form.imagenPrincipal.startsWith('http') ? form.imagenPrincipal : `${apiBase}${form.imagenPrincipal}`)}
                           alt="Principal"
                           className="w-24 h-24 object-cover rounded-xl border border-gray-200"
                         />
@@ -963,6 +996,42 @@ export const ProductosView: React.FC = () => {
                           </button>
                         )}
                         <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">JPG, PNG, WebP · máx. 5MB</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Imágenes adicionales */}
+                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                      <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-gray-800 text-base flex items-center gap-2"><ImageIcon className="w-4 h-4 text-gray-400" />Imágenes adicionales</h3>
+                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 mt-1">Fotos extras del producto que se muestran en la galería</p>
+                    </div>
+                    <div className="p-6">
+                      <div className="flex flex-wrap gap-3">
+                        {form.imagenesAdicionales.map(url => (
+                          <div key={url} className="relative group">
+                            <img
+                              src={url.startsWith('http') ? url : `${apiBase}${url}`}
+                              alt="adicional"
+                              className="w-20 h-20 object-cover rounded-lg border border-gray-200"
+                            />
+                            <button
+                              onClick={() => quitarImagenAdicional(url)}
+                              className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center shadow-sm hover:bg-red-600 transition-colors"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        ))}
+                        <label className={`w-20 h-20 border-2 border-dashed rounded-lg flex flex-col items-center justify-center cursor-pointer transition-colors ${uploadingAdicional ? 'border-gray-200 bg-gray-50' : 'border-gray-300 hover:border-[#d65391] hover:bg-pink-50'}`}>
+                          {uploadingAdicional
+                            ? <Loader2 className="w-5 h-5 text-[#d65391] animate-spin" />
+                            : <><Plus className="w-5 h-5 text-gray-400" /><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 mt-1">Agregar</span></>
+                          }
+                          <input type="file" accept="image/jpeg,image/jpg,image/png,image/webp" className="hidden"
+                            disabled={uploadingAdicional}
+                            onChange={e => { const f = e.target.files?.[0]; if (f) subirImagenAdicional(f); e.target.value = ''; }} />
+                        </label>
                       </div>
                     </div>
                   </div>
@@ -998,7 +1067,7 @@ export const ProductosView: React.FC = () => {
                                   {imgs.map(url => (
                                     <div key={url} className="relative group">
                                       <img
-                                        src={url.startsWith('http') ? url : `http://localhost:5000${url}`}
+                                        src={url.startsWith('http') ? url : `${apiBase}${url}`}
                                         alt={colorNombre}
                                         className="w-20 h-20 object-cover rounded-lg border border-gray-200"
                                       />

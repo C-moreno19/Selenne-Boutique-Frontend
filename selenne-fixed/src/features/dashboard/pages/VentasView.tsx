@@ -12,8 +12,8 @@ import api from '../../../services/api';
 import { useAuth } from '../../../shared/contexts/AuthContext';
 
 interface PedidoDetalle { productoNombre: string; imagenProducto?: string; cantidad: number; precioUnitario: number; subtotal: number; talla?: string; color?: string; }
-interface ProductoSimple { productoID: number; nombre: string; precio: number; tallas: { tallaID: number; nombre: string }[]; colores: { colorID: number; nombre: string }[]; }
-interface ItemVenta { productoID: number; productoNombre: string; precio: number; tallaID?: number; tallaNombre?: string; colorID?: number; colorNombre?: string; cantidad: number; subtotal: number; }
+interface ProductoSimple { productoID: number; nombre: string; precio: number; stock: number; tallas: { tallaID: number; nombre: string }[]; colores: { colorID: number; nombre: string }[]; }
+interface ItemVenta { productoID: number; productoNombre: string; precio: number; stock: number; tallaID?: number; tallaNombre?: string; colorID?: number; colorNombre?: string; cantidad: number; subtotal: number; }
 interface Pedido {
   pedidoID: number; nombreCliente: string; emailCliente: string; telefonoCliente: string;
   direccionEnvio: string; ciudad: string; metodoPago: string;
@@ -22,9 +22,9 @@ interface Pedido {
   detalles: PedidoDetalle[];
 }
 
-const ESTADOS_ACTIVOS = ['Aprobado'];
+const ESTADOS_ACTIVOS = ['Aprobado', 'Aprobada'];
 const ESTADOS_CAMBIO = ['Completado', 'Cancelado'];
-const fmt = (n: number) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n);
+const fmt = (n: number) => `$${new Intl.NumberFormat('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(n)} COP`;
 const estadoColor = (e: string) => {
   if (e === 'Aprobado') return 'bg-blue-100 text-blue-700';
   if (e === 'Completado') return 'bg-green-100 text-green-700';
@@ -93,6 +93,7 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
         productoID: p.productoID ?? p.ProductoID,
         nombre: p.nombre ?? p.Nombre ?? '',
         precio: p.precioOferta ?? p.precioVenta ?? p.PrecioVenta ?? 0,
+        stock: p.stock ?? p.Stock ?? 0,
         tallas: (p.tallas ?? p.Tallas ?? []).map((t: any) => ({ tallaID: t.tallaID ?? t.TallaID, nombre: t.nombre ?? t.Nombre ?? '' })),
         colores: (p.colores ?? p.Colores ?? []).map((c: any) => ({ colorID: c.colorID ?? c.ColorID, nombre: c.nombre ?? c.Nombre ?? '' })),
       })) : []);
@@ -102,7 +103,7 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
   const agregarItemVenta = () => {
     if (productosDisponibles.length === 0) return;
     const p = productosDisponibles[0];
-    setItemsVenta(prev => [...prev, { productoID: p.productoID, productoNombre: p.nombre, precio: p.precio, cantidad: 1, subtotal: p.precio }]);
+    setItemsVenta(prev => [...prev, { productoID: p.productoID, productoNombre: p.nombre, precio: p.precio, cantidad: 1, subtotal: p.precio, stock: p.stock }]);
   };
 
   const actualizarItemVenta = (idx: number, field: string, value: any) => {
@@ -111,9 +112,10 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
       const item = { ...updated[idx] };
       if (field === 'productoID') {
         const prod = productosDisponibles.find(p => p.productoID === Number(value));
-        if (prod) { item.productoID = prod.productoID; item.productoNombre = prod.nombre; item.precio = prod.precio; item.tallaID = undefined; item.tallaNombre = undefined; item.colorID = undefined; item.colorNombre = undefined; item.subtotal = prod.precio * item.cantidad; }
+        if (prod) { item.productoID = prod.productoID; item.productoNombre = prod.nombre; item.precio = prod.precio; item.stock = prod.stock; item.tallaID = undefined; item.tallaNombre = undefined; item.colorID = undefined; item.colorNombre = undefined; item.cantidad = Math.min(item.cantidad, prod.stock || 1); item.subtotal = prod.precio * item.cantidad; }
       } else if (field === 'cantidad') {
-        item.cantidad = Math.max(1, Number(value)); item.subtotal = item.precio * item.cantidad;
+        const maxStock = item.stock ?? Infinity;
+        item.cantidad = Math.min(Math.max(1, Number(value)), maxStock); item.subtotal = item.precio * item.cantidad;
       } else if (field === 'tallaID') {
         const prod = productosDisponibles.find(p => p.productoID === item.productoID);
         const t = prod?.tallas.find(t => t.tallaID === Number(value));
@@ -122,6 +124,9 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
         const prod = productosDisponibles.find(p => p.productoID === item.productoID);
         const c = prod?.colores.find(c => c.colorID === Number(value));
         item.colorID = c?.colorID; item.colorNombre = c?.nombre;
+      } else if (field === 'precio') {
+        const val = Number(value);
+        if (!isNaN(val) && val >= 0) { item.precio = val; item.subtotal = val * item.cantidad; }
       }
       updated[idx] = item;
       return updated;
@@ -197,7 +202,7 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
         <ChevronRight className="w-4 h-4 text-gray-400" />
         <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-900">Gestión de Ventas</span>
       </div>
-      <h1 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-4xl text-gray-900 mb-6">Gestión de Ventas</h1>
+      <h1 style={{ fontFamily: '"Times New Roman", Times, serif' }} className="text-4xl text-gray-900 mb-6">Gestión de Ventas</h1>
 
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex gap-4 mb-6">
         <div className="flex-1 relative">
@@ -265,10 +270,12 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
                       className="p-2 text-gray-500 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors" title="Ver detalles">
                       <Eye className="w-5 h-5" />
                     </button>
-                    <button onClick={() => { setSelectedPedido(p); setEmailGuiaOpen(true); }}
-                      className="p-2 text-gray-500 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors" title="Enviar correo de guía">
-                      <Truck className="w-5 h-5" />
-                    </button>
+                    {puedeEditar && (
+                      <button onClick={() => { setSelectedPedido(p); setEmailGuiaOpen(true); }}
+                        className="p-2 text-gray-500 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors" title="Enviar correo de guía">
+                        <Truck className="w-5 h-5" />
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>
@@ -568,10 +575,29 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
                               </div>
                             )}
                             <div className="flex flex-col gap-1">
-                              <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs font-medium text-gray-600">Cantidad</Label>
-                              <Input type="number" min="1" value={item.cantidad} onChange={e => actualizarItemVenta(idx, 'cantidad', e.target.value)} className="h-9 bg-white border-gray-300 text-sm" />
+                              <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs font-medium text-gray-600">
+                                Cantidad
+                                {item.stock > 0 && (
+                                  <span className="ml-2 text-gray-400 font-normal">
+                                    (máx: <span className={item.cantidad >= item.stock ? 'text-red-500 font-semibold' : 'text-green-600 font-semibold'}>{item.stock}</span>)
+                                  </span>
+                                )}
+                              </Label>
+                              <Input
+                                type="number" min="1" max={item.stock || undefined}
+                                value={item.cantidad}
+                                onChange={e => actualizarItemVenta(idx, 'cantidad', e.target.value)}
+                                className={`h-9 bg-white text-sm ${item.cantidad >= item.stock && item.stock > 0 ? 'border-orange-400 focus:ring-orange-400' : 'border-gray-300'}`}
+                              />
+                              {item.stock === 0 && (
+                                <p className="text-xs text-red-500 font-medium">Sin stock disponible</p>
+                              )}
                             </div>
                             <div className="flex flex-col gap-1">
+                              <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs font-medium text-gray-600">Precio Unit. ($)</Label>
+                              <Input type="number" min="0" step="1000" value={item.precio} onChange={e => actualizarItemVenta(idx, 'precio', e.target.value)} className="h-9 bg-white border-gray-300 text-sm" />
+                            </div>
+                            <div className="flex flex-col gap-1 col-span-2">
                               <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs font-medium text-gray-600">Subtotal</Label>
                               <div className="h-9 flex items-center px-3 bg-pink-50 border border-pink-200 rounded-lg">
                                 <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-bold text-[#d65391]">{fmt(item.subtotal)}</span>
@@ -612,7 +638,7 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
                   MetodoPago: metodoPago,
                   Notas: notasVenta,
                   Estado: 'Aprobado',
-                  Items: itemsVenta.map(i => ({ ProductoID: i.productoID, Cantidad: i.cantidad, TallaID: i.tallaID, ColorID: i.colorID, TallaNombre: i.tallaNombre, ColorNombre: i.colorNombre })),
+                  Items: itemsVenta.map(i => ({ ProductoID: i.productoID, Cantidad: i.cantidad, TallaID: i.tallaID, ColorID: i.colorID, TallaNombre: i.tallaNombre, ColorNombre: i.colorNombre, PrecioUnitario: i.precio > 0 ? i.precio : undefined })),
                 });
                 toast.success('Venta registrada correctamente');
                 setNuevaVentaOpen(false); resetNuevaVenta(); loadData();

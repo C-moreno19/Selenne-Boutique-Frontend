@@ -93,7 +93,7 @@ export const NotificacionesAdminView: React.FC = () => {
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center gap-3 mb-2">
-          <h1 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-[36px] text-gray-900">
+          <h1 style={{ fontFamily: '"Times New Roman", Times, serif' }} className="text-[36px] text-gray-900">
             🔔 Notificaciones
           </h1>
           {sinLeer > 0 && (

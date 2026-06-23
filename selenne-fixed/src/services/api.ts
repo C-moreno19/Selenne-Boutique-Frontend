@@ -1,14 +1,26 @@
 export const apiBase = (import.meta && import.meta.env && import.meta.env.VITE_API_BASE_URL) || '';
 
-// Tokens en memoria — no persisten en localStorage ni entre recargas de página
+const RT_KEY = '_selenne_rt';
+
 let _accessToken: string | null = null;
 let _refreshToken: string | null = null;
 
 export function getAccessToken() { return _accessToken; }
 function setAccessToken(token: string | null) { _accessToken = token ?? null; }
 function getRefreshToken() { return _refreshToken; }
-function setRefreshToken(token: string | null) { _refreshToken = token ?? null; }
-function clearTokens() { _accessToken = null; _refreshToken = null; }
+function setRefreshToken(token: string | null) {
+  _refreshToken = token ?? null;
+  if (token) sessionStorage.setItem(RT_KEY, token);
+  else sessionStorage.removeItem(RT_KEY);
+}
+function clearTokens() {
+  _accessToken = null;
+  _refreshToken = null;
+  sessionStorage.removeItem(RT_KEY);
+}
+export function getSavedRefreshToken(): string | null {
+  return sessionStorage.getItem(RT_KEY);
+}
 
 let refreshingPromise: Promise<boolean> | null = null;
 

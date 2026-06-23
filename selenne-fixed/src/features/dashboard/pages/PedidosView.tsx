@@ -18,11 +18,11 @@ interface Pedido {
   detalles: PedidoDetalle[];
 }
 
-const fmt = (n: number) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n);
+const fmt = (n: number) => `$${new Intl.NumberFormat('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(n)} COP`;
 
 export const PedidosView: React.FC = () => {
   const { hasPermission } = useAuth();
-  const puedeEditar = hasPermission('ventas:editar');
+  const puedeEditar = hasPermission('pedidos:editar');
 
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
   const [loading, setLoading] = useState(true);
@@ -110,7 +110,7 @@ export const PedidosView: React.FC = () => {
         <ChevronRight className="w-4 h-4 text-gray-400" />
         <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-900">Pedidos Pendientes</span>
       </div>
-      <h1 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-4xl text-gray-900 mb-6">Pedidos Pendientes</h1>
+      <h1 style={{ fontFamily: '"Times New Roman", Times, serif' }} className="text-4xl text-gray-900 mb-6">Pedidos Pendientes</h1>
 
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex gap-4 mb-6">
         <div className="flex-1 relative">
@@ -160,10 +160,12 @@ export const PedidosView: React.FC = () => {
                       className="p-2 text-gray-500 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors" title="Ver detalles">
                       <Eye className="w-5 h-5" />
                     </button>
-                    <button onClick={() => { setSelectedPedido(p); setEmailPagoOpen(true); }}
-                      className="p-2 text-gray-500 hover:bg-pink-50 hover:text-[#d65391] rounded-lg transition-colors" title="Enviar correo de pago">
-                      <Mail className="w-5 h-5" />
-                    </button>
+                    {puedeEditar && (
+                      <button onClick={() => { setSelectedPedido(p); setEmailPagoOpen(true); }}
+                        className="p-2 text-gray-500 hover:bg-pink-50 hover:text-[#d65391] rounded-lg transition-colors" title="Enviar correo de pago">
+                        <Mail className="w-5 h-5" />
+                      </button>
+                    )}
                     {puedeEditar && (
                       <>
                         <button onClick={() => { setSelectedPedido(p); setAprobarOpen(true); }}
@@ -213,17 +215,21 @@ export const PedidosView: React.FC = () => {
                   <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
                     <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-gray-800 text-base flex items-center gap-2"><User className="w-4 h-4 text-gray-400" />Información del Cliente</h3>
                   </div>
-                  <div className="p-6 grid grid-cols-3 gap-6">
-                    {[
-                      ['Nombre', selectedPedido.nombreCliente],
-                      ['Email', selectedPedido.emailCliente],
-                      ['Teléfono', selectedPedido.telefonoCliente],
-                    ].map(([label, value]) => (
-                      <div key={label}>
-                        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500 font-medium uppercase">{label}</p>
-                        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-gray-900">{value}</p>
+                  <div className="p-6 space-y-4">
+                    <div className="grid grid-cols-2 gap-6">
+                      <div>
+                        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500 font-medium uppercase">Nombre</p>
+                        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-gray-900">{selectedPedido.nombreCliente}</p>
                       </div>
-                    ))}
+                      <div>
+                        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500 font-medium uppercase">Teléfono</p>
+                        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-gray-900">{selectedPedido.telefonoCliente}</p>
+                      </div>
+                    </div>
+                    <div>
+                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500 font-medium uppercase">Email</p>
+                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-gray-900 break-all">{selectedPedido.emailCliente}</p>
+                    </div>
                   </div>
                 </div>
 
@@ -448,7 +454,7 @@ export const PedidosView: React.FC = () => {
             </DialogDescription>
           </DialogHeader>
           <div className="p-6">
-            <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 mb-2 block">Razón del rechazo (opcional)</Label>
+            <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 mb-2 block">Razón del rechazo <span className="text-red-500">*</span></Label>
             <Textarea value={razonRechazo} onChange={e => setRazonRechazo(e.target.value)}
               placeholder="Ej: Comprobante ilegible, pago insuficiente..."
               className="border-gray-300 resize-none" rows={3} />
@@ -456,7 +462,10 @@ export const PedidosView: React.FC = () => {
           <DialogFooter className="px-6 pb-6 gap-2">
             <button onClick={() => setRechazarOpen(false)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
               className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">Cancelar</button>
-            <button onClick={() => selectedPedido && cambiarEstado(selectedPedido, 'Rechazado', razonRechazo)}
+            <button onClick={() => {
+              if (!razonRechazo.trim()) { toast.error('La razón del rechazo es obligatoria'); return; }
+              selectedPedido && cambiarEstado(selectedPedido, 'Rechazado', razonRechazo);
+            }}
               disabled={saving} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
               className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 flex items-center gap-2 transition-colors">
               {saving && <Loader2 className="w-4 h-4 animate-spin" />} Rechazar

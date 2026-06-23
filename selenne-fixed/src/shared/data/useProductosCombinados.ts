@@ -25,7 +25,7 @@ export const useProductosCombinados = (): Producto[] => {
         return {
           id: Number(p.id) || Math.abs(p.id.split('').reduce((a, c) => a + c.charCodeAt(0), 0)),
           nombre: p.nombre,
-          precio: Number(p.precio) || 0,
+          precio: Number(p.precioOferta ?? p.precio) || 0,
           precioOriginal: p.precioOriginal ? Number(p.precioOriginal) : null,
           imagen: p.imagen ?? '',
           imagenes,
