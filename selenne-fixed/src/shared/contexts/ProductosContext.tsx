@@ -401,7 +401,7 @@ export const ProductosProvider: React.FC<{ children: ReactNode }> = ({ children 
   const eliminarProducto = async (id: string) => {
     try {
       await fetchWithAuth(`/api/productos/${id}`, { method: 'DELETE' });
-      await cargarProductos();
+      setProductos(prev => prev.filter(p => p.id !== id));
     } catch (e: any) {
       const msg = e?.data?.message || e?.data?.error || 'No se puede eliminar este producto. Puede tener pedidos u órdenes asociadas.';
       throw new Error(msg);

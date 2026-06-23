@@ -70,6 +70,8 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
   const [passwordIngresado, setPasswordIngresado] = useState('');
   const [emailValidado, setEmailValidado] = useState(false);
   const [clienteExistente, setClienteExistente] = useState(false);
+  const [cambiandoEmail, setCambiandoEmail] = useState(false);
+  const [enviandoPedido, setEnviandoPedido] = useState(false);
   const [datosEnvio, setDatosEnvio] = useState({
     nombre: '',
     documento: '',
@@ -103,6 +105,38 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
       .then((d: any) => { if (d?.data) setDatosBanco(d.data); })
       .catch(() => {});
   }, []);
+
+  // Pre-rellenar datos del usuario logueado — fetch fresco desde el backend
+  useEffect(() => {
+    if (!user?.usuarioID) return;
+    setEmailValidado(true);
+    setClienteExistente(true);
+    getJson(`/api/usuarios/${user.usuarioID}`)
+      .then((res: any) => {
+        const d = res?.data || res;
+        setDatosEnvio(prev => ({
+          ...prev,
+          nombre: d?.nombreCompleto || d?.NombreCompleto || user.name || '',
+          email: d?.email || d?.Email || user.email || '',
+          telefono: d?.telefono || d?.Telefono || user.telefono || '',
+          documento: d?.documento || d?.Documento || user.documento || '',
+          direccion: d?.direccion || d?.Direccion || user.direccion || '',
+          ciudad: d?.ciudad || d?.Ciudad || user.ciudad || prev.ciudad,
+        }));
+      })
+      .catch(() => {
+        // fallback a datos en caché si la petición falla
+        setDatosEnvio(prev => ({
+          ...prev,
+          nombre: user.name || '',
+          email: user.email || '',
+          telefono: user.telefono || '',
+          documento: user.documento || '',
+          direccion: user.direccion || '',
+          ciudad: user.ciudad || prev.ciudad,
+        }));
+      });
+  }, [user?.usuarioID]);
 
   const formatPrecio = (precio: number) => formatCurrency(precio);
 
@@ -275,23 +309,24 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
 
   // Permitir cambiar correo electrónico
   const handleCambiarEmail = () => {
+    setCambiandoEmail(true);
     setEmailValidado(false);
     setEmailIngresado('');
-    setClienteExistente(false);
-    setDatosEnvio(prev => ({
-      ...prev,
-      nombre: '',
-      documento: '',
-      direccion: '',
-      barrio: '',
-      telefono: '',
-    }));
+  };
+
+  // Cancelar cambio de email — volver al formulario sin perder datos
+  const handleCancelarCambioEmail = () => {
+    setCambiandoEmail(false);
+    setEmailValidado(true);
+    setEmailIngresado('');
+    setPasswordIngresado('');
   };
 
   const handleFinalizarCompra = async () => {
-    console.log('🛒 handleFinalizarCompra iniciado');
-    
-    if (carritoItems.length === 0) { toast.error('Tu carrito está vacío.'); return; }
+    if (enviandoPedido) return;
+    setEnviandoPedido(true);
+
+    if (carritoItems.length === 0) { setEnviandoPedido(false); toast.error('Tu carrito está vacío.'); return; }
     if (!datosEnvio.nombre?.trim()) { toast.error('Por favor completa tu nombre completo.'); return; }
     if (!datosEnvio.documento?.trim()) { toast.error('Por favor ingresa tu documento.'); return; }
     if (!datosEnvio.email?.trim()) { toast.error('Por favor ingresa tu correo.'); return; }
@@ -348,6 +383,8 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
     } catch (e: any) {
       console.error('Error creando pedido:', e);
       toast.error(e?.data?.message || 'Error al procesar el pedido. Intenta de nuevo.');
+    } finally {
+      setEnviandoPedido(false);
     }
   };
 
@@ -407,6 +444,15 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                   >
                     Continuar con mi Email
                   </Button>
+                  {cambiandoEmail && (
+                    <Button
+                      onClick={handleCancelarCambioEmail}
+                      variant="outline"
+                      className="w-full"
+                    >
+                      Cancelar — volver al formulario
+                    </Button>
+                  )}
                 </div>
               </div>
             )}
@@ -804,10 +850,11 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
 
               <Button
                 onClick={handleFinalizarCompra}
-                className="w-full bg-black hover:bg-gray-800 text-white h-12"
+                disabled={enviandoPedido}
+                className="w-full bg-black hover:bg-gray-800 text-white h-12 disabled:opacity-60"
                 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
               >
-                {metodoPago === 'transferencia' ? 'Enviar Pedido' : 'Confirmar Compra'}
+                {enviandoPedido ? 'Procesando...' : metodoPago === 'transferencia' ? 'Enviar Pedido' : 'Confirmar Compra'}
               </Button>
               
               {metodoPago === 'transferencia' && (

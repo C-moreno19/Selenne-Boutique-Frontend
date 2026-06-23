@@ -11,7 +11,7 @@ import { getJson, postJson, putJson } from '../../../services/api';
 import api from '../../../services/api';
 
 interface Proveedor { proveedorID: number; nombre: string; documento?: string; }
-interface Producto { productoID: number; nombre: string; codigo: string; precioVenta: number; }
+interface Producto { productoID: number; nombre: string; codigo: string; precioVenta: number; precioCompra?: number; }
 interface DetalleCompra { productoID: number; nombreProducto: string; cantidad: number; precioUnitario: number; total: number; }
 interface Compra {
   compraID: number; proveedorID: number; proveedorNombre?: string; proveedorDocumento?: string;
@@ -82,6 +82,7 @@ export const ComprasView: React.FC<ComprasViewProps> = ({ onNavigateToHistorial 
           nombre: p.nombre ?? p.Nombre ?? '',
           codigo: p.codigo ?? p.Codigo ?? '',
           precioVenta: p.precioVenta ?? p.PrecioVenta ?? 0,
+          precioCompra: p.precioCompra ?? p.PrecioCompra ?? 0,
         })) : []);
       }
 
@@ -158,7 +159,7 @@ export const ComprasView: React.FC<ComprasViewProps> = ({ onNavigateToHistorial 
   const agregarDetalle = () => {
     if (productos.length === 0) { toast.error('No hay productos registrados'); return; }
     const p = productos[0];
-    setDetalles(prev => [...prev, { productoID: p.productoID, nombreProducto: p.nombre, cantidad: 1, precioUnitario: p.precioVenta, total: p.precioVenta }]);
+    setDetalles(prev => [...prev, { productoID: p.productoID, nombreProducto: p.nombre, cantidad: 1, precioUnitario: p.precioCompra ?? 0, total: p.precioCompra ?? 0 }]);
   };
 
   const actualizarDetalle = (idx: number, field: string, value: any) => {
@@ -166,7 +167,7 @@ export const ComprasView: React.FC<ComprasViewProps> = ({ onNavigateToHistorial 
       const updated = [...prev];
       if (field === 'productoID') {
         const prod = productos.find(p => p.productoID === Number(value));
-        if (prod) updated[idx] = { ...updated[idx], productoID: prod.productoID, nombreProducto: prod.nombre, precioUnitario: prod.precioVenta, total: updated[idx].cantidad * prod.precioVenta };
+        if (prod) updated[idx] = { ...updated[idx], productoID: prod.productoID, nombreProducto: prod.nombre, precioUnitario: prod.precioCompra ?? 0, total: updated[idx].cantidad * (prod.precioCompra ?? 0) };
       } else if (field === 'cantidad') {
         updated[idx] = { ...updated[idx], cantidad: Number(value), total: Number(value) * updated[idx].precioUnitario };
       } else if (field === 'precioUnitario') {
@@ -197,7 +198,7 @@ export const ComprasView: React.FC<ComprasViewProps> = ({ onNavigateToHistorial 
       });
       toast.success('Compra registrada');
       setNuevaOpen(false); resetForm(); loadData();
-    } catch (e: any) { toast.error(e?.data?.message || 'Error registrando compra'); }
+    } catch (e: any) { toast.error(e?.data?.message || e?.message || 'Error registrando compra'); }
     finally { setSaving(false); }
   };
 
@@ -326,11 +327,11 @@ export const ComprasView: React.FC<ComprasViewProps> = ({ onNavigateToHistorial 
                     </div>
                     <div className="flex flex-col gap-1">
                       <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700">Cantidad</Label>
-                      <Input type="number" min="1" value={d.cantidad} onChange={e => actualizarDetalle(idx, 'cantidad', e.target.value)} className="h-10 bg-white border-gray-300" />
+                      <Input type="number" min="1" value={d.cantidad || ''} onChange={e => actualizarDetalle(idx, 'cantidad', e.target.value)} className="h-10 bg-white border-gray-300" />
                     </div>
                     <div className="flex flex-col gap-1">
-                      <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700">Precio Unit.</Label>
-                      <Input type="number" min="0" value={d.precioUnitario} onChange={e => actualizarDetalle(idx, 'precioUnitario', e.target.value)} className="h-10 bg-white border-gray-300" />
+                      <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700">Precio Costo</Label>
+                      <Input type="number" min="0" value={d.precioUnitario || ''} onChange={e => actualizarDetalle(idx, 'precioUnitario', e.target.value)} className="h-10 bg-white border-gray-300" />
                     </div>
                     <div className="flex flex-col gap-1">
                       <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700">Total</Label>

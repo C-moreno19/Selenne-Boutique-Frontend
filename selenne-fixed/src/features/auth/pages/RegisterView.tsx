@@ -234,10 +234,10 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
   };
 
   return (
-    <div className="flex min-h-screen w-full">
-      {/* Hero Section - Left (55%) */}
-      <div 
-        className="hidden lg:flex lg:w-[55%] p-12 flex-col justify-center items-start relative overflow-hidden"
+    <div className="flex h-screen w-full overflow-hidden">
+      {/* Hero Section - Left (55%) — fija, sin scroll */}
+      <div
+        className="hidden lg:flex lg:w-[55%] p-12 flex-col justify-center items-start relative overflow-hidden flex-shrink-0"
       >
         <SatinBackground />
         <div className="max-w-[450px] ml-12 relative z-10 space-y-7">
@@ -273,9 +273,9 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
         </div>
       </div>
 
-      {/* Register Panel - Right (45%) */}
-      <div className="flex-1 lg:w-[45%] flex items-center justify-center bg-white px-16 py-12">
-        <div className="w-full max-w-md">
+      {/* Register Panel - Right (45%) — solo esta parte scrollea */}
+      <div className="flex-1 lg:w-[45%] h-full overflow-y-auto bg-white px-16 py-12 flex flex-col items-center justify-start">
+        <div className="w-full max-w-md mt-auto mb-auto">
           {/* Header */}
           <div className="mb-8 flex flex-col items-center space-y-5">
             <img 
