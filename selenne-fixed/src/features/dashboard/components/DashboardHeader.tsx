@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import {
   Search,
   MessageCircle,
@@ -22,7 +22,7 @@ import {
   DialogFooter, 
   DialogDescription 
 } from '../../../components/ui/dialog';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 import imgLogo from 'figma:asset/8184a8c16f30f2f7daa53602475d236bcd50c9b3.png';
 
 interface DashboardHeaderProps {

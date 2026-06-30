@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Search, Eye, ChevronRight, User, RefreshCw, Loader2, Package } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '../../../components/ui/dialog';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 import api from '../../../services/api';
 import { usePedidosAdmin } from '../../../shared/contexts/PedidosAdminContext';
 import { formatCurrency } from '../../../shared/utils';

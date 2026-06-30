@@ -955,6 +955,8 @@ export const LandingView: React.FC<LandingViewProps> = ({
                       src={producto.imagen}
                       alt={producto.nombre}
                       className="w-full h-96 object-cover group-hover:scale-105 transition-transform duration-500 will-change-transform"
+                      loading="lazy"
+                      decoding="async"
                     />
                     {producto.badge && (
                       <Badge
@@ -1135,9 +1137,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
 
                   {/* Colors */}
                   {(() => {
-                    const coloresProducto = productoSeleccionado.colores && productoSeleccionado.colores.length > 0
-                      ? productoSeleccionado.colores
-                      : colores.map((c: any) => c.nombre);
+                    const coloresProducto = productoSeleccionado.colores ?? [];
                     if (coloresProducto.length === 0) return null;
                     return (
                       <div>

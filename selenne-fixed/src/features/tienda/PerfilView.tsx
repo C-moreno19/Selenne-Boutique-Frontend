@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   User, Mail, Phone, MapPin, Edit, Save, X, Lock, Bell,
   ShoppingBag, Heart, Package, Loader2, Eye, EyeOff,
@@ -8,7 +8,7 @@ import {
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '../../components/ui/dialog';
 import { useAuth } from '../../shared/contexts/AuthContext';
 import { useTienda } from '../../shared/contexts/TiendaContext';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 import api, { getJson, apiBase } from '../../services/api';
 
 interface PerfilViewProps { onBack: () => void; onLogout: () => void; }
@@ -30,11 +30,13 @@ const fmt = (n: number) =>
   new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n);
 
 const estadoConfig: Record<string, { label: string; bg: string; text: string }> = {
-  Pendiente:  { label: '⏳ Pendiente',  bg: 'bg-yellow-100', text: 'text-yellow-800' },
-  Aprobado:   { label: '✔️ Aprobado',   bg: 'bg-blue-100',   text: 'text-blue-800'   },
-  Completado: { label: '✅ Entregado',  bg: 'bg-green-100',  text: 'text-green-800'  },
-  Rechazado:  { label: '❌ Rechazado',  bg: 'bg-red-100',    text: 'text-red-800'    },
-  Cancelado:  { label: 'Cancelado',     bg: 'bg-gray-100',   text: 'text-gray-600'   },
+  Pendiente:  { label: 'Pendiente',  bg: 'bg-amber-50',   text: 'text-amber-700'   },
+  Aprobado:   { label: 'Aprobado',   bg: 'bg-blue-50',    text: 'text-blue-700'    },
+  Completado: { label: 'Entregado',  bg: 'bg-emerald-50', text: 'text-emerald-700' },
+  Enviado:    { label: 'En camino',  bg: 'bg-violet-50',  text: 'text-violet-700'  },
+  Enviada:    { label: 'En camino',  bg: 'bg-violet-50',  text: 'text-violet-700'  },
+  Rechazado:  { label: 'Rechazado',  bg: 'bg-red-50',     text: 'text-red-600'     },
+  Cancelado:  { label: 'Cancelado',  bg: 'bg-gray-100',   text: 'text-gray-500'    },
 };
 
 // ── Ciudades de Colombia ──────────────────────────────────────────────────────
@@ -223,8 +225,16 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
     if (!user?.email) return;
     setLoadingP(true);
     try {
-      const res = await getJson('/api/pedidos');
-      const all: PedidoApi[] = (res?.data || res || []).map((p: any) => ({
+      let raw: any;
+      try {
+        raw = await getJson('/api/pedidos/mis-pedidos');
+      } catch {
+        // fallback al endpoint general filtrando por email
+        const fb = await getJson('/api/pedidos');
+        const lista = fb?.data || fb || [];
+        raw = { data: lista.filter((p: any) => p.emailCliente === user.email) };
+      }
+      const all: PedidoApi[] = (raw?.data || raw || []).map((p: any) => ({
         pedidoID: p.pedidoID, emailCliente: p.emailCliente ?? '', nombreCliente: p.nombreCliente ?? '',
         total: p.total ?? 0, subtotal: p.subtotal ?? 0, descuento: p.descuento ?? 0, envio: p.envio ?? 0,
         estado: p.estado ?? '', fechaPedido: p.fechaPedido ?? '', metodoPago: p.metodoPago ?? '',
@@ -237,9 +247,8 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
           cantidad: d.cantidad ?? 1, precioUnitario: d.precioUnitario ?? 0, subtotal: d.subtotal ?? 0,
         })),
       }));
-      setPedidos(all.filter(p => p.emailCliente.toLowerCase() === (user.email ?? '').toLowerCase())
-        .sort((a, b) => new Date(b.fechaPedido).getTime() - new Date(a.fechaPedido).getTime()));
-    } catch { toast.error('Error cargando pedidos'); }
+      setPedidos(all.sort((a, b) => new Date(b.fechaPedido).getTime() - new Date(a.fechaPedido).getTime()));
+    } catch { setPedidos([]); }
     finally { setLoadingP(false); }
   }, [user?.email]);
 
@@ -277,13 +286,7 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
           <div className="px-5 py-4 space-y-3">
             <div>
               <p className="text-xs text-gray-400 mb-0.5">Correo electrónico</p>
-              <div className="flex items-center gap-2 flex-wrap">
-                <p className="text-sm text-gray-900">{user?.email}</p>
-                {profileData.emailVerificado
-                  ? <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full">✓ Verificado</span>
-                  : <span className="text-xs bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded-full">Sin verificar</span>
-                }
-              </div>
+              <p className="text-sm text-gray-900">{user?.email}</p>
             </div>
             {[
               { label: 'Teléfono',    value: profileData.telefono  || '—' },
@@ -583,7 +586,7 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
               <div>
                 <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                   className="text-2xl font-black uppercase text-gray-900 leading-tight">
-                  {pedidoSelec ? `Pedido #${pedidoSelec.pedidoID}` : 'Mis pedidos'}
+                  {pedidoSelec ? 'Detalle del pedido' : 'Mis pedidos'}
                 </DialogTitle>
                 <DialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                   className="text-sm text-gray-500 mt-1">
@@ -615,9 +618,15 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
                   </div>
                 ) : pedidos.length === 0 ? (
                   <div className="text-center py-16">
-                    <Package className="w-10 h-10 text-gray-300 mx-auto mb-4" />
-                    <p className="text-base font-semibold text-gray-800" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Sin pedidos aún</p>
-                    <p className="text-sm text-gray-400 mt-1" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Tus pedidos aparecerán aquí cuando realices una compra</p>
+                    <div className="relative inline-flex mb-5">
+                      <div className="w-16 h-16 rounded-full bg-pink-50 flex items-center justify-center">
+                        <Package className="w-7 h-7 text-[#d65391]" />
+                      </div>
+                      <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-pink-200" />
+                      <span className="absolute -bottom-1 -left-1 w-2 h-2 rounded-full bg-pink-100" />
+                    </div>
+                    <p className="text-base font-semibold text-gray-800">Sin pedidos aún</p>
+                    <p className="text-sm text-gray-400 mt-1">Tus pedidos aparecerán aquí cuando realices una compra</p>
                   </div>
                 ) : (
                   <div className="space-y-2">
@@ -630,10 +639,6 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
                           <div className="flex items-start justify-between gap-4 mb-2">
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1 flex-wrap">
-                                <span className="font-bold text-gray-900 text-base uppercase tracking-wide"
-                                  style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
-                                  #{pedido.pedidoID}
-                                </span>
                                 <span className={`px-2 py-0.5 text-xs font-medium ${cfg.bg} ${cfg.text}`}>{cfg.label}</span>
                               </div>
                               <p className="text-sm text-gray-500 flex items-center gap-1.5"

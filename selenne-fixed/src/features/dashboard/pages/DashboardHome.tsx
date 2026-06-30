@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   TrendingUp,
   TrendingDown,
@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '../../../components/ui/dialog';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 import { getJson, putJson } from '../../../services/api';
 import { formatCurrency } from '../../../shared/utils';
 import { useAuth } from '../../../shared/contexts/AuthContext';

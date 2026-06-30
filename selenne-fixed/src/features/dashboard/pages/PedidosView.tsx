@@ -1,10 +1,10 @@
-﻿import React, { useState, useEffect, useCallback } from 'react';
-import { Search, Eye, CheckCircle, XCircle, ChevronRight, Loader2, RefreshCw, Package, User, MapPin, CreditCard, Image, Mail } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Search, Eye, CheckCircle, XCircle, ChevronRight, Loader2, RefreshCw, Package, User, MapPin, CreditCard, Image, Mail, X, ShoppingBag, Check } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '../../../components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../../../components/ui/alert-dialog';
 import { Textarea } from '../../../components/ui/textarea';
 import { Label } from '../../../components/ui/label';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 import { getJson, apiBase } from '../../../services/api';
 import api from '../../../services/api';
 import { useAuth } from '../../../shared/contexts/AuthContext';
@@ -19,6 +19,14 @@ interface Pedido {
 }
 
 const fmt = (n: number) => `$${new Intl.NumberFormat('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(n)} COP`;
+const estadoBadgeClass = (e: string) => {
+  if (e === 'Completado' || e === 'Completada') return 'bg-green-50 text-green-600 border-green-200';
+  if (e === 'Enviado') return 'bg-pink-50 text-[#d65391] border-pink-200';
+  if (e === 'Aprobado' || e === 'Aprobada') return 'bg-blue-50 text-blue-600 border-blue-200';
+  if (e === 'Rechazado' || e === 'Rechazada') return 'bg-orange-50 text-orange-600 border-orange-200';
+  if (e === 'Pendiente') return 'bg-yellow-50 text-yellow-600 border-yellow-200';
+  return 'bg-gray-50 text-gray-600 border-gray-200';
+};
 
 export const PedidosView: React.FC = () => {
   const { hasPermission } = useAuth();
@@ -196,143 +204,161 @@ export const PedidosView: React.FC = () => {
 
       {/* Modal Ver Detalles Completo */}
       <Dialog open={viewOpen} onOpenChange={setViewOpen}>
-        <DialogContent className="max-w-2xl h-auto flex flex-col p-0 gap-0">
-          <DialogHeader className="px-8 pt-6 pb-4 border-b border-gray-200 flex-shrink-0">
-            <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-2xl">
-              Pedido #{selectedPedido?.pedidoID}
-            </DialogTitle>
-            <DialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
-              {new Date(selectedPedido?.fechaPedido || '').toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' })}
-            </DialogDescription>
-          </DialogHeader>
+        <DialogContent className="w-[420px] flex flex-col p-0 gap-0 overflow-hidden max-h-[88vh]">
+          <DialogTitle className="sr-only">Detalle de pedido</DialogTitle>
+          <DialogDescription className="sr-only">Detalle del pedido del cliente</DialogDescription>
 
-          <div className="flex-1 overflow-y-auto">
-            <div className="space-y-6 py-6 px-8">
+          {/* Header */}
+          <div className="bg-pink-50 px-4 py-3 pr-12 flex items-center gap-2.5 border-b border-pink-100 flex-shrink-0">
+            <div className="w-7 h-7 bg-[#d65391] rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0">S</div>
+            <span className="text-xs font-bold tracking-[3px] text-[#d65391] uppercase">Selenne Boutique</span>
+          </div>
+
+          {/* Body */}
+          <div className="flex-1 overflow-y-auto bg-gray-50 px-4 py-4 space-y-3">
+            {/* Avatar + título + badge */}
+            <div className="flex items-start gap-4 pb-3 border-b border-pink-100">
+              <div className="w-11 h-11 bg-[#d65391] rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
+                {selectedPedido?.nombreCliente?.charAt(0).toUpperCase()}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-lg font-bold text-gray-900 leading-tight">Detalle de pedido</p>
+                <p className="text-[#d65391] font-semibold text-sm">{selectedPedido?.nombreCliente}</p>
+                <p className="text-gray-400 text-xs">{selectedPedido?.emailCliente}</p>
+              </div>
+              <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                <span className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${estadoBadgeClass(selectedPedido?.estado ?? '')}`}>
+                  <Check className="w-3 h-3" />
+                  {selectedPedido?.estado}
+                </span>
+                <span className="text-xs text-gray-400">
+                  {selectedPedido?.fechaPedido ? new Date(selectedPedido.fechaPedido).toLocaleDateString('es-CO', { day: 'numeric', month: 'short', year: 'numeric' }) : ''}
+                </span>
+              </div>
+            </div>
+
             {selectedPedido && (
               <>
-                {/* Sección Cliente */}
-                <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                  <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
-                    <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-gray-800 text-base flex items-center gap-2"><User className="w-4 h-4 text-gray-400" />Información del Cliente</h3>
-                  </div>
-                  <div className="p-6 space-y-4">
-                    <div className="grid grid-cols-2 gap-6">
-                      <div>
-                        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500 font-medium uppercase">Nombre</p>
-                        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-gray-900">{selectedPedido.nombreCliente}</p>
+                {/* Cliente + Pago */}
+                <div className="border border-pink-100 rounded-xl overflow-hidden bg-white shadow-sm">
+                  <div className="grid grid-cols-2 divide-x divide-pink-100">
+                    <div className="p-3 flex items-start gap-3">
+                      <div className="w-8 h-8 bg-pink-50 rounded-full flex items-center justify-center flex-shrink-0">
+                        <User className="w-4 h-4 text-[#d65391]" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs text-gray-400 mb-1">Cliente</p>
+                        <p className="text-sm font-bold text-gray-900 truncate">{selectedPedido.nombreCliente}</p>
+                        <p className="text-xs text-gray-500 mt-0.5">{selectedPedido.telefonoCliente}</p>
+                      </div>
+                    </div>
+                    <div className="p-3 flex items-start gap-3">
+                      <div className="w-8 h-8 bg-pink-50 rounded-full flex items-center justify-center flex-shrink-0">
+                        <CreditCard className="w-4 h-4 text-[#d65391]" />
                       </div>
                       <div>
-                        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500 font-medium uppercase">Teléfono</p>
-                        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-gray-900">{selectedPedido.telefonoCliente}</p>
+                        <p className="text-xs text-gray-400 mb-1">Método de pago</p>
+                        <p className="text-sm font-bold text-gray-900 capitalize">{selectedPedido.metodoPago}</p>
+                        {selectedPedido.comprobantePago && (
+                          <button type="button" onClick={() => setComprobanteOpen(true)}
+                            className="mt-1.5 text-xs text-[#d65391] font-semibold flex items-center gap-1 hover:underline">
+                            <Image className="w-3 h-3" /> Ver comprobante
+                          </button>
+                        )}
                       </div>
                     </div>
+                  </div>
+                </div>
+
+                {/* Dirección */}
+                {(selectedPedido.direccionEnvio || selectedPedido.ciudad) && (
+                  <div className="border border-pink-100 rounded-xl p-3 bg-white shadow-sm flex items-start gap-3">
+                    <div className="w-8 h-8 bg-pink-50 rounded-full flex items-center justify-center flex-shrink-0">
+                      <MapPin className="w-4 h-4 text-[#d65391]" />
+                    </div>
                     <div>
-                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500 font-medium uppercase">Email</p>
-                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-gray-900 break-all">{selectedPedido.emailCliente}</p>
+                      <p className="text-xs text-gray-400 mb-1">Dirección de envío</p>
+                      <p className="text-sm font-bold text-gray-900">{selectedPedido.direccionEnvio || '—'}</p>
+                      {selectedPedido.ciudad && <p className="text-xs text-gray-500 mt-0.5">{selectedPedido.ciudad}</p>}
                     </div>
                   </div>
-                </div>
+                )}
 
-                {/* Sección Envío */}
-                <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                  <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
-                    <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-gray-800 text-base flex items-center gap-2"><MapPin className="w-4 h-4 text-gray-400" />Dirección de Envío</h3>
-                  </div>
-                  <div className="p-6 grid grid-cols-2 gap-6">
-                    {[
-                      ['Dirección', selectedPedido.direccionEnvio],
-                      ['Ciudad', selectedPedido.ciudad],
-                    ].map(([label, value]) => (
-                      <div key={label}>
-                        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500 font-medium uppercase">{label}</p>
-                        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-gray-900">{value}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Sección Pago */}
-                <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                  <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
-                    <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-gray-800 text-base flex items-center gap-2"><CreditCard className="w-4 h-4 text-gray-400" />Método de Pago</h3>
-                  </div>
-                  <div className="p-6 flex items-center justify-between">
-                    <div>
-                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500 mb-1">Método</p>
-                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-900">{selectedPedido.metodoPago}</p>
+                {/* Productos */}
+                <div className="border border-pink-100 rounded-xl p-3 bg-white shadow-sm">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-8 h-8 bg-pink-50 rounded-full flex items-center justify-center flex-shrink-0">
+                      <ShoppingBag className="w-4 h-4 text-[#d65391]" />
                     </div>
-                    {selectedPedido.comprobantePago && (
-                      <button onClick={() => setComprobanteOpen(true)}
-                        style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                        className="px-4 py-2 bg-[#d65391] text-white rounded-lg hover:bg-[#c14a7f] text-sm flex items-center gap-2 transition-colors">
-                        <Image className="w-4 h-4" /> Ver Comprobante
-                      </button>
-                    )}
+                    <p className="text-sm font-semibold text-gray-700">Productos</p>
                   </div>
-                </div>
-
-                {/* Sección Productos */}
-                <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                  <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
-                    <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-gray-800 text-base flex items-center gap-2"><Package className="w-4 h-4 text-gray-400" />Productos Pedidos</h3>
-                  </div>
-                  <div className="p-6">
-                    {selectedPedido.detalles.length === 0 ? (
-                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-400 text-center py-4">Sin detalles de productos</p>
-                    ) : (
-                      <div className="space-y-3">
-                        {selectedPedido.detalles.map((d, i) => (
-                          <div key={i} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100">
-                            <div className="flex-1">
-                              <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-gray-900">{d.productoNombre}</p>
-                              <div className="flex gap-4 mt-1">
-                                <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500">Cantidad: <span className="font-medium text-gray-700">{d.cantidad}</span></p>
-                                {d.talla && <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500">Talla: <span className="font-medium text-gray-700">{d.talla}</span></p>}
-                                {d.color && <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500">Color: <span className="font-medium text-gray-700">{d.color}</span></p>}
-                                <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500">Precio unit: <span className="font-medium text-gray-700">{fmt(d.precioUnitario)}</span></p>
-                              </div>
+                  {selectedPedido.detalles.length === 0 ? (
+                    <p className="text-sm text-gray-400 text-center py-2">Sin productos</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {selectedPedido.detalles.map((d, i) => (
+                        <div key={i} className="flex items-center gap-3">
+                          <span className="w-5 h-5 bg-pink-50 border border-pink-100 rounded-full flex items-center justify-center text-xs font-bold text-[#d65391] flex-shrink-0">
+                            {d.cantidad}
+                          </span>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm text-gray-800 truncate">{d.productoNombre}</p>
+                            <div className="flex gap-1.5 mt-0.5 flex-wrap">
+                              {d.talla && <span className="text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">T: {d.talla}</span>}
+                              {d.color && <span className="text-[10px] bg-pink-50 text-[#d65391] px-2 py-0.5 rounded-full">{d.color}</span>}
                             </div>
-                            <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-bold text-[#d65391] text-lg ml-4">{fmt(d.subtotal)}</p>
                           </div>
-                        ))}
-                        <div className="flex justify-between items-center pt-3 border-t border-gray-200 mt-2">
-                          <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-bold text-gray-900 text-lg">Total del Pedido</p>
-                          <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-bold text-[#d65391] text-2xl">{fmt(selectedPedido.total)}</p>
+                          <span className="text-sm font-bold text-gray-900 flex-shrink-0">{fmt(d.subtotal)}</span>
                         </div>
-                      </div>
-                    )}
-                  </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
+                {/* Total */}
+                <div className="bg-white border border-pink-200 rounded-xl px-4 py-3 flex items-center justify-between shadow-sm">
+                  <span className="text-base font-semibold text-[#d65391]">Total</span>
+                  <span className="text-xl font-bold text-[#d65391]">{fmt(selectedPedido.total)}</span>
+                </div>
+
+                {/* Notas */}
                 {selectedPedido.notas && (
-                  <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
-                    <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs font-semibold text-yellow-700 mb-1">Notas del cliente</p>
-                    <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-yellow-800">{selectedPedido.notas}</p>
+                  <div className="bg-amber-50 border border-amber-100 rounded-2xl px-4 py-3">
+                    <p className="text-[10px] font-bold text-amber-600 uppercase mb-1">Nota del cliente</p>
+                    <p className="text-sm text-amber-800 leading-snug">{selectedPedido.notas}</p>
                   </div>
                 )}
               </>
             )}
-            </div>
           </div>
 
-          <DialogFooter className="gap-2 px-8 py-5 border-t border-gray-200 flex-shrink-0">
-            {puedeEditar && (
-              <>
-                <button onClick={() => { setViewOpen(false); setAprobarOpen(true); }}
-                  style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                  className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2 transition-colors">
-                  <CheckCircle className="w-4 h-4" /> Aprobar
+          {/* Footer */}
+          <div className="flex-shrink-0 px-4 py-3 border-t border-pink-100 bg-white">
+            {puedeEditar ? (
+              <div className="flex gap-2">
+                <button type="button" onClick={() => setViewOpen(false)}
+                  className="text-sm text-gray-400 hover:text-gray-600 transition-colors px-3 py-2">
+                  Cerrar
                 </button>
-                <button onClick={() => { setViewOpen(false); setRechazarOpen(true); }}
-                  style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                  className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center gap-2 transition-colors">
-                  <XCircle className="w-4 h-4" /> Rechazar
+                <div className="flex-1" />
+                <button type="button" onClick={() => { setViewOpen(false); setRechazarOpen(true); }}
+                  className="px-4 py-2 border border-red-200 text-red-500 rounded-full hover:bg-red-50 flex items-center gap-1.5 transition-colors text-sm font-medium">
+                  <XCircle className="w-3.5 h-3.5" /> Rechazar
                 </button>
-              </>
+                <button type="button" onClick={() => { setViewOpen(false); setAprobarOpen(true); }}
+                  className="px-4 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 flex items-center gap-1.5 transition-colors text-sm font-semibold">
+                  <CheckCircle className="w-3.5 h-3.5" /> Aprobar
+                </button>
+              </div>
+            ) : (
+              <div className="flex justify-end">
+                <button type="button" onClick={() => setViewOpen(false)}
+                  className="px-6 py-2 bg-[#d65391] text-white text-sm font-semibold rounded-full hover:bg-[#c0426f] transition-colors">
+                  Cerrar
+                </button>
+              </div>
             )}
-            <button onClick={() => setViewOpen(false)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">Cerrar</button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
 
@@ -351,11 +377,11 @@ export const PedidosView: React.FC = () => {
                 alt="Comprobante"
                 className="w-full rounded-xl border border-gray-200 shadow-sm" />
             ) : (
-              <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-center text-gray-400">Sin comprobante</p>
+              <p className="text-center text-gray-400">Sin comprobante</p>
             )}
           </div>
           <DialogFooter className="px-6 pb-6">
-            <button onClick={() => setComprobanteOpen(false)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+            <button type="button" onClick={() => setComprobanteOpen(false)}
               className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">Cerrar</button>
           </DialogFooter>
         </DialogContent>
@@ -363,82 +389,107 @@ export const PedidosView: React.FC = () => {
 
       {/* Modal Email Pago */}
       <Dialog open={emailPagoOpen} onOpenChange={(v: boolean) => { setEmailPagoOpen(v); if (!v) setMensajePago(''); }}>
-        <DialogContent className="max-w-md flex flex-col p-0 gap-0 max-h-[90vh]">
-          <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-100 flex-shrink-0">
-            <div className="flex items-center gap-3 mb-1">
-              <div className="w-9 h-9 bg-[#fce7f3] rounded-xl flex items-center justify-center flex-shrink-0">
-                <Mail className="w-5 h-5 text-[#d65391]" />
+        <DialogContent className="w-[420px] flex flex-col p-0 gap-0 overflow-hidden max-h-[88vh]">
+          <DialogDescription className="sr-only">Enviar correo de pago al cliente</DialogDescription>
+          {/* Selenne header */}
+          <div className="bg-pink-50 px-4 py-3 pr-12 flex items-center gap-2.5 border-b border-pink-100 flex-shrink-0">
+            <div className="w-7 h-7 bg-[#d65391] rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0">S</div>
+            <span className="text-xs font-bold tracking-[3px] text-[#d65391] uppercase">Selenne Boutique</span>
+          </div>
+          {/* Pink sub-header */}
+          <div className="bg-[#d65391] px-4 py-4 flex-shrink-0">
+            <DialogTitle className="flex items-center gap-3 mb-3 text-white text-lg font-bold">
+              <div className="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                <Mail className="w-5 h-5 text-white" />
               </div>
-              <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xl">
-                Correo de Pago
-              </DialogTitle>
+              Correo de pago
+            </DialogTitle>
+            <div className="flex items-center gap-3 bg-white/15 rounded-xl px-3 py-2.5">
+              <div className="w-8 h-8 bg-white/25 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                {selectedPedido?.nombreCliente?.charAt(0).toUpperCase()}
+              </div>
+              <div className="min-w-0">
+                <p className="text-white font-semibold text-sm truncate">{selectedPedido?.nombreCliente}</p>
+                <p className="text-white/75 text-xs truncate">{selectedPedido?.emailCliente}</p>
+              </div>
             </div>
-            <DialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500 ml-12">
-              Para <strong className="text-gray-700">{selectedPedido?.nombreCliente}</strong> · {selectedPedido?.emailCliente}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
-            <div className="bg-[#fdf2f8] border border-[#f9a8d4] rounded-xl p-4">
-              <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-[#9d174d]">
-                Se enviará la información bancaria con código QR para que el cliente complete el pago del pedido <strong>#{selectedPedido?.pedidoID}</strong>.
+          </div>
+          {/* Body */}
+          <div className="flex-1 overflow-y-auto bg-gray-50 px-4 py-4 space-y-3">
+            <div className="bg-white border border-pink-100 rounded-xl p-4 flex gap-3 items-start shadow-sm">
+              <div className="w-8 h-8 bg-pink-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                <Mail className="w-4 h-4 text-[#d65391]" />
+              </div>
+              <p className="text-sm text-gray-600 leading-relaxed">
+                Se enviará al cliente la <span className="font-semibold text-gray-800">información bancaria con código QR</span> para que complete su pago pendiente.
               </p>
             </div>
-            <div className="flex flex-col gap-2">
-              <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700">
+            <div className="flex flex-col gap-1.5">
+              <Label className="text-sm font-semibold text-gray-700">
                 Mensaje adicional <span className="text-gray-400 font-normal">(opcional)</span>
               </Label>
               <textarea value={mensajePago} onChange={e => setMensajePago(e.target.value)}
                 placeholder="Ej: Hola, falta el saldo de $50.000 para completar tu pedido..."
                 rows={3}
-                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#d65391] resize-none bg-gray-50" />
+                className="w-full px-3 py-2.5 border border-pink-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 focus:border-[#d65391] resize-none bg-white transition-all" />
             </div>
-            <div className="bg-gray-50 border border-gray-100 rounded-xl p-4">
-              <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Datos bancarios</p>
-              <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500">Configurados en <code className="bg-white border border-gray-200 px-1.5 py-0.5 rounded text-xs">appsettings.json → BankAccount</code></p>
+            <div className="bg-white border border-emerald-100 rounded-xl p-3 flex items-center gap-3 shadow-sm">
+              <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 flex-shrink-0 ml-1" />
+              <p className="text-xs text-gray-600 font-medium">Información bancaria y QR configurados correctamente</p>
             </div>
           </div>
-          <DialogFooter className="px-6 py-4 border-t border-gray-100 flex-shrink-0 flex gap-2">
-            <button onClick={() => setEmailPagoOpen(false)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="flex-1 py-2.5 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors text-sm font-medium">
+          {/* Footer */}
+          <div className="px-4 py-3 border-t border-pink-100 bg-white flex-shrink-0 flex gap-2">
+            <button type="button" onClick={() => setEmailPagoOpen(false)}
+              className="px-4 py-2 text-gray-500 text-sm font-medium hover:text-gray-700 transition-colors">
               Cancelar
             </button>
-            <button onClick={enviarEmailPago} disabled={saving} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="flex-1 py-2.5 bg-[#d65391] text-white rounded-xl hover:bg-[#c0426f] disabled:opacity-50 flex items-center justify-center gap-2 transition-colors text-sm font-medium">
+            <button type="button" onClick={enviarEmailPago} disabled={saving}
+              className="flex-1 py-2 bg-[#d65391] text-white rounded-full hover:bg-[#c0426f] disabled:opacity-50 flex items-center justify-center gap-2 transition-colors text-sm font-semibold">
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Mail className="w-4 h-4" />}
               Enviar correo
             </button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
 
       {/* Modal Aprobar */}
       <Dialog open={aprobarOpen} onOpenChange={setAprobarOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader className="px-6 pt-6 pb-4">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                <CheckCircle className="w-5 h-5 text-green-600" />
+        <DialogContent className="w-[380px] flex flex-col p-0 gap-0 overflow-hidden">
+          <DialogDescription className="sr-only">Confirmar aprobación del pedido</DialogDescription>
+          {/* Selenne header */}
+          <div className="bg-pink-50 px-4 py-3 pr-12 flex items-center gap-2.5 border-b border-pink-100 flex-shrink-0">
+            <div className="w-7 h-7 bg-[#d65391] rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0">S</div>
+            <span className="text-xs font-bold tracking-[3px] text-[#d65391] uppercase">Selenne Boutique</span>
+          </div>
+          {/* Body */}
+          <div className="bg-white px-6 py-6">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="w-12 h-12 bg-green-100 rounded-2xl flex items-center justify-center flex-shrink-0">
+                <CheckCircle className="w-6 h-6 text-green-600" />
               </div>
-              <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xl">¿Aprobar pedido?</DialogTitle>
+              <div>
+                <DialogTitle className="text-lg font-bold text-gray-900">¿Aprobar pedido?</DialogTitle>
+                <p className="text-xs text-gray-400 mt-0.5">Esta acción no se puede deshacer</p>
+              </div>
             </div>
-            <DialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="ml-13 text-gray-600">
-              El pedido de <strong className="text-gray-900">{selectedPedido?.nombreCliente}</strong> pasará al módulo de Ventas para su despacho.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex gap-3 px-6 pb-6">
-            <button type="button" onClick={() => setAprobarOpen(false)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="flex-1 py-2.5 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors text-sm font-medium">
+            <div className="bg-green-50 border border-green-100 rounded-xl px-4 py-3">
+              <p className="text-sm text-gray-700 leading-relaxed">
+                El pedido de <strong className="text-gray-900">{selectedPedido?.nombreCliente}</strong> pasará al módulo de Ventas para su despacho.
+              </p>
+            </div>
+          </div>
+          {/* Footer */}
+          <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex gap-3 flex-shrink-0">
+            <button type="button" onClick={() => setAprobarOpen(false)}
+              className="flex-1 py-2.5 bg-white border border-gray-200 text-gray-600 rounded-full hover:bg-gray-100 transition-colors text-sm font-medium">
               Cancelar
             </button>
             <button type="button" onClick={() => selectedPedido && cambiarEstado(selectedPedido, 'Aprobado')}
               disabled={saving}
-              style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', backgroundColor: '#16a34a', color: '#ffffff' }}
-              className="flex-1 py-2.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
-              onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#15803d')}
-              onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#16a34a')}>
+              className="flex-1 py-2.5 bg-green-600 text-white rounded-full hover:bg-green-700 text-sm font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50">
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
-              Aprobar pedido
+              Aprobar
             </button>
           </div>
         </DialogContent>
@@ -446,31 +497,46 @@ export const PedidosView: React.FC = () => {
 
       {/* Modal Rechazar */}
       <Dialog open={rechazarOpen} onOpenChange={setRechazarOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-200">
-            <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Rechazar pedido</DialogTitle>
-            <DialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
-              Pedido #{selectedPedido?.pedidoID} de {selectedPedido?.nombreCliente}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="p-6">
-            <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 mb-2 block">Razón del rechazo <span className="text-red-500">*</span></Label>
-            <Textarea value={razonRechazo} onChange={e => setRazonRechazo(e.target.value)}
-              placeholder="Ej: Comprobante ilegible, pago insuficiente..."
-              className="border-gray-300 resize-none" rows={3} />
+        <DialogContent className="w-[400px] flex flex-col p-0 gap-0 overflow-hidden">
+          <DialogDescription className="sr-only">Rechazar pedido</DialogDescription>
+          {/* Selenne header */}
+          <div className="bg-pink-50 px-4 py-3 pr-12 flex items-center gap-2.5 border-b border-pink-100 flex-shrink-0">
+            <div className="w-7 h-7 bg-[#d65391] rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0">S</div>
+            <span className="text-xs font-bold tracking-[3px] text-[#d65391] uppercase">Selenne Boutique</span>
           </div>
-          <DialogFooter className="px-6 pb-6 gap-2">
-            <button onClick={() => setRechazarOpen(false)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">Cancelar</button>
-            <button onClick={() => {
+          {/* Body */}
+          <div className="bg-white px-6 py-6 space-y-4">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-red-50 rounded-2xl flex items-center justify-center flex-shrink-0">
+                <XCircle className="w-6 h-6 text-red-500" />
+              </div>
+              <div>
+                <DialogTitle className="text-lg font-bold text-gray-900">Rechazar pedido</DialogTitle>
+                <p className="text-sm text-gray-500 mt-0.5">Pedido de <strong className="text-gray-700">{selectedPedido?.nombreCliente}</strong></p>
+              </div>
+            </div>
+            <div>
+              <Label className="text-sm font-semibold text-gray-700 mb-2 block">Razón del rechazo <span className="text-red-500">*</span></Label>
+              <Textarea value={razonRechazo} onChange={e => setRazonRechazo(e.target.value)}
+                placeholder="Ej: Comprobante ilegible, pago insuficiente..."
+                className="border-pink-100 rounded-xl resize-none focus-visible:ring-pink-300" rows={3} />
+            </div>
+          </div>
+          {/* Footer */}
+          <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex gap-3 flex-shrink-0">
+            <button type="button" onClick={() => setRechazarOpen(false)}
+              className="flex-1 py-2.5 bg-white border border-gray-200 text-gray-600 rounded-full hover:bg-gray-100 transition-colors text-sm font-medium">
+              Cancelar
+            </button>
+            <button type="button" onClick={() => {
               if (!razonRechazo.trim()) { toast.error('La razón del rechazo es obligatoria'); return; }
               selectedPedido && cambiarEstado(selectedPedido, 'Rechazado', razonRechazo);
-            }}
-              disabled={saving} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 flex items-center gap-2 transition-colors">
-              {saving && <Loader2 className="w-4 h-4 animate-spin" />} Rechazar
+            }} disabled={saving}
+              className="flex-1 py-2.5 bg-red-500 text-white rounded-full hover:bg-red-600 text-sm font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50">
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
+              Rechazar
             </button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

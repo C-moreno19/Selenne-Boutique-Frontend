@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { getJson, getAccessToken, apiBase, fetchWithAuth } from '../../services/api';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 
 export interface ProductoAdmin {
   id: string;
@@ -99,8 +99,11 @@ function mapProducto(p: any): ProductoAdmin {
     imagenes: (() => {
       const imgs = p.imagenes ?? p.Imagenes ?? [];
       if (!Array.isArray(imgs)) return [];
-      // Soporta tanto [{URL, ColorNombre}] como ['url']
-      return imgs.map((i: any) => typeof i === 'string' ? i : i?.url ?? i?.URL ?? '').filter(Boolean);
+      // Solo imágenes SIN color asignado (las de color van en imagenesPorColor)
+      return imgs
+        .filter((i: any) => typeof i === 'string' || !(i?.colorNombre ?? i?.ColorNombre))
+        .map((i: any) => typeof i === 'string' ? i : i?.url ?? i?.URL ?? '')
+        .filter(Boolean);
     })(),
     imagenesPorColor: (() => {
       const imgs = p.imagenes ?? p.Imagenes ?? [];
@@ -348,7 +351,6 @@ export const ProductosProvider: React.FC<{ children: ReactNode }> = ({ children 
   };
 
   const sincronizarVariantes = async (id: string, variantes: {tallaNombre?: string; colorNombre?: string; stock: number}[]) => {
-    if (!variantes.length) return;
     console.log('[Sync] variantes a enviar:', variantes);
     await mutarProducto('POST', `/api/productos/${id}/variantes`, { Variantes: variantes });
   };

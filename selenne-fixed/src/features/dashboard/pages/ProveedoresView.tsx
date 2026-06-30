@@ -1,9 +1,9 @@
-﻿import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, Search, Eye, Edit, ChevronRight, Loader2, RefreshCw } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Plus, Search, Eye, Edit, ChevronRight, Loader2, RefreshCw, Truck } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '../../../components/ui/dialog';
 import { Input } from '../../../components/ui/input';
 import { Label } from '../../../components/ui/label';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 import { useAuth } from '../../../shared/contexts/AuthContext';
 import { getJson, postJson } from '../../../services/api';
 import api from '../../../services/api';
@@ -336,17 +336,21 @@ export const ProveedoresView: React.FC = () => {
 
       {/* Modal Ver Detalles */}
       <Dialog open={viewOpen} onOpenChange={setViewOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader className="px-8 pt-6 pb-4 border-b border-gray-200">
-            <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-2xl">Detalles del Proveedor</DialogTitle>
-          </DialogHeader>
+        <DialogContent className="max-w-lg flex flex-col p-0 gap-0 overflow-hidden">
+          <div className="bg-[#d65391] px-8 pt-6 pb-5 flex-shrink-0">
+            <p className="text-[10px] font-bold uppercase tracking-[3px] text-pink-200 mb-1">Selenne Boutique</p>
+            <DialogTitle className="text-xl font-bold text-white flex items-center gap-2">
+              <Truck className="w-5 h-5 opacity-80" /> {selected?.nombre}
+            </DialogTitle>
+            <DialogDescription className="text-pink-100 text-sm mt-0.5">Proveedor</DialogDescription>
+          </div>
           {selected && (
-            <div className="p-6 space-y-4">
-              <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-                <div className="bg-gray-50 px-6 py-3 border-b border-gray-200">
-                  <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-gray-700 text-sm">Información General</h3>
+            <div className="bg-[#fdf2f8] px-6 py-5">
+              <div className="bg-white rounded-xl border border-pink-100 shadow-sm overflow-hidden">
+                <div className="px-5 py-3 border-b border-pink-50 bg-pink-50/50">
+                  <h3 className="font-semibold text-[#d65391] text-xs uppercase tracking-wider">Información General</h3>
                 </div>
-                <div className="p-6 grid grid-cols-2 gap-4">
+                <div className="p-5 grid grid-cols-2 gap-4">
                   {[
                     { label: 'Nombre', value: selected.nombre },
                     { label: 'Contacto', value: selected.contacto || '—' },
@@ -355,18 +359,18 @@ export const ProveedoresView: React.FC = () => {
                     { label: 'Documento', value: selected.documento || '—' },
                   ].map(({ label, value }) => (
                     <div key={label} className="flex flex-col gap-1">
-                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500 font-medium uppercase">{label}</p>
-                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-gray-900">{value}</p>
+                      <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">{label}</p>
+                      <p className="text-sm font-semibold text-gray-900">{value}</p>
                     </div>
                   ))}
                 </div>
               </div>
             </div>
           )}
-          <DialogFooter className="px-6 pb-6">
-            <button onClick={() => setViewOpen(false)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">Cerrar</button>
-          </DialogFooter>
+          <div className="px-6 py-4 border-t border-pink-100 bg-white flex-shrink-0 flex justify-end">
+            <button onClick={() => setViewOpen(false)}
+              className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium">Cerrar</button>
+          </div>
         </DialogContent>
       </Dialog>
 

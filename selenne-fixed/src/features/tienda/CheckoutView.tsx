@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, CreditCard, Truck, ShieldCheck, MapPin, Upload, X, CheckCircle, AlertCircle } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -19,7 +19,7 @@ import { useAuth } from '../../shared/contexts/AuthContext';
 import { useMensajes } from '../../shared/contexts/MensajesContext';
 import { generarContraseñaTemporal } from '../../shared/utils/credentialGenerator';
 import { formatCurrency } from '../../shared/utils';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 import { QRCodeSVG } from 'qrcode.react';
 
 // Lista de ciudades de Colombia
