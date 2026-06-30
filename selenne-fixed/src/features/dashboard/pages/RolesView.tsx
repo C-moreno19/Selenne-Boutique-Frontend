@@ -253,7 +253,7 @@ export const RolesView: React.FC = () => {
   const handleToggleCreate = (id: string) =>
     setCreatePermisosArr(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
 
-  const handleToggleModulo = (perms: { id: string }[], _?: string, arr: string[], setArr: (v: string[]) => void = () => {}) => {
+  const handleToggleModulo = (perms: { id: string }[], arr: string[], setArr: (v: string[]) => void = () => {}) => {
     const all = perms.every(p => arr.includes(p.id));
     setArr(all ? arr.filter(x => !perms.find(p => p.id === x)) : [...new Set([...arr, ...perms.map(p => p.id)])]);
   };

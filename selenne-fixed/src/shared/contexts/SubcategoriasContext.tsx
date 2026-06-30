@@ -30,6 +30,7 @@ interface SubcategoriasContextType {
   eliminarCategoria: (id: string) => Promise<void>;
   eliminarCategoriaRopa: (id: string) => Promise<void>;
   eliminarTipoProducto: (id: string) => Promise<void>;
+  editarTalla: (id: string, nombre: string) => Promise<void>;
   editarMaterial: (id: string, nombre: string) => Promise<void>;
   editarMarca: (id: string, nombre: string) => Promise<void>;
   editarCategoria: (id: string, nombre: string) => Promise<void>;
@@ -195,6 +196,10 @@ export const SubcategoriasProvider: React.FC<{ children: ReactNode }> = ({ child
     if (await doDelete(`/api/tipos-producto/${id}`)) setTiposProducto(p => p.filter(t => t.id !== id));
   };
 
+  const editarTalla = async (id: string, nombre: string) => {
+    const n = await doPut(`/api/tallas/${id}`, { nombre, orden: 0 });
+    if (n) setTallas(p => p.map(t => t.id === id ? { ...t, nombre } : t));
+  };
   const editarMaterial = async (id: string, nombre: string) => {
     const n = await doPut(`/api/materiales/${id}`, { nombre });
     if (n) setMateriales(p => p.map(m => m.id === id ? { ...m, nombre } : m));
@@ -222,7 +227,7 @@ export const SubcategoriasProvider: React.FC<{ children: ReactNode }> = ({ child
       agregarCategoria, agregarCategoriaRopa: agregarCategoria, agregarTipoProducto,
       eliminarColor, eliminarTalla, eliminarMaterial, eliminarMarca,
       eliminarCategoria, eliminarCategoriaRopa: eliminarCategoria, eliminarTipoProducto,
-      editarMaterial, editarMarca, editarCategoria, editarTipoProducto,
+      editarTalla, editarMaterial, editarMarca, editarCategoria, editarTipoProducto,
       recargar: cargarTodo,
     }}>
       {children}
