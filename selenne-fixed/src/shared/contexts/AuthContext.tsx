@@ -177,7 +177,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const logout = () => {
-    const rt = api.getSavedRefreshToken?.();
+    const rt = getSavedRefreshToken();
     if (rt) api.postJson('/api/auth/logout', { refreshToken: rt }).catch(() => {});
     persistUser(null);
     clearAuthTokens();

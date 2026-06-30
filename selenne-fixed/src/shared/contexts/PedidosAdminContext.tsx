@@ -141,7 +141,7 @@ export const PedidosAdminProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   useEffect(() => {
     try {
-      if ('BroadcastChannel' in window) {
+      if (typeof BroadcastChannel !== 'undefined') {
         channelRef.current = new BroadcastChannel('selenne_pedidos_channel');
         channelRef.current.onmessage = (ev) => {
           const msg = ev.data;

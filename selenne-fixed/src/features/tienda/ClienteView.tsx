@@ -167,7 +167,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
   const materialesDisponibles = useMemo(() => {
     const set = new Set<string>();
     productosParaFiltros.forEach((p) => {
-      if (p.materiales) set.add(p.materiales);
+      p.materiales?.forEach((m) => set.add(m));
     });
     return Array.from(set);
   }, [productosParaFiltros]);

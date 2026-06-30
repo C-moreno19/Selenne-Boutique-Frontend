@@ -578,6 +578,10 @@ export const UsuariosView: React.FC = () => {
                       <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500 font-medium uppercase">Teléfono</p>
                       <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-gray-900">{selectedUser.telefono || "—"}</p>
                     </div>
+                    <div className="flex flex-col gap-1">
+                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500 font-medium uppercase">Documento</p>
+                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-gray-900">{selectedUser.documento || "—"}</p>
+                    </div>
                     <div className="flex flex-col gap-1 col-span-2">
                       <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500 font-medium uppercase">Correo</p>
                       <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-gray-900 break-all">{selectedUser.email}</p>

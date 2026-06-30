@@ -368,7 +368,7 @@ export const ProductosProvider: React.FC<{ children: ReactNode }> = ({ children 
     const res = await mutarProductoConId('POST', '/api/productos', payload);
     if (res.ok && res.id) {
       await sincronizarTallasColores(String(res.id), tallas || [], colores || [], tallasCtx || [], coloresCtx || []);
-      if (imagenes?.length || payload.imagenesPorColor) await sincronizarImagenes(String(res.id), imagenes || [], (payload as any).imagenesPorColor);
+      if (imagenes?.length || (payload as any).imagenesPorColor) await sincronizarImagenes(String(res.id), imagenes || [], (payload as any).imagenesPorColor);
       if ((payload as any).variantes?.length) await sincronizarVariantes(String(res.id), (payload as any).variantes);
       if (materiales?.length && materialesCtx?.length) await sincronizarMateriales(String(res.id), materiales, materialesCtx);
       await cargarProductos();
