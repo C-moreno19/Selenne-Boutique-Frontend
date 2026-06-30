@@ -1,4 +1,4 @@
-﻿
+
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import {
   ShoppingBag,
@@ -458,7 +458,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                 className="flex items-center justify-center hover:opacity-75 transition-opacity"
                 title="Selenne Boutique — Inicio"
               >
-                <span className="text-2xl font-bold tracking-wide text-black" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
+                <span className="text-2xl font-bold tracking-wide text-black">
                   Selenne Boutique
                 </span>
               </button>
@@ -471,7 +471,6 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                   setVistaActual("tienda");
                   setCategoriaActiva("mujer");
                 }}
-                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className={`py-2 px-1 border-b-2 transition-colors ${
                   categoriaActiva === "mujer"
                     ? "border-[#d65391] text-[#d65391]"
@@ -485,7 +484,6 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                   setVistaActual("tienda");
                   setCategoriaActiva("accesorios");
                 }}
-                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className={`py-2 px-1 border-b-2 transition-colors ${
                   categoriaActiva === "accesorios"
                     ? "border-[#d65391] text-[#d65391]"
@@ -499,7 +497,6 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                   setVistaActual("tienda");
                   setCategoriaActiva("sale");
                 }}
-                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className={`py-2 px-1 border-b-2 transition-colors ${
                   categoriaActiva === "sale"
                     ? "border-[#d65391] text-[#d65391]"
@@ -540,7 +537,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                   </SheetTrigger>
                   <SheetContent side="right">
                     <SheetHeader>
-                      <SheetTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Buscar</SheetTitle>
+                      <SheetTitle>Buscar</SheetTitle>
                     </SheetHeader>
                     <div className="mt-4 flex flex-col gap-4">
                       <div className="flex items-center gap-2 border border-gray-200 px-3 py-2">
@@ -552,7 +549,6 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                           onChange={e => setBusquedaModal(e.target.value)}
                           placeholder="Buscar productos..."
                           className="flex-1 text-sm outline-none text-gray-900 placeholder-gray-400"
-                          style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                         />
                         {busquedaModal && (
                           <button onClick={() => setBusquedaModal('')} className="text-gray-400 hover:text-gray-600">
@@ -586,7 +582,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                                 >
                                   <img src={p.imagen} alt={p.nombre} className="w-16 h-16 object-cover flex-shrink-0" />
                                   <div className="flex-1 text-left min-w-0">
-                                    <p className="text-sm font-medium text-gray-900 truncate" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>{p.nombre}</p>
+                                    <p className="text-sm font-medium text-gray-900 truncate">{p.nombre}</p>
                                     {p.descripcion && <p className="text-xs text-gray-400 truncate mt-0.5">{p.descripcion}</p>}
                                     <p className="text-sm font-bold text-gray-900 mt-1">{formatPrecio(p.precio)}</p>
                                   </div>
@@ -619,7 +615,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                 </SheetTrigger>
                 <SheetContent>
                   <SheetHeader>
-                    <SheetTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                    <SheetTitle>
                       Favoritos
                     </SheetTitle>
                   </SheetHeader>
@@ -639,7 +635,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                               <img src={prod.imagen} alt={prod.nombre} className="w-16 h-16 object-cover rounded" />
                               <div className="flex-1">
                                 <div className="flex justify-between items-center">
-                                  <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium">{prod.nombre}</span>
+                                  <span className="text-sm font-medium">{prod.nombre}</span>
                                   <span className="text-sm text-gray-600">{formatPrecio(prod.precio)}</span>
                                 </div>
                                 <div className="mt-2 flex gap-2">
@@ -675,7 +671,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                 </SheetTrigger>
                 <SheetContent className="flex flex-col w-[420px] sm:w-[460px] p-0">
                   <SheetHeader className="px-6 pt-6 pb-4 border-b border-gray-100 flex-shrink-0">
-                    <SheetTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xl">
+                    <SheetTitle className="text-xl">
                       Carrito de Compras
                       {carritoItems.length > 0 && (
                         <span className="ml-2 text-sm font-normal text-gray-400">({carritoItems.length} {carritoItems.length === 1 ? 'producto' : 'productos'})</span>
@@ -686,7 +682,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                   {carritoItems.length === 0 ? (
                     <div className="flex-1 flex flex-col items-center justify-center py-12 px-6">
                       <ShoppingCart className="w-16 h-16 text-gray-200 mb-4" />
-                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-400 text-sm">Tu carrito está vacío</p>
+                      <p className="text-gray-400 text-sm">Tu carrito está vacío</p>
                     </div>
                   ) : (
                     <>
@@ -707,11 +703,11 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                           >
                             <img src={item.imagen} alt={item.nombre} className="w-20 h-20 object-cover rounded-lg flex-shrink-0" />
                             <div className="flex-1 min-w-0">
-                              <h4 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-900 truncate">{item.nombre}</h4>
-                              <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 mt-0.5">
+                              <h4 className="text-sm font-medium text-gray-900 truncate">{item.nombre}</h4>
+                              <p className="text-xs text-gray-400 mt-0.5">
                                 Talla: {item.tallaSeleccionada}{item.colorSeleccionado && ` · ${item.colorSeleccionado}`}
                               </p>
-                              <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#d65391] mt-1">
+                              <p className="text-sm font-semibold text-[#d65391] mt-1">
                                 {formatPrecio(item.precio * item.cantidad)}
                               </p>
                               <div className="flex items-center gap-2 mt-2">
@@ -719,14 +715,13 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                                   className="w-6 h-6 flex items-center justify-center bg-white border border-gray-200 rounded-full hover:bg-gray-100 transition-colors">
                                   <Minus className="w-3 h-3 text-gray-600" />
                                 </button>
-                                <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium w-5 text-center">{item.cantidad}</span>
+                                <span className="text-sm font-medium w-5 text-center">{item.cantidad}</span>
                                 <button onClick={(e: React.MouseEvent) => { e.stopPropagation(); actualizarCantidad(item.carritoID, item.cantidad + 1); }}
                                   className="w-6 h-6 flex items-center justify-center bg-white border border-gray-200 rounded-full hover:bg-gray-100 transition-colors">
                                   <Plus className="w-3 h-3 text-gray-600" />
                                 </button>
                                 <button onClick={(e: React.MouseEvent) => { e.stopPropagation(); removerDelCarrito(item.carritoID); }}
-                                  className="ml-auto text-xs text-red-400 hover:text-red-600 transition-colors"
-                                  style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                                  className="ml-auto text-xs text-red-400 hover:text-red-600 transition-colors">
                                   Eliminar
                                 </button>
                               </div>
@@ -738,23 +733,22 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                       {/* Resumen — fijo en la parte inferior */}
                       <div className="flex-shrink-0 border-t border-gray-100 px-6 pt-5 pb-6 bg-white space-y-3">
                         <div className="flex justify-between items-center">
-                          <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500">Subtotal</span>
-                          <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-900">{formatPrecio(getTotalCarrito())}</span>
+                          <span className="text-sm text-gray-500">Subtotal</span>
+                          <span className="text-sm font-medium text-gray-900">{formatPrecio(getTotalCarrito())}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500">Envío</span>
-                          <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-green-600">Gratis</span>
+                          <span className="text-sm text-gray-500">Envío</span>
+                          <span className="text-sm font-medium text-green-600">Gratis</span>
                         </div>
                         <Separator />
                         <div className="flex justify-between items-center">
-                          <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-base font-semibold text-gray-900">Total</span>
-                          <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-base font-bold text-[#d65391]">{formatPrecio(getTotalCarrito())}</span>
+                          <span className="text-base font-semibold text-gray-900">Total</span>
+                          <span className="text-base font-bold text-[#d65391]">{formatPrecio(getTotalCarrito())}</span>
                         </div>
-                        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 text-center">IVA incluido en el precio</p>
+                        <p className="text-xs text-gray-400 text-center">IVA incluido en el precio</p>
                         <Button
                           onClick={() => { setCarritoAbierto(false); setVistaActual("checkout"); }}
                           className="w-full bg-black hover:bg-gray-800 text-white h-11 mt-1"
-                          style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                         >
                           Proceder al Pago
                         </Button>
@@ -775,7 +769,6 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                   setCategoriaActiva("mujer");
                   setMenuMovilAbierto(false);
                 }}
-                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className={`block w-full text-left px-4 py-2 rounded-lg ${
                   categoriaActiva === "mujer"
                     ? "bg-[#f8a9c5] text-white"
@@ -790,7 +783,6 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                   setCategoriaActiva("accesorios");
                   setMenuMovilAbierto(false);
                 }}
-                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className={`block w-full text-left px-4 py-2 rounded-lg ${
                   categoriaActiva === "accesorios"
                     ? "bg-[#f8a9c5] text-white"
@@ -805,7 +797,6 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                   setCategoriaActiva("sale");
                   setMenuMovilAbierto(false);
                 }}
-                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className={`block w-full text-left px-4 py-2 rounded-lg ${
                   categoriaActiva === "sale"
                     ? "bg-[#f8a9c5] text-white"
@@ -852,7 +843,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
                 <div className="flex items-center justify-between gap-3">
                   <Select value={ordenar} onValueChange={setOrdenar}>
-                    <SelectTrigger className="w-52 bg-white h-9 text-sm" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                    <SelectTrigger className="w-52 bg-white h-9 text-sm">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -864,7 +855,6 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                   </Select>
                   <button
                     onClick={abrirFiltros}
-                    style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                     className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:border-gray-900 transition-colors"
                   >
                     <SlidersHorizontal className="w-4 h-4" />
@@ -881,7 +871,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
             {filtrosAbiertos && (
               <>
                 <div className="fixed inset-0 bg-black/40 z-40" onClick={() => setFiltrosAbiertos(false)} />
-                <div className="fixed right-0 top-0 h-full w-80 bg-white z-50 flex flex-col shadow-2xl" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                <div className="fixed right-0 top-0 h-full w-80 bg-white z-50 flex flex-col shadow-2xl">
                   <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
                     <span className="text-xs font-bold tracking-widest text-gray-900">APLICAR FILTROS</span>
                     <button onClick={() => setFiltrosAbiertos(false)} className="flex items-center gap-1 text-xs font-bold tracking-widest text-gray-900 hover:text-gray-600">
@@ -1011,7 +1001,6 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="mb-4 flex justify-between items-center">
           <p
-            style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
             className="text-gray-600"
           >
             {productosFiltrados.length} productos encontrados
@@ -1033,6 +1022,8 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                     src={producto.imagen}
                     alt={producto.nombre}
                     className="w-full h-96 object-cover group-hover:scale-105 transition-transform duration-500 will-change-transform"
+                    loading="lazy"
+                    decoding="async"
                   />
                   {producto.badge && (
                     <Badge
@@ -1053,7 +1044,6 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                       setCantidadSeleccionada(1);
                       setImagenActual(0);
                     }}
-                    style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                     className="absolute top-3 right-3 bg-white/90 hover:bg-white text-gray-900 text-xs font-bold tracking-widest px-3 py-1.5 transition-colors"
                   >
                     DETALLE
@@ -1067,7 +1057,6 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                 </div>
                 <div className="pt-3 pb-4 px-1">
                   <h3
-                    style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                     className="text-gray-900 text-sm font-semibold uppercase tracking-wide mb-1 line-clamp-2"
                   >
                     {producto.nombre}
@@ -1075,7 +1064,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                   <div className="flex items-center gap-2">
                     {producto.precioOriginal ? (
                       <>
-                        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-[#d65391]">
+                        <span className="text-[#d65391]">
                           {formatPrecio(producto.precio)}
                         </span>
                         <span className="text-sm text-gray-400 line-through">
@@ -1083,7 +1072,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                         </span>
                       </>
                     ) : (
-                      <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-900">
+                      <span className="text-gray-900">
                         {formatPrecio(producto.precio)}
                       </span>
                     )}
@@ -1100,18 +1089,16 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
             <button
               onClick={() => { setPaginaActual(p => p - 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
               disabled={paginaActual === 1}
-              style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
               className="px-5 py-2 text-sm border border-gray-300 rounded-lg hover:border-[#d65391] hover:text-[#d65391] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               ← Anterior
             </button>
-            <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-600">
+            <span className="text-sm text-gray-600">
               {paginaActual} / {totalPaginasCliente}
             </span>
             <button
               onClick={() => { setPaginaActual(p => p + 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
               disabled={paginaActual === totalPaginasCliente}
-              style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
               className="px-5 py-2 text-sm border border-gray-300 rounded-lg hover:border-[#d65391] hover:text-[#d65391] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               Siguiente →
@@ -1134,9 +1121,15 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
           </DialogDescription>
           {productoSeleccionado && (() => {
             const imagenesPorColor = productoSeleccionado.imagenesPorColor || {};
-            const imgsForColor = colorSeleccionado && imagenesPorColor[colorSeleccionado] && imagenesPorColor[colorSeleccionado].length > 0
-              ? imagenesPorColor[colorSeleccionado]
-              : (productoSeleccionado.imagenes && productoSeleccionado.imagenes.length > 0 ? productoSeleccionado.imagenes : [productoSeleccionado.imagen]);
+            const colorKey = colorSeleccionado?.toLowerCase();
+            const normalizedMap: Record<string, string[]> = {};
+            Object.entries(imagenesPorColor).forEach(([k, v]) => { normalizedMap[k.toLowerCase()] = v; });
+            const imgsForColor = (() => {
+              if (colorKey && normalizedMap[colorKey]?.length > 0) return normalizedMap[colorKey];
+              if (productoSeleccionado.imagenes?.length > 0) return productoSeleccionado.imagenes;
+              if (productoSeleccionado.imagen) return [productoSeleccionado.imagen];
+              return [];
+            })();
             return (
               <div style={{ display: 'flex', height: '85vh', overflow: 'hidden' }}>
                 {/* LEFT: Image panel — inline styles so dimensions are never undetermined */}
@@ -1154,7 +1147,6 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
 
                   {/* Name */}
                   <h1
-                    style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                     className="text-3xl font-black uppercase text-gray-900 leading-tight"
                   >
                     {productoSeleccionado.nombre}
@@ -1204,9 +1196,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
 
                   {/* Colors */}
                   {(() => {
-                    const coloresProducto = productoSeleccionado.colores && productoSeleccionado.colores.length > 0
-                      ? productoSeleccionado.colores
-                      : colores.map((c: any) => c.nombre);
+                    const coloresProducto = productoSeleccionado.colores ?? [];
                     if (coloresProducto.length === 0) return null;
                     return (
                       <div>
@@ -1327,7 +1317,6 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                 Selenne Boutique
               </h3>
               <p
-                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className="text-gray-400 text-sm"
               >
                 Elegancia y estilo en cada prenda
@@ -1335,7 +1324,6 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
             </div>
             <div>
               <h4
-                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className="mb-4"
               >
                 Compra
@@ -1371,7 +1359,6 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
             </div>
             <div>
               <h4
-                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className="mb-4"
               >
                 Ayuda
@@ -1391,7 +1378,6 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
             </div>
             <div>
               <h4
-                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className="mb-4"
               >
                 Síguenos

@@ -57,7 +57,14 @@ export function useNotificaciones() {
     } catch { /* ignore */ }
   };
 
+  const eliminarTodas = async () => {
+    try {
+      await api.fetchWithAuth('/api/notificaciones', { method: 'DELETE' });
+      setNotificaciones([]);
+    } catch { /* ignore */ }
+  };
+
   const noLeidas = notificaciones.filter(n => !n.leida).length;
 
-  return { notificaciones, loading, noLeidas, cargar, marcarLeida, marcarTodas };
+  return { notificaciones, loading, noLeidas, cargar, marcarLeida, marcarTodas, eliminarTodas };
 }

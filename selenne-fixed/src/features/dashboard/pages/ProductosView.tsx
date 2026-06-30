@@ -1,4 +1,4 @@
-﻿import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Search, Eye, Edit, Trash2, ChevronRight, Package, X, Loader2, Plus, Upload, Image as ImageIcon, ClipboardList, FileText, Tag, Ruler, Palette, Layers } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '../../../components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../../../components/ui/alert-dialog';
@@ -6,7 +6,7 @@ import { Input } from '../../../components/ui/input';
 import { Label } from '../../../components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../components/ui/select';
 import { Textarea } from '../../../components/ui/textarea';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 import { useProductos, ProductoAdmin, CreateProductoPayload } from '../../../shared/contexts/ProductosContext';
 import { useSubcategorias } from '../../../shared/contexts/SubcategoriasContext';
 import { useProductosAdmin } from '../../../shared/data/useProductosAdmin';
@@ -216,14 +216,20 @@ export const ProductosView: React.FC = () => {
       precioOferta: p.precioOferta != null ? String(p.precioOferta) : '',
       stock: String(p.stock),
       imagenPrincipal: p.imagen || '',
-      tallasSeleccionadas: p.tallas || [],
-      coloresSeleccionados: p.colores || [],
+      tallasSeleccionadas: p.tallas?.length
+        ? p.tallas
+        : [...new Set((p.variantes || []).map((v: any) => v.tallaNombre).filter(Boolean))],
+      coloresSeleccionados: p.colores?.length
+        ? p.colores
+        : [...new Set((p.variantes || []).map((v: any) => v.colorNombre).filter(Boolean))],
       materialesSeleccionados: p.materiales || [],
       variantes: p.variantes?.map(v => ({ tallaNombre: v.tallaNombre || '', colorNombre: v.colorNombre || '', stock: v.stock })) || [],
       imagenesPorColor: p.imagenesPorColor || {},
       imagenesAdicionales: (() => {
         const colorImgs = new Set(Object.values(p.imagenesPorColor || {}).flat());
-        return (p.imagenes || []).filter(url => url !== p.imagen && !colorImgs.has(url));
+        const mainImg = p.imagen || '';
+        // Usar todas las imágenes no-color, excluyendo la principal
+        return (p.imagenes || []).filter(url => url && url !== mainImg && !colorImgs.has(url));
       })(),
     });
     setIsEditing(true);
@@ -287,10 +293,16 @@ export const ProductosView: React.FC = () => {
       setForm(f => {
         const defaultStock = Math.max(1, Number(f.stock) || 1);
         const newVariantes = [...f.variantes];
-        f.coloresSeleccionados.forEach(color => {
-          if (!newVariantes.find(v => v.tallaNombre === nombre && v.colorNombre === color))
-            newVariantes.push({ tallaNombre: nombre, colorNombre: color, stock: defaultStock });
-        });
+        if (f.coloresSeleccionados.length === 0) {
+          // Sin colores: variante solo por talla
+          if (!newVariantes.find(v => v.tallaNombre === nombre && !v.colorNombre))
+            newVariantes.push({ tallaNombre: nombre, colorNombre: '', stock: defaultStock });
+        } else {
+          f.coloresSeleccionados.forEach(color => {
+            if (!newVariantes.find(v => v.tallaNombre === nombre && v.colorNombre === color))
+              newVariantes.push({ tallaNombre: nombre, colorNombre: color, stock: defaultStock });
+          });
+        }
         return { ...f, tallasSeleccionadas: [...f.tallasSeleccionadas, nombre], variantes: newVariantes };
       });
     }
@@ -298,11 +310,21 @@ export const ProductosView: React.FC = () => {
 
   const toggleColor = (nombre: string) => {
     if (form.coloresSeleccionados.includes(nombre)) {
-      setForm(f => ({ ...f, coloresSeleccionados: f.coloresSeleccionados.filter(c => c !== nombre), variantes: f.variantes.filter(v => v.colorNombre !== nombre) }));
+      setForm(f => {
+        const restantesColores = f.coloresSeleccionados.filter(c => c !== nombre);
+        let newVariantes = f.variantes.filter(v => v.colorNombre !== nombre);
+        // Si queda sin colores, recrear variantes sin color para las tallas seleccionadas
+        if (restantesColores.length === 0) {
+          const defaultStock = Math.max(1, Number(f.stock) || 1);
+          newVariantes = f.tallasSeleccionadas.map(talla => ({ tallaNombre: talla, colorNombre: '', stock: defaultStock }));
+        }
+        return { ...f, coloresSeleccionados: restantesColores, variantes: newVariantes };
+      });
     } else {
       setForm(f => {
         const defaultStock = Math.max(1, Number(f.stock) || 1);
-        const newVariantes = [...f.variantes];
+        // Quitar variantes sin color (reemplazadas por las de color específico)
+        let newVariantes = f.variantes.filter(v => v.colorNombre !== '');
         f.tallasSeleccionadas.forEach(talla => {
           if (!newVariantes.find(v => v.tallaNombre === talla && v.colorNombre === nombre))
             newVariantes.push({ tallaNombre: talla, colorNombre: nombre, stock: defaultStock });
@@ -313,13 +335,21 @@ export const ProductosView: React.FC = () => {
   };
 
   const updateStock = (tallaNombre: string, colorNombre: string, stock: number) => {
-    setForm(f => ({ ...f, variantes: f.variantes.map(v => v.tallaNombre === tallaNombre && v.colorNombre === colorNombre ? { ...v, stock } : v) }));
+    setForm(f => ({ ...f, variantes: f.variantes.map(v => v.tallaNombre === tallaNombre && (v.colorNombre || '') === (colorNombre || '') ? { ...v, stock } : v) }));
   };
 
   const guardar = async () => {
     if (!form.nombre.trim()) { toast.error('El nombre es obligatorio'); return; }
     if (!form.precioVenta || Number(form.precioVenta) <= 0) { toast.error('El precio de venta es obligatorio'); return; }
     if (!form.categoriaPrincipalID) { toast.error('Selecciona una categoría'); return; }
+    if (form.variantes.length > 0) {
+      const totalStock = Number(form.stock) || 0;
+      const sumaVariantes = form.variantes.reduce((s, v) => s + (Number(v.stock) || 0), 0);
+      if (totalStock > 0 && sumaVariantes > totalStock) {
+        toast.error(`El stock distribuido (${sumaVariantes}) supera el stock total (${totalStock}). Ajusta las cantidades.`);
+        return;
+      }
+    }
     setSaving(true);
     try {
       const payload: any = {
@@ -903,6 +933,17 @@ export const ProductosView: React.FC = () => {
                         <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-gray-800 text-base flex items-center gap-2">
                           <Package className="w-4 h-4 text-gray-400" />Stock por combinación <span className="font-normal text-gray-400 text-sm">· {form.variantes.length} variantes</span>
                         </h3>
+                        {(() => {
+                          const total = Number(form.stock) || 0;
+                          const usado = form.variantes.reduce((s, v) => s + (Number(v.stock) || 0), 0);
+                          const restante = total - usado;
+                          if (total === 0) return null;
+                          return (
+                            <p className={`text-xs mt-1 font-medium ${restante < 0 ? 'text-red-500' : restante === 0 ? 'text-emerald-600' : 'text-gray-500'}`}>
+                              {usado} / {total} unidades distribuidas{restante > 0 ? ` · ${restante} disponibles` : restante < 0 ? ` · ${Math.abs(restante)} excedidos` : ' · completo'}
+                            </p>
+                          );
+                        })()}
                       </div>
                       <div className="p-6">
                         <table className="w-full text-sm">
@@ -917,7 +958,7 @@ export const ProductosView: React.FC = () => {
                             {form.variantes.map((v, i) => (
                               <tr key={i}>
                                 <td className="py-3 font-medium text-gray-700">{v.tallaNombre || '—'}</td>
-                                <td className="py-3 text-gray-700">{v.colorNombre || '—'}</td>
+                                <td className="py-3 text-gray-700">{v.colorNombre || <span className="text-gray-400 italic text-xs">sin color</span>}</td>
                                 <td className="py-3 text-right">
                                   <Input type="number" min="0" value={v.stock}
                                     onChange={e => updateStock(v.tallaNombre, v.colorNombre, Number(e.target.value))}
@@ -932,7 +973,7 @@ export const ProductosView: React.FC = () => {
                   ) : (
                     <div className="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
                       <Package className="w-10 h-10 mx-auto mb-2 text-gray-300" />
-                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-400">Selecciona tallas y colores para configurar el stock por variante</p>
+                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-400">Selecciona al menos una talla para configurar el stock por variante</p>
                     </div>
                   )}
 

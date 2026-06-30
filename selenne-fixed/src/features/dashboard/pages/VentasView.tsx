@@ -1,12 +1,12 @@
-﻿import React, { useState, useEffect, useCallback } from 'react';
-import { Search, Eye, Archive, Plus, ChevronRight, Loader2, RefreshCw, Trash2, X, Package, Truck, User } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Search, Eye, Archive, Plus, ChevronRight, Loader2, RefreshCw, Trash2, X, Package, Truck, User, ShoppingBag, CreditCard, MapPin, Check } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '../../../components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../../../components/ui/alert-dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../components/ui/select';
 import { Input } from '../../../components/ui/input';
 import { Label } from '../../../components/ui/label';
 import { postJson } from '../../../services/api';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 import { getJson } from '../../../services/api';
 import api from '../../../services/api';
 import { useAuth } from '../../../shared/contexts/AuthContext';
@@ -29,6 +29,13 @@ const estadoColor = (e: string) => {
   if (e === 'Aprobado') return 'bg-blue-100 text-blue-700';
   if (e === 'Completado') return 'bg-green-100 text-green-700';
   return 'bg-red-100 text-red-700';
+};
+const estadoBadgeClass = (e: string) => {
+  if (e === 'Completado' || e === 'Completada') return 'bg-green-50 text-green-600 border-green-200';
+  if (e === 'Enviado') return 'bg-pink-50 text-[#d65391] border-pink-200';
+  if (e === 'Aprobado' || e === 'Aprobada') return 'bg-blue-50 text-blue-600 border-blue-200';
+  if (e === 'Rechazado' || e === 'Rechazada') return 'bg-orange-50 text-orange-600 border-orange-200';
+  return 'bg-red-50 text-red-600 border-red-200';
 };
 
 interface VentasViewProps { onNavigateToHistorial?: () => void; }
@@ -180,12 +187,13 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
         method: 'POST',
         body: form,
       });
-      toast.success('Correo de envío enviado');
+      toast.success('Notificación de envío enviada correctamente');
       setEmailGuiaOpen(false);
       setNumeroGuia('');
       setTransportadora('');
       setFotoGuia(null);
-    } catch (e: any) { toast.error(e?.data?.message || e?.message || 'Error enviando correo de envío'); }
+      loadData();
+    } catch (e: any) { toast.error(e?.data?.message || e?.message || 'Error enviando notificación'); }
     finally { setSaving(false); }
   };
 
@@ -242,7 +250,7 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
           <tbody className="divide-y divide-gray-100">
             {filtered.map((p, idx) => (
               <tr key={p.pedidoID} className="hover:bg-gray-50 transition-colors">
-                <td className="px-6 py-4"><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-medium text-gray-900">#{idx + 1}</span></td>
+                <td className="px-6 py-4"><span className="font-medium text-gray-900">#{p.pedidoID}</span></td>
                 <td className="px-6 py-4">
                   <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-medium text-gray-900">{p.nombreCliente}</p>
                   <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500">{p.emailCliente}</p>
@@ -294,71 +302,126 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
 
       {/* Modal Ver Detalles */}
       <Dialog open={viewOpen} onOpenChange={setViewOpen}>
-        <DialogContent className="max-w-2xl h-auto flex flex-col p-0 gap-0">
-          <DialogHeader className="px-8 pt-6 pb-4 border-b border-gray-200 flex-shrink-0">
-            <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-2xl">
-              Detalles Venta #{selectedPedido?.pedidoID}
-            </DialogTitle>
-            <DialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
-              {selectedPedido?.nombreCliente} — {selectedPedido?.emailCliente}
-            </DialogDescription>
-          </DialogHeader>
-          {selectedPedido && (
-            <div className="flex-1 overflow-y-auto">
-              <div className="space-y-6 py-6 px-8">
-                <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                  <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
-                    <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-gray-800 text-base flex items-center gap-2"><User className="w-4 h-4 text-gray-400" />Cliente</h3>
-                  </div>
-                  <div className="p-6 grid grid-cols-2 gap-6">
-                    {[['Nombre', selectedPedido.nombreCliente], ['Email', selectedPedido.emailCliente],
-                      ['Teléfono', selectedPedido.telefonoCliente], ['Ciudad', selectedPedido.ciudad],
-                      ['Dirección', selectedPedido.direccionEnvio], ['Método de pago', selectedPedido.metodoPago],
-                    ].map(([label, value]) => (
-                      <div key={label} className="flex flex-col gap-1">
-                        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500 font-medium uppercase">{label}</p>
-                        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-gray-900">{value}</p>
+        <DialogContent className="w-[420px] flex flex-col p-0 gap-0 overflow-hidden max-h-[88vh]">
+          <DialogTitle className="sr-only">Detalle de venta</DialogTitle>
+          <DialogDescription className="sr-only">Detalle de la venta del cliente</DialogDescription>
+
+          {/* Header */}
+          <div className="bg-pink-50 px-4 py-3 pr-12 flex items-center gap-2.5 border-b border-pink-100 flex-shrink-0">
+            <div className="w-7 h-7 bg-[#d65391] rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0">S</div>
+            <span className="text-xs font-bold tracking-[3px] text-[#d65391] uppercase">Selenne Boutique</span>
+          </div>
+
+          {/* Body */}
+          <div className="flex-1 overflow-y-auto bg-gray-50 px-4 py-4 space-y-3">
+            {/* Avatar + título + badge */}
+            <div className="flex items-start gap-4 pb-3 border-b border-pink-100">
+              <div className="w-11 h-11 bg-[#d65391] rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
+                {selectedPedido?.nombreCliente?.charAt(0).toUpperCase()}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-lg font-bold text-gray-900 leading-tight">Detalle de venta</p>
+                <p className="text-[#d65391] font-semibold text-sm">{selectedPedido?.nombreCliente}</p>
+                <p className="text-gray-400 text-xs">{selectedPedido?.emailCliente}</p>
+              </div>
+              <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                <span className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${estadoBadgeClass(selectedPedido?.estado ?? '')}`}>
+                  <Check className="w-3 h-3" />
+                  {selectedPedido?.estado}
+                </span>
+                <span className="text-xs text-gray-400">
+                  {selectedPedido?.fechaPedido ? new Date(selectedPedido.fechaPedido).toLocaleDateString('es-CO', { day: 'numeric', month: 'short', year: 'numeric' }) : ''}
+                </span>
+              </div>
+            </div>
+
+            {selectedPedido && (
+              <>
+                {/* Cliente + Pago */}
+                <div className="border border-pink-100 rounded-xl overflow-hidden bg-white shadow-sm">
+                  <div className="grid grid-cols-2 divide-x divide-pink-100">
+                    <div className="p-3 flex items-start gap-3">
+                      <div className="w-8 h-8 bg-pink-50 rounded-full flex items-center justify-center flex-shrink-0">
+                        <User className="w-4 h-4 text-[#d65391]" />
                       </div>
-                    ))}
+                      <div className="min-w-0">
+                        <p className="text-xs text-gray-400 mb-1">Cliente</p>
+                        <p className="text-sm font-bold text-gray-900 truncate">{selectedPedido.nombreCliente}</p>
+                        <p className="text-xs text-gray-500 mt-0.5">{selectedPedido.telefonoCliente}</p>
+                      </div>
+                    </div>
+                    <div className="p-3 flex items-start gap-3">
+                      <div className="w-8 h-8 bg-pink-50 rounded-full flex items-center justify-center flex-shrink-0">
+                        <CreditCard className="w-4 h-4 text-[#d65391]" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-400 mb-1">Método de pago</p>
+                        <p className="text-sm font-bold text-gray-900 capitalize">{selectedPedido.metodoPago}</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                {selectedPedido.detalles.length > 0 && (
-                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                    <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
-                      <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-gray-800 text-base flex items-center gap-2"><Package className="w-4 h-4 text-gray-400" />Productos</h3>
+
+                {/* Dirección */}
+                {(selectedPedido.direccionEnvio || selectedPedido.ciudad) && (
+                  <div className="border border-pink-100 rounded-xl p-3 bg-white shadow-sm flex items-start gap-3">
+                    <div className="w-8 h-8 bg-pink-50 rounded-full flex items-center justify-center flex-shrink-0">
+                      <MapPin className="w-4 h-4 text-[#d65391]" />
                     </div>
-                    <div className="p-6 space-y-3">
-                      {selectedPedido.detalles.map((d, i) => (
-                        <div key={i} className="flex gap-4 items-start p-4 bg-gray-50 rounded-xl">
-                          {d.imagenProducto && (
-                            <img src={d.imagenProducto} alt={d.productoNombre}
-                              className="w-16 h-16 object-cover rounded-lg flex-shrink-0 border border-gray-200" />
-                          )}
-                          <div className="flex-1 min-w-0">
-                            <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-gray-900">{d.productoNombre}</p>
-                            <div className="flex flex-wrap gap-2 mt-1">
-                              {d.talla && <span className="text-xs bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full">Talla: {d.talla}</span>}
-                              {d.color && <span className="text-xs bg-pink-100 text-pink-700 px-2 py-0.5 rounded-full">Color: {d.color}</span>}
-                              <span className="text-xs text-gray-500">{d.cantidad} x {fmt(d.precioUnitario)}</span>
-                            </div>
-                          </div>
-                          <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-bold text-gray-900 flex-shrink-0">{fmt(d.subtotal)}</p>
-                        </div>
-                      ))}
-                      <div className="flex justify-between pt-3 border-t border-gray-200">
-                        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-bold text-gray-900 text-lg">Total</p>
-                        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-bold text-[#d65391] text-2xl">{fmt(selectedPedido.total)}</p>
-                      </div>
+                    <div>
+                      <p className="text-xs text-gray-400 mb-1">Dirección de envío</p>
+                      <p className="text-sm font-bold text-gray-900">{selectedPedido.direccionEnvio || '—'}</p>
+                      {selectedPedido.ciudad && <p className="text-xs text-gray-500 mt-0.5">{selectedPedido.ciudad}</p>}
                     </div>
                   </div>
                 )}
-              </div>
-            </div>
-          )}
-          <DialogFooter className="gap-2 px-8 py-5 border-t border-gray-200 flex-shrink-0">
-            <button onClick={() => setViewOpen(false)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">Cerrar</button>
-          </DialogFooter>
+
+                {/* Productos */}
+                {selectedPedido.detalles.length > 0 && (
+                  <div className="border border-pink-100 rounded-xl p-3 bg-white shadow-sm">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-8 h-8 bg-pink-50 rounded-full flex items-center justify-center flex-shrink-0">
+                        <ShoppingBag className="w-4 h-4 text-[#d65391]" />
+                      </div>
+                      <p className="text-sm font-semibold text-gray-700">Productos</p>
+                    </div>
+                    <div className="space-y-2">
+                      {selectedPedido.detalles.map((d, i) => (
+                        <div key={i} className="flex items-center gap-3">
+                          {d.imagenProducto
+                            ? <img src={d.imagenProducto} alt={d.productoNombre} className="w-10 h-10 object-cover rounded-xl flex-shrink-0 border border-pink-100" />
+                            : <span className="w-5 h-5 bg-pink-50 border border-pink-100 rounded-full flex items-center justify-center text-xs font-bold text-[#d65391] flex-shrink-0">{d.cantidad}</span>
+                          }
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm text-gray-800 truncate">{d.productoNombre}</p>
+                            <div className="flex gap-1.5 mt-0.5 flex-wrap">
+                              {d.talla && <span className="text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">T: {d.talla}</span>}
+                              {d.color && <span className="text-[10px] bg-pink-50 text-[#d65391] px-2 py-0.5 rounded-full">{d.color}</span>}
+                            </div>
+                          </div>
+                          <span className="text-sm font-bold text-gray-900 flex-shrink-0">{fmt(d.subtotal)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Total */}
+                <div className="bg-white border border-pink-200 rounded-xl px-4 py-3 flex items-center justify-between shadow-sm">
+                  <span className="text-base font-semibold text-[#d65391]">Total</span>
+                  <span className="text-xl font-bold text-[#d65391]">{fmt(selectedPedido.total)}</span>
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Footer */}
+          <div className="px-4 py-3 bg-white border-t border-pink-50 flex justify-end flex-shrink-0">
+            <button type="button" onClick={() => setViewOpen(false)}
+              className="px-6 py-2 bg-[#d65391] text-white text-sm font-semibold rounded-full hover:bg-[#c0426f] transition-colors">
+              Cerrar
+            </button>
+          </div>
         </DialogContent>
       </Dialog>
 
@@ -375,7 +438,7 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
               </DialogTitle>
             </div>
             <DialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500 ml-12">
-              Para <strong className="text-gray-700">{selectedPedido?.nombreCliente}</strong> · pedido <strong className="text-gray-700">#{selectedPedido?.pedidoID}</strong>
+              Para <strong className="text-gray-700">{selectedPedido?.nombreCliente}</strong>
             </DialogDescription>
           </DialogHeader>
           <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">

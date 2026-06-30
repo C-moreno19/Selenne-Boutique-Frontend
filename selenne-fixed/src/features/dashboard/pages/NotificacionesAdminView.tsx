@@ -1,8 +1,8 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { ChevronRight, Mail, MessageCircle, AlertCircle, Check, Eye, Trash2, Clock } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../../../components/ui/dialog';
 import { useMensajes } from '../../../shared/contexts/MensajesContext';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 
 export const NotificacionesAdminView: React.FC = () => {
   const { obtenerMensajesAdmin, obtenerRespuestasClientes, marcarComoLeido, eliminarMensaje } = useMensajes();

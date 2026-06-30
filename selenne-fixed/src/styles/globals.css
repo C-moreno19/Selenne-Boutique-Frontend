@@ -207,3 +207,48 @@ nav, aside, [class*="sidebar"], [class*="menu"] {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 400;
 }
+
+/* ── Sonner toast — boutique override ─────────────────── */
+:root {
+  --normal-bg: #d65391;
+  --success-bg: #d65391;
+  --info-bg: #d65391;
+  --warning-bg: #d97706;
+  --error-bg: #dc2626;
+  --normal-text: #ffffff;
+  --success-text: #ffffff;
+  --info-text: #ffffff;
+  --warning-text: #ffffff;
+  --error-text: #ffffff;
+  --normal-border: transparent;
+  --success-border: transparent;
+  --info-border: transparent;
+  --warning-border: transparent;
+  --error-border: transparent;
+}
+li[data-sonner-toast],
+li[data-sonner-toast][data-type="success"],
+li[data-sonner-toast][data-type="info"],
+li[data-sonner-toast][data-type="default"] {
+  background: #d65391 !important;
+  background-color: #d65391 !important;
+  border-color: transparent !important;
+  color: #ffffff !important;
+  border-radius: 16px !important;
+  box-shadow: 0 8px 28px rgba(214,83,145,.40) !important;
+}
+li[data-sonner-toast][data-type="error"] {
+  background: #dc2626 !important;
+  background-color: #dc2626 !important;
+  box-shadow: 0 8px 28px rgba(220,38,38,.35) !important;
+}
+li[data-sonner-toast][data-type="warning"] {
+  background: #d97706 !important;
+  background-color: #d97706 !important;
+  box-shadow: 0 8px 28px rgba(217,119,6,.35) !important;
+}
+li[data-sonner-toast] [data-title],
+li[data-sonner-toast] [data-description] {
+  color: #ffffff !important;
+}
+li[data-sonner-toast] [data-icon] svg { color: #ffffff !important; }

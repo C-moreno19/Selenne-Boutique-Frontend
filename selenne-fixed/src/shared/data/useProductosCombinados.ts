@@ -22,13 +22,18 @@ export const useProductosCombinados = (): Producto[] => {
         const imagenes = Array.isArray(p.imagenes) && p.imagenes.length > 0
           ? p.imagenes : (p.imagen ? [p.imagen] : []);
 
+        // Fallback: si no hay imagen principal ni imágenes generales, usar la primera imagen por color
+        const primerImagenColor = Object.values(p.imagenesPorColor || {}).flat()[0] ?? '';
+        const imagenFinal = p.imagen || (imagenes.length > 0 ? imagenes[0] : primerImagenColor);
+        const imagenesFinal = imagenes.length > 0 ? imagenes : (primerImagenColor ? [primerImagenColor] : []);
+
         return {
           id: Number(p.id) || Math.abs(p.id.split('').reduce((a, c) => a + c.charCodeAt(0), 0)),
           nombre: p.nombre,
           precio: Number(p.precioOferta ?? p.precio) || 0,
           precioOriginal: p.precioOriginal ? Number(p.precioOriginal) : null,
-          imagen: p.imagen ?? '',
-          imagenes,
+          imagen: imagenFinal,
+          imagenes: imagenesFinal,
           imagenesPorColor: p.imagenesPorColor,
           categoria,
           subcategoria: p.categoria,

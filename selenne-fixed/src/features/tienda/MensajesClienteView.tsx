@@ -1,5 +1,5 @@
 ﻿import React, { useState } from 'react';
-import { ArrowLeft, Bell, CheckCheck, Loader2, Package, CheckCircle, XCircle, Truck, CreditCard, Info, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Bell, CheckCheck, Loader2, Package, CheckCircle, XCircle, Truck, CreditCard, Info, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
 import { useNotificaciones } from '../../shared/hooks/useNotificaciones';
 
 const POR_PAGINA = 10;
@@ -49,7 +49,7 @@ function formatFecha(iso: string) {
 }
 
 export const MensajesClienteView: React.FC<Props> = ({ onBack, onVerPedidos, notifHook }) => {
-  const { notificaciones, loading, noLeidas, marcarLeida, marcarTodas, cargar } = notifHook;
+  const { notificaciones, loading, noLeidas, marcarLeida, marcarTodas, eliminarTodas, cargar } = notifHook;
   const [pagina, setPagina] = useState(1);
 
   const totalPaginas = Math.ceil(notificaciones.length / POR_PAGINA);
@@ -85,6 +85,13 @@ export const MensajesClienteView: React.FC<Props> = ({ onBack, onVerPedidos, not
                 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#d65391] hover:bg-[#fdf2f8] rounded-xl transition-colors border border-[#f9a8d4]">
                 <CheckCheck className="w-3.5 h-3.5" /> Marcar todo leído
+              </button>
+            )}
+            {notificaciones.length > 0 && (
+              <button onClick={eliminarTodas}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-500 hover:bg-red-50 hover:text-red-600 rounded-xl transition-colors border border-gray-200 hover:border-red-200">
+                <Trash2 className="w-3.5 h-3.5" /> Limpiar
               </button>
             )}
           </div>
@@ -145,7 +152,7 @@ export const MensajesClienteView: React.FC<Props> = ({ onBack, onVerPedidos, not
                         >
                           <Package className="w-3 h-3 text-gray-400 group-hover:text-[#d65391]" />
                           <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 group-hover:text-[#d65391] underline underline-offset-2">
-                            {n.referencia.replace('pedido-', 'Pedido #')}
+                            Ver pedido
                           </span>
                         </button>
                       )}

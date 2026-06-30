@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Plus, Search, MoreVertical, Edit, Power,
   Trash2, ChevronRight, Eye, Shield, Loader2, RefreshCw, FileSpreadsheet, FileText, User
@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../../../components/ui/alert-dialog';
 import { Input } from '../../../components/ui/input';
 import { Label } from '../../../components/ui/label';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 import api from '../../../services/api';
 import { usePedidosAdmin } from '../../../shared/contexts/PedidosAdminContext';
 

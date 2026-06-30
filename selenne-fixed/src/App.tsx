@@ -70,7 +70,7 @@ function MainApp() {
 
   return (
     <div className="relative min-h-screen">
-      <Toaster position="top-center" richColors />
+      <Toaster position="top-center" />
       
       {alert && (
         <div className="fixed top-8 left-1/2 -translate-x-1/2 w-full max-w-md px-4" style={{ zIndex: 9999 }}>

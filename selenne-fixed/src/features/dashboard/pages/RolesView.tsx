@@ -1,10 +1,10 @@
-﻿import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Plus, Search, Edit, Trash2, Eye, ChevronRight, Loader2, RefreshCw, Shield, Ban, Users, Settings, Package, ShoppingBag, ShoppingCart, UserCog, Briefcase, User, ClipboardList, Bell } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '../../../components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../../../components/ui/alert-dialog';
 import { Input } from '../../../components/ui/input';
 import { Label } from '../../../components/ui/label';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 import api, { getJson, postJson } from '../../../services/api';
 import { useAuth } from '../../../shared/contexts/AuthContext';
 
