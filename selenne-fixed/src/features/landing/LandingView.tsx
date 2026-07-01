@@ -1228,6 +1228,20 @@ export const LandingView: React.FC<LandingViewProps> = ({
                     );
                   })()}
 
+                  {/* Materials */}
+                  {(productoSeleccionado as any).materiales?.length > 0 && (
+                    <div>
+                      <p className="text-sm font-semibold text-gray-900 mb-2">Material</p>
+                      <div className="flex flex-wrap gap-2">
+                        {((productoSeleccionado as any).materiales as string[]).map((material: string) => (
+                          <span key={material} className="px-3 py-1 border border-gray-300 text-xs text-gray-700 rounded-full">
+                            {material}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   {/* Quantity + Add to cart + Favorite */}
                   <div className="flex items-center gap-3 mt-1" style={{ flexShrink: 0 }}>
                     <div className="flex items-center gap-3">
