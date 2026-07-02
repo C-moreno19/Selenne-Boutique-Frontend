@@ -1,4 +1,5 @@
 ﻿import React, { useState } from 'react';
+import { ArrowLeft } from 'lucide-react';
 import { CustomInput } from '../components/CustomInput';
 import { CustomButton } from '../components/CustomButton';
 import { SatinBackground } from '../components/SatinBackground';
@@ -10,6 +11,7 @@ interface LoginViewProps {
   onRegister: () => void;
   onShowAlert: (type: 'success' | 'error' | 'info', message: string) => void;
   onLoginSuccess?: () => void;
+  onBack?: () => void;
 }
 
 export const LoginView: React.FC<LoginViewProps> = ({
@@ -17,6 +19,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
   onRegister,
   onShowAlert,
   onLoginSuccess,
+  onBack,
 }) => {
   const { loginAsync } = useAuth();
   const [email, setEmail] = useState('');
@@ -123,6 +126,17 @@ export const LoginView: React.FC<LoginViewProps> = ({
       {/* Login Panel - Right (45%) */}
       <div className="flex-1 lg:w-[45%] flex items-center justify-center bg-white px-16 py-12">
         <div className="w-full max-w-md space-y-8">
+          {/* Back arrow */}
+          {onBack && (
+            <button
+              type="button"
+              onClick={onBack}
+              className="flex items-center gap-1 text-gray-500 hover:text-[#c84a8f] transition-colors text-sm"
+            >
+              <ArrowLeft size={16} />
+              Volver a la tienda
+            </button>
+          )}
           {/* Logo */}
           <div className="flex justify-center mb-10">
             <img 
