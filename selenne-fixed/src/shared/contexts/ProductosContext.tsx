@@ -345,7 +345,7 @@ export const ProductosProvider: React.FC<{ children: ReactNode }> = ({ children 
     const materialIDs = materiales
       .map(nombre => materialesCtx.find((m: any) => m.nombre === nombre))
       .filter(Boolean)
-      .map((m: any) => Number(m.id));
+      .map((m: any) => Number(m.materialID ?? m.id));
     console.log('[Sync] materialIDs a enviar:', materialIDs);
     await mutarProducto('POST', `/api/productos/${id}/materiales`, { MaterialIDs: materialIDs });
   };
