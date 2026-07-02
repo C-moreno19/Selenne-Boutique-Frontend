@@ -179,6 +179,7 @@ function extraerLista(raw: any): ProductoAdmin[] {
   // DEBUG: log first product variantes from raw API
   if (lista.length > 0) {
     console.log('[API raw] primer producto variantes:', lista[0]?.variantes ?? lista[0]?.Variantes ?? 'NO FIELD');
+    console.log('[API raw] primer producto materiales:', lista[0]?.materiales ?? lista[0]?.Materiales ?? 'NO FIELD');
   }
   return lista.map(mapProducto);
 }
