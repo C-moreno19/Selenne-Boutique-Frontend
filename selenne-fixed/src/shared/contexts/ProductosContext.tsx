@@ -79,7 +79,9 @@ function mapProducto(p: any): ProductoAdmin {
   const categoriaNombre = p.categoriaNombre ?? p.CategoriaNombre ?? p.categoria ?? '';
   const estadoRaw = p.estado ?? p.Estado ?? 'inactivo';
   const activoVal = estadoRaw === 'activo';
-  console.log(`[Producto] ID=${p.productoID} nombre=${p.nombre} estado="${estadoRaw}" activo=${activoVal} categoria="${categoriaNombre}" imagen="${p.imagenPrincipal}"`);
+
+  const toHttps = (url: string) =>
+    url ? url.replace('http://selenne-boutique-backend.onrender.com', 'https://selenne-boutique-backend.onrender.com') : url;
 
   return {
     id: String(p.productoID ?? p.ProductoID ?? p.id ?? ''),
@@ -95,14 +97,13 @@ function mapProducto(p: any): ProductoAdmin {
     stock: Number(p.stock ?? p.Stock ?? 0),
     activo: activoVal,
     isSale,
-    imagen: p.imagenPrincipal ?? p.ImagenPrincipal ?? p.imagen ?? '',
+    imagen: toHttps(p.imagenPrincipal ?? p.ImagenPrincipal ?? p.imagen ?? ''),
     imagenes: (() => {
       const imgs = p.imagenes ?? p.Imagenes ?? [];
       if (!Array.isArray(imgs)) return [];
-      // Solo imágenes SIN color asignado (las de color van en imagenesPorColor)
       return imgs
         .filter((i: any) => typeof i === 'string' || !(i?.colorNombre ?? i?.ColorNombre))
-        .map((i: any) => typeof i === 'string' ? i : i?.url ?? i?.URL ?? '')
+        .map((i: any) => toHttps(typeof i === 'string' ? i : i?.url ?? i?.URL ?? ''))
         .filter(Boolean);
     })(),
     imagenesPorColor: (() => {
@@ -110,7 +111,7 @@ function mapProducto(p: any): ProductoAdmin {
       if (!Array.isArray(imgs)) return {};
       const mapa: Record<string, string[]> = {};
       imgs.forEach((i: any) => {
-        const url = typeof i === 'string' ? i : (i?.url ?? i?.URL ?? '');
+        const url = toHttps(typeof i === 'string' ? i : (i?.url ?? i?.URL ?? ''));
         const color = typeof i === 'string' ? null : (i?.colorNombre ?? i?.ColorNombre ?? null);
         if (!url) return;
         if (color) {
@@ -134,7 +135,6 @@ function mapProducto(p: any): ProductoAdmin {
     })(),
     variantes: (() => {
       const v = p.variantes ?? p.Variantes ?? [];
-      console.log('[Variantes raw]', v);
       if (!Array.isArray(v)) return [];
       return v.map((x: any) => ({
         tallaNombre: x?.tallaNombre ?? x?.TallaNombre ?? undefined,
@@ -159,7 +159,7 @@ function mapProducto(p: any): ProductoAdmin {
     })(),
     materiales: (() => {
       const m = p.materiales ?? p.Materiales ?? [];
-      return Array.isArray(m) ? m.filter(Boolean) : [];
+      return Array.isArray(m) ? m.map((x: any) => x?.nombre ?? x?.Nombre ?? String(x)).filter(Boolean) : [];
     })(),
     tipoProducto: p.tipoNombre ?? p.TipoNombre ?? p.tipoProducto ?? '',
     descripcion: p.descripcion ?? p.Descripcion ?? '',
@@ -176,11 +176,7 @@ function extraerLista(raw: any): ProductoAdmin[] {
     console.warn('[Productos] respuesta inesperada:', raw);
     return [];
   }
-  // DEBUG: log first product variantes from raw API
-  if (lista.length > 0) {
-    console.log('[API raw] primer producto variantes:', lista[0]?.variantes ?? lista[0]?.Variantes ?? 'NO FIELD');
-    console.log('[API raw] primer producto materiales:', lista[0]?.materiales ?? lista[0]?.Materiales ?? 'NO FIELD');
-  }
+
   return lista.map(mapProducto);
 }
 

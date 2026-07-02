@@ -1229,7 +1229,6 @@ export const LandingView: React.FC<LandingViewProps> = ({
                   })()}
 
                   {/* Materials */}
-                  {console.log('[Modal] materiales en productoSeleccionado:', (productoSeleccionado as any)?.materiales) as any}
                   {(productoSeleccionado as any).materiales?.length > 0 && (
                     <div>
                       <p className="text-sm font-semibold text-gray-900 mb-2">Material</p>
