@@ -30,13 +30,13 @@ export const CustomInput: React.FC<CustomInputProps> = ({
   const getBorderColor = () => {
     if (error) return 'border-[#d64545]';
     if (success) return 'border-[#2eaf6f]';
-    if (isFocused) return 'border-[#A3395C]';
-    return 'border-[#d1d1d1]';
+    if (isFocused) return 'border-[#A3395C] ring-2 ring-[#EFD9DF]';
+    return 'border-[#E7E0DA]';
   };
 
   return (
     <div className="w-full font-inter">
-      <label className="block mb-2 text-[#000000]">
+      <label className="block mb-2 text-[11px] uppercase tracking-wide font-semibold text-[#7d6f77]">
         {label}
       </label>
 
@@ -48,14 +48,14 @@ export const CustomInput: React.FC<CustomInputProps> = ({
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           placeholder={placeholder}
-          className={`w-full px-4 py-3 border rounded-md transition-all duration-200 outline-none bg-white text-[#1a1a1a] rounded-[6px] ${getBorderColor()}`}
+          className={`w-full px-4 py-3 border rounded-lg transition-all duration-200 outline-none bg-white text-[#241B22] ${getBorderColor()}`}
         />
 
         {showPasswordToggle && (
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-[#A3395C] transition-colors"
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-[#7d6f77] hover:text-[#A3395C] transition-colors"
           >
             {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
           </button>
@@ -63,7 +63,7 @@ export const CustomInput: React.FC<CustomInputProps> = ({
       </div>
 
       {error && (
-        <p className="mt-1 text-[#d64545] text-[14px] font-inter">
+        <p className="mt-1 text-[#d64545] text-[13px] font-inter">
           {error}
         </p>
       )}
