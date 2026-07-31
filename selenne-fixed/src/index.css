@@ -2,13 +2,13 @@
 .font-playfair { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }
 .font-inter    { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }
 
-/* ── Panel de administración: tipografía Sora en todo el panel ──────
+/* ── Panel de administración: tipografía Georgia en todo el panel ───
    Se usa !important porque muchas vistas del admin fijan la fuente
    con style={{ fontFamily: ... }} elemento por elemento. Se marca en
    <body> (no solo en .admin-panel) porque los Dialog/Sheet de Radix
    se portan directo a document.body, fuera del contenedor. */
 body.is-admin-panel, body.is-admin-panel * {
-  font-family: 'Sora', "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+  font-family: Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif !important;
 }
 .admin-panel .tabular-nums,
 .admin-panel [class*="text-3xl"],

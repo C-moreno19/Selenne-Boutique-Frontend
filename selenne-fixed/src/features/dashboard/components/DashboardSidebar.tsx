@@ -4,7 +4,6 @@ import {
   Users,
   Package,
   ShoppingCart,
-  ChevronDown,
   ChevronRight,
   Settings
 } from 'lucide-react';
@@ -160,24 +159,21 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
   };
 
   return (
-    <aside 
-      className={`fixed left-0 top-0 h-screen bg-white border-r border-gray-200 flex flex-col z-40 transition-all duration-300 ${
+    <aside
+      className={`fixed left-0 top-0 h-screen bg-white border-r border-[#E7E0DA] flex flex-col z-40 transition-all duration-300 ${
         isOpen ? 'w-64' : 'w-0'
       }`}
       style={{ overflow: isOpen ? 'visible' : 'hidden' }}
     >
       <div className={`${isOpen ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300`}>
         {/* Logo Header */}
-        <div className="p-6 border-b border-gray-200">
-          <div 
-            className="flex items-center gap-3 cursor-pointer"
+        <div className="p-6 border-b border-[#E7E0DA]">
+          <div
+            className="flex items-center gap-3 cursor-pointer group"
             onClick={() => onSectionChange('home')}
           >
-            <img src={imgLogo} alt="Selenne Boutique" className="h-8 w-auto" />
-            <span
-              style={{ fontFamily: '"Times New Roman", Times, serif' }}
-              className="text-[18px] text-gray-900"
-            >
+            <img src={imgLogo} alt="Selenne Boutique" className="h-8 w-auto transition-transform duration-300 group-hover:scale-105" />
+            <span className="text-[18px] text-[#241B22] transition-colors group-hover:text-[#A3395C]">
               Selenne Boutique
             </span>
           </div>
@@ -186,14 +182,11 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto py-6 px-3">
         <div className="mb-4 px-3">
-          <span 
-            style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} 
-            className="text-xs text-gray-500 uppercase tracking-wider"
-          >
+          <span className="text-xs text-[#7d6f77] uppercase tracking-wider">
             NAVEGACIÓN
           </span>
         </div>
-        
+
         <div className="space-y-1">
           {visibleMenuItems.map((item, idx) => {
             const menuKey = item.label;
@@ -211,97 +204,105 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                       onSectionChange(item.id);
                     }
                   }}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 transition-all ${
+                  className={`group relative w-full flex items-center gap-3 pl-4 pr-3 py-2.5 rounded-lg transition-all duration-200 ${
                     isActive
-                      ? 'text-gray-900 font-medium bg-gray-50'
-                      : 'text-gray-700 hover:bg-gray-50'
+                      ? 'text-[#A3395C] font-semibold bg-[#EFD9DF]'
+                      : 'text-[#241B22] hover:bg-[#FBF8F5] hover:pl-5'
                   }`}
-                  style={isActive ? { boxShadow: '0 3px 0 rgba(214, 83, 145, 0.3)' } : {}}
                 >
-                  <span className={isActive ? 'text-[#d65391]' : 'text-gray-500'}>
+                  <span
+                    className={`absolute left-0 top-1/2 -translate-y-1/2 w-[3px] rounded-full bg-[#A3395C] transition-all duration-200 ${
+                      isActive ? 'h-5 opacity-100' : 'h-0 opacity-0 group-hover:h-3 group-hover:opacity-60'
+                    }`}
+                  />
+                  <span className={`transition-colors duration-200 ${isActive ? 'text-[#A3395C]' : 'text-[#7d6f77] group-hover:text-[#A3395C]'}`}>
                     {item.icon}
                   </span>
-                  <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm flex-1 text-left">
+                  <span className="text-sm flex-1 text-left">
                     {item.label}
                   </span>
                   {item.subItems && (
-                    <span className={isActive ? 'text-[#d65391]' : 'text-gray-500'}>
-                      {isExpanded ? (
-                        <ChevronDown className="w-4 h-4" />
-                      ) : (
-                        <ChevronRight className="w-4 h-4" />
-                      )}
-                    </span>
+                    <ChevronRight
+                      className={`w-4 h-4 transition-transform duration-200 ${isActive ? 'text-[#A3395C]' : 'text-[#7d6f77]'} ${isExpanded ? 'rotate-90' : ''}`}
+                    />
                   )}
                 </button>
 
                 {/* Submenú Nivel 1 */}
-                {item.subItems && isExpanded && (
-                  <div className="mt-1 ml-4 space-y-1">
-                    {item.subItems.map((subItem, subIdx) => {
-                      const subMenuKey = `${menuKey}-${subItem.label}`;
-                      const isSubExpanded = expandedMenus[subMenuKey];
-                      const isSubActive = subItem.id === currentSection || (subItem.subItems && subItem.subItems.some(nested => nested.id === currentSection));
+                {item.subItems && (
+                  <div
+                    className="grid transition-[grid-template-rows] duration-300 ease-out"
+                    style={{ gridTemplateRows: isExpanded ? '1fr' : '0fr' }}
+                  >
+                    <div className="overflow-hidden">
+                      <div className="mt-1 ml-4 space-y-1 pb-1">
+                        {item.subItems.map((subItem, subIdx) => {
+                          const subMenuKey = `${menuKey}-${subItem.label}`;
+                          const isSubExpanded = expandedMenus[subMenuKey];
+                          const isSubActive = subItem.id === currentSection || (subItem.subItems && subItem.subItems.some(nested => nested.id === currentSection));
 
-                      return (
-                        <div key={subIdx}>
-                          <button
-                            onClick={() => {
-                              if (subItem.subItems) {
-                                toggleMenu(subMenuKey);
-                              } else if (subItem.id) {
-                                onSectionChange(subItem.id);
-                              }
-                            }}
-                            className={`w-full flex items-center gap-2 px-3 py-2 transition-all text-left ${
-                              isSubActive
-                                ? 'text-gray-900 font-medium bg-gray-50'
-                                : 'text-gray-700 hover:bg-gray-50'
-                            }`}
-                            style={isSubActive ? { boxShadow: '0 3px 0 rgba(214, 83, 145, 0.3)' } : {}}
-                          >
-                            <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm flex-1">
-                              {subItem.label}
-                            </span>
-                            {subItem.subItems && (
-                              <span className={isSubActive ? 'text-white' : 'text-gray-500'}>
-                                {isSubExpanded ? (
-                                  <ChevronDown className="w-3 h-3" />
-                                ) : (
-                                  <ChevronRight className="w-3 h-3" />
+                          return (
+                            <div key={subIdx}>
+                              <button
+                                onClick={() => {
+                                  if (subItem.subItems) {
+                                    toggleMenu(subMenuKey);
+                                  } else if (subItem.id) {
+                                    onSectionChange(subItem.id);
+                                  }
+                                }}
+                                className={`group w-full flex items-center gap-2 pl-3 pr-3 py-2 rounded-lg transition-all duration-200 text-left ${
+                                  isSubActive
+                                    ? 'text-[#A3395C] font-semibold bg-[#EFD9DF]'
+                                    : 'text-[#241B22] hover:bg-[#FBF8F5] hover:pl-4'
+                                }`}
+                              >
+                                <span className="text-sm flex-1">
+                                  {subItem.label}
+                                </span>
+                                {subItem.subItems && (
+                                  <ChevronRight
+                                    className={`w-3 h-3 transition-transform duration-200 ${isSubActive ? 'text-[#A3395C]' : 'text-[#7d6f77]'} ${isSubExpanded ? 'rotate-90' : ''}`}
+                                  />
                                 )}
-                              </span>
-                            )}
-                          </button>
+                              </button>
 
-                          {/* Submenú Nivel 2 (Anidado) */}
-                          {subItem.subItems && isSubExpanded && (
-                            <div className="mt-1 ml-4 space-y-1">
-                              {subItem.subItems.map((nestedItem, nestedIdx) => (
-                                <button
-                                  key={nestedIdx}
-                                  onClick={() => {
-                                    if (nestedItem.id) {
-                                      onSectionChange(nestedItem.id);
-                                    }
-                                  }}
-                                  className={`w-full flex items-center gap-2 px-3 py-1.5 transition-all text-left ${
-                                    currentSection === nestedItem.id
-                                      ? 'text-gray-900 font-medium bg-gray-50'
-                                      : 'text-gray-600 hover:bg-gray-50'
-                                  }`}
-                                  style={currentSection === nestedItem.id ? { boxShadow: '0 3px 0 rgba(214, 83, 145, 0.3)' } : {}}
+                              {/* Submenú Nivel 2 (Anidado) */}
+                              {subItem.subItems && (
+                                <div
+                                  className="grid transition-[grid-template-rows] duration-300 ease-out"
+                                  style={{ gridTemplateRows: isSubExpanded ? '1fr' : '0fr' }}
                                 >
-                                  <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs">
-                                    {nestedItem.label}
-                                  </span>
-                                </button>
-                              ))}
+                                  <div className="overflow-hidden">
+                                    <div className="mt-1 ml-4 space-y-1 pb-1">
+                                      {subItem.subItems.map((nestedItem, nestedIdx) => (
+                                        <button
+                                          key={nestedIdx}
+                                          onClick={() => {
+                                            if (nestedItem.id) {
+                                              onSectionChange(nestedItem.id);
+                                            }
+                                          }}
+                                          className={`w-full flex items-center gap-2 pl-3 pr-3 py-1.5 rounded-lg transition-all duration-200 text-left ${
+                                            currentSection === nestedItem.id
+                                              ? 'text-[#A3395C] font-semibold bg-[#EFD9DF]'
+                                              : 'text-[#7d6f77] hover:bg-[#FBF8F5] hover:pl-4'
+                                          }`}
+                                        >
+                                          <span className="text-xs">
+                                            {nestedItem.label}
+                                          </span>
+                                        </button>
+                                      ))}
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
                             </div>
-                          )}
-                        </div>
-                      );
-                    })}
+                          );
+                        })}
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
