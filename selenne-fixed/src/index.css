@@ -66,4 +66,5 @@ input:-webkit-autofill:focus {
 }
 
 @import "tailwindcss";
+@import "tw-animate-css";
 @import "./styles/globals.css";
