@@ -76,6 +76,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onLogout }) => {
     localStorage.setItem('currentSection', section);
   };
 
+  // Marca <body> mientras el panel admin está montado, para que la
+  // tipografía Sora también alcance modales/sheets que Radix porta
+  // directo a document.body (fuera del contenedor .admin-panel)
+  React.useEffect(() => {
+    document.body.classList.add('is-admin-panel');
+    return () => document.body.classList.remove('is-admin-panel');
+  }, []);
+
   // Refrescar permisos del servidor al montar
   React.useEffect(() => {
     refreshPermisos();

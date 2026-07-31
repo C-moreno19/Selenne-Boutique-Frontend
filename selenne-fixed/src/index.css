@@ -4,8 +4,10 @@
 
 /* ── Panel de administración: tipografía Sora en todo el panel ──────
    Se usa !important porque muchas vistas del admin fijan la fuente
-   con style={{ fontFamily: ... }} elemento por elemento. */
-.admin-panel, .admin-panel * {
+   con style={{ fontFamily: ... }} elemento por elemento. Se marca en
+   <body> (no solo en .admin-panel) porque los Dialog/Sheet de Radix
+   se portan directo a document.body, fuera del contenedor. */
+body.is-admin-panel, body.is-admin-panel * {
   font-family: 'Sora', "Helvetica Neue", Helvetica, Arial, sans-serif !important;
 }
 .admin-panel .tabular-nums,
