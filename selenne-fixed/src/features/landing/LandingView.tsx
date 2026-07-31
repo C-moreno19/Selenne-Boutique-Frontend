@@ -1109,18 +1109,18 @@ export const LandingView: React.FC<LandingViewProps> = ({
                 </div>
 
                 {/* RIGHT: Details panel */}
-                <div style={{ flex: 1, height: '85vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '12px', padding: '28px 32px', backgroundColor: '#ffffff' }}>
+                <div style={{ flex: 1, height: '85vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '18px', padding: '36px 40px', backgroundColor: '#ffffff' }}>
 
                   {/* Name */}
                   <h1
                     style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                    className="text-2xl font-semibold uppercase tracking-[0.02em] text-[#241B22] leading-tight"
+                    className="text-2xl font-semibold uppercase tracking-[0.03em] text-[#241B22] leading-tight"
                   >
                     {productoSeleccionado.nombre}
                   </h1>
 
                   {/* Price */}
-                  <div className="flex items-baseline gap-3">
+                  <div className="flex items-baseline gap-3 -mt-2">
                     <span className="text-xl font-bold text-[#A3395C]">
                       {formatPrecio(productoSeleccionado.precio)}
                     </span>
@@ -1138,24 +1138,24 @@ export const LandingView: React.FC<LandingViewProps> = ({
 
                   {/* Description */}
                   {(productoSeleccionado.descripcion || ps.descripcion) && (
-                    <p className="text-sm text-[#7d6f77] leading-relaxed mt-4 mb-2">
+                    <p className="text-sm text-[#7d6f77] leading-relaxed -mt-2">
                       {productoSeleccionado.descripcion || ps.descripcion}
                     </p>
                   )}
 
                   {/* Info icons */}
-                  <div className="border-t border-[#E7E0DA] pt-3 flex flex-col text-xs text-[#7d6f77]">
-                    <div className="flex items-center gap-3 py-2 border-b border-[#E7E0DA]">
-                      <Package className="w-4 h-4 flex-shrink-0" />
-                      <span className="uppercase tracking-wide font-medium">Envío estándar 3-5 días hábiles</span>
+                  <div className="grid grid-cols-3 gap-1 bg-[#FBF8F5] rounded-lg py-4 px-2">
+                    <div className="flex flex-col items-center text-center gap-1.5 px-1">
+                      <Package className="w-[18px] h-[18px] text-[#A3395C]" />
+                      <span className="text-[10px] uppercase tracking-wide font-semibold text-[#7d6f77] leading-tight">Envío 3-5 días hábiles</span>
                     </div>
-                    <div className="flex items-center gap-3 py-2 border-b border-[#E7E0DA]">
-                      <Globe className="w-4 h-4 flex-shrink-0" />
-                      <span className="uppercase tracking-wide font-medium">Envíos a todo el país</span>
+                    <div className="flex flex-col items-center text-center gap-1.5 px-1 border-x border-[#E7E0DA]">
+                      <Globe className="w-[18px] h-[18px] text-[#A3395C]" />
+                      <span className="text-[10px] uppercase tracking-wide font-semibold text-[#7d6f77] leading-tight">Envíos a todo el país</span>
                     </div>
-                    <div className="flex items-center gap-3 py-2">
-                      <Lock className="w-4 h-4 flex-shrink-0" />
-                      <span className="uppercase tracking-wide font-medium">Pago 100% seguro y encriptado</span>
+                    <div className="flex flex-col items-center text-center gap-1.5 px-1">
+                      <Lock className="w-[18px] h-[18px] text-[#A3395C]" />
+                      <span className="text-[10px] uppercase tracking-wide font-semibold text-[#7d6f77] leading-tight">Pago 100% seguro</span>
                     </div>
                   </div>
 
@@ -1236,7 +1236,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                                 type="button"
                                 disabled={sinStock}
                                 onClick={() => !sinStock && setTallaSeleccionada(talla)}
-                                className={`w-12 h-10 border text-sm font-medium transition-all ${
+                                className={`w-12 h-10 rounded-md border text-sm font-medium transition-all ${
                                   sinStock
                                     ? 'border-[#E7E0DA] text-[#c3bab3] bg-[#FBF8F5] cursor-not-allowed line-through'
                                     : seleccionada
@@ -1269,7 +1269,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                   )}
 
                   {/* Quantity + Add to cart + Favorite */}
-                  <div className="flex items-center gap-3 mt-1" style={{ flexShrink: 0 }}>
+                  <div className="flex items-center gap-3 pt-3 mt-1 border-t border-[#E7E0DA]" style={{ flexShrink: 0 }}>
                     <div className="flex items-center gap-3">
                       <button
                         onClick={() => setCantidadSeleccionada(Math.max(1, cantidadSeleccionada - 1))}
@@ -1288,7 +1288,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                     <button
                       disabled={ps.agotado}
                       onClick={handleAgregarAlCarrito}
-                      className={`flex-1 h-10 border text-xs font-semibold uppercase tracking-wider transition-all ${
+                      className={`flex-1 h-10 rounded-md border text-xs font-semibold uppercase tracking-wider transition-all ${
                         ps.agotado
                           ? 'border-[#E7E0DA] text-[#c3bab3] cursor-not-allowed'
                           : 'border-[#241B22] text-[#241B22] hover:bg-[#241B22] hover:text-white'
@@ -1299,7 +1299,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                     <button
                       onClick={() => onNavigateToLogin()}
                       title="Inicia sesión para guardar en favoritos"
-                      className="w-10 h-10 border border-[#E7E0DA] flex items-center justify-center transition-all flex-shrink-0 text-[#7d6f77] hover:border-[#A3395C] hover:text-[#A3395C]"
+                      className="w-10 h-10 rounded-md border border-[#E7E0DA] flex items-center justify-center transition-all flex-shrink-0 text-[#7d6f77] hover:border-[#A3395C] hover:text-[#A3395C]"
                     >
                       <Heart className="w-4 h-4" fill="none" />
                     </button>
@@ -1310,8 +1310,8 @@ export const LandingView: React.FC<LandingViewProps> = ({
                     disabled={ps.agotado}
                     onClick={handleComprarAhora}
                     style={{ flexShrink: 0 }}
-                    className={`w-full h-10 text-xs font-semibold uppercase tracking-wider text-white transition-all ${
-                      ps.agotado ? 'bg-[#E7E0DA] cursor-not-allowed' : 'bg-[#A3395C] hover:bg-[#8a2e4d]'
+                    className={`w-full h-11 rounded-md text-xs font-semibold uppercase tracking-wider text-white transition-all ${
+                      ps.agotado ? 'bg-[#E7E0DA] cursor-not-allowed' : 'bg-[#A3395C] hover:bg-[#8a2e4d] shadow-sm hover:shadow-md'
                     }`}
                   >
                     {ps.agotado ? 'Agotado' : 'Comprar Ahora'}
