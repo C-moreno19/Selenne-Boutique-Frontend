@@ -13,7 +13,6 @@ import { SidebarProvider } from './shared/contexts/SidebarContext';
 import { ComprasAdminProvider } from './shared/contexts/ComprasAdminContext';
 import { PedidosAdminProvider } from './shared/contexts/PedidosAdminContext';
 import { MensajesProvider } from './shared/contexts/MensajesContext';
-import './styles/globals.css';
 
 type View = 'landing' | 'login' | 'register' | 'dashboard' | 'checkout';
 

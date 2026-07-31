@@ -1099,7 +1099,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
             return (
               <div style={{ display: 'flex', height: '85vh', overflow: 'hidden' }}>
                 {/* LEFT: Image panel — all dimensions via inline style so nothing depends on Tailwind arbitrary classes */}
-                <div style={{ position: 'relative', width: '44%', minWidth: '44%', height: '85vh', overflow: 'hidden', flexShrink: 0, backgroundColor: '#f9fafb' }}>
+                <div style={{ position: 'relative', width: '44%', minWidth: '44%', height: '85vh', overflow: 'hidden', flexShrink: 0, backgroundColor: '#FBF8F5' }}>
                   <ImageCarousel
                     key={`${productoSeleccionado.id}-${colorSeleccionado || 'default'}`}
                     imagenes={imgsForColor}
@@ -1109,24 +1109,24 @@ export const LandingView: React.FC<LandingViewProps> = ({
                 </div>
 
                 {/* RIGHT: Details panel */}
-                <div style={{ flex: 1, height: '85vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '12px', padding: '28px 32px' }}>
+                <div style={{ flex: 1, height: '85vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '12px', padding: '28px 32px', backgroundColor: '#ffffff' }}>
 
                   {/* Name */}
                   <h1
                     style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                    className="text-3xl font-black uppercase text-gray-900 leading-tight"
+                    className="text-2xl font-semibold uppercase tracking-[0.02em] text-[#241B22] leading-tight"
                   >
                     {productoSeleccionado.nombre}
                   </h1>
 
                   {/* Price */}
                   <div className="flex items-baseline gap-3">
-                    <span className="text-xl font-bold text-gray-900">
+                    <span className="text-xl font-bold text-[#A3395C]">
                       {formatPrecio(productoSeleccionado.precio)}
                     </span>
                     {productoSeleccionado.precioOriginal && (
                       <>
-                        <span className="text-sm text-gray-400 line-through">
+                        <span className="text-sm text-[#7d6f77] line-through">
                           {formatPrecio(productoSeleccionado.precioOriginal)}
                         </span>
                         <span className="text-xs font-semibold text-red-500">
@@ -1138,18 +1138,18 @@ export const LandingView: React.FC<LandingViewProps> = ({
 
                   {/* Description */}
                   {(productoSeleccionado.descripcion || ps.descripcion) && (
-                    <p className="text-sm text-gray-600 leading-relaxed mt-4 mb-2">
+                    <p className="text-sm text-[#7d6f77] leading-relaxed mt-4 mb-2">
                       {productoSeleccionado.descripcion || ps.descripcion}
                     </p>
                   )}
 
                   {/* Info icons */}
-                  <div className="border-t border-gray-100 pt-3 flex flex-col text-xs text-gray-500">
-                    <div className="flex items-center gap-3 py-2 border-b border-gray-100">
+                  <div className="border-t border-[#E7E0DA] pt-3 flex flex-col text-xs text-[#7d6f77]">
+                    <div className="flex items-center gap-3 py-2 border-b border-[#E7E0DA]">
                       <Package className="w-4 h-4 flex-shrink-0" />
                       <span className="uppercase tracking-wide font-medium">Envío estándar 3-5 días hábiles</span>
                     </div>
-                    <div className="flex items-center gap-3 py-2 border-b border-gray-100">
+                    <div className="flex items-center gap-3 py-2 border-b border-[#E7E0DA]">
                       <Globe className="w-4 h-4 flex-shrink-0" />
                       <span className="uppercase tracking-wide font-medium">Envíos a todo el país</span>
                     </div>
@@ -1167,7 +1167,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                     if (coloresProducto.length === 0) return null;
                     return (
                       <div>
-                        <p className="text-sm font-semibold text-gray-900 mb-2">Color</p>
+                        <p className="text-sm font-semibold text-[#241B22] mb-2">Color</p>
                         <div className="flex gap-3 flex-wrap">
                           {coloresProducto.map((color) => {
                             const hexColor = getColorHex(color);
@@ -1181,8 +1181,8 @@ export const LandingView: React.FC<LandingViewProps> = ({
                                 }}
                                 className={`w-8 h-8 rounded-full border-2 transition-all ${
                                   colorSeleccionado === color
-                                    ? 'border-gray-900 ring-2 ring-gray-900 ring-offset-2'
-                                    : 'border-gray-200 hover:border-gray-500'
+                                    ? 'border-[#A3395C] ring-2 ring-[#A3395C] ring-offset-2'
+                                    : 'border-[#E7E0DA] hover:border-[#A3395C]'
                                 }`}
                                 style={{ backgroundColor: hexColor }}
                                 title={color}
@@ -1206,7 +1206,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                     const todosVariantesCero = variantes.length > 0 && variantes.every((x: any) => (x.stock ?? 0) <= 0);
                     return (
                       <div>
-                        <p className="text-sm font-semibold text-gray-900 mb-2">Talla</p>
+                        <p className="text-sm font-semibold text-[#241B22] mb-2">Talla</p>
                         <div className="flex flex-wrap gap-2">
                           {tallasMostrar.map((talla) => {
                             let sinStock = false;
@@ -1238,10 +1238,10 @@ export const LandingView: React.FC<LandingViewProps> = ({
                                 onClick={() => !sinStock && setTallaSeleccionada(talla)}
                                 className={`w-12 h-10 border text-sm font-medium transition-all ${
                                   sinStock
-                                    ? 'border-gray-200 text-gray-300 bg-gray-50 cursor-not-allowed line-through'
+                                    ? 'border-[#E7E0DA] text-[#c3bab3] bg-[#FBF8F5] cursor-not-allowed line-through'
                                     : seleccionada
-                                      ? 'border-gray-900 bg-gray-900 text-white'
-                                      : 'border-gray-300 text-gray-700 hover:border-gray-900'
+                                      ? 'border-[#241B22] bg-[#241B22] text-white'
+                                      : 'border-[#E7E0DA] text-[#241B22] hover:border-[#A3395C]'
                                 }`}
                                 title={sinStock ? 'Agotado' : `${talla} — ${stockDisponible} disponibles`}
                               >
@@ -1257,10 +1257,10 @@ export const LandingView: React.FC<LandingViewProps> = ({
                   {/* Materials */}
                   {(productoSeleccionado as any).materiales?.length > 0 && (
                     <div>
-                      <p className="text-sm font-semibold text-gray-900 mb-2">Material</p>
+                      <p className="text-sm font-semibold text-[#241B22] mb-2">Material</p>
                       <div className="flex flex-wrap gap-2">
                         {((productoSeleccionado as any).materiales as string[]).map((material: string) => (
-                          <span key={material} className="px-3 py-1 border border-gray-300 text-xs text-gray-700 rounded-full">
+                          <span key={material} className="px-3 py-1 bg-[#EFD9DF] text-xs font-medium text-[#A3395C] rounded-full">
                             {material}
                           </span>
                         ))}
@@ -1273,14 +1273,14 @@ export const LandingView: React.FC<LandingViewProps> = ({
                     <div className="flex items-center gap-3">
                       <button
                         onClick={() => setCantidadSeleccionada(Math.max(1, cantidadSeleccionada - 1))}
-                        className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors text-gray-600"
+                        className="w-8 h-8 rounded-full border border-[#E7E0DA] flex items-center justify-center hover:bg-[#EFD9DF] transition-colors text-[#241B22]"
                       >
                         <Minus className="w-3 h-3" />
                       </button>
-                      <span className="text-sm font-medium w-4 text-center">{cantidadSeleccionada}</span>
+                      <span className="text-sm font-medium w-4 text-center text-[#241B22]">{cantidadSeleccionada}</span>
                       <button
                         onClick={() => setCantidadSeleccionada(cantidadSeleccionada + 1)}
-                        className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors text-gray-600"
+                        className="w-8 h-8 rounded-full border border-[#E7E0DA] flex items-center justify-center hover:bg-[#EFD9DF] transition-colors text-[#241B22]"
                       >
                         <Plus className="w-3 h-3" />
                       </button>
@@ -1290,8 +1290,8 @@ export const LandingView: React.FC<LandingViewProps> = ({
                       onClick={handleAgregarAlCarrito}
                       className={`flex-1 h-10 border text-xs font-semibold uppercase tracking-wider transition-all ${
                         ps.agotado
-                          ? 'border-gray-200 text-gray-300 cursor-not-allowed'
-                          : 'border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white'
+                          ? 'border-[#E7E0DA] text-[#c3bab3] cursor-not-allowed'
+                          : 'border-[#241B22] text-[#241B22] hover:bg-[#241B22] hover:text-white'
                       }`}
                     >
                       {ps.agotado ? 'Agotado' : 'Agregar al Carrito'}
@@ -1299,7 +1299,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                     <button
                       onClick={() => onNavigateToLogin()}
                       title="Inicia sesión para guardar en favoritos"
-                      className="w-10 h-10 border border-gray-300 flex items-center justify-center transition-all flex-shrink-0 text-gray-500 hover:border-[#d65391] hover:text-[#d65391]"
+                      className="w-10 h-10 border border-[#E7E0DA] flex items-center justify-center transition-all flex-shrink-0 text-[#7d6f77] hover:border-[#A3395C] hover:text-[#A3395C]"
                     >
                       <Heart className="w-4 h-4" fill="none" />
                     </button>
@@ -1311,7 +1311,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                     onClick={handleComprarAhora}
                     style={{ flexShrink: 0 }}
                     className={`w-full h-10 text-xs font-semibold uppercase tracking-wider text-white transition-all ${
-                      ps.agotado ? 'bg-gray-300 cursor-not-allowed' : 'bg-[#d65391] hover:bg-[#c04380]'
+                      ps.agotado ? 'bg-[#E7E0DA] cursor-not-allowed' : 'bg-[#A3395C] hover:bg-[#8a2e4d]'
                     }`}
                   >
                     {ps.agotado ? 'Agotado' : 'Comprar Ahora'}
@@ -1329,22 +1329,22 @@ export const LandingView: React.FC<LandingViewProps> = ({
         <DialogContent className="max-w-xs w-[90vw] rounded-2xl p-6 text-center">
           <DialogDescription className="sr-only">Iniciar sesión para continuar con la compra</DialogDescription>
           <div className="flex justify-center mb-3">
-            <div className="w-12 h-12 rounded-full bg-[#d65391]/10 flex items-center justify-center">
-              <ShoppingBag className="w-5 h-5 text-[#d65391]" />
+            <div className="w-12 h-12 rounded-full bg-[#EFD9DF] flex items-center justify-center">
+              <ShoppingBag className="w-5 h-5 text-[#A3395C]" />
             </div>
           </div>
           <DialogHeader className="mb-1">
-            <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xl text-gray-900">
+            <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xl text-[#241B22]">
               ¡Un paso más!
             </DialogTitle>
           </DialogHeader>
-          <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500 mb-5">
+          <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-[#7d6f77] mb-5">
             Para agregar productos al carrito y realizar compras necesitas iniciar sesión.
           </p>
           <div className="space-y-2">
             <Button
               onClick={() => { setMostrarModalLoginCarrito(false); (onNavigateToLoginForCheckout ?? onNavigateToLogin)(); }}
-              className="w-full bg-[#d65391] hover:bg-[#c14a7f] text-white h-10 text-sm"
+              className="w-full bg-[#A3395C] hover:bg-[#8a2e4d] text-white h-10 text-sm"
               style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
             >
               Iniciar Sesión
@@ -1352,7 +1352,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
             <Button
               onClick={() => { setMostrarModalLoginCarrito(false); onNavigateToRegister(); }}
               variant="outline"
-              className="w-full border-gray-200 text-gray-600 hover:bg-gray-50 h-10 text-sm"
+              className="w-full border-[#E7E0DA] text-[#241B22] hover:bg-[#FBF8F5] h-10 text-sm"
               style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
             >
               Crear cuenta
