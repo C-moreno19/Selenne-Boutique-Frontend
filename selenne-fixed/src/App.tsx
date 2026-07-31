@@ -24,9 +24,23 @@ interface Alert {
 function MainApp() {
   const { user, authLoading } = useAuth();
   const [currentView, setCurrentView] = useState<View>(() => {
-    try { return sessionStorage.getItem('_selenne_user') ? 'dashboard' : 'landing'; }
+    try {
+      const vistaGuardada = sessionStorage.getItem('_selenne_view') as View | null;
+      if (vistaGuardada === 'landing' || vistaGuardada === 'dashboard' || vistaGuardada === 'checkout') {
+        return vistaGuardada;
+      }
+      return sessionStorage.getItem('_selenne_user') ? 'dashboard' : 'landing';
+    }
     catch { return 'landing'; }
   });
+
+  // Recordar la vista actual para que un refresh (F5, ctrl+shift+r) no
+  // saque al usuario del landing/tienda solo porque tiene sesion activa
+  useEffect(() => {
+    if (currentView === 'landing' || currentView === 'dashboard' || currentView === 'checkout') {
+      try { sessionStorage.setItem('_selenne_view', currentView); } catch {}
+    }
+  }, [currentView]);
   const [isRecoverModalOpen, setIsRecoverModalOpen] = useState(false);
   const [alert, setAlert] = useState<Alert | null>(null);
   const [pendingCheckout, setPendingCheckout] = useState(false);
