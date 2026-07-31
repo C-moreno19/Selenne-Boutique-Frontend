@@ -224,8 +224,8 @@ export const DashboardHome: React.FC = () => {
     const fecha = new Date().toLocaleDateString('es-CO');
     const filename = `reporte-${tipo.toLowerCase().replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf`;
 
-    const head_styles = { fillColor: [214, 83, 145] as [number, number, number], textColor: 255, fontStyle: 'bold' as const };
-    const alt_row = { fillColor: [252, 242, 248] as [number, number, number] };
+    const head_styles = { fillColor: [163, 57, 92] as [number, number, number], textColor: 255, fontStyle: 'bold' as const };
+    const alt_row = { fillColor: [251, 248, 245] as [number, number, number] };
 
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(16);
@@ -322,14 +322,14 @@ export const DashboardHome: React.FC = () => {
     XLSX.writeFile(wb, `${filename}.xlsx`);
   };
 
-  const cardShadow = { boxShadow: '0 2px 12px rgba(214, 83, 145, 0.07)' };
-  const cardShadowHover = { boxShadow: '0 6px 24px rgba(214, 83, 145, 0.13)' };
+  const cardShadow = { boxShadow: '0 2px 12px rgba(163, 57, 92, 0.07)' };
+  const cardShadowHover = { boxShadow: '0 6px 24px rgba(163, 57, 92, 0.13)' };
 
   return (
-    <div className="p-8 bg-gray-50 min-h-screen">
+    <div className="p-8 bg-[#FBF8F5] min-h-screen">
       {/* Header */}
       <div className="mb-8">
-        <h1 style={{ fontFamily: '"Times New Roman", Times, serif' }} className="text-3xl font-bold text-gray-800 mb-1">Dashboard</h1>
+        <h1 style={{ fontFamily: 'Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }} className="text-3xl font-medium tracking-[0.01em] text-[#241B22] mb-1">Dashboard</h1>
         <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-400">
           {loading ? 'Cargando datos...' : 'Resumen general del sistema'}
         </p>
@@ -338,12 +338,12 @@ export const DashboardHome: React.FC = () => {
       {/* 4 Tarjetas de Métricas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {[
-          { label: 'Ventas Mensuales', value: formatCurrency(totals.ventasMensuales), sub: 'Total de ingresos', trend: '+12%', up: true, icon: <TrendingUp className="w-5 h-5 text-[#d65391]" />, iconBg: 'bg-[#fdf2f8]' },
-          { label: 'Pedidos Totales', value: totals.ventasTotales.toLocaleString('es-CO'), sub: 'Órdenes registradas', trend: '+8%', up: true, icon: <ShoppingCart className="w-5 h-5 text-[#d65391]" />, iconBg: 'bg-[#fdf2f8]' },
-          { label: 'Clientes Activos', value: totals.clientesActivos.toLocaleString('es-CO'), sub: 'Usuarios registrados', trend: '+5%', up: true, icon: <Users className="w-5 h-5 text-[#d65391]" />, iconBg: 'bg-[#fdf2f8]' },
-          { label: 'Productos Activos', value: totals.productosStock.toLocaleString('es-CO'), sub: 'Productos en catálogo', trend: '-3%', up: false, icon: <Package className="w-5 h-5 text-[#d65391]" />, iconBg: 'bg-[#fdf2f8]' },
+          { label: 'Ventas Mensuales', value: formatCurrency(totals.ventasMensuales), sub: 'Total de ingresos', trend: '+12%', up: true, icon: <TrendingUp className="w-5 h-5 text-[#A3395C]" />, iconBg: 'bg-[#EFD9DF]' },
+          { label: 'Pedidos Totales', value: totals.ventasTotales.toLocaleString('es-CO'), sub: 'Órdenes registradas', trend: '+8%', up: true, icon: <ShoppingCart className="w-5 h-5 text-[#A3395C]" />, iconBg: 'bg-[#EFD9DF]' },
+          { label: 'Clientes Activos', value: totals.clientesActivos.toLocaleString('es-CO'), sub: 'Usuarios registrados', trend: '+5%', up: true, icon: <Users className="w-5 h-5 text-[#A3395C]" />, iconBg: 'bg-[#EFD9DF]' },
+          { label: 'Productos Activos', value: totals.productosStock.toLocaleString('es-CO'), sub: 'Productos en catálogo', trend: '-3%', up: false, icon: <Package className="w-5 h-5 text-[#A3395C]" />, iconBg: 'bg-[#EFD9DF]' },
         ].map((card) => (
-          <div key={card.label} className="bg-white rounded-xl p-6 border border-gray-100 transition-shadow duration-200 cursor-default"
+          <div key={card.label} className="bg-white rounded-xl p-6 border border-[#E7E0DA] transition-shadow duration-200 cursor-default"
             style={cardShadow}
             onMouseEnter={e => Object.assign((e.currentTarget as HTMLElement).style, cardShadowHover)}
             onMouseLeave={e => Object.assign((e.currentTarget as HTMLElement).style, cardShadow)}>
@@ -357,7 +357,7 @@ export const DashboardHome: React.FC = () => {
               </span>
             </div>
             <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 mb-1 uppercase tracking-wide">{card.label}</p>
-            <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-3xl font-bold text-gray-800 mb-1">{card.value}</p>
+            <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-3xl font-bold text-[#241B22] mb-1">{card.value}</p>
             <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">{card.sub}</p>
           </div>
         ))}
@@ -365,8 +365,8 @@ export const DashboardHome: React.FC = () => {
 
       {/* Selector de fechas */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-        <h2 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-lg font-semibold text-gray-800">Análisis de Ventas</h2>
-        <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-4 py-2.5" style={cardShadow}>
+        <h2 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-lg font-semibold text-[#241B22]">Análisis de Ventas</h2>
+        <div className="flex items-center gap-2 bg-white border border-[#E7E0DA] rounded-xl px-4 py-2.5" style={cardShadow}>
           <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 whitespace-nowrap">Desde</span>
           <input type="date" value={toInputValue(dateRange.from)} max={toInputValue(dateRange.to)}
             onChange={(e) => { const val = e.target.value; if (val) setDateRange((prev) => ({ ...prev, from: new Date(val + 'T00:00:00') })); }}
@@ -377,7 +377,7 @@ export const DashboardHome: React.FC = () => {
             onChange={(e) => { const val = e.target.value; if (val) setDateRange((prev) => ({ ...prev, to: new Date(val + 'T00:00:00') })); }}
             className="text-sm text-gray-600 border-none outline-none bg-transparent cursor-pointer" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} />
           <button onClick={() => setDateRange(defaultDateRange())}
-            className="ml-1 text-xs text-[#d65391] hover:text-[#c14a7f] whitespace-nowrap transition-colors" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+            className="ml-1 text-xs text-[#A3395C] hover:text-[#8a2e4d] whitespace-nowrap transition-colors" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
             Resetear
           </button>
         </div>
@@ -385,14 +385,14 @@ export const DashboardHome: React.FC = () => {
 
       {/* Gráficos */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <div className="bg-white rounded-xl p-6 border border-gray-100" style={cardShadow}>
+        <div className="bg-white rounded-xl p-6 border border-[#E7E0DA]" style={cardShadow}>
           <div className="flex items-start justify-between mb-5">
             <div>
-              <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-gray-700 mb-0.5">Ventas por Período</h3>
+              <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#241B22] mb-0.5">Ventas por Período</h3>
               <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">{dateRangeLabel}</p>
             </div>
-            <button onClick={() => handleExport('Ventas Mensuales')} className="p-2 hover:bg-[#fdf2f8] rounded-lg transition-colors" title="Exportar">
-              <Download className="w-4 h-4 text-[#d65391]" />
+            <button onClick={() => handleExport('Ventas Mensuales')} className="p-2 hover:bg-[#EFD9DF] rounded-lg transition-colors" title="Exportar">
+              <Download className="w-4 h-4 text-[#A3395C]" />
             </button>
           </div>
           <ResponsiveContainer width="100%" height={250}>
@@ -400,20 +400,20 @@ export const DashboardHome: React.FC = () => {
               <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
               <XAxis dataKey="name" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: '11px' }} stroke="#e5e7eb" tick={{ fill: '#9ca3af' }} />
               <YAxis style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: '11px' }} stroke="#e5e7eb" tick={{ fill: '#9ca3af' }} />
-              <Tooltip contentStyle={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', borderRadius: '10px', border: '1px solid #fce7f3', fontSize: '12px' }} />
-              <Line type="monotone" dataKey="value" name="Ventas" stroke="#d65391" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: '#d65391', stroke: '#fff', strokeWidth: 2 }} />
+              <Tooltip contentStyle={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', borderRadius: '10px', border: '1px solid #e7c2ce', fontSize: '12px' }} />
+              <Line type="monotone" dataKey="value" name="Ventas" stroke="#A3395C" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: '#A3395C', stroke: '#fff', strokeWidth: 2 }} />
             </LineChart>
           </ResponsiveContainer>
         </div>
 
-        <div className="bg-white rounded-xl p-6 border border-gray-100" style={cardShadow}>
+        <div className="bg-white rounded-xl p-6 border border-[#E7E0DA]" style={cardShadow}>
           <div className="flex items-start justify-between mb-5">
             <div>
-              <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-gray-700 mb-0.5">Productos Más Vendidos</h3>
+              <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#241B22] mb-0.5">Productos Más Vendidos</h3>
               <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">{dateRangeLabel}</p>
             </div>
-            <button onClick={() => handleExport('Productos Más Vendidos')} className="p-2 hover:bg-[#fdf2f8] rounded-lg transition-colors" title="Exportar">
-              <Download className="w-4 h-4 text-[#d65391]" />
+            <button onClick={() => handleExport('Productos Más Vendidos')} className="p-2 hover:bg-[#EFD9DF] rounded-lg transition-colors" title="Exportar">
+              <Download className="w-4 h-4 text-[#A3395C]" />
             </button>
           </div>
           <ResponsiveContainer width="100%" height={250}>
@@ -421,8 +421,8 @@ export const DashboardHome: React.FC = () => {
               <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
               <XAxis dataKey="name" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: '11px' }} stroke="#e5e7eb" tick={{ fill: '#9ca3af' }} />
               <YAxis style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: '11px' }} stroke="#e5e7eb" tick={{ fill: '#9ca3af' }} />
-              <Tooltip contentStyle={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', borderRadius: '10px', border: '1px solid #fce7f3', fontSize: '12px' }} />
-              <Bar dataKey="value" fill="#d65391" radius={[6, 6, 0, 0]} opacity={0.85} />
+              <Tooltip contentStyle={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', borderRadius: '10px', border: '1px solid #e7c2ce', fontSize: '12px' }} />
+              <Bar dataKey="value" fill="#A3395C" radius={[6, 6, 0, 0]} opacity={0.85} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -430,10 +430,10 @@ export const DashboardHome: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         {/* Pedidos Pendientes */}
-        <div className="bg-white rounded-xl p-6 border border-gray-100 flex flex-col" style={cardShadow}>
+        <div className="bg-white rounded-xl p-6 border border-[#E7E0DA] flex flex-col" style={cardShadow}>
           <div className="flex items-start justify-between mb-5">
             <div>
-              <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-gray-700 mb-0.5">Pedidos Pendientes</h3>
+              <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#241B22] mb-0.5">Pedidos Pendientes</h3>
               <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">
                 {pendingOrders.length === 0 ? 'Sin pedidos por revisar' : `${pendingOrders.length} pedido${pendingOrders.length !== 1 ? 's' : ''} por revisar`}
               </p>
@@ -460,13 +460,13 @@ export const DashboardHome: React.FC = () => {
                       {new Date(pedido.fechaPedido).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })}
                     </span>
                   </div>
-                  <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 truncate">{pedido.nombreCliente}</p>
+                  <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-[#241B22] truncate">{pedido.nombreCliente}</p>
                   <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 truncate">
                     {pedido.detalles?.[0]?.productoNombre}
                     {(pedido.detalles?.length ?? 0) > 1 ? ` +${pedido.detalles.length - 1} más` : ''}
                   </p>
                 </div>
-                <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-gray-800 flex-shrink-0 mr-1">
+                <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#241B22] flex-shrink-0 mr-1">
                   {formatCurrency(pedido.total)}
                 </p>
                 {puedeEditarVentas && (
@@ -487,29 +487,29 @@ export const DashboardHome: React.FC = () => {
         </div>
 
         {/* Últimas Ventas */}
-        <div className="bg-white rounded-xl p-6 border border-gray-100" style={cardShadow}>
+        <div className="bg-white rounded-xl p-6 border border-[#E7E0DA]" style={cardShadow}>
           <div className="flex items-center justify-between mb-5">
             <div>
-              <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-gray-700 mb-0.5">Últimas Ventas</h3>
+              <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#241B22] mb-0.5">Últimas Ventas</h3>
               <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">{dateRangeLabel}</p>
             </div>
             <button onClick={() => setSalesDetailOpen(true)}
-              className="text-xs text-[#d65391] hover:text-[#c14a7f] transition-colors flex items-center gap-1" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+              className="text-xs text-[#A3395C] hover:text-[#8a2e4d] transition-colors flex items-center gap-1" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
               Ver todo <ChevronRight className="w-3 h-3" />
             </button>
           </div>
           <div className="space-y-1">
             {recentSales.slice(0, 5).map((sale) => (
-              <div key={sale.id} className="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-[#fdf2f8] transition-colors">
-                <div className="w-9 h-9 bg-[#fdf2f8] rounded-lg flex items-center justify-center flex-shrink-0">
-                  <ShoppingCart className="w-4 h-4 text-[#d65391]" />
+              <div key={sale.id} className="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-[#EFD9DF] transition-colors">
+                <div className="w-9 h-9 bg-[#EFD9DF] rounded-lg flex items-center justify-center flex-shrink-0">
+                  <ShoppingCart className="w-4 h-4 text-[#A3395C]" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 truncate">{sale.cliente}</p>
+                  <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-[#241B22] truncate">{sale.cliente}</p>
                   <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 truncate">{sale.producto}</p>
                 </div>
                 <div className="text-right flex-shrink-0">
-                  <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#d65391]">{formatCurrency(sale.monto)}</p>
+                  <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#A3395C]">{formatCurrency(sale.monto)}</p>
                   <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">{sale.fecha}</p>
                 </div>
               </div>
@@ -524,25 +524,25 @@ export const DashboardHome: React.FC = () => {
       {/* Modal Reporte */}
       <Dialog open={reportModalOpen} onOpenChange={setReportModalOpen}>
         <DialogContent className="max-w-md p-0 gap-0 overflow-hidden">
-          <DialogHeader className="px-8 pt-6 pb-4 border-b border-gray-100">
+          <DialogHeader className="px-8 pt-6 pb-4 border-b border-[#E7E0DA]">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 bg-[#fdf2f8] rounded-xl flex items-center justify-center">
-                <Download className="w-4 h-4 text-[#d65391]" />
+              <div className="w-9 h-9 bg-[#EFD9DF] rounded-xl flex items-center justify-center">
+                <Download className="w-4 h-4 text-[#A3395C]" />
               </div>
               <div>
-                <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-base font-semibold text-gray-800">Generar Reporte</DialogTitle>
+                <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-base font-semibold text-[#241B22]">Generar Reporte</DialogTitle>
                 <DialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 mt-0.5">Período: {dateRangeLabel}</DialogDescription>
               </div>
             </div>
           </DialogHeader>
 
           <div className="px-8 py-6 space-y-5">
-            <div className="flex items-center gap-3 bg-[#fdf2f8] border border-[#fce7f3] rounded-xl px-4 py-3">
-              <div className="w-8 h-8 bg-[#fce7f3] rounded-lg flex items-center justify-center flex-shrink-0">
-                <FileText className="w-4 h-4 text-[#d65391]" />
+            <div className="flex items-center gap-3 bg-[#EFD9DF] border border-[#e7c2ce] rounded-xl px-4 py-3">
+              <div className="w-8 h-8 bg-[#e7c2ce] rounded-lg flex items-center justify-center flex-shrink-0">
+                <FileText className="w-4 h-4 text-[#A3395C]" />
               </div>
               <div>
-                <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-gray-700">{reportType}</p>
+                <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#241B22]">{reportType}</p>
                 <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">Datos del período seleccionado</p>
               </div>
             </div>
@@ -555,11 +555,11 @@ export const DashboardHome: React.FC = () => {
                   { value: 'pdf', label: 'PDF', ext: '.pdf', icon: <FileText className="w-4 h-4 text-red-400" /> },
                 ].map(opt => (
                   <label key={opt.value}
-                    className="flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-all has-[:checked]:border-[#d65391] has-[:checked]:bg-[#fdf2f8] border-gray-200 hover:border-pink-200">
-                    <input type="radio" name="report-format-radio" value={opt.value} defaultChecked={opt.value === 'xlsx'} className="accent-[#d65391]" />
+                    className="flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-all has-[:checked]:border-[#A3395C] has-[:checked]:bg-[#EFD9DF] border-[#E7E0DA] hover:border-[#EFD9DF]">
+                    <input type="radio" name="report-format-radio" value={opt.value} defaultChecked={opt.value === 'xlsx'} className="accent-[#A3395C]" />
                     <div>
                       <div className="flex items-center gap-1.5 mb-0.5">{opt.icon}
-                        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-gray-700">{opt.label}</p>
+                        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#241B22]">{opt.label}</p>
                       </div>
                       <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">{opt.ext}</p>
                     </div>
@@ -585,7 +585,7 @@ export const DashboardHome: React.FC = () => {
                 setReportModalOpen(false);
               } catch { toast.error('Error generando el reporte'); }
             }} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="flex-1 py-2.5 bg-[#d65391] text-white rounded-xl hover:bg-[#c14a7f] transition-colors text-sm font-semibold flex items-center justify-center gap-2">
+              className="flex-1 py-2.5 bg-[#A3395C] text-white rounded-xl hover:bg-[#8a2e4d] transition-colors text-sm font-semibold flex items-center justify-center gap-2">
               <Download className="w-4 h-4" /> Descargar
             </button>
           </div>
@@ -595,24 +595,24 @@ export const DashboardHome: React.FC = () => {
       {/* Modal Últimas Ventas */}
       <Dialog open={salesDetailOpen} onOpenChange={setSalesDetailOpen}>
         <DialogContent className="max-w-2xl p-0 gap-0">
-          <DialogHeader className="px-8 pt-6 pb-4 border-b border-gray-100">
-            <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-base font-semibold text-gray-800">Ventas del Período</DialogTitle>
+          <DialogHeader className="px-8 pt-6 pb-4 border-b border-[#E7E0DA]">
+            <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-base font-semibold text-[#241B22]">Ventas del Período</DialogTitle>
             <DialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">
               {dateRangeLabel} · {recentSales.length} venta{recentSales.length !== 1 ? 's' : ''}
             </DialogDescription>
           </DialogHeader>
           <div className="divide-y divide-gray-50 max-h-[480px] overflow-y-auto">
             {recentSales.map((sale) => (
-              <div key={sale.id} className="flex items-center gap-4 px-8 py-4 hover:bg-[#fdf2f8] transition-colors">
-                <div className="w-9 h-9 bg-[#fdf2f8] rounded-lg flex items-center justify-center flex-shrink-0">
-                  <ShoppingCart className="w-4 h-4 text-[#d65391]" />
+              <div key={sale.id} className="flex items-center gap-4 px-8 py-4 hover:bg-[#EFD9DF] transition-colors">
+                <div className="w-9 h-9 bg-[#EFD9DF] rounded-lg flex items-center justify-center flex-shrink-0">
+                  <ShoppingCart className="w-4 h-4 text-[#A3395C]" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700">{sale.id} — {sale.cliente}</p>
+                  <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-[#241B22]">{sale.id} — {sale.cliente}</p>
                   <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">{sale.producto} · {sale.cantidad} {sale.cantidad === 1 ? 'unidad' : 'unidades'}</p>
                 </div>
                 <div className="text-right flex-shrink-0">
-                  <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#d65391]">{formatCurrency(sale.monto)}</p>
+                  <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#A3395C]">{formatCurrency(sale.monto)}</p>
                   <div className="flex items-center gap-2 justify-end mt-0.5">
                     <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">{sale.fecha}</span>
                     <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className={`text-xs font-medium px-2 py-0.5 rounded-full ${sale.estado === 'Completada' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>{sale.estado}</span>
@@ -624,7 +624,7 @@ export const DashboardHome: React.FC = () => {
               <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-400 text-center py-12">Sin ventas en el período seleccionado</p>
             )}
           </div>
-          <DialogFooter className="px-8 py-4 border-t border-gray-100">
+          <DialogFooter className="px-8 py-4 border-t border-[#E7E0DA]">
             <button onClick={() => setSalesDetailOpen(false)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
               className="px-5 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors text-sm">
               Cerrar
