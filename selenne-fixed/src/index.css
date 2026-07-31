@@ -2,6 +2,29 @@
 .font-playfair { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }
 .font-inter    { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }
 
+/* ── Panel de administración: tipografía Sora en todo el panel ──────
+   Se usa !important porque muchas vistas del admin fijan la fuente
+   con style={{ fontFamily: ... }} elemento por elemento. */
+.admin-panel, .admin-panel * {
+  font-family: 'Sora', "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+}
+.admin-panel .tabular-nums,
+.admin-panel [class*="text-3xl"],
+.admin-panel [class*="text-2xl"] {
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes admin-fade-slide-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.admin-panel .animate-fade-slide-in {
+  animation: admin-fade-slide-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .admin-panel .animate-fade-slide-in { animation: none; }
+}
+
 /* ── Neutralizar el azul de autocompletado del navegador en inputs ── */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,

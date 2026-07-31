@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 import {
   TrendingUp,
   TrendingDown,
@@ -75,6 +75,46 @@ const defaultDateRange = (): DateRange => {
 
 const formatDate = (d: Date) =>
   d.toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' });
+
+const prefersReducedMotion = () =>
+  typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+
+// Anima un número desde su valor anterior hasta el nuevo cada vez que cambia,
+// formateando cada frame con la función que reciba (moneda, entero, etc.)
+const AnimatedNumber: React.FC<{ value: number; format: (n: number) => string; duration?: number }> = ({
+  value,
+  format,
+  duration = 900,
+}) => {
+  const [display, setDisplay] = useState(prefersReducedMotion() ? value : 0);
+  const prevValue = useRef(prefersReducedMotion() ? value : 0);
+
+  useEffect(() => {
+    if (prefersReducedMotion()) {
+      setDisplay(value);
+      prevValue.current = value;
+      return;
+    }
+    const start = prevValue.current;
+    const end = value;
+    const startTime = performance.now();
+    let raf = 0;
+    const tick = (now: number) => {
+      const progress = Math.min((now - startTime) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setDisplay(start + (end - start) * eased);
+      if (progress < 1) {
+        raf = requestAnimationFrame(tick);
+      } else {
+        prevValue.current = end;
+      }
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [value, duration]);
+
+  return <span className="tabular-nums">{format(Math.round(display))}</span>;
+};
 
 export const DashboardHome: React.FC = () => {
   const { hasPermission } = useAuth();
@@ -338,27 +378,30 @@ export const DashboardHome: React.FC = () => {
       {/* 4 Tarjetas de Métricas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {[
-          { label: 'Ventas Mensuales', value: formatCurrency(totals.ventasMensuales), sub: 'Total de ingresos', trend: '+12%', up: true, icon: <TrendingUp className="w-5 h-5 text-[#A3395C]" />, iconBg: 'bg-[#EFD9DF]' },
-          { label: 'Pedidos Totales', value: totals.ventasTotales.toLocaleString('es-CO'), sub: 'Órdenes registradas', trend: '+8%', up: true, icon: <ShoppingCart className="w-5 h-5 text-[#A3395C]" />, iconBg: 'bg-[#EFD9DF]' },
-          { label: 'Clientes Activos', value: totals.clientesActivos.toLocaleString('es-CO'), sub: 'Usuarios registrados', trend: '+5%', up: true, icon: <Users className="w-5 h-5 text-[#A3395C]" />, iconBg: 'bg-[#EFD9DF]' },
-          { label: 'Productos Activos', value: totals.productosStock.toLocaleString('es-CO'), sub: 'Productos en catálogo', trend: '-3%', up: false, icon: <Package className="w-5 h-5 text-[#A3395C]" />, iconBg: 'bg-[#EFD9DF]' },
-        ].map((card) => (
-          <div key={card.label} className="bg-white rounded-xl p-6 border border-[#E7E0DA] transition-shadow duration-200 cursor-default"
-            style={cardShadow}
+          { label: 'Ventas Mensuales', rawValue: totals.ventasMensuales, format: formatCurrency, sub: 'Total de ingresos', trend: '+12%', up: true, icon: <TrendingUp className="w-5 h-5 text-[#A3395C]" />, iconBg: 'bg-[#EFD9DF]' },
+          { label: 'Pedidos Totales', rawValue: totals.ventasTotales, format: (n: number) => n.toLocaleString('es-CO'), sub: 'Órdenes registradas', trend: '+8%', up: true, icon: <ShoppingCart className="w-5 h-5 text-[#A3395C]" />, iconBg: 'bg-[#EFD9DF]' },
+          { label: 'Clientes Activos', rawValue: totals.clientesActivos, format: (n: number) => n.toLocaleString('es-CO'), sub: 'Usuarios registrados', trend: '+5%', up: true, icon: <Users className="w-5 h-5 text-[#A3395C]" />, iconBg: 'bg-[#EFD9DF]' },
+          { label: 'Productos Activos', rawValue: totals.productosStock, format: (n: number) => n.toLocaleString('es-CO'), sub: 'Productos en catálogo', trend: '-3%', up: false, icon: <Package className="w-5 h-5 text-[#A3395C]" />, iconBg: 'bg-[#EFD9DF]' },
+        ].map((card, i) => (
+          <div key={card.label}
+            className="animate-fade-slide-in bg-white rounded-xl p-6 border border-[#E7E0DA] transition-all duration-300 cursor-default hover:-translate-y-1"
+            style={{ ...cardShadow, animationDelay: `${i * 80}ms` }}
             onMouseEnter={e => Object.assign((e.currentTarget as HTMLElement).style, cardShadowHover)}
             onMouseLeave={e => Object.assign((e.currentTarget as HTMLElement).style, cardShadow)}>
             <div className="flex items-center justify-between mb-5">
               <div className={`w-10 h-10 ${card.iconBg} rounded-xl flex items-center justify-center`}>
                 {card.icon}
               </div>
-              <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className={`text-xs font-semibold flex items-center gap-0.5 ${card.up ? 'text-emerald-600' : 'text-red-400'}`}>
+              <span className={`text-xs font-semibold flex items-center gap-0.5 ${card.up ? 'text-emerald-600' : 'text-red-400'}`}>
                 {card.up ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
                 {card.trend}
               </span>
             </div>
-            <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 mb-1 uppercase tracking-wide">{card.label}</p>
-            <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-3xl font-bold text-[#241B22] mb-1">{card.value}</p>
-            <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">{card.sub}</p>
+            <p className="text-xs text-gray-400 mb-1 uppercase tracking-wide">{card.label}</p>
+            <p className="text-3xl font-bold text-[#241B22] mb-1">
+              <AnimatedNumber value={card.rawValue} format={card.format} />
+            </p>
+            <p className="text-xs text-gray-400">{card.sub}</p>
           </div>
         ))}
       </div>
@@ -385,13 +428,13 @@ export const DashboardHome: React.FC = () => {
 
       {/* Gráficos */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <div className="bg-white rounded-xl p-6 border border-[#E7E0DA]" style={cardShadow}>
+        <div className="animate-fade-slide-in bg-white rounded-xl p-6 border border-[#E7E0DA]" style={{ ...cardShadow, animationDelay: '160ms' }}>
           <div className="flex items-start justify-between mb-5">
             <div>
               <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#241B22] mb-0.5">Ventas por Período</h3>
               <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">{dateRangeLabel}</p>
             </div>
-            <button onClick={() => handleExport('Ventas Mensuales')} className="p-2 hover:bg-[#EFD9DF] rounded-lg transition-colors" title="Exportar">
+            <button onClick={() => handleExport('Ventas Mensuales')} className="p-2 hover:bg-[#EFD9DF] rounded-lg transition-all hover:scale-110 active:scale-95" title="Exportar">
               <Download className="w-4 h-4 text-[#A3395C]" />
             </button>
           </div>
@@ -406,13 +449,13 @@ export const DashboardHome: React.FC = () => {
           </ResponsiveContainer>
         </div>
 
-        <div className="bg-white rounded-xl p-6 border border-[#E7E0DA]" style={cardShadow}>
+        <div className="animate-fade-slide-in bg-white rounded-xl p-6 border border-[#E7E0DA]" style={{ ...cardShadow, animationDelay: '220ms' }}>
           <div className="flex items-start justify-between mb-5">
             <div>
               <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#241B22] mb-0.5">Productos Más Vendidos</h3>
               <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">{dateRangeLabel}</p>
             </div>
-            <button onClick={() => handleExport('Productos Más Vendidos')} className="p-2 hover:bg-[#EFD9DF] rounded-lg transition-colors" title="Exportar">
+            <button onClick={() => handleExport('Productos Más Vendidos')} className="p-2 hover:bg-[#EFD9DF] rounded-lg transition-all hover:scale-110 active:scale-95" title="Exportar">
               <Download className="w-4 h-4 text-[#A3395C]" />
             </button>
           </div>
@@ -430,7 +473,7 @@ export const DashboardHome: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         {/* Pedidos Pendientes */}
-        <div className="bg-white rounded-xl p-6 border border-[#E7E0DA] flex flex-col" style={cardShadow}>
+        <div className="animate-fade-slide-in bg-white rounded-xl p-6 border border-[#E7E0DA] flex flex-col" style={{ ...cardShadow, animationDelay: '280ms' }}>
           <div className="flex items-start justify-between mb-5">
             <div>
               <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#241B22] mb-0.5">Pedidos Pendientes</h3>
@@ -472,11 +515,11 @@ export const DashboardHome: React.FC = () => {
                 {puedeEditarVentas && (
                   <div className="flex gap-1.5 flex-shrink-0">
                     <button onClick={() => handleAprobar(pedido.pedidoID)}
-                      className="p-1.5 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-100 transition-colors" title="Aprobar">
+                      className="p-1.5 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-100 transition-all hover:scale-110 active:scale-95" title="Aprobar">
                       <CheckCircle className="w-4 h-4" />
                     </button>
                     <button onClick={() => handleRechazar(pedido.pedidoID)}
-                      className="p-1.5 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition-colors" title="Rechazar">
+                      className="p-1.5 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition-all hover:scale-110 active:scale-95" title="Rechazar">
                       <XCircle className="w-4 h-4" />
                     </button>
                   </div>
@@ -487,15 +530,15 @@ export const DashboardHome: React.FC = () => {
         </div>
 
         {/* Últimas Ventas */}
-        <div className="bg-white rounded-xl p-6 border border-[#E7E0DA]" style={cardShadow}>
+        <div className="animate-fade-slide-in bg-white rounded-xl p-6 border border-[#E7E0DA]" style={{ ...cardShadow, animationDelay: '340ms' }}>
           <div className="flex items-center justify-between mb-5">
             <div>
               <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#241B22] mb-0.5">Últimas Ventas</h3>
               <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">{dateRangeLabel}</p>
             </div>
             <button onClick={() => setSalesDetailOpen(true)}
-              className="text-xs text-[#A3395C] hover:text-[#8a2e4d] transition-colors flex items-center gap-1" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
-              Ver todo <ChevronRight className="w-3 h-3" />
+              className="group text-xs text-[#A3395C] hover:text-[#8a2e4d] transition-colors flex items-center gap-1" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+              Ver todo <ChevronRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5" />
             </button>
           </div>
           <div className="space-y-1">

@@ -160,7 +160,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onLogout }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="admin-panel min-h-screen bg-[#FBF8F5]">
       {/* Sidebar Izquierdo */}
       <DashboardSidebar
         currentSection={currentSection}
