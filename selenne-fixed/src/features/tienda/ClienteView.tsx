@@ -48,6 +48,7 @@ import { SizeSelector } from "../../components/ui/size-selector";
 import { Separator } from "../../components/ui/separator";
 import { ImageCarousel } from "../../components/figma/ImageCarousel";
 import { useProductosCombinados } from "../../shared/data/useProductosCombinados";
+import { useProductos } from "../../shared/contexts/ProductosContext";
 import { useTienda } from "../../shared/contexts/TiendaContext";
 import { useSubcategorias } from "../../shared/contexts/SubcategoriasContext";
 import { useAuth } from "../../shared/contexts/AuthContext";
@@ -136,6 +137,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
 
   // Obtener productos combinados (locales + admin)
   const productosData = useProductosCombinados();
+  const { loading: productosLoading } = useProductos();
 
   // Opciones disponibles para filtros (según categoría)
   const productosParaFiltros = useMemo(() => {
@@ -431,24 +433,24 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
   return (
     <div className="min-h-screen bg-white flex flex-col">
       {/* Header - Siempre Visible */}
-      <header className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
+      <header className="sticky top-0 z-50 bg-[#FBF8F5] border-b border-[#E7E0DA] shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
             <div className="flex items-center gap-2">
               <button
-                className="lg:hidden mr-2 p-2 hover:bg-gray-100 rounded-lg"
+                className="lg:hidden mr-2 p-2 hover:bg-[#EFD9DF] rounded-full"
                 onClick={() =>
                   setMenuMovilAbierto(!menuMovilAbierto)
                 }
               >
                 {menuMovilAbierto ? (
-                  <X className="w-6 h-6" />
+                  <X className="w-6 h-6 text-[#241B22]" />
                 ) : (
-                  <Menu className="w-6 h-6" />
+                  <Menu className="w-6 h-6 text-[#241B22]" />
                 )}
               </button>
-              
+
               {/* Logo */}
               <button
                 onClick={() => {
@@ -458,52 +460,55 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                 className="flex items-center justify-center hover:opacity-75 transition-opacity"
                 title="Selenne Boutique — Inicio"
               >
-                <span className="text-2xl font-bold tracking-wide text-black">
+                <span className="text-2xl font-medium tracking-[0.04em] text-[#241B22]" style={{ fontFamily: 'Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}>
                   Selenne Boutique
                 </span>
               </button>
             </div>
 
             {/* Navegación Desktop */}
-            <nav className="hidden lg:flex items-center space-x-8">
+            <nav className="hidden lg:flex items-center space-x-10">
               <button
                 onClick={() => {
                   setVistaActual("tienda");
                   setCategoriaActiva("mujer");
                 }}
-                className={`py-2 px-1 border-b-2 transition-colors ${
+                className={`group relative py-2 text-[12px] tracking-[0.12em] uppercase font-semibold transition-opacity ${
                   categoriaActiva === "mujer"
-                    ? "border-[#d65391] text-[#d65391]"
-                    : "border-transparent text-gray-700 hover:text-[#d65391]"
+                    ? "text-[#A3395C] opacity-100"
+                    : "text-[#241B22] opacity-70 hover:opacity-100"
                 }`}
               >
                 Mujer
+                <span className={`absolute left-0 right-0 -bottom-0.5 h-[1.5px] bg-[#A3395C] origin-left transition-transform duration-300 ${categoriaActiva === "mujer" ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"}`} />
               </button>
               <button
                 onClick={() => {
                   setVistaActual("tienda");
                   setCategoriaActiva("accesorios");
                 }}
-                className={`py-2 px-1 border-b-2 transition-colors ${
+                className={`group relative py-2 text-[12px] tracking-[0.12em] uppercase font-semibold transition-opacity ${
                   categoriaActiva === "accesorios"
-                    ? "border-[#d65391] text-[#d65391]"
-                    : "border-transparent text-gray-700 hover:text-[#d65391]"
+                    ? "text-[#A3395C] opacity-100"
+                    : "text-[#241B22] opacity-70 hover:opacity-100"
                 }`}
               >
                 Accesorios
+                <span className={`absolute left-0 right-0 -bottom-0.5 h-[1.5px] bg-[#A3395C] origin-left transition-transform duration-300 ${categoriaActiva === "accesorios" ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"}`} />
               </button>
               <button
                 onClick={() => {
                   setVistaActual("tienda");
                   setCategoriaActiva("sale");
                 }}
-                className={`py-2 px-1 border-b-2 transition-colors ${
+                className={`group relative py-2 text-[12px] tracking-[0.12em] uppercase font-semibold transition-opacity ${
                   categoriaActiva === "sale"
-                    ? "border-[#d65391] text-[#d65391]"
-                    : "border-transparent text-gray-700 hover:text-[#d65391]"
+                    ? "text-[#A3395C] opacity-100"
+                    : "text-[#241B22] opacity-70 hover:opacity-100"
                 }`}
               >
                 Sale
+                <span className={`absolute left-0 right-0 -bottom-0.5 h-[1.5px] bg-[#A3395C] origin-left transition-transform duration-300 ${categoriaActiva === "sale" ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"}`} />
               </button>
             </nav>
 
@@ -512,14 +517,14 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
               {vistaActual === 'perfil' ? (
                 <button
                   onClick={() => setVistaActual("mensajes")}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors relative"
+                  className="p-2 hover:bg-[#EFD9DF] rounded-full transition-colors relative"
                   title="Mensajes"
                 >
-                  <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-6 h-6 text-[#241B22]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
                   {notifHook.noLeidas > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-[#d65391] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
+                    <span className="absolute -top-1 -right-1 bg-[#A3395C] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
                       {notifHook.noLeidas > 9 ? '9+' : notifHook.noLeidas}
                     </span>
                   )}
@@ -529,10 +534,19 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                   <SheetTrigger asChild>
                     <button
                       onClick={() => setBusquedaModal('')}
-                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                      className="hidden md:flex items-center gap-2 rounded-full border border-[#E7E0DA] bg-white pl-4 pr-3 py-2 w-[190px] text-left hover:border-[#A3395C] transition-colors"
+                    >
+                      <Search className="w-4 h-4 text-[#7d6f77] flex-shrink-0" />
+                      <span className="text-[13px] text-[#7d6f77]">Buscar productos…</span>
+                    </button>
+                  </SheetTrigger>
+                  <SheetTrigger asChild>
+                    <button
+                      onClick={() => setBusquedaModal('')}
+                      className="md:hidden p-2 hover:bg-[#EFD9DF] rounded-full transition-colors"
                       title="Buscar"
                     >
-                      <Search className="w-6 h-6 text-gray-700" />
+                      <Search className="w-6 h-6 text-[#241B22]" />
                     </button>
                   </SheetTrigger>
                   <SheetContent side="right">
@@ -598,16 +612,16 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
               )}
               <button
                 onClick={() => setVistaActual("perfil")}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-[#EFD9DF] rounded-full transition-colors"
               >
-                <User className="w-6 h-6 text-gray-700" />
+                <User className="w-6 h-6 text-[#241B22]" />
               </button>
               <Sheet open={favoritosOpen} onOpenChange={setFavoritosOpen}>
                 <SheetTrigger asChild>
-                  <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors relative">
-                    <Heart className="w-6 h-6 text-gray-700" />
+                  <button className="p-2 hover:bg-[#EFD9DF] rounded-full transition-colors relative">
+                    <Heart className="w-6 h-6 text-[#241B22]" />
                     {favoritos.length > 0 && (
-                      <span className="absolute -top-1 -right-1 bg-[#d65391] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                      <span className="absolute -top-1 -right-1 bg-[#A3395C] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                         {favoritos.length}
                       </span>
                     )}
@@ -660,10 +674,10 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                 onOpenChange={setCarritoAbierto}
               >
                 <SheetTrigger asChild>
-                  <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors relative">
-                    <ShoppingBag className="w-6 h-6 text-gray-700" />
+                  <button className="p-2 hover:bg-[#EFD9DF] rounded-full transition-colors relative">
+                    <ShoppingBag className="w-6 h-6 text-[#241B22]" />
                     {carritoItems.length > 0 && (
-                      <span className="absolute -top-1 -right-1 bg-[#d65391] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                      <span className="absolute -top-1 -right-1 bg-[#A3395C] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                         {carritoItems.length}
                       </span>
                     )}
@@ -762,17 +776,17 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
 
           {/* Navegación Móvil */}
           {menuMovilAbierto && (
-            <nav className="lg:hidden py-4 space-y-2 border-t border-gray-200">
+            <nav className="lg:hidden py-4 space-y-2 border-t border-[#E7E0DA]">
               <button
                 onClick={() => {
                   setVistaActual("tienda");
                   setCategoriaActiva("mujer");
                   setMenuMovilAbierto(false);
                 }}
-                className={`block w-full text-left px-4 py-2 rounded-lg ${
+                className={`block w-full text-left px-4 py-2 rounded-lg text-[13px] tracking-[0.08em] uppercase font-semibold ${
                   categoriaActiva === "mujer"
-                    ? "bg-[#f8a9c5] text-white"
-                    : "text-gray-700 hover:bg-gray-100"
+                    ? "bg-[#A3395C] text-white"
+                    : "text-[#241B22] hover:bg-[#EFD9DF]"
                 }`}
               >
                 Mujer
@@ -783,10 +797,10 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                   setCategoriaActiva("accesorios");
                   setMenuMovilAbierto(false);
                 }}
-                className={`block w-full text-left px-4 py-2 rounded-lg ${
+                className={`block w-full text-left px-4 py-2 rounded-lg text-[13px] tracking-[0.08em] uppercase font-semibold ${
                   categoriaActiva === "accesorios"
-                    ? "bg-[#f8a9c5] text-white"
-                    : "text-gray-700 hover:bg-gray-100"
+                    ? "bg-[#A3395C] text-white"
+                    : "text-[#241B22] hover:bg-[#EFD9DF]"
                 }`}
               >
                 Accesorios
@@ -797,10 +811,10 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                   setCategoriaActiva("sale");
                   setMenuMovilAbierto(false);
                 }}
-                className={`block w-full text-left px-4 py-2 rounded-lg ${
+                className={`block w-full text-left px-4 py-2 rounded-lg text-[13px] tracking-[0.08em] uppercase font-semibold ${
                   categoriaActiva === "sale"
-                    ? "bg-[#f8a9c5] text-white"
-                    : "text-gray-700 hover:bg-gray-100"
+                    ? "bg-[#A3395C] text-white"
+                    : "text-[#241B22] hover:bg-[#EFD9DF]"
                 }`}
               >
                 Sale
@@ -1003,11 +1017,21 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
           <p
             className="text-gray-600"
           >
-            {productosFiltrados.length} productos encontrados
+            {productosLoading ? 'Cargando productos…' : `${productosFiltrados.length} productos encontrados`}
           </p>
         </div>
 
-        {productosFiltrados.length === 0 ? (
+        {productosLoading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="animate-pulse">
+                <div className="w-full aspect-[3/4] bg-gray-200 rounded" />
+                <div className="h-4 bg-gray-200 rounded mt-3 w-3/4" />
+                <div className="h-4 bg-gray-200 rounded mt-2 w-1/2" />
+              </div>
+            ))}
+          </div>
+        ) : productosFiltrados.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-500 text-lg">
               No se encontraron productos

@@ -47,6 +47,7 @@ import {
 import { Separator } from "../../components/ui/separator";
 import { ImageCarousel } from "../../components/figma/ImageCarousel";
 import { useProductosCombinados } from "../../shared/data/useProductosCombinados";
+import { useProductos } from "../../shared/contexts/ProductosContext";
 import { useTienda } from "../../shared/contexts/TiendaContext";
 import { useSubcategorias } from "../../shared/contexts/SubcategoriasContext";
 import { getJson } from "../../services/api";
@@ -104,6 +105,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
   const [categoriaLocal, setCategoriaLocal] = useState("");
 
   const productosData = useProductosCombinados();
+  const { loading: productosLoading } = useProductos();
   const { colores, tallas } = useSubcategorias();
 
   const {
@@ -354,19 +356,19 @@ export const LandingView: React.FC<LandingViewProps> = ({
   return (
     <div className="min-h-screen bg-white flex flex-col">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
+      <header className="sticky top-0 z-50 bg-[#FBF8F5] border-b border-[#E7E0DA] shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
             <div className="flex items-center gap-2">
               <button
-                className="lg:hidden mr-2 p-2 hover:bg-gray-100 rounded-lg"
+                className="lg:hidden mr-2 p-2 hover:bg-[#EFD9DF] rounded-full"
                 onClick={() => setMenuMovilAbierto(!menuMovilAbierto)}
               >
                 {menuMovilAbierto ? (
-                  <X className="w-6 h-6" />
+                  <X className="w-6 h-6 text-[#241B22]" />
                 ) : (
-                  <Menu className="w-6 h-6" />
+                  <Menu className="w-6 h-6 text-[#241B22]" />
                 )}
               </button>
               <button
@@ -374,83 +376,73 @@ export const LandingView: React.FC<LandingViewProps> = ({
                 className="flex items-center justify-center hover:opacity-75 transition-opacity"
                 title="Selenne Boutique — Inicio"
               >
-                <span className="text-2xl font-bold tracking-wide text-black" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
+                <span className="text-2xl font-medium tracking-[0.04em] text-[#241B22]" style={{ fontFamily: 'Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}>
                   Selenne Boutique
                 </span>
               </button>
             </div>
 
             {/* Navegación Desktop */}
-            <nav className="hidden lg:flex items-center space-x-8">
+            <nav className="hidden lg:flex items-center space-x-10">
               <button
                 onClick={() => setCategoriaActiva("mujer")}
                 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                className={`py-2 px-1 border-b-2 transition-colors ${
+                className={`group relative py-2 text-[12px] tracking-[0.12em] uppercase font-semibold transition-opacity ${
                   categoriaActiva === "mujer"
-                    ? "border-[#d65391] text-[#d65391]"
-                    : "border-transparent text-gray-700 hover:text-[#d65391]"
+                    ? "text-[#A3395C] opacity-100"
+                    : "text-[#241B22] opacity-70 hover:opacity-100"
                 }`}
               >
                 Mujer
+                <span className={`absolute left-0 right-0 -bottom-0.5 h-[1.5px] bg-[#A3395C] origin-left transition-transform duration-300 ${categoriaActiva === "mujer" ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"}`} />
               </button>
               <button
                 onClick={() => setCategoriaActiva("accesorios")}
                 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                className={`py-2 px-1 border-b-2 transition-colors ${
+                className={`group relative py-2 text-[12px] tracking-[0.12em] uppercase font-semibold transition-opacity ${
                   categoriaActiva === "accesorios"
-                    ? "border-[#d65391] text-[#d65391]"
-                    : "border-transparent text-gray-700 hover:text-[#d65391]"
+                    ? "text-[#A3395C] opacity-100"
+                    : "text-[#241B22] opacity-70 hover:opacity-100"
                 }`}
               >
                 Accesorios
+                <span className={`absolute left-0 right-0 -bottom-0.5 h-[1.5px] bg-[#A3395C] origin-left transition-transform duration-300 ${categoriaActiva === "accesorios" ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"}`} />
               </button>
               <button
                 onClick={() => setCategoriaActiva("sale")}
                 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                className={`py-2 px-1 border-b-2 transition-colors ${
+                className={`group relative py-2 text-[12px] tracking-[0.12em] uppercase font-semibold transition-opacity ${
                   categoriaActiva === "sale"
-                    ? "border-[#d65391] text-[#d65391]"
-                    : "border-transparent text-gray-700 hover:text-[#d65391]"
+                    ? "text-[#A3395C] opacity-100"
+                    : "text-[#241B22] opacity-70 hover:opacity-100"
                 }`}
               >
                 Sale
+                <span className={`absolute left-0 right-0 -bottom-0.5 h-[1.5px] bg-[#A3395C] origin-left transition-transform duration-300 ${categoriaActiva === "sale" ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"}`} />
               </button>
             </nav>
 
             {/* Acciones */}
             <div className="flex items-center space-x-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onNavigateToLogin}
-                className="hidden md:flex items-center gap-1 text-gray-700 hover:text-[#d65391]"
-                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              >
-                <LogIn className="w-4 h-4" />
-                Iniciar Sesión
-              </Button>
-              <Button
-                size="sm"
-                onClick={onNavigateToRegister}
-                className="hidden md:flex bg-[#d65391] hover:bg-[#c04380] text-white"
-                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              >
-                Registrarse
-              </Button>
-              <button
-                onClick={() => onNavigateToLogin()}
-                className="md:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <User className="w-6 h-6 text-gray-700" />
-              </button>
               <Sheet open={busquedaModalAbierta} onOpenChange={v => { setBusquedaModalAbierta(v); if (!v) setBusquedaModal(''); }}>
                 <SheetTrigger asChild>
                   <button
                     onClick={() => setBusquedaModal('')}
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="hidden md:flex items-center gap-2 rounded-full border border-[#E7E0DA] bg-white pl-4 pr-3 py-2 w-[190px] text-left hover:border-[#A3395C] transition-colors"
+                  >
+                    <Search className="w-4 h-4 text-[#7d6f77] flex-shrink-0" />
+                    <span className="text-[13px] text-[#7d6f77]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                      Buscar productos…
+                    </span>
+                  </button>
+                </SheetTrigger>
+                <SheetTrigger asChild>
+                  <button
+                    onClick={() => setBusquedaModal('')}
+                    className="md:hidden p-2 hover:bg-[#EFD9DF] rounded-full transition-colors"
                     title="Buscar"
                   >
-                    <Search className="w-6 h-6 text-gray-700" />
+                    <Search className="w-6 h-6 text-[#241B22]" />
                   </button>
                 </SheetTrigger>
                 <SheetContent side="right" className="w-full sm:max-w-md flex flex-col p-0">
@@ -514,12 +506,36 @@ export const LandingView: React.FC<LandingViewProps> = ({
                   </div>
                 </SheetContent>
               </Sheet>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onNavigateToLogin}
+                className="hidden md:flex items-center gap-1 text-[#241B22] hover:text-[#A3395C] hover:bg-[#EFD9DF]"
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+              >
+                <LogIn className="w-4 h-4" />
+                Iniciar Sesión
+              </Button>
+              <Button
+                size="sm"
+                onClick={onNavigateToRegister}
+                className="hidden md:flex bg-[#A3395C] hover:bg-[#8a2e4d] text-white"
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+              >
+                Registrarse
+              </Button>
+              <button
+                onClick={() => onNavigateToLogin()}
+                className="md:hidden p-2 hover:bg-[#EFD9DF] rounded-full transition-colors"
+              >
+                <User className="w-6 h-6 text-[#241B22]" />
+              </button>
               <Sheet open={favoritosOpen} onOpenChange={setFavoritosOpen}>
                 <SheetTrigger asChild>
-                  <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors relative">
-                    <Heart className="w-6 h-6 text-gray-700" />
+                  <button className="p-2 hover:bg-[#EFD9DF] rounded-full transition-colors relative">
+                    <Heart className="w-6 h-6 text-[#241B22]" />
                     {favoritosValidos.length > 0 && (
-                      <span className="absolute -top-1 -right-1 bg-[#d65391] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                      <span className="absolute -top-1 -right-1 bg-[#A3395C] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                         {favoritosValidos.length}
                       </span>
                     )}
@@ -938,11 +954,21 @@ export const LandingView: React.FC<LandingViewProps> = ({
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="mb-4 flex justify-between items-center">
             <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-600">
-              {productosFiltrados.length} productos encontrados
+              {productosLoading ? 'Cargando productos…' : `${productosFiltrados.length} productos encontrados`}
             </p>
           </div>
 
-          {productosFiltrados.length === 0 ? (
+          {productosLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="animate-pulse">
+                  <div className="w-full aspect-[3/4] bg-gray-200 rounded" />
+                  <div className="h-4 bg-gray-200 rounded mt-3 w-3/4" />
+                  <div className="h-4 bg-gray-200 rounded mt-2 w-1/2" />
+                </div>
+              ))}
+            </div>
+          ) : productosFiltrados.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-gray-500 text-lg">No se encontraron productos</p>
             </div>

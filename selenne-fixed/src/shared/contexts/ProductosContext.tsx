@@ -254,7 +254,7 @@ async function mutarProducto(method: string, path: string, body?: object): Promi
 
 export const ProductosProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [productos, setProductos] = useState<ProductoAdmin[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const cargarProductos = async () => {
     setLoading(true);
