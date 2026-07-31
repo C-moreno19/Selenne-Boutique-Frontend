@@ -30,7 +30,7 @@ export const CustomInput: React.FC<CustomInputProps> = ({
   const getBorderColor = () => {
     if (error) return 'border-[#d64545]';
     if (success) return 'border-[#2eaf6f]';
-    if (isFocused) return 'border-[#c84a8f]';
+    if (isFocused) return 'border-[#A3395C]';
     return 'border-[#d1d1d1]';
   };
 
@@ -55,7 +55,7 @@ export const CustomInput: React.FC<CustomInputProps> = ({
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-[#c84a8f] transition-colors"
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-[#A3395C] transition-colors"
           >
             {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
           </button>

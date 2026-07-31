@@ -21,8 +21,8 @@ export const CustomButton: React.FC<CustomButtonProps> = ({
   const baseClasses = `px-8 py-3 transition-all duration-200 ${fullWidth ? 'w-full' : ''}`;
   
   const variantClasses = variant === 'primary'
-    ? 'bg-[#000000] text-white hover:bg-[#2a2a2a]'
-    : 'bg-[#f2d9e6] text-[#000000] hover:bg-[#c84a8f] hover:text-white';
+    ? 'bg-[#A3395C] text-white hover:bg-[#8a2e4d]'
+    : 'bg-[#EFD9DF] text-[#241B22] hover:bg-[#A3395C] hover:text-white';
 
   return (
     <motion.button

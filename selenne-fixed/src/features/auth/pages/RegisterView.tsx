@@ -240,32 +240,30 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
         className="hidden lg:flex lg:w-[55%] p-12 flex-col justify-center items-start relative overflow-hidden flex-shrink-0"
       >
         <SatinBackground />
-        <div className="max-w-[450px] ml-12 relative z-10 space-y-7">
+        <div className="max-w-[450px] ml-12 relative z-10 space-y-6">
           {/* Título */}
           <h1
+            className="text-white"
             style={{
-              fontFamily: '"Times New Roman", Times, serif',
-              fontSize: '88px',
+              fontFamily: 'Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif',
+              fontSize: '64px',
               lineHeight: '1.1',
-              fontWeight: 'bold',
-              letterSpacing: '-0.02em',
-              color: '#000000',
+              fontWeight: 500,
+              letterSpacing: '0.01em',
             }}
           >
-            <span className="block" style={{ fontFamily: '"Times New Roman", Times, serif' }}>Selenne</span>
-            <span className="block" style={{ fontFamily: '"Times New Roman", Times, serif', paddingLeft: '5.5rem' }}>Boutique</span>
+            Selenne Boutique
           </h1>
 
           {/* Frase inspiradora */}
           <p
             style={{
               fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
-              fontSize: '18px',
-              lineHeight: '1.6',
+              fontSize: '17px',
+              lineHeight: '1.7',
               fontWeight: '400',
               fontStyle: 'italic',
-              color: '#000000',
-              textAlign: 'center',
+              color: '#EFD9DF',
             }}
           >
             "Descubre prendas que realzan tu belleza y te hacen sentir única. Cada pieza está diseñada para acompañarte a brillar en cada momento."
@@ -390,7 +388,7 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
             <div className="text-center pt-2">
               <button
                 onClick={onBackToLogin}
-                className="text-[#1a1a1a] hover:text-[#c84a8f] transition-all"
+                className="text-[#1a1a1a] hover:text-[#A3395C] transition-all"
                 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: '14px' }}
               >
                 ¿Ya tienes una cuenta? <span className="underline">Inicia sesión</span>
