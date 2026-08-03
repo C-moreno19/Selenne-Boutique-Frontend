@@ -1344,33 +1344,33 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
       </Dialog>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white mt-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+      <footer className="text-white mt-20" style={{ background: 'linear-gradient(90deg, #1c151a 0%, #241B22 30%, #7a3350 68%, #A3395C 100%)' }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-10" style={{ fontFamily: 'Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}>
             <div>
               <h3
-                style={{ fontFamily: '"Times New Roman", Times, serif', color: '#ffffff' }}
-                className="text-2xl mb-4"
+                style={{ fontFamily: 'Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif', color: '#ffffff' }}
+                className="text-3xl mb-4"
               >
                 Selenne Boutique
               </h3>
               <p
-                className="text-gray-400 text-sm"
+                className="text-gray-300 text-base"
               >
                 Elegancia y estilo en cada prenda
               </p>
             </div>
             <div>
               <h4
-                className="mb-4"
+                className="mb-5 text-lg font-semibold uppercase tracking-wide text-[#EFD9DF]"
               >
                 Compra
               </h4>
-              <ul className="space-y-2 text-sm text-gray-400">
+              <ul className="space-y-3 text-base text-gray-300">
                 <li>
                   <button
                     onClick={() => setCategoriaActiva("mujer")}
-                    className="hover:text-[#f8a9c5]"
+                    className="hover:text-[#EFD9DF] transition-colors"
                   >
                     Mujer
                   </button>
@@ -1380,7 +1380,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                     onClick={() =>
                       setCategoriaActiva("accesorios")
                     }
-                    className="hover:text-[#f8a9c5]"
+                    className="hover:text-[#EFD9DF] transition-colors"
                   >
                     Accesorios
                   </button>
@@ -1388,7 +1388,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                 <li>
                   <button
                     onClick={() => setCategoriaActiva("sale")}
-                    className="hover:text-[#f8a9c5]"
+                    className="hover:text-[#EFD9DF] transition-colors"
                   >
                     Sale
                   </button>
@@ -1397,17 +1397,17 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
             </div>
             <div>
               <h4
-                className="mb-4"
+                className="mb-5 text-lg font-semibold uppercase tracking-wide text-[#EFD9DF]"
               >
                 Ayuda
               </h4>
-              <ul className="space-y-2 text-sm text-gray-400">
+              <ul className="space-y-3 text-base text-gray-300">
                 <li>
                   <a
                     href={`https://wa.me/${telefonoContacto.replace(/\D/g, '')}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="hover:text-[#f8a9c5]"
+                    className="hover:text-[#EFD9DF] transition-colors"
                   >
                     Contacto
                   </a>
@@ -1416,21 +1416,21 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
             </div>
             <div>
               <h4
-                className="mb-4"
+                className="mb-5 text-lg font-semibold uppercase tracking-wide text-[#EFD9DF]"
               >
                 Síguenos
               </h4>
-              <ul className="space-y-2 text-sm text-gray-400">
+              <ul className="space-y-3 text-base text-gray-300">
                 <li>
-                  <a href="https://www.instagram.com/selenne_boutique_?igsh=MWJtaXR0Zm85MW13ZQ==" target="_blank" rel="noopener noreferrer" className="hover:text-[#f8a9c5]">
+                  <a href="https://www.instagram.com/selenne_boutique_?igsh=MWJtaXR0Zm85MW13ZQ==" target="_blank" rel="noopener noreferrer" className="hover:text-[#EFD9DF] transition-colors">
                     Instagram
                   </a>
                 </li>
               </ul>
             </div>
           </div>
-          <Separator className="my-8 bg-gray-700" />
-          <div className="text-center text-sm text-gray-400">
+          <Separator className="my-8 bg-white/15" />
+          <div className="text-center text-sm text-gray-300" style={{ fontFamily: 'Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}>
             <p>
               © 2024 Selenne Boutique. Todos los derechos
               reservados.
