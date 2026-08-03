@@ -104,7 +104,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onLogout }) => {
         <div className="flex items-center justify-center min-h-[70vh]">
           <div className="text-center max-w-md mx-auto px-6">
             <div className="mb-6 text-7xl">🔒</div>
-            <h2 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-3xl text-gray-900 mb-3">
+            <h2 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-3xl text-[#241B22] mb-3">
               Sin acceso
             </h2>
             <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-500 mb-2">

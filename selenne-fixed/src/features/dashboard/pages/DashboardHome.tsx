@@ -420,7 +420,7 @@ export const DashboardHome: React.FC = () => {
             onChange={(e) => { const val = e.target.value; if (val) setDateRange((prev) => ({ ...prev, to: new Date(val + 'T00:00:00') })); }}
             className="text-sm text-gray-600 border-none outline-none bg-transparent cursor-pointer" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} />
           <button onClick={() => setDateRange(defaultDateRange())}
-            className="ml-1 text-xs text-[#A3395C] hover:text-[#8a2e4d] whitespace-nowrap transition-colors" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+            className="ml-1 text-xs text-[#A3395C] hover:text-[#8a2e4d] whitespace-nowrap transition" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
             Resetear
           </button>
         </div>
@@ -537,13 +537,13 @@ export const DashboardHome: React.FC = () => {
               <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">{dateRangeLabel}</p>
             </div>
             <button onClick={() => setSalesDetailOpen(true)}
-              className="group text-xs text-[#A3395C] hover:text-[#8a2e4d] transition-colors flex items-center gap-1" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+              className="group text-xs text-[#A3395C] hover:text-[#8a2e4d] transition flex items-center gap-1" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
               Ver todo <ChevronRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5" />
             </button>
           </div>
           <div className="space-y-1">
             {recentSales.slice(0, 5).map((sale) => (
-              <div key={sale.id} className="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-[#EFD9DF] transition-colors">
+              <div key={sale.id} className="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-[#EFD9DF] transition">
                 <div className="w-9 h-9 bg-[#EFD9DF] rounded-lg flex items-center justify-center flex-shrink-0">
                   <ShoppingCart className="w-4 h-4 text-[#A3395C]" />
                 </div>
@@ -614,7 +614,7 @@ export const DashboardHome: React.FC = () => {
 
           <div className="flex gap-3 px-8 pb-6">
             <button type="button" onClick={() => setReportModalOpen(false)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="flex-1 py-2.5 bg-gray-100 text-gray-600 rounded-xl hover:bg-gray-200 transition-colors text-sm font-medium">
+              className="flex-1 py-2.5 bg-gray-100 text-gray-600 rounded-xl hover:bg-gray-200 transition text-sm font-medium">
               Cancelar
             </button>
             <button type="button" onClick={() => {
@@ -628,7 +628,7 @@ export const DashboardHome: React.FC = () => {
                 setReportModalOpen(false);
               } catch { toast.error('Error generando el reporte'); }
             }} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="flex-1 py-2.5 bg-[#A3395C] text-white rounded-xl hover:bg-[#8a2e4d] transition-colors text-sm font-semibold flex items-center justify-center gap-2">
+              className="flex-1 py-2.5 bg-[#A3395C] text-white rounded-xl hover:bg-[#8a2e4d] transition text-sm font-semibold flex items-center justify-center gap-2">
               <Download className="w-4 h-4" /> Descargar
             </button>
           </div>
@@ -646,7 +646,7 @@ export const DashboardHome: React.FC = () => {
           </DialogHeader>
           <div className="divide-y divide-gray-50 max-h-[480px] overflow-y-auto">
             {recentSales.map((sale) => (
-              <div key={sale.id} className="flex items-center gap-4 px-8 py-4 hover:bg-[#EFD9DF] transition-colors">
+              <div key={sale.id} className="flex items-center gap-4 px-8 py-4 hover:bg-[#EFD9DF] transition">
                 <div className="w-9 h-9 bg-[#EFD9DF] rounded-lg flex items-center justify-center flex-shrink-0">
                   <ShoppingCart className="w-4 h-4 text-[#A3395C]" />
                 </div>
@@ -669,7 +669,7 @@ export const DashboardHome: React.FC = () => {
           </div>
           <DialogFooter className="px-8 py-4 border-t border-[#E7E0DA]">
             <button onClick={() => setSalesDetailOpen(false)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="px-5 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors text-sm">
+              className="px-5 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition text-sm">
               Cerrar
             </button>
           </DialogFooter>

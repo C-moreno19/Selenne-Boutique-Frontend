@@ -78,14 +78,14 @@ export const NotificacionesAdminView: React.FC = () => {
   };
 
   return (
-    <div className="p-8 bg-gray-50 min-h-screen">
+    <div className="p-8 bg-[#FBF8F5] min-h-screen">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 mb-4">
         <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500">
           Dashboard
         </span>
         <ChevronRight className="w-4 h-4 text-gray-400" />
-        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-900">
+        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-[#241B22]">
           Notificaciones
         </span>
       </div>
@@ -93,7 +93,7 @@ export const NotificacionesAdminView: React.FC = () => {
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center gap-3 mb-2">
-          <h1 style={{ fontFamily: '"Times New Roman", Times, serif' }} className="text-[36px] text-gray-900">
+          <h1 style={{ fontFamily: '"Times New Roman", Times, serif' }} className="text-[36px] text-[#241B22]">
             🔔 Notificaciones
           </h1>
           {sinLeer > 0 && (
@@ -108,13 +108,13 @@ export const NotificacionesAdminView: React.FC = () => {
       </div>
 
       {/* Filtros */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-6">
+      <div className="bg-white rounded-xl p-6 shadow-sm border border-[#E7E0DA] mb-6">
         <div className="flex gap-3">
           <button
             onClick={() => setFilterType('todos')}
-            className={`px-4 py-2 rounded-lg transition-colors font-semibold ${
+            className={`px-4 py-2 rounded-lg transition font-semibold ${
               filterType === 'todos'
-                ? 'bg-[#d65391] text-white'
+                ? 'bg-[#A3395C] text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
@@ -122,9 +122,9 @@ export const NotificacionesAdminView: React.FC = () => {
           </button>
           <button
             onClick={() => setFilterType('respuestas')}
-            className={`px-4 py-2 rounded-lg transition-colors font-semibold ${
+            className={`px-4 py-2 rounded-lg transition font-semibold ${
               filterType === 'respuestas'
-                ? 'bg-[#d65391] text-white'
+                ? 'bg-[#A3395C] text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
@@ -132,9 +132,9 @@ export const NotificacionesAdminView: React.FC = () => {
           </button>
           <button
             onClick={() => setFilterType('consultas')}
-            className={`px-4 py-2 rounded-lg transition-colors font-semibold ${
+            className={`px-4 py-2 rounded-lg transition font-semibold ${
               filterType === 'consultas'
-                ? 'bg-[#d65391] text-white'
+                ? 'bg-[#A3395C] text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
@@ -144,7 +144,7 @@ export const NotificacionesAdminView: React.FC = () => {
       </div>
 
       {/* Lista de Notificaciones */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-white rounded-xl shadow-sm border border-[#E7E0DA] overflow-hidden">
         {mensajesFiltrados.length === 0 ? (
           <div className="p-12 text-center">
             <div className="text-5xl mb-4">📭</div>
@@ -157,7 +157,7 @@ export const NotificacionesAdminView: React.FC = () => {
             {mensajesFiltrados.map((msg) => (
               <div
                 key={msg.id}
-                className={`p-4 hover:bg-gray-50 transition-colors cursor-pointer border-l-4 ${
+                className={`p-4 hover:bg-[#FBF8F5] transition cursor-pointer border-l-4 ${
                   !msg.leido
                     ? 'border-l-blue-600 bg-blue-50'
                     : 'border-l-gray-200 bg-white'
@@ -169,7 +169,7 @@ export const NotificacionesAdminView: React.FC = () => {
                     {getTypeIcon(msg.tipo)}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-gray-900">
+                        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#241B22]">
                           {getMensajePrincipal(msg)}
                         </p>
                         {!msg.leido && (
@@ -194,7 +194,7 @@ export const NotificacionesAdminView: React.FC = () => {
                         e.stopPropagation();
                         handleView(msg);
                       }}
-                      className="p-2 text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                      className="p-2 text-blue-600 hover:bg-blue-50 rounded transition"
                       title="Ver detalles"
                     >
                       <Eye className="w-5 h-5" />
@@ -204,7 +204,7 @@ export const NotificacionesAdminView: React.FC = () => {
                         e.stopPropagation();
                         handleDelete(msg.id);
                       }}
-                      className="p-2 text-red-600 hover:bg-red-50 rounded transition-colors"
+                      className="p-2 text-red-600 hover:bg-red-50 rounded transition"
                       title="Eliminar"
                     >
                       <Trash2 className="w-5 h-5" />
@@ -219,27 +219,29 @@ export const NotificacionesAdminView: React.FC = () => {
 
       {/* Modal de Detalles */}
       <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-2xl">
-              {selectedMsg?.tipo === 'respuesta-cliente' ? '💬 Respuesta de Cliente' : '📧 Consulta'}
+        <DialogContent className="max-w-2xl p-0 gap-0 overflow-hidden">
+          <div className="px-8 pt-6 pb-5 flex-shrink-0" style={{ background: 'linear-gradient(90deg, #241B22 0%, #7a3350 55%, #A3395C 100%)' }}>
+            <p className="text-[10px] font-bold uppercase tracking-[3px] text-[#EFD9DF] mb-1">Selenne Boutique</p>
+            <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xl font-bold text-white flex items-center gap-2">
+              {selectedMsg?.tipo === 'respuesta-cliente' ? <MessageCircle className="w-5 h-5 opacity-80" /> : <Mail className="w-5 h-5 opacity-80" />}
+              {selectedMsg?.tipo === 'respuesta-cliente' ? 'Respuesta de Cliente' : 'Consulta'}
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-[#EFD9DF] text-sm mt-0.5">
               De: <strong>{selectedMsg?.email}</strong> • {selectedMsg?.fecha}
             </DialogDescription>
-          </DialogHeader>
+          </div>
 
           {selectedMsg && (
-            <div className="space-y-4">
+            <div className="space-y-4 px-8 py-6 bg-[#FBF8F5]">
               {/* Info del Mensaje */}
-              <div className="bg-gray-50 rounded-lg p-4">
+              <div className="bg-[#FBF8F5] rounded-lg p-4">
                 <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-gray-600 uppercase mb-2">
                   Información
                 </h3>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
                     <p className="text-gray-600">Cliente</p>
-                    <p className="font-semibold text-gray-900">{selectedMsg.email}</p>
+                    <p className="font-semibold text-[#241B22]">{selectedMsg.email}</p>
                   </div>
                   <div>
                     <p className="text-gray-600">Tipo</p>
@@ -247,11 +249,11 @@ export const NotificacionesAdminView: React.FC = () => {
                   </div>
                   <div>
                     <p className="text-gray-600">Venta</p>
-                    <p className="font-semibold text-gray-900">{selectedMsg.idVenta}</p>
+                    <p className="font-semibold text-[#241B22]">{selectedMsg.idVenta}</p>
                   </div>
                   <div>
                     <p className="text-gray-600">Fecha</p>
-                    <p className="font-semibold text-gray-900">{selectedMsg.fecha}</p>
+                    <p className="font-semibold text-[#241B22]">{selectedMsg.fecha}</p>
                   </div>
                 </div>
               </div>
@@ -261,7 +263,7 @@ export const NotificacionesAdminView: React.FC = () => {
                 <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-blue-900 uppercase mb-2">
                   Mensaje
                 </h3>
-                <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-900 whitespace-pre-wrap">
+                <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-[#241B22] whitespace-pre-wrap">
                   {selectedMsg.contenido}
                 </p>
               </div>
@@ -273,13 +275,14 @@ export const NotificacionesAdminView: React.FC = () => {
                     handleDelete(selectedMsg.id);
                     setDetailsOpen(false);
                   }}
-                  className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors"
+                  className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition"
                 >
                   Eliminar
                 </button>
                 <button
                   onClick={() => setDetailsOpen(false)}
-                  className="px-4 py-2 bg-[#d65391] text-white rounded-lg hover:bg-[#c04580] transition-colors"
+                  className="px-4 py-2 text-white rounded-lg hover:opacity-90 transition"
+                  style={{ background: 'linear-gradient(90deg, #241B22 0%, #7a3350 55%, #A3395C 100%)' }}
                 >
                   Cerrar
                 </button>

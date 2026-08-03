@@ -173,7 +173,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
             onClick={() => onSectionChange('home')}
           >
             <img src={imgLogo} alt="Selenne Boutique" className="h-8 w-auto transition-transform duration-300 group-hover:scale-105" />
-            <span className="text-[18px] text-[#241B22] transition-colors group-hover:text-[#A3395C]">
+            <span className="text-[18px] text-[#241B22] transition group-hover:text-[#A3395C]">
               Selenne Boutique
             </span>
           </div>
@@ -215,7 +215,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                       isActive ? 'h-5 opacity-100' : 'h-0 opacity-0 group-hover:h-3 group-hover:opacity-60'
                     }`}
                   />
-                  <span className={`transition-colors duration-200 ${isActive ? 'text-[#A3395C]' : 'text-[#7d6f77] group-hover:text-[#A3395C]'}`}>
+                  <span className={`transition duration-200 ${isActive ? 'text-[#A3395C]' : 'text-[#7d6f77] group-hover:text-[#A3395C]'}`}>
                     {item.icon}
                   </span>
                   <span className="text-sm flex-1 text-left">

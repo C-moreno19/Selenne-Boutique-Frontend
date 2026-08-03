@@ -24,7 +24,7 @@ const estadoColor = (e: string) => {
 };
 const estadoBadgeClass = (e: string) => {
   if (e === 'Completado' || e === 'Completada') return 'bg-green-50 text-green-600 border-green-200';
-  if (e === 'Enviado') return 'bg-pink-50 text-[#d65391] border-pink-200';
+  if (e === 'Enviado') return 'bg-[#FBF8F5] text-[#A3395C] border-pink-200';
   if (e === 'Aprobado' || e === 'Aprobada') return 'bg-blue-50 text-blue-600 border-blue-200';
   if (e === 'Rechazado' || e === 'Rechazada') return 'bg-orange-50 text-orange-600 border-orange-200';
   return 'bg-red-50 text-red-600 border-red-200';
@@ -100,41 +100,41 @@ export const HistorialVentasView: React.FC<HistorialVentasViewProps> = ({ onBack
 
   if (loading) return (
     <div className="flex items-center justify-center min-h-screen">
-      <Loader2 className="w-8 h-8 animate-spin text-[#d65391]" />
+      <Loader2 className="w-8 h-8 animate-spin text-[#A3395C]" />
     </div>
   );
 
   return (
-    <div className="p-8 bg-gray-50 min-h-screen">
+    <div className="p-8 bg-[#FBF8F5] min-h-screen">
       <div className="flex items-center gap-2 mb-4">
         <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500">Dashboard</span>
         <ChevronRight className="w-4 h-4 text-gray-400" />
         <button type="button" onClick={onBack} className="text-sm text-gray-500 hover:text-gray-700">Gestión de Ventas</button>
         <ChevronRight className="w-4 h-4 text-gray-400" />
-        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-900">Historial</span>
+        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-[#241B22]">Historial</span>
       </div>
       <div className="flex items-center gap-4 mb-6">
-        <button type="button" title="Volver" onClick={onBack} className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">
+        <button type="button" title="Volver" onClick={onBack} className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition">
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <h1 style={{ fontFamily: '"Times New Roman", Times, serif' }} className="text-4xl text-gray-900">Historial de Ventas</h1>
+        <h1 style={{ fontFamily: '"Times New Roman", Times, serif' }} className="text-4xl text-[#241B22]">Historial de Ventas</h1>
       </div>
 
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex gap-4 mb-6">
+      <div className="bg-white rounded-xl p-6 shadow-sm border border-[#E7E0DA] flex gap-4 mb-6">
         <div className="flex-1 relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           <input type="text" placeholder="Buscar por cliente o email..." value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-            className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391]" />
+            className="w-full pl-12 pr-4 py-3 bg-[#FBF8F5] border border-[#E7E0DA] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A3395C]" />
         </div>
-        <button type="button" title="Actualizar" onClick={() => { setLoading(true); loadData(); }} className="px-4 py-3 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+        <button type="button" title="Actualizar" onClick={() => { setLoading(true); loadData(); }} className="px-4 py-3 bg-white border border-[#E7E0DA] text-gray-700 rounded-lg hover:bg-[#FBF8F5] transition">
           <RefreshCw className="w-5 h-5" />
         </button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-white rounded-xl shadow-sm border border-[#E7E0DA] overflow-hidden">
         <table className="w-full">
-          <thead className="bg-gray-50 border-b border-gray-200">
+          <thead className="bg-[#FBF8F5] border-b border-[#E7E0DA]">
             <tr>
               {['#', 'CLIENTE', 'FECHA', 'TOTAL', 'ESTADO', 'ACCIONES'].map(h => (
                 <th key={h} className="px-6 py-4 text-left">
@@ -145,10 +145,10 @@ export const HistorialVentasView: React.FC<HistorialVentasViewProps> = ({ onBack
           </thead>
           <tbody className="divide-y divide-gray-100">
             {filtered.map((p, idx) => (
-              <tr key={p.pedidoID} className="hover:bg-gray-50 transition-colors">
-                <td className="px-6 py-4"><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-medium text-gray-900">#{idx + 1}</span></td>
+              <tr key={p.pedidoID} className="hover:bg-[#FBF8F5] transition">
+                <td className="px-6 py-4"><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-medium text-[#241B22]">#{idx + 1}</span></td>
                 <td className="px-6 py-4">
-                  <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-medium text-gray-900">{p.nombreCliente}</p>
+                  <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-medium text-[#241B22]">{p.nombreCliente}</p>
                   <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500">{p.emailCliente}</p>
                 </td>
                 <td className="px-6 py-4"><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-600">{new Date(p.fechaPedido).toLocaleDateString('es-CO')}</span></td>
@@ -159,12 +159,12 @@ export const HistorialVentasView: React.FC<HistorialVentasViewProps> = ({ onBack
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-2">
                     <button type="button" onClick={() => { setSelectedPedido(p); setViewOpen(true); }}
-                      className="p-2 text-gray-500 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors" title="Ver detalles">
+                      className="p-2 text-gray-500 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition" title="Ver detalles">
                       <Eye className="w-5 h-5" />
                     </button>
                     {puedeAdmin && (
                       <button type="button" onClick={() => { setSelectedPedido(p); setDeleteOpen(true); }}
-                        className="p-2 text-gray-500 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors" title="Eliminar">
+                        className="p-2 text-gray-500 hover:bg-red-50 hover:text-red-600 rounded-lg transition" title="Eliminar">
                         <Trash2 className="w-5 h-5" />
                       </button>
                     )}
@@ -177,9 +177,9 @@ export const HistorialVentasView: React.FC<HistorialVentasViewProps> = ({ onBack
             )}
           </tbody>
         </table>
-        <div className="px-6 py-4 border-t border-gray-100">
+        <div className="px-6 py-4 border-t border-[#E7E0DA]">
           <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500">
-            <span className="font-medium text-gray-800">{filtered.length}</span> registros en historial
+            <span className="font-medium text-[#241B22]">{filtered.length}</span> registros en historial
           </span>
         </div>
       </div>
@@ -191,59 +191,57 @@ export const HistorialVentasView: React.FC<HistorialVentasViewProps> = ({ onBack
           <DialogDescription className="sr-only">Información del pedido del historial</DialogDescription>
 
           {/* Header */}
-          <div className="px-6 pt-6 pb-4 border-b border-gray-100 flex-shrink-0 pr-14" style={{ background: 'linear-gradient(135deg, #fbcfe8 0%, #fdf2f8 100%)' }}>
+          <div className="px-6 pt-6 pb-4 flex-shrink-0 pr-14" style={{ background: 'linear-gradient(90deg, #241B22 0%, #7a3350 55%, #A3395C 100%)' }}>
+            <p className="text-[10px] font-bold uppercase tracking-[3px] text-[#EFD9DF] mb-1">Selenne Boutique</p>
             <div className="flex items-start justify-between gap-3">
-              <div>
-                <h2 className="text-xl font-bold text-gray-900">Detalle de venta</h2>
-                <p className="text-sm text-gray-400 mt-0.5">Selenne Boutique</p>
-              </div>
+              <h2 className="text-xl font-bold text-white">Detalle de venta</h2>
               <span className={`mt-1 px-3 py-1 text-xs font-semibold border rounded-full flex items-center gap-1.5 flex-shrink-0 ${estadoBadgeClass(selectedPedido?.estado ?? '')}`}>
                 <Check className="w-3 h-3" />{selectedPedido?.estado}
               </span>
             </div>
-            <p className="text-xs text-gray-400 mt-2">
+            <p className="text-xs text-[#EFD9DF] mt-2">
               {selectedPedido?.fechaPedido ? new Date(selectedPedido.fechaPedido).toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : ''}
             </p>
           </div>
 
           {/* Body */}
-          <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4 bg-pink-50">
+          <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4 bg-[#FBF8F5]">
             {selectedPedido && (
               <>
                 {/* Cliente + Pago */}
-                <div className="bg-white rounded-xl p-4 border border-pink-100">
+                <div className="bg-white rounded-xl p-4 border border-[#E7E0DA]">
                   <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
                     <User className="w-3.5 h-3.5" /> Información del cliente
                   </p>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <p className="text-xs text-gray-400 mb-1">Nombre</p>
-                      <p className="text-sm font-semibold text-gray-900">{selectedPedido.nombreCliente}</p>
+                      <p className="text-sm font-semibold text-[#241B22]">{selectedPedido.nombreCliente}</p>
                     </div>
                     {selectedPedido.telefonoCliente && (
                       <div>
                         <p className="text-xs text-gray-400 mb-1">Teléfono</p>
-                        <p className="text-sm font-semibold text-gray-900">{selectedPedido.telefonoCliente}</p>
+                        <p className="text-sm font-semibold text-[#241B22]">{selectedPedido.telefonoCliente}</p>
                       </div>
                     )}
                     <div>
                       <p className="text-xs text-gray-400 mb-1">Método de pago</p>
-                      <p className="text-sm font-semibold text-gray-900 capitalize">{selectedPedido.metodoPago}</p>
+                      <p className="text-sm font-semibold text-[#241B22] capitalize">{selectedPedido.metodoPago}</p>
                     </div>
                     {selectedPedido.documentoCliente && (
                       <div>
                         <p className="text-xs text-gray-400 mb-1">Documento</p>
-                        <p className="text-sm font-semibold text-gray-900">{selectedPedido.documentoCliente}</p>
+                        <p className="text-sm font-semibold text-[#241B22]">{selectedPedido.documentoCliente}</p>
                       </div>
                     )}
                     <div className="col-span-2">
                       <p className="text-xs text-gray-400 mb-1">Email</p>
-                      <p className="text-sm font-semibold text-gray-900 break-all">{selectedPedido.emailCliente}</p>
+                      <p className="text-sm font-semibold text-[#241B22] break-all">{selectedPedido.emailCliente}</p>
                     </div>
                     {selectedPedido.ciudad && (
                       <div className="col-span-2">
                         <p className="text-xs text-gray-400 mb-1">Ciudad</p>
-                        <p className="text-sm font-semibold text-gray-900">{selectedPedido.ciudad}</p>
+                        <p className="text-sm font-semibold text-[#241B22]">{selectedPedido.ciudad}</p>
                       </div>
                     )}
                   </div>
@@ -251,25 +249,25 @@ export const HistorialVentasView: React.FC<HistorialVentasViewProps> = ({ onBack
 
                 {/* Productos */}
                 {selectedPedido.detalles.length > 0 && (
-                  <div className="bg-white rounded-xl p-4 border border-pink-100">
+                  <div className="bg-white rounded-xl p-4 border border-[#E7E0DA]">
                     <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
                       <ShoppingBag className="w-3.5 h-3.5" /> Productos
                     </p>
                     <div className="space-y-2">
                       {selectedPedido.detalles.map((d, i) => (
-                        <div key={i} className="flex items-center gap-3 bg-white rounded-lg p-2.5 border border-gray-100">
+                        <div key={i} className="flex items-center gap-3 bg-white rounded-lg p-2.5 border border-[#E7E0DA]">
                           <div className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-                            style={{ background: '#d65391' }}>
+                            style={{ background: '#A3395C' }}>
                             {d.cantidad}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900 truncate">{d.productoNombre}</p>
+                            <p className="text-sm font-medium text-[#241B22] truncate">{d.productoNombre}</p>
                             <div className="flex gap-1.5 mt-0.5 flex-wrap">
                               {d.talla && <span className="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">T: {d.talla}</span>}
-                              {d.color && <span className="text-[10px] bg-pink-50 px-1.5 py-0.5 rounded" style={{ color: '#d65391' }}>{d.color}</span>}
+                              {d.color && <span className="text-[10px] bg-[#FBF8F5] px-1.5 py-0.5 rounded" style={{ color: '#A3395C' }}>{d.color}</span>}
                             </div>
                           </div>
-                          <p className="text-sm font-bold text-gray-900 flex-shrink-0">{fmt(d.subtotal)}</p>
+                          <p className="text-sm font-bold text-[#241B22] flex-shrink-0">{fmt(d.subtotal)}</p>
                         </div>
                       ))}
                     </div>
@@ -277,9 +275,9 @@ export const HistorialVentasView: React.FC<HistorialVentasViewProps> = ({ onBack
                 )}
 
                 {/* Total */}
-                <div className="flex items-center justify-between rounded-xl px-4 py-3" style={{ background: 'linear-gradient(135deg, #fce7f3 0%, #f9a8d4 100%)' }}>
+                <div className="flex items-center justify-between rounded-xl px-4 py-3" style={{ background: 'linear-gradient(135deg, #e7c2ce 0%, #EFD9DF 100%)' }}>
                   <p className="text-sm font-semibold text-gray-600">Total</p>
-                  <p className="text-xl font-bold" style={{ color: '#ad1457' }}>{fmt(selectedPedido.total)}</p>
+                  <p className="text-xl font-bold" style={{ color: '#8a2e4d' }}>{fmt(selectedPedido.total)}</p>
                 </div>
 
                 {/* Nota */}
@@ -294,7 +292,7 @@ export const HistorialVentasView: React.FC<HistorialVentasViewProps> = ({ onBack
           </div>
 
           {/* Footer */}
-          <div className="px-6 py-4 bg-pink-50 border-t border-pink-100 flex items-center justify-center gap-2 flex-shrink-0">
+          <div className="px-6 py-4 bg-[#FBF8F5] border-t border-[#E7E0DA] flex items-center justify-center gap-2 flex-shrink-0">
             {selectedPedido?.estado === 'Enviado' && (
               <button type="button" onClick={marcarCompletado} disabled={saving}
                 className="flex items-center gap-2 px-5 py-2 text-white text-sm font-semibold rounded-full disabled:opacity-50 transition-all hover:opacity-90 shadow-md"
@@ -304,7 +302,7 @@ export const HistorialVentasView: React.FC<HistorialVentasViewProps> = ({ onBack
               </button>
             )}
             <button type="button" onClick={() => setViewOpen(false)}
-              className="px-6 py-2 rounded-full border border-gray-200 bg-white text-gray-500 text-sm font-medium hover:bg-gray-50 transition-all shadow-sm">
+              className="px-6 py-2 rounded-full border border-[#E7E0DA] bg-white text-gray-500 text-sm font-medium hover:bg-[#FBF8F5] transition-all shadow-sm">
               Cerrar
             </button>
           </div>

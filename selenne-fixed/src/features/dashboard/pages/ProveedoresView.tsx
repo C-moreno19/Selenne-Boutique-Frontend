@@ -177,12 +177,12 @@ export const ProveedoresView: React.FC = () => {
             className="w-full pl-12 pr-4 py-3 bg-[#FBF8F5] border border-[#E7E0DA] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A3395C]" />
         </div>
         <div className="flex gap-3">
-          <button onClick={() => { setLoading(true); loadData(); }} className="px-4 py-3 bg-white border border-[#E7E0DA] text-gray-700 rounded-lg hover:bg-[#FBF8F5] transition-colors">
+          <button onClick={() => { setLoading(true); loadData(); }} className="px-4 py-3 bg-white border border-[#E7E0DA] text-gray-700 rounded-lg hover:bg-[#FBF8F5] transition">
             <RefreshCw className="w-5 h-5" />
           </button>
           {puedeCrear && (
             <button onClick={openCreate} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="px-6 py-3 bg-[#241B22] text-white rounded-lg hover:bg-[#3a2d38] flex items-center gap-2 transition-colors">
+              className="px-6 py-3 bg-gradient-to-r from-[#241B22] via-[#7a3350] to-[#A3395C] text-white rounded-lg hover:opacity-90 flex items-center gap-2 transition">
               <Plus className="w-5 h-5" /> Nuevo Proveedor
             </button>
           )}
@@ -203,7 +203,7 @@ export const ProveedoresView: React.FC = () => {
           </thead>
           <tbody className="divide-y divide-gray-100">
             {filtered.map(p => (
-              <tr key={p.proveedorID} className="hover:bg-[#FBF8F5] transition-colors">
+              <tr key={p.proveedorID} className="hover:bg-[#FBF8F5] transition">
                 <td className="px-6 py-4"><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-medium text-[#241B22]">{p.nombre}</span></td>
                 <td className="px-6 py-4"><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-600">{p.contacto || '—'}</span></td>
                 <td className="px-6 py-4"><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-600 text-sm">{p.email || '—'}</span></td>
@@ -228,13 +228,13 @@ export const ProveedoresView: React.FC = () => {
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-2">
                     <button onClick={() => { setSelected(p); setViewOpen(true); }}
-                      className="p-2 text-gray-500 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors" title="Ver detalles">
+                      className="p-2 text-gray-500 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition" title="Ver detalles">
                       <Eye className="w-5 h-5" />
                     </button>
                     {puedeAdmin && (
                       <>
                         <button onClick={() => openEdit(p)}
-                          className="p-2 text-gray-500 hover:bg-yellow-50 hover:text-yellow-600 rounded-lg transition-colors" title="Editar">
+                          className="p-2 text-gray-500 hover:bg-yellow-50 hover:text-yellow-600 rounded-lg transition" title="Editar">
                           <Edit className="w-5 h-5" />
                         </button>
                       </>
@@ -250,7 +250,7 @@ export const ProveedoresView: React.FC = () => {
         </table>
         <div className="px-6 py-4 border-t border-[#E7E0DA]">
           <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500">
-            Mostrando <span className="font-medium text-gray-800">{filtered.length}</span> de <span className="font-medium text-gray-800">{proveedores.length}</span> proveedores
+            Mostrando <span className="font-medium text-[#241B22]">{filtered.length}</span> de <span className="font-medium text-[#241B22]">{proveedores.length}</span> proveedores
           </span>
         </div>
       </div>
@@ -324,7 +324,7 @@ export const ProveedoresView: React.FC = () => {
 
           <DialogFooter className="gap-2 px-8 py-5 border-t border-[#E7E0DA] flex-shrink-0">
             <button onClick={() => { setFormOpen(false); resetForm(); }} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">Cancelar</button>
+              className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">Cancelar</button>
             <button onClick={guardar} disabled={saving} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', background: 'linear-gradient(90deg, #241B22 0%, #7a3350 55%, #A3395C 100%)' }}
               className="px-6 py-2 text-white rounded-lg disabled:opacity-50 flex items-center gap-2 transition-transform hover:scale-105">
               {saving && <Loader2 className="w-4 h-4 animate-spin" />}
@@ -369,7 +369,7 @@ export const ProveedoresView: React.FC = () => {
           )}
           <div className="px-6 py-4 border-t border-[#E7E0DA] bg-white flex-shrink-0 flex justify-end">
             <button onClick={() => setViewOpen(false)}
-              className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium">Cerrar</button>
+              className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-sm font-medium">Cerrar</button>
           </div>
         </DialogContent>
       </Dialog>
