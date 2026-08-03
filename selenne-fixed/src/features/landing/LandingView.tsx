@@ -519,8 +519,11 @@ export const LandingView: React.FC<LandingViewProps> = ({
               <Button
                 size="sm"
                 onClick={onNavigateToRegister}
-                className="hidden md:flex bg-[#A3395C] hover:bg-[#8a2e4d] text-white"
-                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                className="hidden md:flex text-white border-0 transition-transform hover:scale-105"
+                style={{
+                  fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+                  background: 'linear-gradient(90deg, #241B22 0%, #7a3350 55%, #A3395C 100%)',
+                }}
               >
                 Registrarse
               </Button>
@@ -756,7 +759,8 @@ export const LandingView: React.FC<LandingViewProps> = ({
               <Separator className="my-4" />
               <Button
                 variant="default"
-                className="w-full bg-[#d65391] hover:bg-[#c04380]"
+                className="w-full text-white border-0"
+                style={{ background: 'linear-gradient(90deg, #241B22 0%, #7a3350 55%, #A3395C 100%)' }}
                 onClick={onNavigateToLogin}
               >
                 <LogIn className="w-4 h-4 mr-2" />
@@ -764,7 +768,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
               </Button>
               <Button
                 variant="outline"
-                className="w-full"
+                className="w-full border-[#A3395C] text-[#A3395C] hover:bg-[#EFD9DF]"
                 onClick={onNavigateToRegister}
               >
                 Registrarse
