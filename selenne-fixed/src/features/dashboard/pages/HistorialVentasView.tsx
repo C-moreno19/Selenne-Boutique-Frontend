@@ -310,7 +310,7 @@ export const HistorialVentasView: React.FC<HistorialVentasViewProps> = ({ onBack
       </Dialog>
 
       {/* Modal Eliminar */}
-      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+      <AlertDialog open={deleteOpen} onOpenChange={v => { if (!saving) setDeleteOpen(v); }}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>¿Eliminar registro?</AlertDialogTitle>
@@ -319,7 +319,7 @@ export const HistorialVentasView: React.FC<HistorialVentasViewProps> = ({ onBack
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel disabled={saving}>Cancelar</AlertDialogCancel>
             <AlertDialogAction onClick={eliminar} disabled={saving}
               className="bg-red-600 hover:bg-red-700 flex items-center gap-2">
               {saving && <Loader2 className="w-4 h-4 animate-spin" />} Eliminar

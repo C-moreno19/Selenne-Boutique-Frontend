@@ -10,9 +10,9 @@ const Toaster = ({ ...props }: ToasterProps) => {
       duration={2600}
       toastOptions={{
         classNames: {
-          title: 'text-[13px] font-semibold text-gray-800 leading-snug',
-          description: 'text-[12px] text-gray-500 mt-0.5 leading-snug',
-          icon: 'text-[#d65391]',
+          title: 'text-[13px] font-semibold text-[#241B22] leading-snug',
+          description: 'text-[12px] text-[#7d6f77] mt-0.5 leading-snug',
+          icon: 'text-[#A3395C]',
         },
       }}
       {...props}

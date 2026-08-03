@@ -285,6 +285,12 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
                         <Truck className="w-5 h-5" />
                       </button>
                     )}
+                    {puedeEliminar && (
+                      <button onClick={() => { setSelectedPedido(p); setDeleteOpen(true); }}
+                        className="p-2 text-gray-500 hover:bg-red-50 hover:text-red-600 rounded-lg transition" title="Eliminar">
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>
@@ -703,6 +709,25 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Modal Eliminar */}
+      <AlertDialog open={deleteOpen} onOpenChange={v => { if (!saving) setDeleteOpen(v); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>¿Eliminar venta?</AlertDialogTitle>
+            <AlertDialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+              Vas a eliminar la venta de <strong>{selectedPedido?.nombreCliente}</strong>. Esta acción no se puede deshacer.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={saving} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={eliminar} disabled={saving}
+              className="bg-red-600 hover:bg-red-700 flex items-center gap-2" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+              {saving && <Loader2 className="w-4 h-4 animate-spin" />} Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

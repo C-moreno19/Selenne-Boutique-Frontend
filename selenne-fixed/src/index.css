@@ -38,10 +38,10 @@ input:-webkit-autofill:focus {
 
 /* ── Sonner toast — boutique style override ─────────────────────── */
 [data-sonner-toast] {
-  background: #d65391 !important;
+  background: linear-gradient(90deg, #241B22 0%, #7a3350 55%, #A3395C 100%) !important;
   border: none !important;
   border-radius: 16px !important;
-  box-shadow: 0 8px 28px rgba(214,83,145,.40) !important;
+  box-shadow: 0 8px 28px rgba(163,57,92,.40) !important;
   padding: 13px 16px !important;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
 }
