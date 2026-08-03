@@ -155,34 +155,34 @@ export const ProveedoresView: React.FC = () => {
 
   if (loading) return (
     <div className="flex items-center justify-center min-h-screen">
-      <Loader2 className="w-8 h-8 animate-spin text-[#d65391]" />
+      <Loader2 className="w-8 h-8 animate-spin text-[#A3395C]" />
     </div>
   );
 
   return (
-    <div className="p-8 bg-gray-50 min-h-screen">
+    <div className="p-8 bg-[#FBF8F5] min-h-screen">
       <div className="flex items-center gap-2 mb-4">
         <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500">Dashboard</span>
         <ChevronRight className="w-4 h-4 text-gray-400" />
-        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-900">Gestión de Proveedores</span>
+        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-[#241B22]">Gestión de Proveedores</span>
       </div>
-      <h1 style={{ fontFamily: '"Times New Roman", Times, serif' }} className="text-4xl text-gray-900 mb-6">Gestión de Proveedores</h1>
+      <h1 style={{ fontFamily: '"Times New Roman", Times, serif' }} className="text-4xl text-[#241B22] mb-6">Gestión de Proveedores</h1>
 
       {/* Barra */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex flex-col lg:flex-row gap-4 mb-6">
+      <div className="bg-white rounded-xl p-6 shadow-sm border border-[#E7E0DA] flex flex-col lg:flex-row gap-4 mb-6">
         <div className="flex-1 relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           <input type="text" placeholder="Buscar proveedores..." value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-            className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d65391]" />
+            className="w-full pl-12 pr-4 py-3 bg-[#FBF8F5] border border-[#E7E0DA] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A3395C]" />
         </div>
         <div className="flex gap-3">
-          <button onClick={() => { setLoading(true); loadData(); }} className="px-4 py-3 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+          <button onClick={() => { setLoading(true); loadData(); }} className="px-4 py-3 bg-white border border-[#E7E0DA] text-gray-700 rounded-lg hover:bg-[#FBF8F5] transition-colors">
             <RefreshCw className="w-5 h-5" />
           </button>
           {puedeCrear && (
             <button onClick={openCreate} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 flex items-center gap-2 transition-colors">
+              className="px-6 py-3 bg-[#241B22] text-white rounded-lg hover:bg-[#3a2d38] flex items-center gap-2 transition-colors">
               <Plus className="w-5 h-5" /> Nuevo Proveedor
             </button>
           )}
@@ -190,9 +190,9 @@ export const ProveedoresView: React.FC = () => {
       </div>
 
       {/* Tabla */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-white rounded-xl shadow-sm border border-[#E7E0DA] overflow-hidden">
         <table className="w-full">
-          <thead className="bg-gray-50 border-b border-gray-200">
+          <thead className="bg-[#FBF8F5] border-b border-[#E7E0DA]">
             <tr>
               {['NOMBRE', 'CONTACTO', 'EMAIL', 'TELÉFONO', 'DOCUMENTO', 'ESTADO', 'ACCIONES'].map(h => (
                 <th key={h} className="px-6 py-4 text-left">
@@ -203,8 +203,8 @@ export const ProveedoresView: React.FC = () => {
           </thead>
           <tbody className="divide-y divide-gray-100">
             {filtered.map(p => (
-              <tr key={p.proveedorID} className="hover:bg-gray-50 transition-colors">
-                <td className="px-6 py-4"><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-medium text-gray-900">{p.nombre}</span></td>
+              <tr key={p.proveedorID} className="hover:bg-[#FBF8F5] transition-colors">
+                <td className="px-6 py-4"><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-medium text-[#241B22]">{p.nombre}</span></td>
                 <td className="px-6 py-4"><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-600">{p.contacto || '—'}</span></td>
                 <td className="px-6 py-4"><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-600 text-sm">{p.email || '—'}</span></td>
                 <td className="px-6 py-4"><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-600">{p.telefono || '—'}</span></td>
@@ -217,7 +217,7 @@ export const ProveedoresView: React.FC = () => {
                     className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
                       p.estado === 'activo'
                         ? 'bg-green-50 text-green-700 border-green-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200'
-                        : 'bg-gray-100 text-gray-500 border-gray-200 hover:bg-green-50 hover:text-green-700 hover:border-green-200'
+                        : 'bg-gray-100 text-gray-500 border-[#E7E0DA] hover:bg-green-50 hover:text-green-700 hover:border-green-200'
                     } ${!puedeAdmin ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                     title={p.estado === 'activo' ? 'Clic para desactivar' : 'Clic para activar'}
                   >
@@ -248,7 +248,7 @@ export const ProveedoresView: React.FC = () => {
             )}
           </tbody>
         </table>
-        <div className="px-6 py-4 border-t border-gray-100">
+        <div className="px-6 py-4 border-t border-[#E7E0DA]">
           <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500">
             Mostrando <span className="font-medium text-gray-800">{filtered.length}</span> de <span className="font-medium text-gray-800">{proveedores.length}</span> proveedores
           </span>
@@ -258,7 +258,7 @@ export const ProveedoresView: React.FC = () => {
       {/* Modal Crear / Editar */}
       <Dialog open={formOpen} onOpenChange={setFormOpen}>
         <DialogContent className="max-w-2xl h-auto flex flex-col p-0 gap-0">
-          <DialogHeader className="px-8 pt-6 pb-4 border-b border-gray-200 flex-shrink-0">
+          <DialogHeader className="px-8 pt-6 pb-4 border-b border-[#E7E0DA] flex-shrink-0">
             <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-2xl">
               {isEditing ? 'Editar Proveedor' : 'Nuevo Proveedor'}
             </DialogTitle>
@@ -269,8 +269,8 @@ export const ProveedoresView: React.FC = () => {
 
           <div className="flex-1 overflow-y-auto">
             <div className="space-y-6 py-6 px-8">
-              <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+              <div className="bg-white rounded-xl border border-[#E7E0DA] shadow-sm overflow-hidden">
+                <div className="bg-[#FBF8F5] px-6 py-4 border-b border-[#E7E0DA]">
                   <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-gray-800 text-base">📋 Información del Proveedor</h3>
                 </div>
                 <div className="p-6 grid grid-cols-2 gap-6">
@@ -322,11 +322,11 @@ export const ProveedoresView: React.FC = () => {
             </div>
           </div>
 
-          <DialogFooter className="gap-2 px-8 py-5 border-t border-gray-200 flex-shrink-0">
+          <DialogFooter className="gap-2 px-8 py-5 border-t border-[#E7E0DA] flex-shrink-0">
             <button onClick={() => { setFormOpen(false); resetForm(); }} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
               className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">Cancelar</button>
             <button onClick={guardar} disabled={saving} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 flex items-center gap-2 transition-colors">
+              className="px-6 py-2 bg-[#241B22] text-white rounded-lg hover:bg-[#3a2d38] disabled:opacity-50 flex items-center gap-2 transition-colors">
               {saving && <Loader2 className="w-4 h-4 animate-spin" />}
               {isEditing ? 'Guardar Cambios' : 'Crear Proveedor'}
             </button>
@@ -337,18 +337,18 @@ export const ProveedoresView: React.FC = () => {
       {/* Modal Ver Detalles */}
       <Dialog open={viewOpen} onOpenChange={setViewOpen}>
         <DialogContent className="max-w-lg flex flex-col p-0 gap-0 overflow-hidden">
-          <div className="bg-[#d65391] px-8 pt-6 pb-5 flex-shrink-0">
-            <p className="text-[10px] font-bold uppercase tracking-[3px] text-pink-200 mb-1">Selenne Boutique</p>
+          <div className="px-8 pt-6 pb-5 flex-shrink-0" style={{ background: 'linear-gradient(90deg, #241B22 0%, #7a3350 55%, #A3395C 100%)' }}>
+            <p className="text-[10px] font-bold uppercase tracking-[3px] text-[#EFD9DF] mb-1">Selenne Boutique</p>
             <DialogTitle className="text-xl font-bold text-white flex items-center gap-2">
               <Truck className="w-5 h-5 opacity-80" /> {selected?.nombre}
             </DialogTitle>
-            <DialogDescription className="text-pink-100 text-sm mt-0.5">Proveedor</DialogDescription>
+            <DialogDescription className="text-[#EFD9DF] text-sm mt-0.5">Proveedor</DialogDescription>
           </div>
           {selected && (
-            <div className="bg-[#fdf2f8] px-6 py-5">
-              <div className="bg-white rounded-xl border border-pink-100 shadow-sm overflow-hidden">
-                <div className="px-5 py-3 border-b border-pink-50 bg-pink-50/50">
-                  <h3 className="font-semibold text-[#d65391] text-xs uppercase tracking-wider">Información General</h3>
+            <div className="bg-[#FBF8F5] px-6 py-5">
+              <div className="bg-white rounded-xl border border-[#E7E0DA] shadow-sm overflow-hidden">
+                <div className="px-5 py-3 border-b border-[#E7E0DA] bg-[#EFD9DF]/50">
+                  <h3 className="font-semibold text-[#A3395C] text-xs uppercase tracking-wider">Información General</h3>
                 </div>
                 <div className="p-5 grid grid-cols-2 gap-4">
                   {[
@@ -360,14 +360,14 @@ export const ProveedoresView: React.FC = () => {
                   ].map(({ label, value }) => (
                     <div key={label} className="flex flex-col gap-1">
                       <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">{label}</p>
-                      <p className="text-sm font-semibold text-gray-900">{value}</p>
+                      <p className="text-sm font-semibold text-[#241B22]">{value}</p>
                     </div>
                   ))}
                 </div>
               </div>
             </div>
           )}
-          <div className="px-6 py-4 border-t border-pink-100 bg-white flex-shrink-0 flex justify-end">
+          <div className="px-6 py-4 border-t border-[#E7E0DA] bg-white flex-shrink-0 flex justify-end">
             <button onClick={() => setViewOpen(false)}
               className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium">Cerrar</button>
           </div>
