@@ -21,7 +21,7 @@ export const CustomButton: React.FC<CustomButtonProps> = ({
   const baseClasses = `px-8 py-3 transition-all duration-200 ${fullWidth ? 'w-full' : ''}`;
   
   const variantClasses = variant === 'primary'
-    ? 'bg-[#A3395C] text-white hover:bg-[#8a2e4d]'
+    ? 'text-white'
     : 'bg-[#EFD9DF] text-[#241B22] hover:bg-[#A3395C] hover:text-white';
 
   return (
@@ -30,11 +30,12 @@ export const CustomButton: React.FC<CustomButtonProps> = ({
       onClick={onClick}
       disabled={loading}
       className={`${baseClasses} ${variantClasses} disabled:opacity-50 disabled:cursor-not-allowed`}
-      style={{ 
+      style={{
         borderRadius: '6px',
         fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
         fontWeight: '600',
         height: '44px',
+        ...(variant === 'primary' ? { background: 'linear-gradient(90deg, #241B22 0%, #7a3350 55%, #A3395C 100%)' } : {}),
       }}
       whileHover={{ scale: loading ? 1 : 1.01 }}
       whileTap={{ scale: loading ? 1 : 0.99 }}
