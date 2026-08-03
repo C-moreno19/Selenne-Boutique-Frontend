@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, Search, Eye, Edit, ChevronRight, Loader2, RefreshCw, Truck } from 'lucide-react';
+import { Plus, Search, Eye, Edit, ChevronRight, Loader2, RefreshCw, Truck, ClipboardList } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '../../../components/ui/dialog';
 import { Input } from '../../../components/ui/input';
 import { Label } from '../../../components/ui/label';
@@ -259,10 +259,10 @@ export const ProveedoresView: React.FC = () => {
       <Dialog open={formOpen} onOpenChange={setFormOpen}>
         <DialogContent className="max-w-2xl h-auto flex flex-col p-0 gap-0">
           <DialogHeader className="px-8 pt-6 pb-4 border-b border-[#E7E0DA] flex-shrink-0">
-            <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-2xl">
+            <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-2xl text-[#241B22]">
               {isEditing ? 'Editar Proveedor' : 'Nuevo Proveedor'}
             </DialogTitle>
-            <DialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+            <DialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-[#7d6f77]">
               {isEditing ? 'Modifica la información del proveedor' : 'Completa los datos para registrar un nuevo proveedor'}
             </DialogDescription>
           </DialogHeader>
@@ -270,51 +270,51 @@ export const ProveedoresView: React.FC = () => {
           <div className="flex-1 overflow-y-auto">
             <div className="space-y-6 py-6 px-8">
               <div className="bg-white rounded-xl border border-[#E7E0DA] shadow-sm overflow-hidden">
-                <div className="bg-[#FBF8F5] px-6 py-4 border-b border-[#E7E0DA]">
-                  <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-gray-800 text-base">📋 Información del Proveedor</h3>
+                <div className="bg-[#EFD9DF]/50 px-6 py-4 border-b border-[#E7E0DA]">
+                  <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#A3395C] text-base flex items-center gap-2"><ClipboardList className="w-4 h-4" />Información del Proveedor</h3>
                 </div>
                 <div className="p-6 grid grid-cols-2 gap-6">
                   <div className="flex flex-col gap-2">
-                    <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700">
+                    <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-[#241B22]">
                       Nombre <span className="text-red-500">*</span>
                     </Label>
                     <Input value={form.nombre} onChange={e => updateForm('nombre', e.target.value)}
                       placeholder="Nombre del proveedor"
-                      className={`h-10 ${formErrors.nombre ? 'border-red-500' : 'border-gray-300'}`} />
+                      className={`h-10 focus-visible:ring-[#A3395C] focus-visible:border-[#A3395C] ${formErrors.nombre ? 'border-red-500' : 'border-[#E7E0DA]'}`} />
                     {formErrors.nombre && <p className="text-red-500 text-xs">{formErrors.nombre}</p>}
                   </div>
 
                   <div className="flex flex-col gap-2">
-                    <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700">Contacto</Label>
+                    <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-[#241B22]">Contacto</Label>
                     <Input value={form.contacto} onChange={e => updateForm('contacto', e.target.value)}
-                      placeholder="Nombre del contacto" className={`h-10 ${formErrors.contacto ? 'border-red-500' : 'border-gray-300'}`} />
+                      placeholder="Nombre del contacto" className={`h-10 focus-visible:ring-[#A3395C] focus-visible:border-[#A3395C] ${formErrors.contacto ? 'border-red-500' : 'border-[#E7E0DA]'}`} />
                     {formErrors.contacto && <p className="text-red-500 text-xs">{formErrors.contacto}</p>}
                   </div>
 
                   <div className="flex flex-col gap-2">
-                    <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700">
+                    <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-[#241B22]">
                       Email <span className="text-red-500">*</span>
                     </Label>
                     <Input type="email" value={form.email} onChange={e => updateForm('email', e.target.value)}
                       placeholder="email@ejemplo.com"
-                      className={`h-10 ${formErrors.email ? 'border-red-500' : 'border-gray-300'}`} />
+                      className={`h-10 focus-visible:ring-[#A3395C] focus-visible:border-[#A3395C] ${formErrors.email ? 'border-red-500' : 'border-[#E7E0DA]'}`} />
                     {formErrors.email && <p className="text-red-500 text-xs">{formErrors.email}</p>}
                   </div>
 
                   <div className="flex flex-col gap-2">
-                    <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700">
+                    <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-[#241B22]">
                       Teléfono <span className="text-red-500">*</span>
                     </Label>
                     <Input type="tel" value={form.telefono} onChange={e => updateForm('telefono', e.target.value)}
                       placeholder="3001234567"
-                      className={`h-10 ${formErrors.telefono ? 'border-red-500' : 'border-gray-300'}`} />
+                      className={`h-10 focus-visible:ring-[#A3395C] focus-visible:border-[#A3395C] ${formErrors.telefono ? 'border-red-500' : 'border-[#E7E0DA]'}`} />
                     {formErrors.telefono && <p className="text-red-500 text-xs">{formErrors.telefono}</p>}
                   </div>
 
                   <div className="flex flex-col gap-2 col-span-2">
-                    <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700">Documento (NIT / Cédula)</Label>
+                    <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-[#241B22]">Documento (NIT / Cédula)</Label>
                     <Input value={form.documento} onChange={e => updateForm('documento', e.target.value)}
-                      placeholder="NIT o número de cédula" className={`h-10 ${formErrors.documento ? 'border-red-500' : 'border-gray-300'}`} />
+                      placeholder="NIT o número de cédula" className={`h-10 focus-visible:ring-[#A3395C] focus-visible:border-[#A3395C] ${formErrors.documento ? 'border-red-500' : 'border-[#E7E0DA]'}`} />
                     {formErrors.documento && <p className="text-red-500 text-xs">{formErrors.documento}</p>}
                   </div>
                 </div>
@@ -325,8 +325,8 @@ export const ProveedoresView: React.FC = () => {
           <DialogFooter className="gap-2 px-8 py-5 border-t border-[#E7E0DA] flex-shrink-0">
             <button onClick={() => { setFormOpen(false); resetForm(); }} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
               className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">Cancelar</button>
-            <button onClick={guardar} disabled={saving} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="px-6 py-2 bg-[#241B22] text-white rounded-lg hover:bg-[#3a2d38] disabled:opacity-50 flex items-center gap-2 transition-colors">
+            <button onClick={guardar} disabled={saving} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', background: 'linear-gradient(90deg, #241B22 0%, #7a3350 55%, #A3395C 100%)' }}
+              className="px-6 py-2 text-white rounded-lg disabled:opacity-50 flex items-center gap-2 transition-transform hover:scale-105">
               {saving && <Loader2 className="w-4 h-4 animate-spin" />}
               {isEditing ? 'Guardar Cambios' : 'Crear Proveedor'}
             </button>
