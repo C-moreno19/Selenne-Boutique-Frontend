@@ -376,7 +376,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                 className="flex items-center justify-center hover:opacity-75 transition-opacity"
                 title="Selenne Boutique — Inicio"
               >
-                <span className="text-2xl font-medium tracking-[0.04em] text-[#241B22]" style={{ fontFamily: 'Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}>
+                <span className="text-2xl font-medium tracking-[0.04em] text-[#241B22]" style={{ fontFamily: 'Caudex, Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}>
                   Selenne Boutique
                 </span>
               </button>
@@ -1371,18 +1371,18 @@ export const LandingView: React.FC<LandingViewProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
             <div>
               <h3
-                style={{ fontFamily: 'Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif', color: '#ffffff' }}
+                style={{ fontFamily: 'Caudex, Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif', color: '#ffffff' }}
                 className="text-3xl mb-4"
               >
                 Selenne Boutique
               </h3>
-              <p style={{ fontFamily: 'Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }} className="text-gray-300 text-base">
+              <p style={{ fontFamily: 'Caudex, Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }} className="text-gray-300 text-base">
                 Elegancia y estilo en cada prenda
               </p>
             </div>
             <div>
-              <h4 style={{ fontFamily: 'Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }} className="mb-5 text-lg font-semibold uppercase tracking-wide text-[#EFD9DF]">Compra</h4>
-              <ul className="space-y-3 text-base text-gray-300" style={{ fontFamily: 'Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}>
+              <h4 style={{ fontFamily: 'Caudex, Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }} className="mb-5 text-lg font-semibold uppercase tracking-wide text-[#EFD9DF]">Compra</h4>
+              <ul className="space-y-3 text-base text-gray-300" style={{ fontFamily: 'Caudex, Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}>
                 <li>
                   <button onClick={() => setCategoriaActiva("mujer")} className="hover:text-[#EFD9DF] transition-colors">
                     Mujer
@@ -1401,8 +1401,8 @@ export const LandingView: React.FC<LandingViewProps> = ({
               </ul>
             </div>
             <div>
-              <h4 style={{ fontFamily: 'Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }} className="mb-5 text-lg font-semibold uppercase tracking-wide text-[#EFD9DF]">Ayuda</h4>
-              <ul className="space-y-3 text-base text-gray-300" style={{ fontFamily: 'Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}>
+              <h4 style={{ fontFamily: 'Caudex, Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }} className="mb-5 text-lg font-semibold uppercase tracking-wide text-[#EFD9DF]">Ayuda</h4>
+              <ul className="space-y-3 text-base text-gray-300" style={{ fontFamily: 'Caudex, Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}>
                 <li>
                   <a
                     href={`https://wa.me/${telefonoContacto.replace(/\D/g, '')}`}
@@ -1416,14 +1416,14 @@ export const LandingView: React.FC<LandingViewProps> = ({
               </ul>
             </div>
             <div>
-              <h4 style={{ fontFamily: 'Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }} className="mb-5 text-lg font-semibold uppercase tracking-wide text-[#EFD9DF]">Síguenos</h4>
-              <ul className="space-y-3 text-base text-gray-300" style={{ fontFamily: 'Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}>
+              <h4 style={{ fontFamily: 'Caudex, Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }} className="mb-5 text-lg font-semibold uppercase tracking-wide text-[#EFD9DF]">Síguenos</h4>
+              <ul className="space-y-3 text-base text-gray-300" style={{ fontFamily: 'Caudex, Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}>
                 <li><a href="https://www.instagram.com/selenne_boutique_?igsh=MWJtaXR0Zm85MW13ZQ==" target="_blank" rel="noopener noreferrer" className="hover:text-[#EFD9DF] transition-colors">Instagram</a></li>
               </ul>
             </div>
           </div>
           <Separator className="my-8 bg-white/15" />
-          <div className="text-center text-sm text-gray-300" style={{ fontFamily: 'Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}>
+          <div className="text-center text-sm text-gray-300" style={{ fontFamily: 'Caudex, Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}>
             <p>© 2024 Selenne Boutique. Todos los derechos reservados.</p>
           </div>
         </div>

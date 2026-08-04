@@ -95,7 +95,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
           <h1
             className="text-white"
             style={{
-              fontFamily: 'Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif',
+              fontFamily: 'Caudex, Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif',
               fontSize: '64px',
               lineHeight: '1.1',
               fontWeight: 500,
