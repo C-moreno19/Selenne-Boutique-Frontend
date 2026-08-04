@@ -245,7 +245,7 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
           <h1
             className="text-white"
             style={{
-              fontFamily: 'Caudex, Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif',
+              fontFamily: '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif',
               fontSize: '64px',
               lineHeight: '1.1',
               fontWeight: 500,
