@@ -16,6 +16,13 @@ body.is-admin-panel, body.is-admin-panel * {
   font-variant-numeric: tabular-nums;
 }
 
+/* ── Titulos de pagina del admin: excepcion a la Georgia forzada ── */
+.admin-page-title {
+  font-family: "Playfair Display", Georgia, serif !important;
+  font-weight: 700 !important;
+  font-style: italic !important;
+}
+
 @keyframes admin-fade-slide-in {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }

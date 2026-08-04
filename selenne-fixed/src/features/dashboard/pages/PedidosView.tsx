@@ -119,7 +119,7 @@ export const PedidosView: React.FC = () => {
         <ChevronRight className="w-4 h-4 text-gray-400" />
         <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-[#241B22]">Pedidos Pendientes</span>
       </div>
-      <h1 style={{ fontFamily: '"Times New Roman", Times, serif' }} className="text-4xl text-[#241B22] mb-6">Pedidos Pendientes</h1>
+      <h1 className="admin-page-title text-4xl text-[#241B22] mb-6">Pedidos Pendientes</h1>
 
       <div className="bg-white rounded-xl p-6 shadow-sm border border-[#E7E0DA] flex gap-4 mb-6">
         <div className="flex-1 relative">

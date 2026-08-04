@@ -99,7 +99,7 @@ export const ClientesView: React.FC = () => {
 
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 style={{ fontFamily: '"Times New Roman", Times, serif' }} className="text-4xl text-[#241B22]">Clientes</h1>
+          <h1 className="admin-page-title text-4xl text-[#241B22]">Clientes</h1>
           <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-500 text-sm mt-1">
             Usuarios registrados con rol de cliente
           </p>

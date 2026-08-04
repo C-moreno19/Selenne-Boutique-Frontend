@@ -117,7 +117,7 @@ export const HistorialVentasView: React.FC<HistorialVentasViewProps> = ({ onBack
         <button type="button" title="Volver" onClick={onBack} className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition">
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <h1 style={{ fontFamily: '"Times New Roman", Times, serif' }} className="text-4xl text-[#241B22]">Historial de Ventas</h1>
+        <h1 className="admin-page-title text-4xl text-[#241B22]">Historial de Ventas</h1>
       </div>
 
       <div className="bg-white rounded-xl p-6 shadow-sm border border-[#E7E0DA] flex gap-4 mb-6">

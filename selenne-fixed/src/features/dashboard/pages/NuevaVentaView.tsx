@@ -156,7 +156,7 @@ export const NuevaVentaView: React.FC<NuevaVentaViewProps> = ({ onBack, onSucces
           <ArrowLeft className="w-5 h-5 text-gray-600" />
         </button>
         <div>
-          <h1 style={{ fontFamily: '"Times New Roman", Times, serif' }} className="text-[32px] text-[#241B22]">
+          <h1 className="admin-page-title text-[32px] text-[#241B22]">
             Nueva Venta
           </h1>
           <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-600">

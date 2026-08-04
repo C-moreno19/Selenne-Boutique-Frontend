@@ -355,7 +355,7 @@ export const RolesView: React.FC = () => {
         <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-[#241B22]">Gestión de Roles</span>
       </div>
 
-      <h1 style={{ fontFamily: '"Times New Roman", Times, serif' }} className="text-3xl font-bold text-[#241B22] mb-6">Gestión de Roles</h1>
+      <h1 className="admin-page-title text-3xl font-bold text-[#241B22] mb-6">Gestión de Roles</h1>
 
       <div className="space-y-6">
         <div className="bg-white rounded-xl p-6 shadow-sm border border-[#E7E0DA] flex flex-col lg:flex-row gap-4">

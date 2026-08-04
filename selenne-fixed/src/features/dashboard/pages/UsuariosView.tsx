@@ -409,7 +409,7 @@ export const UsuariosView: React.FC = () => {
       </div>
       <div className="mb-6">
         <div className="flex items-center gap-3 mb-2">
-          <h1 style={{ fontFamily: '"Times New Roman", Times, serif' }} className="text-3xl font-bold text-[#241B22]">Gestión de Usuarios</h1>
+          <h1 className="admin-page-title text-3xl font-bold text-[#241B22]">Gestión de Usuarios</h1>
           <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded text-sm font-medium" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>{users.length}</span>
         </div>
         <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-600">Administra todos los usuarios del sistema</p>

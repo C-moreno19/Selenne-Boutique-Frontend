@@ -171,7 +171,7 @@ export const NuevaCompraView: React.FC<NuevaCompraViewProps> = ({ onBack, onSucc
       </div>
 
       <div className="mb-8">
-        <h1 style={{ fontFamily: '"Times New Roman", Times, serif' }} className="text-[36px] text-[#241B22] mb-2">
+        <h1 className="admin-page-title text-[36px] text-[#241B22] mb-2">
           Crear Nueva Compra
         </h1>
         <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-600">

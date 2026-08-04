@@ -368,7 +368,7 @@ export const ComprasView: React.FC<ComprasViewProps> = ({ onNavigateToHistorial 
         <ChevronRight className="w-4 h-4 text-gray-400" />
         <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-[#241B22]">Gestión de Compras</span>
       </div>
-      <h1 style={{ fontFamily: '"Times New Roman", Times, serif' }} className="text-4xl text-[#241B22] mb-6">Gestión de Compras</h1>
+      <h1 className="admin-page-title text-4xl text-[#241B22] mb-6">Gestión de Compras</h1>
 
       <div className="bg-white rounded-xl p-6 shadow-sm border border-[#E7E0DA] flex flex-col lg:flex-row gap-4 mb-6">
         <div className="flex-1 relative">

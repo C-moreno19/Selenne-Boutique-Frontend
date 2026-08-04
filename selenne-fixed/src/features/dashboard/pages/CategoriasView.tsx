@@ -66,7 +66,7 @@ export const CategoriasView: React.FC = () => {
       </div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 style={{ fontFamily: '"Times New Roman", Times, serif' }} className="text-3xl font-bold text-[#241B22]">Categorías</h1>
+          <h1 className="admin-page-title text-3xl font-bold text-[#241B22]">Categorías</h1>
           <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-500 text-sm mt-1">{filtered.length} categorías registrados</p>
         </div>
         {puedeCrear && (

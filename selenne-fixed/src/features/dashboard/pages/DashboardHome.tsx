@@ -369,7 +369,7 @@ export const DashboardHome: React.FC = () => {
     <div className="p-8 bg-[#FBF8F5] min-h-screen">
       {/* Header */}
       <div className="mb-8">
-        <h1 style={{ fontFamily: 'Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }} className="text-3xl font-medium tracking-[0.01em] text-[#241B22] mb-1">Dashboard</h1>
+        <h1 className="admin-page-title text-3xl font-medium tracking-[0.01em] text-[#241B22] mb-1">Dashboard</h1>
         <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-400">
           {loading ? 'Cargando datos...' : 'Resumen general del sistema'}
         </p>

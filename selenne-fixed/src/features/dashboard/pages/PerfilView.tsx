@@ -115,7 +115,7 @@ export const PerfilView: React.FC = () => {
     <div className="p-8 max-w-lg">
 
       {/* Título */}
-      <h1 style={{ fontFamily: '"Times New Roman", Times, serif' }} className="text-sm font-bold text-[#241B22] uppercase tracking-widest mb-6">Perfil</h1>
+      <h1 className="admin-page-title text-sm font-bold text-[#241B22] uppercase tracking-widest mb-6">Perfil</h1>
 
       {/* Card info personal */}
       <div className="border border-[#E7E0DA] overflow-hidden mb-6">
