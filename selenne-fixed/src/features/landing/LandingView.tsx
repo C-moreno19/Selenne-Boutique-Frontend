@@ -1,4 +1,4 @@
-﻿import React, { useState, useMemo, useEffect, useRef } from "react";
+﻿import React, { useState, useMemo, useEffect } from "react";
 import {
   ShoppingBag,
   Heart,
@@ -12,7 +12,6 @@ import {
   ShoppingCart,
   ChevronLeft,
   ChevronRight,
-  ChevronUp,
   Zap,
   LogIn,
   SlidersHorizontal,
@@ -45,6 +44,8 @@ import {
   SelectValue,
 } from "../../components/ui/select";
 import { Separator } from "../../components/ui/separator";
+import { StoreFooter } from "../../components/StoreFooter";
+import { FiltrosPanel, type FiltrosAplicados } from "../../components/FiltrosPanel";
 import { ImageCarousel } from "../../components/figma/ImageCarousel";
 import { useProductosCombinados } from "../../shared/data/useProductosCombinados";
 import { useProductos } from "../../shared/contexts/ProductosContext";
@@ -95,14 +96,6 @@ export const LandingView: React.FC<LandingViewProps> = ({
   const [paginaActual, setPaginaActual] = useState(1);
   const PRODUCTOS_POR_PAGINA = 12;
   const [filtrosAbiertos, setFiltrosAbiertos] = useState(false);
-  const [seccionesAbiertas, setSeccionesAbiertas] = useState({ precio: true, talla: true, tipo: true, categoria: true });
-  const [precioMinLocal, setPrecioMinLocal] = useState(0);
-  const [precioMaxLocal, setPrecioMaxLocal] = useState(0);
-  const [activeRangeThumb, setActiveRangeThumb] = useState<'min' | 'max' | null>(null);
-  const rangeContainerRef = useRef<HTMLDivElement>(null);
-  const [tallaLocal, setTallaLocal] = useState<string[]>([]);
-  const [tipoLocal, setTipoLocal] = useState("");
-  const [categoriaLocal, setCategoriaLocal] = useState("");
 
   const productosData = useProductosCombinados();
   const { loading: productosLoading } = useProductos();
@@ -239,54 +232,13 @@ export const LandingView: React.FC<LandingViewProps> = ({
     return c;
   }, [filtroTipoProducto, filtroCategoriaRopa, filtroTalla, filtroPrecioMin, filtroPrecioMax]);
 
-  const abrirFiltros = () => {
-    setPrecioMinLocal(filtroPrecioMin ?? 0);
-    setPrecioMaxLocal(filtroPrecioMax ?? maxPrecioGlobal);
-    setTallaLocal([...filtroTalla]);
-    setTipoLocal(filtroTipoProducto);
-    setCategoriaLocal(filtroCategoriaRopa);
-    setFiltrosAbiertos(true);
-  };
-
-  const getRangeValue = (clientX: number) => {
-    if (!rangeContainerRef.current) return 0;
-    const rect = rangeContainerRef.current.getBoundingClientRect();
-    const pct = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-    return Math.round((pct * maxPrecioGlobal) / 1000) * 1000;
-  };
-  const handleRangePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    if (!rangeContainerRef.current) return;
-    const val = getRangeValue(e.clientX);
-    const thumb = Math.abs(val - precioMinLocal) <= Math.abs(val - precioMaxLocal) ? 'min' : 'max';
-    setActiveRangeThumb(thumb);
-    rangeContainerRef.current.setPointerCapture(e.pointerId);
-    if (thumb === 'min') setPrecioMinLocal(Math.min(val, precioMaxLocal - 1000));
-    else setPrecioMaxLocal(Math.max(val, precioMinLocal + 1000));
-  };
-  const handleRangePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!activeRangeThumb || !(e.buttons & 1)) return;
-    const val = getRangeValue(e.clientX);
-    if (activeRangeThumb === 'min') setPrecioMinLocal(Math.min(val, precioMaxLocal - 1000));
-    else setPrecioMaxLocal(Math.max(val, precioMinLocal + 1000));
-  };
-  const handleRangePointerUp = () => setActiveRangeThumb(null);
-
-  const aplicarFiltros = () => {
-    setFiltroPrecioMin(precioMinLocal > 0 ? precioMinLocal : null);
-    setFiltroPrecioMax(precioMaxLocal < maxPrecioGlobal ? precioMaxLocal : null);
-    setFiltroTalla(tallaLocal);
-    setFiltroTipoProducto(tipoLocal);
-    setFiltroCategoriaRopa(categoriaLocal);
+  const handleAplicarFiltros = (f: FiltrosAplicados) => {
+    setFiltroPrecioMin(f.precioMin);
+    setFiltroPrecioMax(f.precioMax);
+    setFiltroTalla(f.talla);
+    setFiltroTipoProducto(f.tipoProducto);
+    setFiltroCategoriaRopa(f.categoriaRopa);
     setFiltrosAbiertos(false);
-  };
-
-  const limpiarFiltros = () => {
-    setPrecioMinLocal(0);
-    setPrecioMaxLocal(maxPrecioGlobal);
-    setTallaLocal([]);
-    setTipoLocal('');
-    setCategoriaLocal('');
   };
 
   // Resetear página al cambiar filtros o categoría
@@ -296,7 +248,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
   const productosPaginaLanding = productosFiltrados.slice((paginaActual - 1) * PRODUCTOS_POR_PAGINA, paginaActual * PRODUCTOS_POR_PAGINA);
 
   useEffect(() => {
-    getJson('/api/config/banco').then((d: any) => {
+    getJson('/api/config/banco').then((d: { data?: { whatsapp?: string } }) => {
       if (d?.data?.whatsapp) {
         const n = d.data.whatsapp.replace(/\D/g, '');
         setTelefonoContacto(`+${n.slice(0, 2)} ${n.slice(2, 5)} ${n.slice(5, 8)} ${n.slice(8)}`);
@@ -577,8 +529,8 @@ export const LandingView: React.FC<LandingViewProps> = ({
                                     setProductoSeleccionado(prod);
                                     const colorInicial = prod.colores?.[0] || '';
                                     const primeraDisponible = prod.tallas?.find((t: string) => {
-                                      if (!(prod as any).variantes?.length) return true;
-                                      const v = (prod as any).variantes.find((x: any) => x.tallaNombre === t && (!colorInicial || x.colorNombre === colorInicial));
+                                      if (!prod.variantes?.length) return true;
+                                      const v = prod.variantes.find(x => x.tallaNombre === t && (!colorInicial || x.colorNombre === colorInicial));
                                       return v ? v.stock > 0 : true;
                                     });
                                     setTallaSeleccionada(primeraDisponible || prod.tallas?.[0] || 'Única');
@@ -784,10 +736,10 @@ export const LandingView: React.FC<LandingViewProps> = ({
           <img
             src={
               categoriaActiva === "mujer"
-                ? "/banners/banner-mujer.png"
+                ? "/banners/banner-mujer.webp"
                 : categoriaActiva === "accesorios"
-                ? "/banners/banner-accesorios.png"
-                : "/banners/banner-sale.png"
+                ? "/banners/banner-accesorios.webp"
+                : "/banners/banner-sale.webp"
             }
             alt={categoriaActiva}
             className="w-full h-auto block"
@@ -809,7 +761,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                   <SelectItem value="nombre">Nombre A-Z</SelectItem>
                 </SelectContent>
               </Select>
-              <button onClick={abrirFiltros}
+              <button onClick={() => setFiltrosAbiertos(true)}
                 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:border-gray-900 transition-colors">
                 <SlidersHorizontal className="w-4 h-4" />
@@ -822,136 +774,20 @@ export const LandingView: React.FC<LandingViewProps> = ({
           </div>
         </div>
 
-        {/* Panel de Filtros */}
-        {filtrosAbiertos && (
-          <>
-            <div className="fixed inset-0 bg-black/40 z-40" onClick={() => setFiltrosAbiertos(false)} />
-            <div className="fixed right-0 top-0 h-full w-80 bg-white z-50 flex flex-col shadow-2xl" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
-              {/* Header */}
-              <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-                <span className="text-xs font-bold tracking-widest text-gray-900">APLICAR FILTROS</span>
-                <button onClick={() => setFiltrosAbiertos(false)} className="flex items-center gap-1 text-xs font-bold tracking-widest text-gray-900 hover:text-gray-600">
-                  CERCA <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              <div className="flex-1 overflow-y-auto">
-                {/* PRECIO */}
-                <div className="px-5 py-4 border-b border-gray-100">
-                  <button onClick={() => setSeccionesAbiertas(s => ({ ...s, precio: !s.precio }))}
-                    className="w-full flex items-center justify-between mb-3">
-                    <span className="text-xs font-bold tracking-widest text-gray-900">PRECIO</span>
-                    <ChevronUp className={`w-4 h-4 text-gray-500 transition-transform ${seccionesAbiertas.precio ? '' : 'rotate-180'}`} />
-                  </button>
-                  {seccionesAbiertas.precio && (
-                    <>
-                      <div ref={rangeContainerRef} className="relative h-6 mb-4 cursor-pointer touch-none select-none"
-                        onPointerDown={handleRangePointerDown}
-                        onPointerMove={handleRangePointerMove}
-                        onPointerUp={handleRangePointerUp}>
-                        <div className="absolute top-1/2 -translate-y-1/2 w-full h-[2px] bg-gray-200 rounded-full">
-                          <div className="absolute h-full bg-black rounded-full"
-                            style={{ left: `${(precioMinLocal / maxPrecioGlobal) * 100}%`, width: `${((precioMaxLocal - precioMinLocal) / maxPrecioGlobal) * 100}%` }} />
-                        </div>
-                        <div className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-black rounded-full border-2 border-white shadow pointer-events-none"
-                          style={{ left: `calc(${(precioMinLocal / maxPrecioGlobal) * 100}% - 8px)` }} />
-                        <div className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-black rounded-full border-2 border-white shadow pointer-events-none"
-                          style={{ left: `calc(${(precioMaxLocal / maxPrecioGlobal) * 100}% - 8px)` }} />
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="flex-1 border border-gray-200 rounded px-3 py-2 text-sm text-gray-700">
-                          {formatCurrency(precioMinLocal)}
-                        </div>
-                        <span className="text-gray-400">—</span>
-                        <div className="flex-1 border border-gray-200 rounded px-3 py-2 text-sm text-gray-700">
-                          {formatCurrency(precioMaxLocal)}
-                        </div>
-                      </div>
-                    </>
-                  )}
-                </div>
-
-                {/* TALLA */}
-                {tallasDisponibles.length > 0 && (
-                  <div className="px-5 py-4 border-b border-gray-100">
-                    <button onClick={() => setSeccionesAbiertas(s => ({ ...s, talla: !s.talla }))}
-                      className="w-full flex items-center justify-between mb-3">
-                      <span className="text-xs font-bold tracking-widest text-gray-900">TALLA</span>
-                      <ChevronUp className={`w-4 h-4 text-gray-500 transition-transform ${seccionesAbiertas.talla ? '' : 'rotate-180'}`} />
-                    </button>
-                    {seccionesAbiertas.talla && (
-                      <div className="flex flex-wrap gap-2">
-                        {tallasDisponibles.map(t => (
-                          <button key={t} onClick={() => setTallaLocal(tallaLocal.includes(t) ? tallaLocal.filter(x => x !== t) : [...tallaLocal, t])}
-                            className={`px-3 py-1.5 text-sm border rounded transition-colors ${tallaLocal.includes(t) ? 'border-black bg-black text-white' : 'border-gray-300 text-gray-700 hover:border-gray-900'}`}>
-                            {t}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* TIPO DE PRODUCTO */}
-                {tiposProductoDisponibles.length > 0 && (
-                  <div className="px-5 py-4 border-b border-gray-100">
-                    <button onClick={() => setSeccionesAbiertas(s => ({ ...s, tipo: !s.tipo }))}
-                      className="w-full flex items-center justify-between mb-3">
-                      <span className="text-xs font-bold tracking-widest text-gray-900">TIPO DE PRODUCTO</span>
-                      <ChevronUp className={`w-4 h-4 text-gray-500 transition-transform ${seccionesAbiertas.tipo ? '' : 'rotate-180'}`} />
-                    </button>
-                    {seccionesAbiertas.tipo && (
-                      <div className="flex flex-wrap gap-2">
-                        {tiposProductoDisponibles.map(t => (
-                          <button key={t} onClick={() => setTipoLocal(tipoLocal === t ? '' : t)}
-                            className={`px-3 py-1.5 text-sm border rounded transition-colors ${tipoLocal === t ? 'border-black bg-black text-white' : 'border-gray-300 text-gray-700 hover:border-gray-900'}`}>
-                            {t}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* CATEGORÍA */}
-                {categoriasRopaDisponibles.length > 0 && (
-                  <div className="px-5 py-4 border-b border-gray-100">
-                    <button onClick={() => setSeccionesAbiertas(s => ({ ...s, categoria: !s.categoria }))}
-                      className="w-full flex items-center justify-between mb-3">
-                      <span className="text-xs font-bold tracking-widest text-gray-900">CATEGORÍA</span>
-                      <ChevronUp className={`w-4 h-4 text-gray-500 transition-transform ${seccionesAbiertas.categoria ? '' : 'rotate-180'}`} />
-                    </button>
-                    {seccionesAbiertas.categoria && (
-                      <div className="flex flex-wrap gap-2">
-                        {categoriasRopaDisponibles.map(c => (
-                          <button key={c} onClick={() => setCategoriaLocal(categoriaLocal === c ? '' : c)}
-                            className={`px-3 py-1.5 text-sm border rounded transition-colors ${categoriaLocal === c ? 'border-black bg-black text-white' : 'border-gray-300 text-gray-700 hover:border-gray-900'}`}>
-                            {c}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Limpiar filtros */}
-                {(tallaLocal.length > 0 || tipoLocal || categoriaLocal || precioMinLocal > 0 || precioMaxLocal < maxPrecioGlobal) && (
-                  <button onClick={limpiarFiltros} className="w-full px-5 py-3 text-xs text-gray-500 hover:text-gray-900 underline transition-colors">
-                    Limpiar filtros
-                  </button>
-                )}
-              </div>
-
-              {/* Footer */}
-              <div className="px-5 py-4 border-t border-gray-100">
-                <button onClick={aplicarFiltros}
-                  className="w-full bg-black text-white py-3 text-xs font-bold tracking-widest hover:bg-gray-800 transition-colors">
-                  MOSTRAR ARTÍCULOS
-                </button>
-              </div>
-            </div>
-          </>
-        )}
+        <FiltrosPanel
+          abierto={filtrosAbiertos}
+          onClose={() => setFiltrosAbiertos(false)}
+          tallasDisponibles={tallasDisponibles}
+          tiposProductoDisponibles={tiposProductoDisponibles}
+          categoriasRopaDisponibles={categoriasRopaDisponibles}
+          maxPrecioGlobal={maxPrecioGlobal}
+          filtroPrecioMin={filtroPrecioMin}
+          filtroPrecioMax={filtroPrecioMax}
+          filtroTalla={filtroTalla}
+          filtroTipoProducto={filtroTipoProducto}
+          filtroCategoriaRopa={filtroCategoriaRopa}
+          onAplicar={handleAplicarFiltros}
+        />
 
 
         {/* Grid de Productos */}
@@ -1002,12 +838,12 @@ export const LandingView: React.FC<LandingViewProps> = ({
                     <button
                       onClick={() => {
                         setProductoSeleccionado(producto);
-                        const colorIni = (producto as any).colores?.[0] || '';
-                        const tallasP: string[] = (producto as any).tallas || [];
-                        const variantesP: any[] = (producto as any).variantes || [];
+                        const colorIni = producto.colores?.[0] || '';
+                        const tallasP: string[] = producto.tallas || [];
+                        const variantesP = producto.variantes || [];
                         const tallaIni = tallasP.find((t: string) => {
                           if (!variantesP.length) return true;
-                          const v = variantesP.find((x: any) => x.tallaNombre === t && (!colorIni || x.colorNombre === colorIni));
+                          const v = variantesP.find(x => x.tallaNombre === t && (!colorIni || x.colorNombre === colorIni));
                           return v ? v.stock > 0 : true;
                         });
                         setTallaSeleccionada(tallaIni || tallasP[0] || 'Única');
@@ -1026,7 +862,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                     >
                       <Heart className={`w-5 h-5 ${esFavorito(producto.id) ? "fill-[#d65391] text-[#d65391]" : "text-gray-600"}`} />
                     </button>
-                    {(producto as any).agotado && (
+                    {producto.agotado && (
                       <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
                         <span className="bg-white text-gray-800 text-xs font-bold px-3 py-1 rounded-full shadow">Agotado</span>
                       </div>
@@ -1095,7 +931,6 @@ export const LandingView: React.FC<LandingViewProps> = ({
             {productoSeleccionado?.nombre || "Detalle del Producto"}
           </DialogDescription>
           {productoSeleccionado && (() => {
-            const ps = productoSeleccionado as any;
             const imagenesPorColor = productoSeleccionado.imagenesPorColor || {};
             const imgsForColor = colorSeleccionado && imagenesPorColor[colorSeleccionado] && imagenesPorColor[colorSeleccionado].length > 0
               ? imagenesPorColor[colorSeleccionado]
@@ -1141,9 +976,9 @@ export const LandingView: React.FC<LandingViewProps> = ({
                   </div>
 
                   {/* Description */}
-                  {(productoSeleccionado.descripcion || ps.descripcion) && (
+                  {productoSeleccionado.descripcion && (
                     <p className="text-sm text-[#7d6f77] leading-relaxed -mt-2">
-                      {productoSeleccionado.descripcion || ps.descripcion}
+                      {productoSeleccionado.descripcion}
                     </p>
                   )}
 
@@ -1200,35 +1035,35 @@ export const LandingView: React.FC<LandingViewProps> = ({
 
                   {/* Sizes */}
                   {(() => {
-                    const tallasProducto: string[] = (productoSeleccionado as any).tallas || [];
-                    const variantes: any[] = (productoSeleccionado as any).variantes || [];
-                    const tallasConStock: any[] = (productoSeleccionado as any).tallasConStock || [];
-                    const stockGeneral: number = (productoSeleccionado as any).stock ?? 0;
-                    const tallasGlobales = tallas.map((t: any) => t.nombre);
+                    const tallasProducto: string[] = productoSeleccionado.tallas || [];
+                    const variantes = productoSeleccionado.variantes || [];
+                    // tallasConStock nunca viene poblado en el objeto que produce useProductosCombinados
+                    const tallasConStock: { nombre: string; stock: number }[] = [];
+                    const stockGeneral: number = productoSeleccionado.stock ?? 0;
                     const tallasMostrar: string[] = tallasProducto;
                     if (tallasMostrar.length === 0) return null;
-                    const todosVariantesCero = variantes.length > 0 && variantes.every((x: any) => (x.stock ?? 0) <= 0);
+                    const todosVariantesCero = variantes.length > 0 && variantes.every(x => (x.stock ?? 0) <= 0);
                     return (
                       <div>
                         <p className="text-sm font-semibold text-[#241B22] mb-2">Talla</p>
                         <div className="flex flex-wrap gap-2">
                           {tallasMostrar.map((talla) => {
                             let sinStock = false;
-                            let stockDisponible = 0;
+                            let stockDisponible: number;
                             if (talla === 'Única') {
                               sinStock = stockGeneral <= 0;
                               stockDisponible = stockGeneral;
                             } else if (variantes.length > 0 && !todosVariantesCero) {
                               const colorEfectivo = colorSeleccionado || (productoSeleccionado.colores?.length === 1 ? productoSeleccionado.colores[0] : null);
                               if (colorEfectivo) {
-                                const v = variantes.find((x: any) => x.tallaNombre === talla && x.colorNombre === colorEfectivo);
+                                const v = variantes.find(x => x.tallaNombre === talla && x.colorNombre === colorEfectivo);
                                 stockDisponible = v?.stock ?? 0;
                               } else {
-                                stockDisponible = variantes.filter((x: any) => x.tallaNombre === talla).reduce((s: number, x: any) => s + (x.stock ?? 0), 0);
+                                stockDisponible = variantes.filter(x => x.tallaNombre === talla).reduce((s, x) => s + (x.stock ?? 0), 0);
                               }
                               sinStock = stockDisponible <= 0;
                             } else {
-                              const tallaInfo = tallasConStock.find((t: any) => t.nombre === talla);
+                              const tallaInfo = tallasConStock.find(t => t.nombre === talla);
                               const stockTalla = tallaInfo ? tallaInfo.stock : (stockGeneral > 0 ? stockGeneral : 10);
                               sinStock = stockTalla <= 0;
                               stockDisponible = stockTalla;
@@ -1259,11 +1094,11 @@ export const LandingView: React.FC<LandingViewProps> = ({
                   })()}
 
                   {/* Materials */}
-                  {(productoSeleccionado as any).materiales?.length > 0 && (
+                  {productoSeleccionado.materiales && productoSeleccionado.materiales.length > 0 && (
                     <div>
                       <p className="text-sm font-semibold text-[#241B22] mb-2">Material</p>
                       <div className="flex flex-wrap gap-2">
-                        {((productoSeleccionado as any).materiales as string[]).map((material: string) => (
+                        {productoSeleccionado.materiales.map((material: string) => (
                           <span key={material} className="px-3 py-1 bg-[#EFD9DF] text-xs font-medium text-[#A3395C] rounded-full">
                             {material}
                           </span>
@@ -1290,15 +1125,15 @@ export const LandingView: React.FC<LandingViewProps> = ({
                       </button>
                     </div>
                     <button
-                      disabled={ps.agotado}
+                      disabled={productoSeleccionado.agotado}
                       onClick={handleAgregarAlCarrito}
                       className={`flex-1 h-10 rounded-md border text-xs font-semibold uppercase tracking-wider transition-all ${
-                        ps.agotado
+                        productoSeleccionado.agotado
                           ? 'border-[#E7E0DA] text-[#c3bab3] cursor-not-allowed'
                           : 'border-[#241B22] text-[#241B22] hover:bg-[#241B22] hover:text-white'
                       }`}
                     >
-                      {ps.agotado ? 'Agotado' : 'Agregar al Carrito'}
+                      {productoSeleccionado.agotado ? 'Agotado' : 'Agregar al Carrito'}
                     </button>
                     <button
                       onClick={() => onNavigateToLogin()}
@@ -1311,14 +1146,14 @@ export const LandingView: React.FC<LandingViewProps> = ({
 
                   {/* Buy Now */}
                   <button
-                    disabled={ps.agotado}
+                    disabled={productoSeleccionado.agotado}
                     onClick={handleComprarAhora}
                     style={{ flexShrink: 0 }}
                     className={`w-full h-11 rounded-md text-xs font-semibold uppercase tracking-wider text-white transition-all ${
-                      ps.agotado ? 'bg-[#E7E0DA] cursor-not-allowed' : 'bg-[#A3395C] hover:bg-[#8a2e4d] shadow-sm hover:shadow-md'
+                      productoSeleccionado.agotado ? 'bg-[#E7E0DA] cursor-not-allowed' : 'bg-[#A3395C] hover:bg-[#8a2e4d] shadow-sm hover:shadow-md'
                     }`}
                   >
-                    {ps.agotado ? 'Agotado' : 'Comprar Ahora'}
+                    {productoSeleccionado.agotado ? 'Agotado' : 'Comprar Ahora'}
                   </button>
                 </div>
               </div>
@@ -1365,69 +1200,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
         </DialogContent>
       </Dialog>
 
-      {/* Footer */}
-      <footer className="text-white mt-20" style={{ background: 'linear-gradient(90deg, #1c151a 0%, #241B22 30%, #7a3350 68%, #A3395C 100%)' }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
-            <div>
-              <h3
-                style={{ fontFamily: '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif', color: '#ffffff' }}
-                className="text-3xl mb-4"
-              >
-                Selenne Boutique
-              </h3>
-              <p style={{ fontFamily: '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }} className="text-gray-300 text-base">
-                Elegancia y estilo en cada prenda
-              </p>
-            </div>
-            <div>
-              <h4 style={{ fontFamily: '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }} className="mb-5 text-lg font-semibold uppercase tracking-wide text-[#EFD9DF]">Compra</h4>
-              <ul className="space-y-3 text-base text-gray-300" style={{ fontFamily: '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}>
-                <li>
-                  <button onClick={() => setCategoriaActiva("mujer")} className="hover:text-[#EFD9DF] transition-colors">
-                    Mujer
-                  </button>
-                </li>
-                <li>
-                  <button onClick={() => setCategoriaActiva("accesorios")} className="hover:text-[#EFD9DF] transition-colors">
-                    Accesorios
-                  </button>
-                </li>
-                <li>
-                  <button onClick={() => setCategoriaActiva("sale")} className="hover:text-[#EFD9DF] transition-colors">
-                    Sale
-                  </button>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 style={{ fontFamily: '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }} className="mb-5 text-lg font-semibold uppercase tracking-wide text-[#EFD9DF]">Ayuda</h4>
-              <ul className="space-y-3 text-base text-gray-300" style={{ fontFamily: '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}>
-                <li>
-                  <a
-                    href={`https://wa.me/${telefonoContacto.replace(/\D/g, '')}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-[#EFD9DF] transition-colors"
-                  >
-                    Contacto
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 style={{ fontFamily: '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }} className="mb-5 text-lg font-semibold uppercase tracking-wide text-[#EFD9DF]">Síguenos</h4>
-              <ul className="space-y-3 text-base text-gray-300" style={{ fontFamily: '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}>
-                <li><a href="https://www.instagram.com/selenne_boutique_?igsh=MWJtaXR0Zm85MW13ZQ==" target="_blank" rel="noopener noreferrer" className="hover:text-[#EFD9DF] transition-colors">Instagram</a></li>
-              </ul>
-            </div>
-          </div>
-          <Separator className="my-8 bg-white/15" />
-          <div className="text-center text-sm text-gray-300" style={{ fontFamily: '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}>
-            <p>© 2024 Selenne Boutique. Todos los derechos reservados.</p>
-          </div>
-        </div>
-      </footer>
+      <StoreFooter telefonoContacto={telefonoContacto} onCategoriaChange={setCategoriaActiva} />
     </div>
   );
 };

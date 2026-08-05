@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo, useEffect, useRef } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   ShoppingBag,
   Heart,
@@ -13,7 +13,6 @@ import {
   ShoppingCart,
   ChevronLeft,
   ChevronRight,
-  ChevronUp,
   Zap,
   SlidersHorizontal,
   Package,
@@ -46,6 +45,8 @@ import {
 } from "../../components/ui/select";
 import { SizeSelector } from "../../components/ui/size-selector";
 import { Separator } from "../../components/ui/separator";
+import { StoreFooter } from "../../components/StoreFooter";
+import { FiltrosPanel, type FiltrosAplicados } from "../../components/FiltrosPanel";
 import { ImageCarousel } from "../../components/figma/ImageCarousel";
 import { useProductosCombinados } from "../../shared/data/useProductosCombinados";
 import { useProductos } from "../../shared/contexts/ProductosContext";
@@ -103,14 +104,6 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
   const [filtroPrecioMin, setFiltroPrecioMin] = useState<number | null>(null);
   const [filtroPrecioMax, setFiltroPrecioMax] = useState<number | null>(null);
   const [filtrosAbiertos, setFiltrosAbiertos] = useState(false);
-  const [seccionesAbiertas, setSeccionesAbiertas] = useState({ precio: true, talla: true, tipo: true, categoria: true });
-  const [precioMinLocal, setPrecioMinLocal] = useState(0);
-  const [precioMaxLocal, setPrecioMaxLocal] = useState(0);
-  const [activeRangeThumb, setActiveRangeThumb] = useState<'min' | 'max' | null>(null);
-  const rangeContainerRef = useRef<HTMLDivElement>(null);
-  const [tallaLocal, setTallaLocal] = useState<string[]>([]);
-  const [tipoLocal, setTipoLocal] = useState("");
-  const [categoriaLocal, setCategoriaLocal] = useState("");
 
   const {
     carritoItems,
@@ -203,54 +196,13 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
     return c;
   }, [filtroTipoProducto, filtroCategoriaRopa, filtroTalla, filtroPrecioMin, filtroPrecioMax]);
 
-  const abrirFiltros = () => {
-    setPrecioMinLocal(filtroPrecioMin ?? 0);
-    setPrecioMaxLocal(filtroPrecioMax ?? maxPrecioGlobal);
-    setTallaLocal([...filtroTalla]);
-    setTipoLocal(filtroTipoProducto);
-    setCategoriaLocal(filtroCategoriaRopa);
-    setFiltrosAbiertos(true);
-  };
-
-  const getRangeValue = (clientX: number) => {
-    if (!rangeContainerRef.current) return 0;
-    const rect = rangeContainerRef.current.getBoundingClientRect();
-    const pct = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-    return Math.round((pct * maxPrecioGlobal) / 1000) * 1000;
-  };
-  const handleRangePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    if (!rangeContainerRef.current) return;
-    const val = getRangeValue(e.clientX);
-    const thumb = Math.abs(val - precioMinLocal) <= Math.abs(val - precioMaxLocal) ? 'min' : 'max';
-    setActiveRangeThumb(thumb);
-    rangeContainerRef.current.setPointerCapture(e.pointerId);
-    if (thumb === 'min') setPrecioMinLocal(Math.min(val, precioMaxLocal - 1000));
-    else setPrecioMaxLocal(Math.max(val, precioMinLocal + 1000));
-  };
-  const handleRangePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!activeRangeThumb || !(e.buttons & 1)) return;
-    const val = getRangeValue(e.clientX);
-    if (activeRangeThumb === 'min') setPrecioMinLocal(Math.min(val, precioMaxLocal - 1000));
-    else setPrecioMaxLocal(Math.max(val, precioMinLocal + 1000));
-  };
-  const handleRangePointerUp = () => setActiveRangeThumb(null);
-
-  const aplicarFiltros = () => {
-    setFiltroPrecioMin(precioMinLocal > 0 ? precioMinLocal : null);
-    setFiltroPrecioMax(precioMaxLocal < maxPrecioGlobal ? precioMaxLocal : null);
-    setFiltroTalla(tallaLocal);
-    setFiltroTipoProducto(tipoLocal);
-    setFiltroCategoriaRopa(categoriaLocal);
+  const handleAplicarFiltros = (f: FiltrosAplicados) => {
+    setFiltroPrecioMin(f.precioMin);
+    setFiltroPrecioMax(f.precioMax);
+    setFiltroTalla(f.talla);
+    setFiltroTipoProducto(f.tipoProducto);
+    setFiltroCategoriaRopa(f.categoriaRopa);
     setFiltrosAbiertos(false);
-  };
-
-  const limpiarFiltros = () => {
-    setPrecioMinLocal(0);
-    setPrecioMaxLocal(maxPrecioGlobal);
-    setTallaLocal([]);
-    setTipoLocal('');
-    setCategoriaLocal('');
   };
 
   // Filtrar productos según la categoría activa
@@ -329,7 +281,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
 
   // Sincronizar el producto seleccionado cuando cambian los datos (nuevas imágenes, precios, etc)
   useEffect(() => {
-    getJson('/api/config/banco').then((d: any) => {
+    getJson('/api/config/banco').then((d: { data?: { whatsapp?: string } }) => {
       if (d?.data?.whatsapp) {
         const n = d.data.whatsapp.replace(/\D/g, '');
         setTelefonoContacto(`+${n.slice(0, 2)} ${n.slice(2, 5)} ${n.slice(5, 8)} ${n.slice(8)}`);
@@ -843,10 +795,10 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
               <img
                 src={
                   categoriaActiva === "mujer"
-                    ? "/banners/banner-mujer.png"
+                    ? "/banners/banner-mujer.webp"
                     : categoriaActiva === "accesorios"
-                    ? "/banners/banner-accesorios.png"
-                    : "/banners/banner-sale.png"
+                    ? "/banners/banner-accesorios.webp"
+                    : "/banners/banner-sale.webp"
                 }
                 alt={categoriaActiva}
                 className="w-full h-auto block"
@@ -869,7 +821,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                     </SelectContent>
                   </Select>
                   <button
-                    onClick={abrirFiltros}
+                    onClick={() => setFiltrosAbiertos(true)}
                     className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:border-gray-900 transition-colors"
                   >
                     <SlidersHorizontal className="w-4 h-4" />
@@ -882,135 +834,20 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
               </div>
             </div>
 
-            {/* Panel de Filtros */}
-            {filtrosAbiertos && (
-              <>
-                <div className="fixed inset-0 bg-black/40 z-40" onClick={() => setFiltrosAbiertos(false)} />
-                <div className="fixed right-0 top-0 h-full w-80 bg-white z-50 flex flex-col shadow-2xl">
-                  <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-                    <span className="text-xs font-bold tracking-widest text-gray-900">APLICAR FILTROS</span>
-                    <button onClick={() => setFiltrosAbiertos(false)} className="flex items-center gap-1 text-xs font-bold tracking-widest text-gray-900 hover:text-gray-600">
-                      CERCA <X className="w-4 h-4" />
-                    </button>
-                  </div>
-
-                  <div className="flex-1 overflow-y-auto">
-                    {/* PRECIO */}
-                    <div className="px-5 py-4 border-b border-gray-100">
-                      <button onClick={() => setSeccionesAbiertas(s => ({ ...s, precio: !s.precio }))}
-                        className="w-full flex items-center justify-between mb-3">
-                        <span className="text-xs font-bold tracking-widest text-gray-900">PRECIO</span>
-                        <ChevronUp className={`w-4 h-4 text-gray-500 transition-transform ${seccionesAbiertas.precio ? '' : 'rotate-180'}`} />
-                      </button>
-                      {seccionesAbiertas.precio && (
-                        <>
-                          <div ref={rangeContainerRef} className="relative h-6 mb-4 cursor-pointer touch-none select-none"
-                            onPointerDown={handleRangePointerDown}
-                            onPointerMove={handleRangePointerMove}
-                            onPointerUp={handleRangePointerUp}>
-                            <div className="absolute top-1/2 -translate-y-1/2 w-full h-[2px] bg-gray-200 rounded-full">
-                              <div className="absolute h-full bg-black rounded-full"
-                                style={{ left: `${(precioMinLocal / maxPrecioGlobal) * 100}%`, width: `${((precioMaxLocal - precioMinLocal) / maxPrecioGlobal) * 100}%` }} />
-                            </div>
-                            <div className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-black rounded-full border-2 border-white shadow pointer-events-none"
-                              style={{ left: `calc(${(precioMinLocal / maxPrecioGlobal) * 100}% - 8px)` }} />
-                            <div className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-black rounded-full border-2 border-white shadow pointer-events-none"
-                              style={{ left: `calc(${(precioMaxLocal / maxPrecioGlobal) * 100}% - 8px)` }} />
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <div className="flex-1 border border-gray-200 rounded px-3 py-2 text-sm text-gray-700">
-                              {formatCurrency(precioMinLocal)}
-                            </div>
-                            <span className="text-gray-400">—</span>
-                            <div className="flex-1 border border-gray-200 rounded px-3 py-2 text-sm text-gray-700">
-                              {formatCurrency(precioMaxLocal)}
-                            </div>
-                          </div>
-                        </>
-                      )}
-                    </div>
-
-                    {/* TALLA */}
-                    {tallasDisponibles.length > 0 && (
-                      <div className="px-5 py-4 border-b border-gray-100">
-                        <button onClick={() => setSeccionesAbiertas(s => ({ ...s, talla: !s.talla }))}
-                          className="w-full flex items-center justify-between mb-3">
-                          <span className="text-xs font-bold tracking-widest text-gray-900">TALLA</span>
-                          <ChevronUp className={`w-4 h-4 text-gray-500 transition-transform ${seccionesAbiertas.talla ? '' : 'rotate-180'}`} />
-                        </button>
-                        {seccionesAbiertas.talla && (
-                          <div className="flex flex-wrap gap-2">
-                            {tallasDisponibles.map(t => (
-                              <button key={t} onClick={() => setTallaLocal(tallaLocal.includes(t) ? tallaLocal.filter(x => x !== t) : [...tallaLocal, t])}
-                                className={`px-3 py-1.5 text-sm border rounded transition-colors ${tallaLocal.includes(t) ? 'border-black bg-black text-white' : 'border-gray-300 text-gray-700 hover:border-gray-900'}`}>
-                                {t}
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {/* TIPO DE PRODUCTO */}
-                    {tiposProductoDisponibles.length > 0 && (
-                      <div className="px-5 py-4 border-b border-gray-100">
-                        <button onClick={() => setSeccionesAbiertas(s => ({ ...s, tipo: !s.tipo }))}
-                          className="w-full flex items-center justify-between mb-3">
-                          <span className="text-xs font-bold tracking-widest text-gray-900">TIPO DE PRODUCTO</span>
-                          <ChevronUp className={`w-4 h-4 text-gray-500 transition-transform ${seccionesAbiertas.tipo ? '' : 'rotate-180'}`} />
-                        </button>
-                        {seccionesAbiertas.tipo && (
-                          <div className="flex flex-wrap gap-2">
-                            {tiposProductoDisponibles.map(t => (
-                              <button key={t} onClick={() => setTipoLocal(tipoLocal === t ? '' : t)}
-                                className={`px-3 py-1.5 text-sm border rounded transition-colors ${tipoLocal === t ? 'border-black bg-black text-white' : 'border-gray-300 text-gray-700 hover:border-gray-900'}`}>
-                                {t}
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {/* CATEGORÍA */}
-                    {categoriasRopaDisponibles.length > 0 && (
-                      <div className="px-5 py-4 border-b border-gray-100">
-                        <button onClick={() => setSeccionesAbiertas(s => ({ ...s, categoria: !s.categoria }))}
-                          className="w-full flex items-center justify-between mb-3">
-                          <span className="text-xs font-bold tracking-widest text-gray-900">CATEGORÍA</span>
-                          <ChevronUp className={`w-4 h-4 text-gray-500 transition-transform ${seccionesAbiertas.categoria ? '' : 'rotate-180'}`} />
-                        </button>
-                        {seccionesAbiertas.categoria && (
-                          <div className="flex flex-wrap gap-2">
-                            {categoriasRopaDisponibles.map(c => (
-                              <button key={c} onClick={() => setCategoriaLocal(categoriaLocal === c ? '' : c)}
-                                className={`px-3 py-1.5 text-sm border rounded transition-colors ${categoriaLocal === c ? 'border-black bg-black text-white' : 'border-gray-300 text-gray-700 hover:border-gray-900'}`}>
-                                {c}
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Limpiar filtros */}
-                    {(tallaLocal.length > 0 || tipoLocal || categoriaLocal || precioMinLocal > 0 || precioMaxLocal < maxPrecioGlobal) && (
-                      <button onClick={limpiarFiltros} className="w-full px-5 py-3 text-xs text-gray-500 hover:text-gray-900 underline transition-colors">
-                        Limpiar filtros
-                      </button>
-                    )}
-                  </div>
-
-                  <div className="px-5 py-4 border-t border-gray-100">
-                    <button onClick={aplicarFiltros}
-                      className="w-full bg-black text-white py-3 text-xs font-bold tracking-widest hover:bg-gray-800 transition-colors">
-                      MOSTRAR ARTÍCULOS
-                    </button>
-                  </div>
-                </div>
-              </>
-            )}
-
+            <FiltrosPanel
+              abierto={filtrosAbiertos}
+              onClose={() => setFiltrosAbiertos(false)}
+              tallasDisponibles={tallasDisponibles}
+              tiposProductoDisponibles={tiposProductoDisponibles}
+              categoriasRopaDisponibles={categoriasRopaDisponibles}
+              maxPrecioGlobal={maxPrecioGlobal}
+              filtroPrecioMin={filtroPrecioMin}
+              filtroPrecioMax={filtroPrecioMax}
+              filtroTalla={filtroTalla}
+              filtroTipoProducto={filtroTipoProducto}
+              filtroCategoriaRopa={filtroCategoriaRopa}
+              onAplicar={handleAplicarFiltros}
+            />
 
       {/* Grid de Productos */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -1344,101 +1181,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
         </DialogContent>
       </Dialog>
 
-      {/* Footer */}
-      <footer className="text-white mt-20" style={{ background: 'linear-gradient(90deg, #1c151a 0%, #241B22 30%, #7a3350 68%, #A3395C 100%)' }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-10" style={{ fontFamily: '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}>
-            <div>
-              <h3
-                style={{ fontFamily: '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif', color: '#ffffff' }}
-                className="text-3xl mb-4"
-              >
-                Selenne Boutique
-              </h3>
-              <p
-                className="text-gray-300 text-base"
-              >
-                Elegancia y estilo en cada prenda
-              </p>
-            </div>
-            <div>
-              <h4
-                className="mb-5 text-lg font-semibold uppercase tracking-wide text-[#EFD9DF]"
-              >
-                Compra
-              </h4>
-              <ul className="space-y-3 text-base text-gray-300">
-                <li>
-                  <button
-                    onClick={() => setCategoriaActiva("mujer")}
-                    className="hover:text-[#EFD9DF] transition-colors"
-                  >
-                    Mujer
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() =>
-                      setCategoriaActiva("accesorios")
-                    }
-                    className="hover:text-[#EFD9DF] transition-colors"
-                  >
-                    Accesorios
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => setCategoriaActiva("sale")}
-                    className="hover:text-[#EFD9DF] transition-colors"
-                  >
-                    Sale
-                  </button>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4
-                className="mb-5 text-lg font-semibold uppercase tracking-wide text-[#EFD9DF]"
-              >
-                Ayuda
-              </h4>
-              <ul className="space-y-3 text-base text-gray-300">
-                <li>
-                  <a
-                    href={`https://wa.me/${telefonoContacto.replace(/\D/g, '')}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-[#EFD9DF] transition-colors"
-                  >
-                    Contacto
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4
-                className="mb-5 text-lg font-semibold uppercase tracking-wide text-[#EFD9DF]"
-              >
-                Síguenos
-              </h4>
-              <ul className="space-y-3 text-base text-gray-300">
-                <li>
-                  <a href="https://www.instagram.com/selenne_boutique_?igsh=MWJtaXR0Zm85MW13ZQ==" target="_blank" rel="noopener noreferrer" className="hover:text-[#EFD9DF] transition-colors">
-                    Instagram
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <Separator className="my-8 bg-white/15" />
-          <div className="text-center text-sm text-gray-300" style={{ fontFamily: '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}>
-            <p>
-              © 2024 Selenne Boutique. Todos los derechos
-              reservados.
-            </p>
-          </div>
-        </div>
-      </footer>
+      <StoreFooter telefonoContacto={telefonoContacto} onCategoriaChange={setCategoriaActiva} />
     </div>
   );
 };
