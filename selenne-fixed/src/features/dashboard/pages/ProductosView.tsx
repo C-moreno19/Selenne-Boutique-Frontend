@@ -324,7 +324,7 @@ export const ProductosView: React.FC = () => {
       setForm(f => {
         const defaultStock = Math.max(1, Number(f.stock) || 1);
         // Quitar variantes sin color (reemplazadas por las de color específico)
-        let newVariantes = f.variantes.filter(v => v.colorNombre !== '');
+        const newVariantes = f.variantes.filter(v => v.colorNombre !== '');
         f.tallasSeleccionadas.forEach(talla => {
           if (!newVariantes.find(v => v.tallaNombre === talla && v.colorNombre === nombre))
             newVariantes.push({ tallaNombre: talla, colorNombre: nombre, stock: defaultStock });

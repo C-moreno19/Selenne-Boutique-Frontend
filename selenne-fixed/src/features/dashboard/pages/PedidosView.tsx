@@ -521,7 +521,7 @@ export const PedidosView: React.FC = () => {
             </button>
             <button type="button" onClick={() => {
               if (!razonRechazo.trim()) { toast.error('La razón del rechazo es obligatoria'); return; }
-              selectedPedido && cambiarEstado(selectedPedido, 'Rechazado', razonRechazo);
+              if (selectedPedido) cambiarEstado(selectedPedido, 'Rechazado', razonRechazo);
             }} disabled={saving}
               className="flex-1 py-2.5 text-white rounded-xl disabled:opacity-50 flex items-center justify-center gap-2 transition hover:opacity-90 text-sm font-semibold"
               style={{ background: 'linear-gradient(135deg, #f43f5e 0%, #dc2626 100%)' }}>

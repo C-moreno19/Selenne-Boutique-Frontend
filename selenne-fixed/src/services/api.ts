@@ -54,7 +54,11 @@ async function ensureRefreshed(): Promise<boolean> {
   return refreshingPromise;
 }
 
-export async function fetchWithAuth(input: string, options: RequestInit = {}, retry = true) {
+// El generico por defecto queda en `any` a proposito: esta funcion es el punto de entrada
+// de todas las llamadas HTTP del proyecto y no todos los call sites migraron a tipos reales
+// todavia. Los que ya lo hicieron (contexts principales) pasan su propio <T>.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function fetchWithAuth<T = any>(input: string, options: RequestInit = {}, retry = true): Promise<T> {
   const url = `${apiBase}${input}`;
   const headers: Record<string, string> = { ...(options.headers as Record<string, string> || {}) };
   const token = getAccessToken();
@@ -67,51 +71,52 @@ export async function fetchWithAuth(input: string, options: RequestInit = {}, re
 
   if (res.status !== 401) {
     const text = await res.text();
-    try {
-      const data = text ? JSON.parse(text) : null;
-      if (!res.ok) throw { status: res.status, data };
-      return data;
-    } catch (e) { throw e; }
+    const data = text ? JSON.parse(text) : null;
+    if (!res.ok) throw { status: res.status, data };
+    return data;
   }
 
   if (!retry) {
     const text = await res.text();
-    try { const data = text ? JSON.parse(text) : null; throw { status: res.status, data }; }
-    catch (e) { throw e; }
+    const data = text ? JSON.parse(text) : null;
+    throw { status: res.status, data };
   }
 
   const ok = await ensureRefreshed();
   if (!ok) {
     const text = await res.text();
-    try { const data = text ? JSON.parse(text) : null; throw { status: res.status, data }; }
-    catch (e) { throw e; }
+    const data = text ? JSON.parse(text) : null;
+    throw { status: res.status, data };
   }
 
   const newToken = getAccessToken();
   if (newToken) headers['Authorization'] = `Bearer ${newToken}`;
   const retryRes = await fetch(url, { ...options, headers, credentials: 'include' });
   const text = await retryRes.text();
-  try {
-    const data = text ? JSON.parse(text) : null;
-    if (!retryRes.ok) throw { status: retryRes.status, data };
-    return data;
-  } catch (e) { throw e; }
+  const data = text ? JSON.parse(text) : null;
+  if (!retryRes.ok) throw { status: retryRes.status, data };
+  return data;
 }
 
-export async function postJson(path: string, body: any) {
-  return fetchWithAuth(path, { method: 'POST', body: JSON.stringify(body) });
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function postJson<T = any>(path: string, body: unknown) {
+  return fetchWithAuth<T>(path, { method: 'POST', body: JSON.stringify(body) });
 }
-export async function getJson(path: string) {
-  return fetchWithAuth(path, { method: 'GET' });
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function getJson<T = any>(path: string) {
+  return fetchWithAuth<T>(path, { method: 'GET' });
 }
-export async function putJson(path: string, body: any) {
-  return fetchWithAuth(path, { method: 'PUT', body: JSON.stringify(body) });
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function putJson<T = any>(path: string, body: unknown) {
+  return fetchWithAuth<T>(path, { method: 'PUT', body: JSON.stringify(body) });
 }
-export async function deleteJson(path: string) {
-  return fetchWithAuth(path, { method: 'DELETE' });
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function deleteJson<T = any>(path: string) {
+  return fetchWithAuth<T>(path, { method: 'DELETE' });
 }
-export async function postForm(path: string, form: FormData) {
-  return fetchWithAuth(path, { method: 'POST', body: form });
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function postForm<T = any>(path: string, form: FormData) {
+  return fetchWithAuth<T>(path, { method: 'POST', body: form });
 }
 export function setTokensFromAuthResponse(obj: { accessToken?: string; refreshToken?: string } | null) {
   if (!obj) return;

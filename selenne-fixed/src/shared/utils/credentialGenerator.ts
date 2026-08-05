@@ -24,7 +24,7 @@ export const generarContraseñaTemporal = (): string => {
 /**
  * Genera credenciales temporales para nuevo cliente
  */
-export const generarCredencialesTemporales = (email: string): GeneratedCredentials => {
+export const generarCredencialesTemporales = (_email: string): GeneratedCredentials => {
   return {
     password: generarContraseñaTemporal(),
     tempPassword: generarContraseñaTemporal(),

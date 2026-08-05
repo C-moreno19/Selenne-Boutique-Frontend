@@ -337,7 +337,7 @@ export const UsuariosView: React.FC = () => {
     finally { setSavingPermisos(false); }
   };
 
-  const togglePermiso = (n: string) => setPermisosSet(prev => { const s = new Set(prev); s.has(n) ? s.delete(n) : s.add(n); return s; });
+  const togglePermiso = (n: string) => setPermisosSet(prev => { const s = new Set(prev); if (s.has(n)) s.delete(n); else s.add(n); return s; });
   const toggleModulo = (perms: {nombre:string}[]) => {
     const all = perms.every(p => permisosSet.has(p.nombre));
     setPermisosSet(prev => { const s = new Set(prev); perms.forEach(p => all ? s.delete(p.nombre) : s.add(p.nombre)); return s; });

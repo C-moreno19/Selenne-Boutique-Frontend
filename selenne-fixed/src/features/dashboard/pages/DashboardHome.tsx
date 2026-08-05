@@ -275,7 +275,7 @@ export const DashboardHome: React.FC = () => {
     doc.text(`Generado el ${fecha} · Período: ${dateRangeLabel}`, 14, 26);
 
     switch (tipo) {
-      case 'Ventas Mensuales':
+      case 'Ventas Mensuales': {
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(11);
         doc.text('Resumen General', 14, 36);
@@ -293,7 +293,7 @@ export const DashboardHome: React.FC = () => {
           styles: { fontSize: 10 },
           columnStyles: { 0: { fontStyle: 'bold' } },
         });
-        const y1 = (doc as any).lastAutoTable.finalY + 10;
+        const y1 = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 10;
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(11);
         doc.text('Ventas Recientes', 14, y1);
@@ -306,6 +306,7 @@ export const DashboardHome: React.FC = () => {
           styles: { fontSize: 9 },
         });
         break;
+      }
 
       case 'Productos Más Vendidos':
         autoTable(doc, {

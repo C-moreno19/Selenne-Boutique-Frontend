@@ -63,7 +63,7 @@ export const NuevaCompraView: React.FC<NuevaCompraViewProps> = ({ onBack, onSucc
         setProveedorErrors(prev => ({ ...prev, telefono: '' }));
       }
     } else if (field === 'documento') {
-      if (value && !/^[\d\-]*$/.test(value)) {
+      if (value && !/^[\d-]*$/.test(value)) {
         setProveedorErrors(prev => ({ ...prev, documento: 'Solo se permiten números y guiones' }));
         return;
       } else {
