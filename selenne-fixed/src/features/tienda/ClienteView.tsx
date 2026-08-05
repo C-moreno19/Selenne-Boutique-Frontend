@@ -350,7 +350,8 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
   useEffect(() => {
     if (productoSeleccionado) {
       if (productoSeleccionado.colores && productoSeleccionado.colores.length > 0) {
-        setColorSeleccionado(prev => prev || productoSeleccionado.colores[0]);
+        const primerColor = productoSeleccionado.colores[0];
+        setColorSeleccionado(prev => prev || primerColor);
       } else {
         setColorSeleccionado('');
       }
@@ -1150,7 +1151,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
             Object.entries(imagenesPorColor).forEach(([k, v]) => { normalizedMap[k.toLowerCase()] = v; });
             const imgsForColor = (() => {
               if (colorKey && normalizedMap[colorKey]?.length > 0) return normalizedMap[colorKey];
-              if (productoSeleccionado.imagenes?.length > 0) return productoSeleccionado.imagenes;
+              if (productoSeleccionado.imagenes && productoSeleccionado.imagenes.length > 0) return productoSeleccionado.imagenes;
               if (productoSeleccionado.imagen) return [productoSeleccionado.imagen];
               return [];
             })();

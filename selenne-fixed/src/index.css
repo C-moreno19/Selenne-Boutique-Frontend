@@ -2,13 +2,13 @@
 .font-playfair { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }
 .font-inter    { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }
 
-/* ── Panel de administración: tipografía Georgia en todo el panel ───
+/* ── Panel de administración: tipografía Playfair Display en todo el panel ──
    Se usa !important porque muchas vistas del admin fijan la fuente
    con style={{ fontFamily: ... }} elemento por elemento. Se marca en
    <body> (no solo en .admin-panel) porque los Dialog/Sheet de Radix
    se portan directo a document.body, fuera del contenedor. */
 body.is-admin-panel, body.is-admin-panel * {
-  font-family: Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif !important;
+  font-family: "Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif !important;
 }
 .admin-panel .tabular-nums,
 .admin-panel [class*="text-3xl"],
@@ -16,9 +16,10 @@ body.is-admin-panel, body.is-admin-panel * {
   font-variant-numeric: tabular-nums;
 }
 
-/* ── Titulos de pagina del admin: excepcion a la Georgia forzada ── */
-.admin-page-title {
-  font-family: "Playfair Display", Georgia, serif !important;
+/* ── Titulos de pagina del admin: negrita + cursiva ──
+   Selector con mas especificidad que "body.is-admin-panel *" para que
+   gane sobre la regla de arriba (misma !important, distinta especificidad). */
+body.is-admin-panel .admin-page-title {
   font-weight: 700 !important;
   font-style: italic !important;
 }
