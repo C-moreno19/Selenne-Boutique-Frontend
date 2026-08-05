@@ -20,6 +20,9 @@ export interface Producto {
   badge?: string | null;
   nuevo: boolean;
   descripcion?: string;
+  variantes?: { tallaNombre?: string; colorNombre?: string; stock: number }[];
+  agotado?: boolean;
+  stock?: number;
 }
 
 interface CarritoItem extends Producto {

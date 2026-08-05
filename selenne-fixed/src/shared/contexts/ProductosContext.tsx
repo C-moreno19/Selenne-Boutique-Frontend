@@ -1,6 +1,41 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { getJson, getAccessToken, apiBase, fetchWithAuth } from '../../services/api';
 import { toast } from '@/lib/toast';
+import type { Subcategoria } from './SubcategoriasContext';
+
+// El backend responde en camelCase (ver comentario en mapProducto), pero el codigo
+// defensivamente tambien acepta PascalCase por si algun endpoint viejo lo devuelve asi.
+type RawImagenItem = string | { url?: string; URL?: string; colorNombre?: string; ColorNombre?: string };
+type RawNombreItem = string | { nombre?: string; Nombre?: string };
+type RawNombreStockItem = string | { nombre?: string; Nombre?: string; stock?: number; Stock?: number };
+interface RawVarianteItem { tallaNombre?: string; TallaNombre?: string; colorNombre?: string; ColorNombre?: string; stock?: number; Stock?: number }
+
+interface RawProducto {
+  productoID?: number | string; ProductoID?: number | string; id?: number | string;
+  codigo?: string; Codigo?: string;
+  nombre?: string; Nombre?: string;
+  categoriaNombre?: string; CategoriaNombre?: string; categoria?: string;
+  estado?: string; Estado?: string;
+  marcaNombre?: string; MarcaNombre?: string; marca?: string;
+  precioVenta?: number; PrecioVenta?: number; precio?: number;
+  precioCompra?: number; PrecioCompra?: number;
+  precioOferta?: number; PrecioOferta?: number;
+  stock?: number; Stock?: number;
+  imagenPrincipal?: string; ImagenPrincipal?: string; imagen?: string;
+  imagenes?: RawImagenItem[]; Imagenes?: RawImagenItem[];
+  tallas?: RawNombreStockItem[]; Tallas?: RawNombreStockItem[];
+  variantes?: RawVarianteItem[]; Variantes?: RawVarianteItem[];
+  agotadoGeneral?: boolean; AgotadoGeneral?: boolean;
+  colores?: RawNombreItem[]; Colores?: RawNombreItem[];
+  materiales?: RawNombreItem[]; Materiales?: RawNombreItem[];
+  tipoNombre?: string; TipoNombre?: string; tipoProducto?: string;
+  descripcion?: string; Descripcion?: string;
+  categoriaPrincipalID?: number; CategoriaPrincipalID?: number;
+  tipoProductoID?: number; TipoProductoID?: number;
+  marcaID?: number; MarcaID?: number;
+}
+
+interface ApiError { status?: number; data?: { message?: string; error?: string } | null }
 
 export interface ProductoAdmin {
   id: string;
@@ -44,13 +79,15 @@ export interface CreateProductoPayload {
   PrecioOferta?: number;
   Stock: number;
   ImagenPrincipal?: string;
+  imagenesPorColor?: Record<string, string[]>;
+  variantes?: { tallaNombre?: string; colorNombre?: string; stock: number }[];
 }
 
 interface ProductosContextType {
   productos: ProductoAdmin[];
   loading: boolean;
-  crearProducto: (payload: CreateProductoPayload, tallas?: string[], colores?: string[], tallasCtx?: any[], coloresCtx?: any[], imagenes?: string[], materiales?: string[], materialesCtx?: any[]) => Promise<number | false>;
-  actualizarProducto: (id: string, payload: Partial<CreateProductoPayload & { Estado: string }>, tallas?: string[], colores?: string[], tallasCtx?: any[], coloresCtx?: any[], imagenes?: string[], materiales?: string[], materialesCtx?: any[]) => Promise<boolean>;
+  crearProducto: (payload: CreateProductoPayload, tallas?: string[], colores?: string[], tallasCtx?: Subcategoria[], coloresCtx?: Subcategoria[], imagenes?: string[], materiales?: string[], materialesCtx?: Subcategoria[]) => Promise<number | false>;
+  actualizarProducto: (id: string, payload: Partial<CreateProductoPayload & { Estado: string }>, tallas?: string[], colores?: string[], tallasCtx?: Subcategoria[], coloresCtx?: Subcategoria[], imagenes?: string[], materiales?: string[], materialesCtx?: Subcategoria[]) => Promise<boolean>;
   eliminarProducto: (id: string) => Promise<void>;
   obtenerProducto: (id: string) => ProductoAdmin | undefined;
   recargar: () => Promise<void>;
@@ -73,7 +110,7 @@ function deducirCategoriaMain(categoriaNombre: string, isSale: boolean): string 
   return 'mujer'; // default
 }
 
-function mapProducto(p: any): ProductoAdmin {
+function mapProducto(p: RawProducto): ProductoAdmin {
   // JSON de .NET viene en camelCase (productoID, categoriaNombre, etc.)
   const isSale = !!(p.precioOferta);
   const categoriaNombre = p.categoriaNombre ?? p.CategoriaNombre ?? p.categoria ?? '';
@@ -102,17 +139,17 @@ function mapProducto(p: any): ProductoAdmin {
       const imgs = p.imagenes ?? p.Imagenes ?? [];
       if (!Array.isArray(imgs)) return [];
       return imgs
-        .filter((i: any) => typeof i === 'string' || !(i?.colorNombre ?? i?.ColorNombre))
-        .map((i: any) => toHttps(typeof i === 'string' ? i : i?.url ?? i?.URL ?? ''))
+        .filter((i) => typeof i === 'string' || !(i.colorNombre ?? i.ColorNombre))
+        .map((i) => toHttps(typeof i === 'string' ? i : (i.url ?? i.URL ?? '')))
         .filter(Boolean);
     })(),
     imagenesPorColor: (() => {
       const imgs = p.imagenes ?? p.Imagenes ?? [];
       if (!Array.isArray(imgs)) return {};
       const mapa: Record<string, string[]> = {};
-      imgs.forEach((i: any) => {
-        const url = toHttps(typeof i === 'string' ? i : (i?.url ?? i?.URL ?? ''));
-        const color = typeof i === 'string' ? null : (i?.colorNombre ?? i?.ColorNombre ?? null);
+      imgs.forEach((i) => {
+        const url = toHttps(typeof i === 'string' ? i : (i.url ?? i.URL ?? ''));
+        const color = typeof i === 'string' ? null : (i.colorNombre ?? i.ColorNombre ?? null);
         if (!url) return;
         if (color) {
           if (!mapa[color]) mapa[color] = [];
@@ -123,30 +160,30 @@ function mapProducto(p: any): ProductoAdmin {
     })(),
     tallas: (() => {
       const t = p.tallas ?? p.Tallas ?? [];
-      return Array.isArray(t) ? t.map((x: any) => x?.nombre ?? x?.Nombre ?? String(x)).filter(Boolean) : [];
+      return Array.isArray(t) ? t.map((x) => (typeof x === 'string' ? x : (x.nombre ?? x.Nombre ?? String(x)))).filter(Boolean) : [];
     })(),
     tallasConStock: (() => {
       const t = p.tallas ?? p.Tallas ?? [];
       if (!Array.isArray(t)) return [];
-      return t.map((x: any) => ({
-        nombre: x?.nombre ?? x?.Nombre ?? String(x),
-        stock: x?.stock ?? x?.Stock ?? 10,
-      })).filter((x: any) => x.nombre);
+      return t.map((x) => ({
+        nombre: typeof x === 'string' ? x : (x.nombre ?? x.Nombre ?? String(x)),
+        stock: typeof x === 'string' ? 10 : (x.stock ?? x.Stock ?? 10),
+      })).filter((x) => x.nombre);
     })(),
     variantes: (() => {
       const v = p.variantes ?? p.Variantes ?? [];
       if (!Array.isArray(v)) return [];
-      return v.map((x: any) => ({
-        tallaNombre: x?.tallaNombre ?? x?.TallaNombre ?? undefined,
-        colorNombre: x?.colorNombre ?? x?.ColorNombre ?? undefined,
-        stock: x?.stock ?? x?.Stock ?? 0,
+      return v.map((x) => ({
+        tallaNombre: x.tallaNombre ?? x.TallaNombre ?? undefined,
+        colorNombre: x.colorNombre ?? x.ColorNombre ?? undefined,
+        stock: x.stock ?? x.Stock ?? 0,
       }));
     })(),
     agotado: (() => {
       const v = p.variantes ?? p.Variantes ?? [];
       const stockGeneral = Number(p.stock ?? p.Stock ?? 0);
       if (Array.isArray(v) && v.length > 0) {
-        const totalVariantes = v.reduce((s: number, x: any) => s + (x?.stock ?? x?.Stock ?? 0), 0);
+        const totalVariantes = v.reduce((s, x) => s + (x.stock ?? x.Stock ?? 0), 0);
         // Agotado solo si TANTO variantes como stock general son 0
         return totalVariantes <= 0 && stockGeneral <= 0;
       }
@@ -155,11 +192,11 @@ function mapProducto(p: any): ProductoAdmin {
     agotadoGeneral: p.agotadoGeneral ?? p.AgotadoGeneral ?? (p.stock ?? p.Stock ?? 0) <= 0,
     colores: (() => {
       const c = p.colores ?? p.Colores ?? [];
-      return Array.isArray(c) ? c.map((x: any) => x?.nombre ?? x?.Nombre ?? String(x)).filter(Boolean) : [];
+      return Array.isArray(c) ? c.map((x) => (typeof x === 'string' ? x : (x.nombre ?? x.Nombre ?? String(x)))).filter(Boolean) : [];
     })(),
     materiales: (() => {
       const m = p.materiales ?? p.Materiales ?? [];
-      return Array.isArray(m) ? m.map((x: any) => x?.nombre ?? x?.Nombre ?? String(x)).filter(Boolean) : [];
+      return Array.isArray(m) ? m.map((x) => (typeof x === 'string' ? x : (x.nombre ?? x.Nombre ?? String(x)))).filter(Boolean) : [];
     })(),
     tipoProducto: p.tipoNombre ?? p.TipoNombre ?? p.tipoProducto ?? '',
     descripcion: p.descripcion ?? p.Descripcion ?? '',
@@ -169,15 +206,16 @@ function mapProducto(p: any): ProductoAdmin {
   };
 }
 
-function extraerLista(raw: any): ProductoAdmin[] {
+function extraerLista(raw: unknown): ProductoAdmin[] {
   // La API devuelve { success: true, data: [...] }
-  const lista = raw?.data ?? raw;
+  const obj = raw as { data?: unknown } | null | undefined;
+  const lista = obj?.data ?? raw;
   if (!Array.isArray(lista)) {
     console.warn('[Productos] respuesta inesperada:', raw);
     return [];
   }
 
-  return lista.map(mapProducto);
+  return (lista as RawProducto[]).map(mapProducto);
 }
 
 async function cargarDesdeApi(soloActivos = false): Promise<ProductoAdmin[]> {
@@ -230,10 +268,10 @@ async function mutarProductoConId(method: string, path: string, body?: object): 
     const data = await fetchWithAuth(path, {
       method,
       body: body ? JSON.stringify(body) : undefined,
-    });
+    }) as { data?: { productoID?: number; ProductoID?: number } } | null;
     const id = data?.data?.productoID ?? data?.data?.ProductoID;
     return { ok: true, id };
-  } catch (e: any) {
+  } catch (e) {
     console.error(`[Productos] ${method} ${path} error:`, e);
     return { ok: false };
   }
@@ -246,8 +284,9 @@ async function mutarProducto(method: string, path: string, body?: object): Promi
       body: body ? JSON.stringify(body) : undefined,
     });
     return true;
-  } catch (e: any) {
-    console.error(`[Productos] ${method} ${path} error:`, e?.status, e?.data);
+  } catch (e) {
+    const err = e as ApiError;
+    console.error(`[Productos] ${method} ${path} error:`, err?.status, err?.data);
     return false;
   }
 }
@@ -282,26 +321,27 @@ export const ProductosProvider: React.FC<{ children: ReactNode }> = ({ children 
     id: string,
     tallas: string[],
     colores: string[],
-    tallasCtx: any[],
-    coloresCtx: any[]
+    tallasCtx: Subcategoria[],
+    coloresCtx: Subcategoria[]
   ) => {
-    console.log('[Sync] tallas recibidas:', tallas, '| ctx:', tallasCtx.map((t:any)=>t.nombre));
-    console.log('[Sync] colores recibidos:', colores, '| ctx:', coloresCtx.map((c:any)=>c.nombre));
+    console.log('[Sync] tallas recibidas:', tallas, '| ctx:', tallasCtx.map(t => t.nombre));
+    console.log('[Sync] colores recibidos:', colores, '| ctx:', coloresCtx.map(c => c.nombre));
 
     const tallaIDs = tallas
       .map(nombre => {
-        const ctx = tallasCtx.find((t: any) => t.nombre === nombre);
+        const ctx = tallasCtx.find(t => t.nombre === nombre);
         if (!ctx) return null;
-        // Use stock from talla object if available (formato {nombre, stock})
-        const stockVal = (nombre as any)?.stock ?? 10;
+        // Use stock from talla object if available (formato {nombre, stock}); `nombre` es
+        // string por firma, pero se preserva el chequeo duck-typed original por compatibilidad.
+        const stockVal = (nombre as unknown as { stock?: number })?.stock ?? 10;
         return { TallaID: Number(ctx.id), Stock: stockVal };
       })
       .filter(Boolean);
 
     const colorIDs = colores
-      .map(nombre => coloresCtx.find((c: any) => c.nombre === nombre))
-      .filter(Boolean)
-      .map((c: any) => Number(c.id));
+      .map(nombre => coloresCtx.find(c => c.nombre === nombre))
+      .filter((c): c is Subcategoria => Boolean(c))
+      .map(c => Number(c.id));
 
     console.log('[Sync] tallaIDs a enviar:', tallaIDs);
     console.log('[Sync] colorIDs a enviar:', colorIDs);
@@ -338,11 +378,11 @@ export const ProductosProvider: React.FC<{ children: ReactNode }> = ({ children 
     await mutarProducto('POST', `/api/productos/${id}/imagenes`, { Imagenes: listaImagenes });
   };
 
-  const sincronizarMateriales = async (id: string, materiales: string[], materialesCtx: any[]) => {
+  const sincronizarMateriales = async (id: string, materiales: string[], materialesCtx: Subcategoria[]) => {
     const materialIDs = materiales
-      .map(nombre => materialesCtx.find((m: any) => m.nombre === nombre))
-      .filter(Boolean)
-      .map((m: any) => Number(m.materialID ?? m.id));
+      .map(nombre => materialesCtx.find(m => m.nombre === nombre))
+      .filter((m): m is Subcategoria => Boolean(m))
+      .map(m => Number((m as unknown as { materialID?: number }).materialID ?? m.id));
     console.log('[Sync] materialIDs a enviar:', materialIDs);
     await mutarProducto('POST', `/api/productos/${id}/materiales`, { MaterialIDs: materialIDs });
   };
@@ -356,17 +396,17 @@ export const ProductosProvider: React.FC<{ children: ReactNode }> = ({ children 
     payload: CreateProductoPayload,
     tallas?: string[],
     colores?: string[],
-    tallasCtx?: any[],
-    coloresCtx?: any[],
+    tallasCtx?: Subcategoria[],
+    coloresCtx?: Subcategoria[],
     imagenes?: string[],
     materiales?: string[],
-    materialesCtx?: any[]
+    materialesCtx?: Subcategoria[]
   ): Promise<number | false> => {
     const res = await mutarProductoConId('POST', '/api/productos', payload);
     if (res.ok && res.id) {
       await sincronizarTallasColores(String(res.id), tallas || [], colores || [], tallasCtx || [], coloresCtx || []);
-      if (imagenes?.length || (payload as any).imagenesPorColor) await sincronizarImagenes(String(res.id), imagenes || [], (payload as any).imagenesPorColor);
-      if ((payload as any).variantes?.length) await sincronizarVariantes(String(res.id), (payload as any).variantes);
+      if (imagenes?.length || payload.imagenesPorColor) await sincronizarImagenes(String(res.id), imagenes || [], payload.imagenesPorColor);
+      if (payload.variantes?.length) await sincronizarVariantes(String(res.id), payload.variantes);
       if (materiales?.length && materialesCtx?.length) await sincronizarMateriales(String(res.id), materiales, materialesCtx);
       await cargarProductos();
       return res.id;
@@ -379,18 +419,18 @@ export const ProductosProvider: React.FC<{ children: ReactNode }> = ({ children 
     payload: Partial<CreateProductoPayload & { Estado: string }>,
     tallas?: string[],
     colores?: string[],
-    tallasCtx?: any[],
-    coloresCtx?: any[],
+    tallasCtx?: Subcategoria[],
+    coloresCtx?: Subcategoria[],
     imagenes?: string[],
     materiales?: string[],
-    materialesCtx?: any[]
+    materialesCtx?: Subcategoria[]
   ): Promise<boolean> => {
     const ok = await mutarProducto('PUT', `/api/productos/${id}`, payload);
     if (ok) {
       // Only sync if explicitly provided (undefined means "don't touch")
       if (tallas !== undefined) await sincronizarTallasColores(id, tallas, colores || [], tallasCtx || [], coloresCtx || []);
-      if (imagenes !== undefined) await sincronizarImagenes(id, imagenes, (payload as any).imagenesPorColor);
-      if ((payload as any).variantes !== undefined) await sincronizarVariantes(id, (payload as any).variantes);
+      if (imagenes !== undefined) await sincronizarImagenes(id, imagenes, payload.imagenesPorColor);
+      if (payload.variantes !== undefined) await sincronizarVariantes(id, payload.variantes);
       if (materiales !== undefined && materialesCtx?.length) await sincronizarMateriales(id, materiales, materialesCtx);
       await cargarProductos();
     }
@@ -401,9 +441,10 @@ export const ProductosProvider: React.FC<{ children: ReactNode }> = ({ children 
     try {
       await fetchWithAuth(`/api/productos/${id}`, { method: 'DELETE' });
       setProductos(prev => prev.filter(p => p.id !== id));
-    } catch (e: any) {
-      const msg = e?.data?.message || e?.data?.error || 'No se puede eliminar este producto. Puede tener pedidos u órdenes asociadas.';
-      throw new Error(msg);
+    } catch (e) {
+      const err = e as ApiError;
+      const msg = err?.data?.message || err?.data?.error || 'No se puede eliminar este producto. Puede tener pedidos u órdenes asociadas.';
+      throw new Error(msg, { cause: e });
     }
   };
 

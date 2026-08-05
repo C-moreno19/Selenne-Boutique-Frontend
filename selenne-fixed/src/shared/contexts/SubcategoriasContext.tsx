@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { getJson, postJson, getAccessToken } from '../../services/api';
 import { apiBase } from '../../services/api';
 
-interface Subcategoria {
+export interface Subcategoria {
   id: string;
   nombre: string;
   hexColor?: string;
