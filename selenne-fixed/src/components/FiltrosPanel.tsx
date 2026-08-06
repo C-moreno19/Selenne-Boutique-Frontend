@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import { ChevronUp, X } from "lucide-react";
 import { formatCurrency } from "../shared/utils";
 
@@ -104,12 +105,26 @@ export function FiltrosPanel({
     setCategoriaLocal('');
   };
 
-  if (!abierto) return null;
-
   return (
-    <>
-      <div className="fixed inset-0 bg-black/40 z-40" onClick={onClose} />
-      <div className="fixed right-0 top-0 h-full w-80 bg-white z-50 flex flex-col shadow-2xl">
+    <AnimatePresence>
+      {abierto && (
+        <>
+          <motion.div
+            key="backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="fixed inset-0 bg-black/40 z-40"
+            onClick={onClose}
+          />
+          <motion.div
+            key="panel"
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '100%' }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+            className="fixed right-0 top-0 h-full w-80 bg-white z-50 flex flex-col shadow-2xl">
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
           <span className="text-xs font-bold tracking-widest text-gray-900">APLICAR FILTROS</span>
           <button onClick={onClose} className="flex items-center gap-1 text-xs font-bold tracking-widest text-gray-900 hover:text-gray-600">
@@ -226,11 +241,13 @@ export function FiltrosPanel({
 
         <div className="px-5 py-4 border-t border-gray-100">
           <button onClick={aplicarFiltros}
-            className="w-full bg-black text-white py-3 text-xs font-bold tracking-widest hover:bg-gray-800 transition-colors">
+            className="w-full bg-black text-white py-3 text-xs font-bold tracking-widest hover:bg-gray-800 transition-all duration-200 hover:scale-[1.02]">
             MOSTRAR ARTÍCULOS
           </button>
         </div>
-      </div>
-    </>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
   );
 }

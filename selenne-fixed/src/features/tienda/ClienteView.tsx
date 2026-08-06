@@ -426,7 +426,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                 className="flex items-center justify-center hover:opacity-75 transition-opacity"
                 title="Selenne Boutique — Inicio"
               >
-                <span className="text-2xl font-medium tracking-[0.04em] text-[#241B22]" style={{ fontFamily: '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}>
+                <span className="text-lg sm:text-2xl font-medium tracking-[0.04em] text-[#241B22] whitespace-nowrap" style={{ fontFamily: '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}>
                   Selenne Boutique
                 </span>
               </button>
@@ -726,9 +726,23 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                           <span className="text-base font-bold text-[#d65391]">{formatPrecio(getTotalCarrito())}</span>
                         </div>
                         <p className="text-xs text-gray-400 text-center">IVA incluido en el precio</p>
+                        <div className="grid grid-cols-3 gap-1 bg-[#FBF8F5] rounded-lg py-3 px-2">
+                          <div className="flex flex-col items-center text-center gap-1.5 px-1">
+                            <Package className="w-[18px] h-[18px] text-[#A3395C]" />
+                            <span className="text-[10px] uppercase tracking-wide font-semibold text-[#7d6f77] leading-tight">Envío 3-5 días</span>
+                          </div>
+                          <div className="flex flex-col items-center text-center gap-1.5 px-1 border-x border-[#E7E0DA]">
+                            <Globe className="w-[18px] h-[18px] text-[#A3395C]" />
+                            <span className="text-[10px] uppercase tracking-wide font-semibold text-[#7d6f77] leading-tight">A todo el país</span>
+                          </div>
+                          <div className="flex flex-col items-center text-center gap-1.5 px-1">
+                            <Lock className="w-[18px] h-[18px] text-[#A3395C]" />
+                            <span className="text-[10px] uppercase tracking-wide font-semibold text-[#7d6f77] leading-tight">Pago seguro</span>
+                          </div>
+                        </div>
                         <Button
                           onClick={() => { setCarritoAbierto(false); setVistaActual("checkout"); }}
-                          className="w-full bg-black hover:bg-gray-800 text-white h-11 mt-1"
+                          className="w-full bg-black hover:bg-gray-800 text-white h-11 mt-1 transition-all duration-200 hover:scale-[1.02]"
                         >
                           Proceder al Pago
                         </Button>
@@ -890,7 +904,9 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
           <p
             className="text-gray-600"
           >
-            {productosLoading ? 'Cargando productos…' : `${productosFiltrados.length} productos encontrados`}
+            {productosLoading
+              ? 'Cargando productos…'
+              : `${productosFiltrados.length} ${productosFiltrados.length === 1 ? 'producto encontrado' : 'productos encontrados'}`}
           </p>
         </div>
 
@@ -918,7 +934,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.35, delay: Math.min(indiceProducto, 8) * 0.04 }}
-                className="bg-white overflow-hidden group">
+                className="bg-white overflow-hidden group transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
                 <div className="relative overflow-hidden">
                   <img
                     src={producto.imagen}
