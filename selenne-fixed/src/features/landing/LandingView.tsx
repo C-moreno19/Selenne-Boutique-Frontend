@@ -1,4 +1,5 @@
 ﻿import React, { useState, useMemo, useEffect } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import {
   ShoppingBag,
   Heart,
@@ -743,19 +744,41 @@ export const LandingView: React.FC<LandingViewProps> = ({
       </header>
 
       <div className="flex-1 flex flex-col">
+        {/* Bienvenida de marca */}
+        <motion.div
+          initial={{ opacity: 0, y: -6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-center py-4 px-4 bg-[#FBF8F5]"
+        >
+          <p
+            style={{ fontFamily: '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}
+            className="text-sm sm:text-base italic text-[#7a3350]"
+          >
+            Prendas que realzan tu belleza y te acompañan a brillar en cada momento
+          </p>
+        </motion.div>
+
         {/* Banner de categoría */}
-        <div className="w-full">
-          <img
-            src={
-              categoriaActiva === "mujer"
-                ? "/banners/banner-mujer.webp"
-                : categoriaActiva === "accesorios"
-                ? "/banners/banner-accesorios.webp"
-                : "/banners/banner-sale.webp"
-            }
-            alt={categoriaActiva}
-            className="w-full h-auto block"
-          />
+        <div className="w-full relative overflow-hidden" style={{ aspectRatio: '1750 / 899' }}>
+          <AnimatePresence>
+            <motion.img
+              key={categoriaActiva}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4 }}
+              src={
+                categoriaActiva === "mujer"
+                  ? "/banners/banner-mujer.webp"
+                  : categoriaActiva === "accesorios"
+                  ? "/banners/banner-accesorios.webp"
+                  : "/banners/banner-sale.webp"
+              }
+              alt={categoriaActiva}
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          </AnimatePresence>
         </div>
 
         {/* Barra de Búsqueda y Filtros */}
@@ -828,8 +851,13 @@ export const LandingView: React.FC<LandingViewProps> = ({
             />
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {productosPaginaLanding.map((producto) => (
-                <div key={producto.id} className="bg-white overflow-hidden group">
+              {productosPaginaLanding.map((producto, indiceProducto) => (
+                <motion.div
+                  key={producto.id}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.35, delay: Math.min(indiceProducto, 8) * 0.04 }}
+                  className="bg-white overflow-hidden group">
                   <div className="relative overflow-hidden">
                     <img
                       src={producto.imagen}
@@ -906,7 +934,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                       )}
                     </div>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           )}
