@@ -224,6 +224,10 @@ export const LandingView: React.FC<LandingViewProps> = ({
     return precios.length ? Math.max(...precios) : 1000000;
   }, [productosData]);
 
+  // Destacados de la home: primeros productos del catalogo completo, sin
+  // filtrar por categoria — es la vidriera antes de entrar a comprar.
+  const destacados = useMemo(() => productosData.slice(0, 8), [productosData]);
+
   const contadorFiltros = useMemo(() => {
     let c = 0;
     if (filtroTipoProducto && filtroTipoProducto !== 'all') c++;
@@ -300,6 +304,24 @@ export const LandingView: React.FC<LandingViewProps> = ({
   };
 
   const formatPrecio = (precio: number) => formatCurrency(precio);
+
+  // Abre el modal de detalle con la primera talla/color disponibles ya
+  // preseleccionados. Compartido entre la grilla principal y Destacados.
+  const abrirDetalleProducto = (producto: Producto) => {
+    setProductoSeleccionado(producto);
+    const colorIni = producto.colores?.[0] || '';
+    const tallasP: string[] = producto.tallas || [];
+    const variantesP = producto.variantes || [];
+    const tallaIni = tallasP.find((t: string) => {
+      if (!variantesP.length) return true;
+      const v = variantesP.find(x => x.tallaNombre === t && (!colorIni || x.colorNombre === colorIni));
+      return v ? v.stock > 0 : true;
+    });
+    setTallaSeleccionada(tallaIni || tallasP[0] || 'Única');
+    setColorSeleccionado(colorIni);
+    setCantidadSeleccionada(1);
+    setImagenActual(0);
+  };
 
   const calcularDescuento = (precio: number, precioOriginal: number) => {
     const descuento = ((precioOriginal - precio) / precioOriginal) * 100;
@@ -758,23 +780,92 @@ export const LandingView: React.FC<LandingViewProps> = ({
       </header>
 
       <div className="flex-1 flex flex-col">
-        {/* Bienvenida de marca */}
-        <motion.div
-          initial={{ opacity: 0, y: -6 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="text-center py-4 px-4 bg-[#FBF8F5]"
+        {/* Hero de marca */}
+        <section
+          className="relative flex items-center justify-center text-center px-4 py-24 sm:py-32 overflow-hidden"
+          style={{ background: 'linear-gradient(135deg, #241B22 0%, #7a3350 55%, #A3395C 100%)' }}
         >
-          <p
-            style={{ fontFamily: '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}
-            className="text-sm sm:text-base italic text-[#7a3350]"
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="max-w-2xl"
           >
-            Prendas que realzan tu belleza y te acompañan a brillar en cada momento
-          </p>
-        </motion.div>
+            <h1
+              style={{ fontFamily: '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}
+              className="text-white text-4xl sm:text-6xl mb-4"
+            >
+              Selenne Boutique
+            </h1>
+            <p
+              style={{ fontFamily: '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}
+              className="text-white/85 text-base sm:text-lg italic mb-8"
+            >
+              Prendas que realzan tu belleza y te acompañan a brillar en cada momento
+            </p>
+            <button
+              onClick={() => document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth' })}
+              style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+              className="bg-white text-[#241B22] px-8 py-3 text-xs font-bold tracking-widest uppercase hover:scale-[1.03] transition-transform"
+            >
+              Ver colección
+            </button>
+          </motion.div>
+        </section>
+
+        {/* Destacados */}
+        {destacados.length > 0 && (
+          <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full">
+            <div className="flex items-end justify-between mb-6">
+              <h2
+                style={{ fontFamily: '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}
+                className="text-2xl sm:text-3xl text-[#241B22]"
+              >
+                Destacados
+              </h2>
+              <button
+                onClick={() => document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth' })}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                className="text-xs font-bold tracking-widest text-[#A3395C] hover:text-[#8a2f45] transition-colors uppercase"
+              >
+                Ver todo →
+              </button>
+            </div>
+            <div className="flex gap-4 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-4 sm:overflow-visible">
+              {destacados.map((producto) => (
+                <button
+                  key={producto.id}
+                  onClick={() => abrirDetalleProducto(producto)}
+                  className="text-left flex-shrink-0 w-40 sm:w-auto group"
+                >
+                  <div className="overflow-hidden mb-2">
+                    <img
+                      src={producto.imagen}
+                      alt={producto.nombre}
+                      className="w-full h-52 sm:h-64 object-cover group-hover:scale-105 transition-transform duration-500"
+                      loading="lazy"
+                    />
+                  </div>
+                  <p
+                    style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                    className="text-sm text-gray-900 truncate"
+                  >
+                    {producto.nombre}
+                  </p>
+                  <p
+                    style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                    className="text-sm text-[#A3395C]"
+                  >
+                    {formatPrecio(producto.precio)}
+                  </p>
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Banner de categoría */}
-        <div className="w-full relative overflow-hidden" style={{ aspectRatio: '1750 / 899' }}>
+        <div id="catalogo" className="w-full relative overflow-hidden" style={{ aspectRatio: '1750 / 899' }}>
           <AnimatePresence>
             <motion.img
               key={categoriaActiva}
@@ -894,21 +985,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                       </Badge>
                     )}
                     <button
-                      onClick={() => {
-                        setProductoSeleccionado(producto);
-                        const colorIni = producto.colores?.[0] || '';
-                        const tallasP: string[] = producto.tallas || [];
-                        const variantesP = producto.variantes || [];
-                        const tallaIni = tallasP.find((t: string) => {
-                          if (!variantesP.length) return true;
-                          const v = variantesP.find(x => x.tallaNombre === t && (!colorIni || x.colorNombre === colorIni));
-                          return v ? v.stock > 0 : true;
-                        });
-                        setTallaSeleccionada(tallaIni || tallasP[0] || 'Única');
-                        setColorSeleccionado(colorIni);
-                        setCantidadSeleccionada(1);
-                        setImagenActual(0);
-                      }}
+                      onClick={() => abrirDetalleProducto(producto)}
                       style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                       className="absolute top-3 right-3 bg-white/90 hover:bg-white text-gray-900 text-xs font-bold tracking-widest px-3 py-1.5 transition-colors"
                     >
