@@ -74,6 +74,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
   const [emailValidado, setEmailValidado] = useState(false);
   const [clienteExistente, setClienteExistente] = useState(false);
   const [cambiandoEmail, setCambiandoEmail] = useState(false);
+  const [validandoEmail, setValidandoEmail] = useState(false);
   const [enviandoPedido, setEnviandoPedido] = useState(false);
   const [datosEnvio, setDatosEnvio] = useState({
     nombre: '',
@@ -190,6 +191,8 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
   };
 
   const handleValidarEmail = () => {
+    if (validandoEmail) return;
+
     if (!emailIngresado.trim()) {
       toast.error('Por favor ingresa tu correo electrónico');
       return;
@@ -207,8 +210,11 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
       return;
     }
 
+    setValidandoEmail(true);
+
     // Primero intentar validar vía API (si existe). Si falla, usar fallback localStorage.
     (async () => {
+     try {
       try {
         if (loginAsync) {
           const ok = await loginAsync(emailIngresado, passwordIngresado);
@@ -271,6 +277,9 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
 
       setEmailValidado(true);
       setPaso('envio');
+     } finally {
+       setValidandoEmail(false);
+     }
     })();
   };
 
@@ -521,11 +530,11 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                   </div>
                   <Button
                     onClick={handleValidarEmail}
-                    disabled={!emailIngresado || !passwordIngresado}
+                    disabled={validandoEmail || !emailIngresado || !passwordIngresado}
                     className="w-full text-white border-0 disabled:opacity-50 transition-transform hover:scale-[1.02]"
                     style={{ background: 'linear-gradient(90deg, #241B22 0%, #7a3350 55%, #A3395C 100%)' }}
                   >
-                    Continuar con mi Email
+                    {validandoEmail ? 'Validando...' : 'Continuar con mi Email'}
                   </Button>
                   {cambiandoEmail && (
                     <Button

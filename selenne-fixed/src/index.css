@@ -44,33 +44,12 @@ input:-webkit-autofill:focus {
   transition: background-color 9999s ease-in-out 0s;
 }
 
-/* ── Sonner toast — boutique style override ─────────────────────── */
+/* Sonner toast: el look de marca (gradiente suave, borde de color, texto
+   oscuro) ya lo define src/lib/toast.ts via el prop `style` de cada
+   llamada, mas los `classNames` de <Toaster> en components/ui/sonner.tsx.
+   No hace falta (ni conviene) forzar nada mas aca con !important. */
 [data-sonner-toast] {
-  background: linear-gradient(90deg, #241B22 0%, #7a3350 55%, #A3395C 100%) !important;
-  border: none !important;
-  border-radius: 16px !important;
-  box-shadow: 0 8px 28px rgba(163,57,92,.40) !important;
-  padding: 13px 16px !important;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
-}
-[data-sonner-toast] [data-title] {
-  color: #ffffff !important;
-  font-size: 13px !important;
-  font-weight: 600 !important;
-}
-[data-sonner-toast] [data-description] {
-  color: rgba(255,255,255,.75) !important;
-  font-size: 12px !important;
-}
-[data-sonner-toast] [data-icon] svg,
-[data-sonner-toast] [data-icon] { color: #ffffff !important; opacity: .9; }
-[data-sonner-toast][data-type="error"] {
-  background: #dc2626 !important;
-  box-shadow: 0 8px 28px rgba(220,38,38,.35) !important;
-}
-[data-sonner-toast][data-type="warning"] {
-  background: #d97706 !important;
-  box-shadow: 0 8px 28px rgba(217,119,6,.35) !important;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 @import "tailwindcss";
