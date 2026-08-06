@@ -1143,7 +1143,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
         open={!!productoSeleccionado}
         onOpenChange={() => setProductoSeleccionado(null)}
       >
-        <DialogContent className="max-w-4xl p-0 overflow-hidden" style={{ height: '85vh' }}>
+        <DialogContent className="max-w-4xl w-[92vw] sm:w-full p-0 overflow-y-auto sm:overflow-hidden" style={{ maxHeight: '90vh' }}>
           <DialogDescription className="sr-only">
             {productoSeleccionado?.nombre || "Detalle del Producto"}
           </DialogDescription>
@@ -1159,9 +1159,9 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
               return [];
             })();
             return (
-              <div style={{ display: 'flex', height: '85vh', overflow: 'hidden' }}>
-                {/* LEFT: Image panel — inline styles so dimensions are never undetermined */}
-                <div style={{ position: 'relative', width: '44%', minWidth: '44%', height: '85vh', overflow: 'hidden', flexShrink: 0, backgroundColor: '#FBF8F5' }}>
+              <div className="flex flex-col sm:flex-row sm:h-[85vh]">
+                {/* LEFT: Image panel */}
+                <div className="relative w-full h-72 sm:w-[44%] sm:min-w-[44%] sm:h-auto flex-shrink-0 overflow-hidden" style={{ backgroundColor: '#FBF8F5' }}>
                   <ImageCarousel
                     key={`${productoSeleccionado.id}-${colorSeleccionado || 'default'}`}
                     imagenes={imgsForColor}
@@ -1171,7 +1171,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                 </div>
 
                 {/* RIGHT: Details panel */}
-                <div style={{ flex: 1, height: '85vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '18px', padding: '36px 40px', backgroundColor: '#ffffff' }}>
+                <div className="flex-1 flex flex-col gap-4 sm:gap-[18px] p-5 sm:p-9 sm:overflow-y-auto" style={{ backgroundColor: '#ffffff' }}>
 
                   {/* Name */}
                   <h1
@@ -1289,7 +1289,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                   )}
 
                   {/* Quantity + Add to cart + Favorite */}
-                  <div className="flex items-center gap-3 pt-3 mt-1 border-t border-[#E7E0DA]" style={{ flexShrink: 0 }}>
+                  <div className="flex flex-wrap items-center gap-3 pt-3 mt-1 border-t border-[#E7E0DA]" style={{ flexShrink: 0 }}>
                     <div className="flex items-center gap-3">
                       <button
                         onClick={() => setCantidadSeleccionada(Math.max(1, cantidadSeleccionada - 1))}
@@ -1308,7 +1308,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                     <button
                       onClick={handleAgregarAlCarrito}
                       disabled={!tallaSeleccionada}
-                      className={`flex-1 h-10 rounded-md border text-xs font-semibold uppercase tracking-wider transition-all ${
+                      className={`flex-1 min-w-[120px] min-h-10 h-auto py-2 px-2 rounded-md border text-xs font-semibold uppercase tracking-wider transition-all ${
                         !tallaSeleccionada
                           ? 'border-[#E7E0DA] text-[#c3bab3] cursor-not-allowed'
                           : 'border-[#241B22] text-[#241B22] hover:bg-[#241B22] hover:text-white'
