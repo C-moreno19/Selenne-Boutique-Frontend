@@ -246,8 +246,9 @@ export const DashboardHome: React.FC = () => {
     });
   }, [allPedidos, dateRange]);
 
-  const calcularTendencia = (actual: number, anterior: number): { texto: string; up: boolean } => {
-    if (anterior === 0) return actual === 0 ? { texto: '0%', up: true } : { texto: '+100%', up: true };
+  const calcularTendencia = (actual: number, anterior: number): { texto: string; up: boolean } | null => {
+    if (anterior === 0 && actual === 0) return null;
+    if (anterior === 0) return { texto: '+100%', up: true };
     const cambio = Math.round(((actual - anterior) / anterior) * 100);
     return { texto: `${cambio >= 0 ? '+' : ''}${cambio}%`, up: cambio >= 0 };
   };
@@ -419,8 +420,8 @@ export const DashboardHome: React.FC = () => {
       {/* 4 Tarjetas de Métricas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {[
-          { label: 'Ventas del Período', rawValue: ventasPeriodoActual, format: formatCurrency, sub: dateRangeLabel, trend: tendenciaVentas.texto, up: tendenciaVentas.up, icon: <TrendingUp className="w-5 h-5 text-[#A3395C]" />, iconBg: 'bg-[#EFD9DF]' },
-          { label: 'Pedidos del Período', rawValue: filteredPedidos.length, format: (n: number) => n.toLocaleString('es-CO'), sub: dateRangeLabel, trend: tendenciaPedidos.texto, up: tendenciaPedidos.up, icon: <ShoppingCart className="w-5 h-5 text-[#A3395C]" />, iconBg: 'bg-[#EFD9DF]' },
+          { label: 'Ventas del Período', rawValue: ventasPeriodoActual, format: formatCurrency, sub: dateRangeLabel, trend: tendenciaVentas?.texto ?? null, up: tendenciaVentas?.up ?? true, icon: <TrendingUp className="w-5 h-5 text-[#A3395C]" />, iconBg: 'bg-[#EFD9DF]' },
+          { label: 'Pedidos del Período', rawValue: filteredPedidos.length, format: (n: number) => n.toLocaleString('es-CO'), sub: dateRangeLabel, trend: tendenciaPedidos?.texto ?? null, up: tendenciaPedidos?.up ?? true, icon: <ShoppingCart className="w-5 h-5 text-[#A3395C]" />, iconBg: 'bg-[#EFD9DF]' },
           { label: 'Clientes Activos', rawValue: totals.clientesActivos, format: (n: number) => n.toLocaleString('es-CO'), sub: 'Usuarios registrados (total)', trend: null, up: true, icon: <Users className="w-5 h-5 text-[#A3395C]" />, iconBg: 'bg-[#EFD9DF]' },
           { label: 'Productos Activos', rawValue: totals.productosStock, format: (n: number) => n.toLocaleString('es-CO'), sub: 'Productos en catálogo (total)', trend: null, up: true, icon: <Package className="w-5 h-5 text-[#A3395C]" />, iconBg: 'bg-[#EFD9DF]' },
         ].map((card, i) => (
