@@ -104,9 +104,9 @@ const CitySelect: React.FC<{ value: string; onChange: (v: string) => void; class
     <div ref={ref} className={`relative ${className ?? ''}`}>
       <button type="button"
         onClick={() => { setOpen(o => !o); setTimeout(() => inputRef.current?.focus(), 50); }}
-        className="w-full flex items-center gap-2 pl-10 pr-3 h-[42px] border border-gray-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#d65391]/30 focus:border-[#d65391] transition-all text-left"
+        className="w-full flex items-center gap-2 pl-10 pr-3 h-[42px] border border-gray-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#A3395C]/30 focus:border-[#A3395C] transition-all text-left"
         style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', color: value ? '#111' : '#9ca3af' }}>
-        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#d65391] pointer-events-none" />
+        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#A3395C] pointer-events-none" />
         <span className="flex-1 truncate">{label || 'Selecciona tu ciudad'}</span>
         <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform flex-shrink-0 ${open ? 'rotate-180' : ''}`} />
       </button>
@@ -118,7 +118,7 @@ const CitySelect: React.FC<{ value: string; onChange: (v: string) => void; class
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
               <input ref={inputRef} value={q} onChange={e => setQ(e.target.value)}
                 placeholder="Buscar ciudad..."
-                className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-gray-200 outline-none focus:border-[#d65391] bg-gray-50"
+                className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-gray-200 outline-none focus:border-[#A3395C] bg-gray-50"
                 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} />
             </div>
           </div>
@@ -132,8 +132,8 @@ const CitySelect: React.FC<{ value: string; onChange: (v: string) => void; class
                   {cities.map(c => (
                     <button key={c.value} type="button"
                       onClick={() => { onChange(c.value); setOpen(false); setQ(''); }}
-                      className={`w-full text-left px-4 py-2 text-sm hover:bg-[#fdf2f8] hover:text-[#d65391] transition-colors
-                        ${value === c.value ? 'bg-[#fdf2f8] text-[#d65391] font-semibold' : 'text-gray-700'}`}
+                      className={`w-full text-left px-4 py-2 text-sm hover:bg-[#fdf2f8] hover:text-[#A3395C] transition-colors
+                        ${value === c.value ? 'bg-[#fdf2f8] text-[#A3395C] font-semibold' : 'text-gray-700'}`}
                       style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                       {c.label}
                     </button>
@@ -149,7 +149,7 @@ const CitySelect: React.FC<{ value: string; onChange: (v: string) => void; class
 
 const fieldClass = (error?: string) =>
   `w-full pl-10 pr-3 h-[42px] text-sm border rounded-xl focus:outline-none focus:ring-2 transition-all ${
-    error ? 'border-red-300 focus:ring-red-200 bg-red-50' : 'border-gray-200 focus:ring-[#d65391]/30 focus:border-[#d65391]'
+    error ? 'border-red-300 focus:ring-red-200 bg-red-50' : 'border-gray-200 focus:ring-[#A3395C]/30 focus:border-[#A3395C]'
   }`;
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -372,8 +372,8 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
         <DialogContent className="max-w-md p-0 overflow-hidden gap-0 max-h-[90vh] flex flex-col">
           {/* Título */}
           <div style={{ padding: '28px 32px 20px' }} className="border-b border-gray-100 flex-shrink-0">
-            <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="text-2xl font-black uppercase text-gray-900 leading-tight">
+            <DialogTitle style={{ fontFamily: '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}
+              className="text-2xl text-gray-900 leading-tight">
               Editar perfil
             </DialogTitle>
             <DialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
@@ -488,8 +488,8 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
         <DialogContent className="max-w-md p-0 overflow-hidden gap-0">
           {/* Título */}
           <div style={{ padding: '28px 32px 20px' }} className="border-b border-gray-100">
-            <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="text-2xl font-black uppercase text-gray-900 leading-tight">
+            <DialogTitle style={{ fontFamily: '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}
+              className="text-2xl text-gray-900 leading-tight">
               Cambiar contraseña
             </DialogTitle>
             <DialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
@@ -584,8 +584,8 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
                 </button>
               )}
               <div>
-                <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                  className="text-2xl font-black uppercase text-gray-900 leading-tight">
+                <DialogTitle style={{ fontFamily: '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}
+                  className="text-2xl text-gray-900 leading-tight">
                   {pedidoSelec ? 'Detalle del pedido' : 'Mis pedidos'}
                 </DialogTitle>
                 <DialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
@@ -620,7 +620,7 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
                   <div className="text-center py-16">
                     <div className="relative inline-flex mb-5">
                       <div className="w-16 h-16 rounded-full bg-pink-50 flex items-center justify-center">
-                        <Package className="w-7 h-7 text-[#d65391]" />
+                        <Package className="w-7 h-7 text-[#A3395C]" />
                       </div>
                       <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-pink-200" />
                       <span className="absolute -bottom-1 -left-1 w-2 h-2 rounded-full bg-pink-100" />

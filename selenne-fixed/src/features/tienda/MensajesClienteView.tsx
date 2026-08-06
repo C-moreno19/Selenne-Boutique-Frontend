@@ -28,7 +28,7 @@ const TIPO_CONFIG: Record<string, { icon: React.ReactNode; bg: string; border: s
     bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-700', label: 'Enviado',
   },
   info: {
-    icon: <Info className="w-5 h-5 text-[#d65391]" />,
+    icon: <Info className="w-5 h-5 text-[#A3395C]" />,
     bg: 'bg-[#fdf2f8]', border: 'border-[#f9a8d4]', text: 'text-[#9d174d]', label: 'Notificación',
   },
 };
@@ -66,11 +66,11 @@ export const MensajesClienteView: React.FC<Props> = ({ onBack, onVerPedidos, not
               <ArrowLeft className="w-5 h-5 text-gray-600" />
             </button>
             <div>
-              <h1 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xl text-gray-900 leading-tight">
+              <h1 style={{ fontFamily: '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }} className="text-xl text-gray-900 leading-tight">
                 Mis Notificaciones
               </h1>
               {noLeidas > 0 && (
-                <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-[#d65391] font-medium">
+                <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-[#A3395C] font-medium">
                   {noLeidas} sin leer
                 </p>
               )}
@@ -83,7 +83,7 @@ export const MensajesClienteView: React.FC<Props> = ({ onBack, onVerPedidos, not
             {noLeidas > 0 && (
               <button onClick={marcarTodas}
                 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#d65391] hover:bg-[#fdf2f8] rounded-xl transition-colors border border-[#f9a8d4]">
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#A3395C] hover:bg-[#fdf2f8] rounded-xl transition-colors border border-[#f9a8d4]">
                 <CheckCheck className="w-3.5 h-3.5" /> Marcar todo leído
               </button>
             )}
@@ -102,13 +102,13 @@ export const MensajesClienteView: React.FC<Props> = ({ onBack, onVerPedidos, not
       <div className="flex-1 max-w-2xl mx-auto w-full px-4 py-6 space-y-3">
         {loading && notificaciones.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3">
-            <Loader2 className="w-8 h-8 animate-spin text-[#d65391]" />
+            <Loader2 className="w-8 h-8 animate-spin text-[#A3395C]" />
             <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-400">Cargando notificaciones...</p>
           </div>
         ) : notificaciones.length === 0 ? (
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-12 text-center">
             <div className="w-16 h-16 bg-[#fdf2f8] rounded-full flex items-center justify-center mx-auto mb-4">
-              <Bell className="w-8 h-8 text-[#d65391]" />
+              <Bell className="w-8 h-8 text-[#A3395C]" />
             </div>
             <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-lg text-gray-900 mb-2">
               Sin notificaciones
@@ -125,7 +125,7 @@ export const MensajesClienteView: React.FC<Props> = ({ onBack, onVerPedidos, not
                 <div key={n.notificacionID}
                   onClick={() => !n.leida && marcarLeida(n.notificacionID)}
                   className={`bg-white rounded-2xl border shadow-sm overflow-hidden transition-all cursor-pointer hover:shadow-md
-                    ${!n.leida ? 'border-l-4 border-l-[#d65391] border-gray-100' : 'border-gray-100'}`}>
+                    ${!n.leida ? 'border-l-4 border-l-[#A3395C] border-gray-100' : 'border-gray-100'}`}>
                   <div className="p-4 flex items-start gap-3">
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${cfg.bg} border ${cfg.border}`}>
                       {cfg.icon}
@@ -136,7 +136,7 @@ export const MensajesClienteView: React.FC<Props> = ({ onBack, onVerPedidos, not
                           <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-sm text-gray-900">
                             {n.titulo}
                           </span>
-                          {!n.leida && <span className="w-2 h-2 bg-[#d65391] rounded-full flex-shrink-0" />}
+                          {!n.leida && <span className="w-2 h-2 bg-[#A3395C] rounded-full flex-shrink-0" />}
                         </div>
                         <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 flex-shrink-0">
                           {formatFecha(n.fechaCreacion)}
@@ -148,10 +148,10 @@ export const MensajesClienteView: React.FC<Props> = ({ onBack, onVerPedidos, not
                       {n.referencia && (
                         <button
                           onClick={e => { e.stopPropagation(); onVerPedidos?.(); }}
-                          className="flex items-center gap-1.5 mt-2 hover:text-[#d65391] transition-colors group"
+                          className="flex items-center gap-1.5 mt-2 hover:text-[#A3395C] transition-colors group"
                         >
-                          <Package className="w-3 h-3 text-gray-400 group-hover:text-[#d65391]" />
-                          <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 group-hover:text-[#d65391] underline underline-offset-2">
+                          <Package className="w-3 h-3 text-gray-400 group-hover:text-[#A3395C]" />
+                          <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 group-hover:text-[#A3395C] underline underline-offset-2">
                             Ver pedido
                           </span>
                         </button>
