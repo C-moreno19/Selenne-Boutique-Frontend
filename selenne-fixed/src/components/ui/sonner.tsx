@@ -8,6 +8,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
       theme="light"
       className="toaster group"
       duration={2600}
+      offset={{ top: 88 }}
       toastOptions={{
         classNames: {
           title: 'text-[13px] font-semibold text-[#241B22] leading-snug',
