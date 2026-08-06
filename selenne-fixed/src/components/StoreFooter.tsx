@@ -68,7 +68,7 @@ export function StoreFooter({ telefonoContacto, onCategoriaChange }: StoreFooter
         </div>
         <Separator className="my-8 bg-white/15" />
         <div className="text-center text-sm text-gray-300" style={{ fontFamily: PLAYFAIR }}>
-          <p>© 2024 Selenne Boutique. Todos los derechos reservados.</p>
+          <p>© {new Date().getFullYear()} Selenne Boutique. Todos los derechos reservados.</p>
         </div>
       </div>
     </footer>
