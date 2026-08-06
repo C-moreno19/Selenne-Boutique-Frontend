@@ -364,7 +364,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
   const handleAgregarAlCarritoRapido = (producto: Producto) => {
     agregarAlCarrito(
       producto,
-      producto.tallas[0],
+      producto.tallas[0] || 'Única',
       producto.colores?.[0] || "",
     );
     setCarritoAbierto(true);
@@ -393,9 +393,9 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
 
   // Abre el modal de detalle con la primera talla/color disponibles ya
   // preseleccionados. Compartido entre la grilla principal y Destacados.
-  const abrirDetalleProducto = (producto: Producto) => {
+  const abrirDetalleProducto = (producto: Producto, colorPreferido?: string) => {
     setProductoSeleccionado(producto);
-    const colorIni = producto.colores?.[0] || '';
+    const colorIni = colorPreferido || producto.colores?.[0] || '';
     const tallasP: string[] = producto.tallas || [];
     const variantesP = producto.variantes || [];
     const tallaIni = tallasP.find((t: string) => {
@@ -1057,6 +1057,15 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                   >
                     <Heart className={`w-5 h-5 ${esFavorito(producto.id) ? "fill-[#A3395C] text-[#A3395C]" : "text-gray-600"}`} />
                   </button>
+                  {!producto.agotado && (
+                    <button
+                      onClick={() => handleAgregarAlCarritoRapido(producto)}
+                      title="Agregar al carrito"
+                      className="absolute bottom-3 left-3 p-2 bg-white rounded-full shadow-md hover:bg-gray-100 transition-colors"
+                    >
+                      <ShoppingBag className="w-5 h-5 text-gray-700" />
+                    </button>
+                  )}
                 </div>
                 <div className="pt-3 pb-4 px-1">
                   <h3
@@ -1080,6 +1089,22 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                       </span>
                     )}
                   </div>
+                  {producto.colores && producto.colores.length > 0 && (
+                    <div className="flex items-center gap-1.5 mt-2">
+                      {producto.colores.slice(0, 5).map((color) => (
+                        <button
+                          key={color}
+                          onClick={() => abrirDetalleProducto(producto, color)}
+                          title={color}
+                          className="w-4 h-4 rounded-full border border-gray-300 hover:scale-125 transition-transform"
+                          style={{ backgroundColor: getColorHex(color) }}
+                        />
+                      ))}
+                      {producto.colores.length > 5 && (
+                        <span className="text-[10px] text-gray-400">+{producto.colores.length - 5}</span>
+                      )}
+                    </div>
+                  )}
                 </div>
               </motion.div>
             ))}
