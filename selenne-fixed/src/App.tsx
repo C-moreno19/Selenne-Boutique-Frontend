@@ -69,9 +69,9 @@ function MainApp() {
 
   const handleLoginSuccess = () => {
     showAlert('success', 'Inicio de sesión exitoso. Redirigiendo…');
-    setPendingCheckout(false);
     setTimeout(() => {
-      setCurrentView('dashboard');
+      setCurrentView(pendingCheckout ? 'checkout' : 'dashboard');
+      setPendingCheckout(false);
     }, 1500);
   };
 
