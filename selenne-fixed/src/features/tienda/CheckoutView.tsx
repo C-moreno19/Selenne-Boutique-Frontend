@@ -68,6 +68,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
   const { user, loginAsync } = useAuth();
   const { crearMensaje } = useMensajes();
   const [metodoPago, setMetodoPago] = useState('contra-entrega');
+  const [paso, setPaso] = useState<'envio' | 'pago'>('envio');
   const [emailIngresado, setEmailIngresado] = useState('');
   const [passwordIngresado, setPasswordIngresado] = useState('');
   const [emailValidado, setEmailValidado] = useState(false);
@@ -112,6 +113,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
   useEffect(() => {
     if (!user?.usuarioID) return;
     setEmailValidado(true);
+    setPaso('envio');
     setClienteExistente(true);
     getJson(`/api/usuarios/${user.usuarioID}`)
       .then((res: any) => {
@@ -213,6 +215,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
           if (ok) {
             toast.success('Sesión iniciada correctamente.');
             setEmailValidado(true);
+            setPaso('envio');
             return;
           }
         }
@@ -267,6 +270,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
       }
 
       setEmailValidado(true);
+      setPaso('envio');
     })();
   };
 
@@ -279,7 +283,8 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
     // Saltar pantalla de validación de email si ya está logueado
     setEmailIngresado(user.email || '');
     setEmailValidado(true);
-    
+    setPaso('envio');
+
     // Preferir datos de `selenne_clientes` si existe uno con el mismo email
     try {
       const stored = localStorage.getItem('selenne_clientes');
@@ -320,8 +325,25 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
   const handleCancelarCambioEmail = () => {
     setCambiandoEmail(false);
     setEmailValidado(true);
+    setPaso('envio');
     setEmailIngresado('');
     setPasswordIngresado('');
+  };
+
+  // Mismas validaciones de envío que ya corre handleFinalizarCompra al final,
+  // pero como paso intermedio del wizard para no dejar avanzar a Pago con
+  // datos incompletos.
+  const validarPasoEnvio = (): boolean => {
+    if (!datosEnvio.nombre?.trim()) { toast.error('Por favor completa tu nombre completo.'); return false; }
+    if (!datosEnvio.documento?.trim()) { toast.error('Por favor ingresa tu documento.'); return false; }
+    if (!datosEnvio.direccion?.trim()) { toast.error('Por favor ingresa tu dirección.'); return false; }
+    if (!datosEnvio.ciudad?.trim()) { toast.error('Por favor selecciona tu ciudad.'); return false; }
+    if (!datosEnvio.telefono?.trim()) { toast.error('Por favor ingresa tu teléfono.'); return false; }
+    return true;
+  };
+
+  const handleSiguientePaso = () => {
+    if (validarPasoEnvio()) setPaso('pago');
   };
 
   const handleFinalizarCompra = async () => {
@@ -412,10 +434,52 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <h1
           style={{ fontFamily: PLAYFAIR }}
-          className="text-4xl text-gray-900 mb-8"
+          className="text-4xl text-gray-900 mb-6"
         >
           Finalizar <span className="text-[#A3395C]">Compra</span>
         </h1>
+
+        {/* Indicador de pasos */}
+        <div className="flex items-center gap-2 mb-8 max-w-md">
+          {(() => {
+            const pasoActualIndex = !emailValidado ? 0 : paso === 'envio' ? 1 : 2;
+            const pasos = [
+              { key: 'cuenta', label: 'Cuenta' },
+              { key: 'envio', label: 'Envío' },
+              { key: 'pago', label: 'Pago' },
+            ];
+            return pasos.map((s, i) => {
+              const completado = i < pasoActualIndex;
+              const activo = i === pasoActualIndex;
+              return (
+                <React.Fragment key={s.key}>
+                  {i > 0 && (
+                    <div className={`flex-1 h-px ${i <= pasoActualIndex ? 'bg-[#A3395C]' : 'bg-gray-200'}`} />
+                  )}
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <div
+                      className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
+                        completado
+                          ? 'bg-[#A3395C] text-white'
+                          : activo
+                          ? 'border-2 border-[#A3395C] text-[#A3395C]'
+                          : 'border-2 border-gray-200 text-gray-400'
+                      }`}
+                    >
+                      {completado ? '✓' : i + 1}
+                    </div>
+                    <span
+                      style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                      className={`text-xs font-medium ${activo || completado ? 'text-gray-900' : 'text-gray-400'}`}
+                    >
+                      {s.label}
+                    </span>
+                  </div>
+                </React.Fragment>
+              );
+            });
+          })()}
+        </div>
 
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Formulario de Checkout */}
@@ -476,7 +540,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
               </div>
             )}
 
-            {emailValidado && (
+            {emailValidado && paso === 'envio' && (
               <>
                 {/* Resumen de Validación */}
                 <div className={`rounded-lg p-4 mb-6 ${clienteExistente ? 'bg-green-50 border border-green-200' : 'bg-blue-50 border border-blue-200'}`}>
@@ -632,18 +696,39 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                   <p className="text-xs text-gray-400 text-right mt-1">{datosEnvio.notas.length}/300</p>
                 </div>
               </div>
+              <Button
+                onClick={handleSiguientePaso}
+                className="w-full mt-6 text-white border-0 transition-transform hover:scale-[1.02]"
+                style={{ background: 'linear-gradient(90deg, #241B22 0%, #7a3350 55%, #A3395C 100%)' }}
+              >
+                Continuar a Método de Pago →
+              </Button>
             </div>
+              </>
+            )}
 
+            {emailValidado && paso === 'pago' && (
+              <>
             {/* Método de Pago */}
             <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-              <div className="flex items-center mb-6">
-                <CreditCard className="w-6 h-6 text-[#A3395C] mr-2" />
-                <h2
-                  style={{ fontFamily: PLAYFAIR }}
-                  className="text-2xl text-gray-900"
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center">
+                  <CreditCard className="w-6 h-6 text-[#A3395C] mr-2" />
+                  <h2
+                    style={{ fontFamily: PLAYFAIR }}
+                    className="text-2xl text-gray-900"
+                  >
+                    Método de Pago
+                  </h2>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setPaso('envio')}
+                  className="flex items-center gap-1 text-sm text-gray-500 hover:text-[#A3395C] transition-colors"
                 >
-                  Método de Pago
-                </h2>
+                  <ArrowLeft className="w-4 h-4" />
+                  Volver a Envío
+                </button>
               </div>
               <RadioGroup value={metodoPago} onValueChange={setMetodoPago}>
                 <div className="space-y-3">
@@ -867,16 +952,26 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                 *IVA incluido en el precio
               </p>
 
-              <Button
-                onClick={handleFinalizarCompra}
-                disabled={enviandoPedido}
-                className="w-full bg-black hover:bg-gray-800 text-white h-12 disabled:opacity-60 transition-all duration-200 hover:scale-[1.02]"
-                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              >
-                {enviandoPedido ? 'Procesando...' : metodoPago === 'transferencia' ? 'Enviar Pedido' : 'Confirmar Compra'}
-              </Button>
-              
-              {metodoPago === 'transferencia' && (
+              {emailValidado && paso === 'envio' ? (
+                <Button
+                  onClick={handleSiguientePaso}
+                  className="w-full text-white border-0 h-12 transition-transform hover:scale-[1.02]"
+                  style={{ background: 'linear-gradient(90deg, #241B22 0%, #7a3350 55%, #A3395C 100%)', fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                >
+                  Continuar a Método de Pago →
+                </Button>
+              ) : (
+                <Button
+                  onClick={handleFinalizarCompra}
+                  disabled={enviandoPedido || !emailValidado}
+                  className="w-full bg-black hover:bg-gray-800 text-white h-12 disabled:opacity-60 transition-all duration-200 hover:scale-[1.02]"
+                  style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                >
+                  {enviandoPedido ? 'Procesando...' : metodoPago === 'transferencia' ? 'Enviar Pedido' : 'Confirmar Compra'}
+                </Button>
+              )}
+
+              {emailValidado && paso === 'pago' && metodoPago === 'transferencia' && (
                 <p className="text-xs text-center text-gray-500 mt-2">
                   Al enviar, tu pedido quedará pendiente de confirmación
                 </p>
