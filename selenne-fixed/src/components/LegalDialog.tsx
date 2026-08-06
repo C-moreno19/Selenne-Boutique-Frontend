@@ -31,9 +31,9 @@ const CONTENIDO: Record<Exclude<LegalDoc, null>, { titulo: string; secciones: { 
         ],
       },
       {
-        h: "3. Medio de pago",
+        h: "3. Medios de pago",
         p: [
-          "Por ahora el único medio de pago es transferencia bancaria, usando el código QR que se muestra en el checkout. El pedido se procesa una vez que confirmamos el pago.",
+          "Aceptamos pago contra entrega y transferencia bancaria (con el código QR que se muestra en el checkout). Si pagás por transferencia, el pedido se procesa una vez que confirmamos el pago con el comprobante que subís al finalizar la compra.",
         ],
       },
       {
