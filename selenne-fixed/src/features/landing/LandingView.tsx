@@ -520,7 +520,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                       <div className="text-center py-12">
                         <Heart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                         <p className="text-gray-500 mb-4">No tienes productos en favoritos</p>
-                        <Button onClick={() => setFavoritosOpen(false)} className="w-full bg-[#d65391] text-white">
+                        <Button onClick={() => setFavoritosOpen(false)} className="w-full bg-[#A3395C] text-white">
                           Seguir comprando
                         </Button>
                       </div>
@@ -570,7 +570,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                   <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors relative">
                     <ShoppingBag className="w-6 h-6 text-gray-700" />
                     {carritoItems.length > 0 && (
-                      <span className="absolute -top-1 -right-1 bg-[#d65391] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                      <span className="absolute -top-1 -right-1 bg-[#A3395C] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                         {carritoItems.length}
                       </span>
                     )}
@@ -615,7 +615,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                                   Talla: {item.tallaSeleccionada}
                                   {item.colorSeleccionado && ` | Color: ${item.colorSeleccionado}`}
                                 </p>
-                                <p className="text-sm text-[#d65391] mt-1">
+                                <p className="text-sm text-[#A3395C] mt-1">
                                   {formatPrecio(item.precio)}
                                 </p>
                                 <div className="flex items-center gap-2 mt-2">
@@ -667,7 +667,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                             <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-lg text-gray-900">
                               Total:
                             </span>
-                            <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-lg text-[#d65391]">
+                            <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-lg text-[#A3395C]">
                               {formatPrecio(getTotalCarrito())}
                             </span>
                           </div>
@@ -887,7 +887,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                         className={`absolute top-3 left-3 ${
                           producto.badge === "Sale"
                             ? "bg-red-500 hover:bg-red-600"
-                            : "bg-[#d65391] hover:bg-[#d65391]"
+                            : "bg-[#A3395C] hover:bg-[#A3395C]"
                         }`}
                       >
                         {producto.badge}
@@ -918,7 +918,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                       onClick={() => toggleFavorito(producto.id)}
                       className="absolute bottom-3 right-3 p-2 bg-white rounded-full shadow-md hover:bg-gray-100 transition-colors"
                     >
-                      <Heart className={`w-5 h-5 ${esFavorito(producto.id) ? "fill-[#d65391] text-[#d65391]" : "text-gray-600"}`} />
+                      <Heart className={`w-5 h-5 ${esFavorito(producto.id) ? "fill-[#A3395C] text-[#A3395C]" : "text-gray-600"}`} />
                     </button>
                     {producto.agotado && (
                       <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
@@ -936,7 +936,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                     <div className="flex items-center gap-2">
                       {producto.precioOriginal ? (
                         <>
-                          <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-[#d65391]">
+                          <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-[#A3395C]">
                             {formatPrecio(producto.precio)}
                           </span>
                           <span className="text-sm text-gray-400 line-through">
@@ -962,7 +962,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                 onClick={() => { setPaginaActual(p => p - 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                 disabled={paginaActual === 1}
                 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                className="px-5 py-2 text-sm border border-gray-300 rounded-lg hover:border-[#d65391] hover:text-[#d65391] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                className="px-5 py-2 text-sm border border-gray-300 rounded-lg hover:border-[#A3395C] hover:text-[#A3395C] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 ← Anterior
               </button>
@@ -973,7 +973,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                 onClick={() => { setPaginaActual(p => p + 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                 disabled={paginaActual === totalPaginasLanding}
                 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                className="px-5 py-2 text-sm border border-gray-300 rounded-lg hover:border-[#d65391] hover:text-[#d65391] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                className="px-5 py-2 text-sm border border-gray-300 rounded-lg hover:border-[#A3395C] hover:text-[#A3395C] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Siguiente →
               </button>

@@ -83,7 +83,7 @@ function MainApp() {
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="w-8 h-8 border-4 border-[#d65391] border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-4 border-[#A3395C] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -104,7 +104,7 @@ function MainApp() {
 
         <Suspense fallback={
           <div className="min-h-screen flex items-center justify-center bg-white">
-            <div className="w-8 h-8 border-4 border-[#d65391] border-t-transparent rounded-full animate-spin" />
+            <div className="w-8 h-8 border-4 border-[#A3395C] border-t-transparent rounded-full animate-spin" />
           </div>
         }>
           {currentView === 'landing' ? (

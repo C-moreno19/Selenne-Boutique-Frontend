@@ -687,7 +687,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                               <p className="text-xs text-gray-400 mt-0.5">
                                 Talla: {item.tallaSeleccionada}{item.colorSeleccionado && ` · ${item.colorSeleccionado}`}
                               </p>
-                              <p className="text-sm font-semibold text-[#d65391] mt-1">
+                              <p className="text-sm font-semibold text-[#A3395C] mt-1">
                                 {formatPrecio(item.precio * item.cantidad)}
                               </p>
                               <div className="flex items-center gap-2 mt-2">
@@ -723,7 +723,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                         <Separator />
                         <div className="flex justify-between items-center">
                           <span className="text-base font-semibold text-gray-900">Total</span>
-                          <span className="text-base font-bold text-[#d65391]">{formatPrecio(getTotalCarrito())}</span>
+                          <span className="text-base font-bold text-[#A3395C]">{formatPrecio(getTotalCarrito())}</span>
                         </div>
                         <p className="text-xs text-gray-400 text-center">IVA incluido en el precio</p>
                         <div className="grid grid-cols-3 gap-1 bg-[#FBF8F5] rounded-lg py-3 px-2">
@@ -948,7 +948,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                       className={`absolute top-3 left-3 ${
                         producto.badge === "Sale"
                           ? "bg-red-500 hover:bg-red-600"
-                          : "bg-[#d65391] hover:bg-[#d65391]"
+                          : "bg-[#A3395C] hover:bg-[#A3395C]"
                       }`}
                     >
                       {producto.badge}
@@ -970,7 +970,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                     onClick={() => toggleFavorito(producto.id)}
                     className="absolute bottom-3 right-3 p-2 bg-white rounded-full shadow-md hover:bg-gray-100 transition-colors"
                   >
-                    <Heart className={`w-5 h-5 ${esFavorito(producto.id) ? "fill-[#d65391] text-[#d65391]" : "text-gray-600"}`} />
+                    <Heart className={`w-5 h-5 ${esFavorito(producto.id) ? "fill-[#A3395C] text-[#A3395C]" : "text-gray-600"}`} />
                   </button>
                 </div>
                 <div className="pt-3 pb-4 px-1">
@@ -982,7 +982,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                   <div className="flex items-center gap-2">
                     {producto.precioOriginal ? (
                       <>
-                        <span className="text-[#d65391]">
+                        <span className="text-[#A3395C]">
                           {formatPrecio(producto.precio)}
                         </span>
                         <span className="text-sm text-gray-400 line-through">
@@ -1007,7 +1007,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
             <button
               onClick={() => { setPaginaActual(p => p - 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
               disabled={paginaActual === 1}
-              className="px-5 py-2 text-sm border border-gray-300 rounded-lg hover:border-[#d65391] hover:text-[#d65391] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="px-5 py-2 text-sm border border-gray-300 rounded-lg hover:border-[#A3395C] hover:text-[#A3395C] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               ← Anterior
             </button>
@@ -1017,7 +1017,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
             <button
               onClick={() => { setPaginaActual(p => p + 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
               disabled={paginaActual === totalPaginasCliente}
-              className="px-5 py-2 text-sm border border-gray-300 rounded-lg hover:border-[#d65391] hover:text-[#d65391] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="px-5 py-2 text-sm border border-gray-300 rounded-lg hover:border-[#A3395C] hover:text-[#A3395C] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               Siguiente →
             </button>

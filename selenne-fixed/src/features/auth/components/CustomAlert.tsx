@@ -26,11 +26,11 @@ export const CustomAlert: React.FC<CustomAlertProps> = ({
 
   const config = {
     success: {
-      accent: '#d65391',
+      accent: '#A3395C',
       iconBg: 'bg-[#fce7f3]',
-      iconColor: 'text-[#d65391]',
+      iconColor: 'text-[#A3395C]',
       icon: <CheckCircle2 size={17} />,
-      progressColor: '#d65391',
+      progressColor: '#A3395C',
     },
     error: {
       accent: '#dc2626',
@@ -40,11 +40,11 @@ export const CustomAlert: React.FC<CustomAlertProps> = ({
       progressColor: '#dc2626',
     },
     info: {
-      accent: '#d65391',
+      accent: '#A3395C',
       iconBg: 'bg-[#fce7f3]',
-      iconColor: 'text-[#d65391]',
+      iconColor: 'text-[#A3395C]',
       icon: <Info size={17} />,
-      progressColor: '#d65391',
+      progressColor: '#A3395C',
     },
   };
 
@@ -58,7 +58,7 @@ export const CustomAlert: React.FC<CustomAlertProps> = ({
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -10, scale: 0.97 }}
           transition={{ duration: 0.2, ease: 'easeOut' }}
-          className="rounded-2xl overflow-hidden shadow-[0_12px_40px_rgba(214,83,145,.22)]"
+          className="rounded-2xl overflow-hidden shadow-[0_12px_40px_rgba(163,57,92,.22)]"
           style={{ background: 'linear-gradient(135deg, #fff 60%, #fce7f3 100%)', borderLeft: `4px solid ${accent}` }}
         >
           <div className="flex items-center gap-3 px-4 py-3">
