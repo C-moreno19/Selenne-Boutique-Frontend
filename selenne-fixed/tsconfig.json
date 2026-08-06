@@ -13,7 +13,6 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "strict": true,
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
       "vaul@1.1.2": ["./node_modules/vaul"],
