@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { Separator } from "./ui/separator";
+import { LegalDialog, type LegalDoc } from "./LegalDialog";
 
 const PLAYFAIR = '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif';
 
@@ -8,6 +10,8 @@ interface StoreFooterProps {
 }
 
 export function StoreFooter({ telefonoContacto, onCategoriaChange }: StoreFooterProps) {
+  const [legalAbierto, setLegalAbierto] = useState<LegalDoc>(null);
+
   return (
     <footer className="text-white mt-20" style={{ background: 'linear-gradient(90deg, #1c151a 0%, #241B22 30%, #7a3350 68%, #A3395C 100%)' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -53,6 +57,16 @@ export function StoreFooter({ telefonoContacto, onCategoriaChange }: StoreFooter
                   Contacto
                 </a>
               </li>
+              <li>
+                <button onClick={() => setLegalAbierto("terminos")} className="hover:text-[#EFD9DF] transition-colors">
+                  Términos y condiciones
+                </button>
+              </li>
+              <li>
+                <button onClick={() => setLegalAbierto("devoluciones")} className="hover:text-[#EFD9DF] transition-colors">
+                  Cambios y devoluciones
+                </button>
+              </li>
             </ul>
           </div>
           <div>
@@ -71,6 +85,7 @@ export function StoreFooter({ telefonoContacto, onCategoriaChange }: StoreFooter
           <p>© {new Date().getFullYear()} Selenne Boutique. Todos los derechos reservados.</p>
         </div>
       </div>
+      <LegalDialog doc={legalAbierto} onClose={() => setLegalAbierto(null)} />
     </footer>
   );
 }

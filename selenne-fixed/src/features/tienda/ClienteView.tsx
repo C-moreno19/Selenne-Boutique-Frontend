@@ -47,6 +47,7 @@ import { SizeSelector } from "../../components/ui/size-selector";
 import { Separator } from "../../components/ui/separator";
 import { StoreFooter } from "../../components/StoreFooter";
 import { FiltrosPanel, type FiltrosAplicados } from "../../components/FiltrosPanel";
+import { EstadoVacioProductos } from "../../components/EstadoVacioProductos";
 import { ImageCarousel } from "../../components/figma/ImageCarousel";
 import { useProductosCombinados } from "../../shared/data/useProductosCombinados";
 import { useProductos } from "../../shared/contexts/ProductosContext";
@@ -203,6 +204,17 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
     setFiltroTipoProducto(f.tipoProducto);
     setFiltroCategoriaRopa(f.categoriaRopa);
     setFiltrosAbiertos(false);
+  };
+
+  const limpiarTodosLosFiltros = () => {
+    setBusqueda('');
+    setFiltroTalla([]);
+    setFiltroColor('');
+    setFiltroMaterial('');
+    setFiltroTipoProducto('');
+    setFiltroCategoriaRopa('');
+    setFiltroPrecioMin(null);
+    setFiltroPrecioMax(null);
   };
 
   // Filtrar productos según la categoría activa
@@ -870,11 +882,11 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
             ))}
           </div>
         ) : productosFiltrados.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-500 text-lg">
-              No se encontraron productos
-            </p>
-          </div>
+          <EstadoVacioProductos
+            busqueda={busqueda}
+            hayFiltrosActivos={contadorFiltros > 0}
+            onLimpiarTodo={limpiarTodosLosFiltros}
+          />
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {productosPaginaCliente.map((producto) => (
