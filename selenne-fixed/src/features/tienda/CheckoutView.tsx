@@ -20,7 +20,9 @@ import { useMensajes } from '../../shared/contexts/MensajesContext';
 import { generarContraseñaTemporal } from '../../shared/utils/credentialGenerator';
 import { formatCurrency } from '../../shared/utils';
 import { toast } from '@/lib/toast';
-import { QRCodeSVG } from 'qrcode.react';
+import imgLogo from 'figma:asset/8184a8c16f30f2f7daa53602475d236bcd50c9b3.png';
+
+const PLAYFAIR = '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif';
 
 // Lista de ciudades de Colombia
 const CIUDADES_COLOMBIA = [
@@ -390,13 +392,29 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="sticky top-0 z-40 bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+          <button
+            type="button"
+            onClick={onBack}
+            className="flex items-center gap-1 text-sm text-gray-500 hover:text-[#A3395C] transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Volver a la tienda
+          </button>
+          <img src={imgLogo} alt="Selenne Boutique" className="h-9 w-auto object-contain" />
+          <div className="w-[120px] hidden sm:block" aria-hidden="true" />
+        </div>
+      </div>
+
       {/* Contenido Principal */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <h1
-          style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+          style={{ fontFamily: PLAYFAIR }}
           className="text-4xl text-gray-900 mb-8"
         >
-          Finalizar <span className="text-[#d65391]">Compra</span>
+          Finalizar <span className="text-[#A3395C]">Compra</span>
         </h1>
 
         <div className="grid lg:grid-cols-3 gap-8">
@@ -406,7 +424,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
             {!emailValidado && (
               <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
                 <h2
-                  style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                  style={{ fontFamily: PLAYFAIR }}
                   className="text-2xl text-gray-900 mb-6"
                 >
                   Validar Correo Electrónico
@@ -440,7 +458,8 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                   <Button
                     onClick={handleValidarEmail}
                     disabled={!emailIngresado || !passwordIngresado}
-                    className="w-full bg-[#d65391] hover:bg-[#c44880] text-white disabled:opacity-50"
+                    className="w-full text-white border-0 disabled:opacity-50 transition-transform hover:scale-[1.02]"
+                    style={{ background: 'linear-gradient(90deg, #241B22 0%, #7a3350 55%, #A3395C 100%)' }}
                   >
                     Continuar con mi Email
                   </Button>
@@ -486,9 +505,9 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
             <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center">
-                  <MapPin className="w-6 h-6 text-[#d65391] mr-2" />
+                  <MapPin className="w-6 h-6 text-[#A3395C] mr-2" />
                   <h2
-                    style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                    style={{ fontFamily: PLAYFAIR }}
                     className="text-2xl text-gray-900"
                   >
                     Información de Envío
@@ -607,7 +626,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                     onChange={handleInputChange}
                     placeholder="Instrucciones especiales de entrega"
                     maxLength={300}
-                    className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#d65391] focus:border-transparent"
+                    className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#A3395C] focus:border-transparent"
                     rows={3}
                   />
                   <p className="text-xs text-gray-400 text-right mt-1">{datosEnvio.notas.length}/300</p>
@@ -618,9 +637,9 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
             {/* Método de Pago */}
             <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
               <div className="flex items-center mb-6">
-                <CreditCard className="w-6 h-6 text-[#d65391] mr-2" />
+                <CreditCard className="w-6 h-6 text-[#A3395C] mr-2" />
                 <h2
-                  style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                  style={{ fontFamily: PLAYFAIR }}
                   className="text-2xl text-gray-900"
                 >
                   Método de Pago
@@ -628,7 +647,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
               </div>
               <RadioGroup value={metodoPago} onValueChange={setMetodoPago}>
                 <div className="space-y-3">
-                  <div className="flex items-center space-x-3 border border-gray-200 rounded-lg p-4 hover:border-[#d65391] transition-colors">
+                  <div className="flex items-center space-x-3 border border-gray-200 rounded-lg p-4 hover:border-[#A3395C] transition-colors">
                     <RadioGroupItem value="contra-entrega" id="contra-entrega" />
                     <Label htmlFor="contra-entrega" className="flex-1 cursor-pointer">
                       <div className="flex items-center">
@@ -637,7 +656,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                       </div>
                     </Label>
                   </div>
-                  <div className="flex items-center space-x-3 border border-gray-200 rounded-lg p-4 hover:border-[#d65391] transition-colors">
+                  <div className="flex items-center space-x-3 border border-gray-200 rounded-lg p-4 hover:border-[#A3395C] transition-colors">
                     <RadioGroupItem value="transferencia" id="transferencia" />
                     <Label htmlFor="transferencia" className="flex-1 cursor-pointer">
                       <div className="flex items-center">
@@ -681,7 +700,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                         </div>
                         <div>
                           <p className="text-xs text-gray-500">Monto a Transferir</p>
-                          <p className="text-[#d65391]">
+                          <p className="text-[#A3395C]">
                             {formatCurrency(getTotalCarrito())}
                           </p>
                         </div>
@@ -709,7 +728,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                     {!comprobantePreview ? (
                       <label
                         htmlFor="comprobante"
-                        className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-[#d65391] transition-colors bg-gray-50"
+                        className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-[#A3395C] transition-colors bg-gray-50"
                       >
                         <div className="flex flex-col items-center justify-center pt-5 pb-6">
                           <Upload className="w-8 h-8 text-gray-400 mb-2" />
@@ -766,10 +785,10 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
             </div>
 
             {/* Garantías */}
-            <div className="bg-gradient-to-r from-[#d65391] to-[#f8a9c5] rounded-lg p-6 text-white">
+            <div className="rounded-lg p-6 text-white" style={{ background: 'linear-gradient(90deg, #241B22 0%, #7a3350 55%, #A3395C 100%)' }}>
               <div className="flex items-center mb-4">
                 <ShieldCheck className="w-6 h-6 mr-2" />
-                <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xl">
+                <h3 style={{ fontFamily: PLAYFAIR }} className="text-xl">
                   Compra Segura
                 </h3>
               </div>
@@ -787,7 +806,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200 sticky top-24">
               <h2
-                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                style={{ fontFamily: PLAYFAIR }}
                 className="text-2xl text-gray-900 mb-6"
               >
                 Resumen del Pedido
@@ -806,7 +825,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                       <p className="text-xs text-gray-500">
                         Talla: {item.tallaSeleccionada} | Cant: {item.cantidad}
                       </p>
-                      <p className="text-sm text-[#d65391] mt-1">
+                      <p className="text-sm text-[#A3395C] mt-1">
                         {formatPrecio(item.precio * item.cantidad)}
                       </p>
                     </div>
@@ -838,7 +857,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                 </span>
                 <span
                   style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                  className="text-xl text-[#d65391]"
+                  className="text-xl text-[#A3395C]"
                 >
                   {formatPrecio(getTotalCarrito())}
                 </span>
@@ -851,7 +870,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
               <Button
                 onClick={handleFinalizarCompra}
                 disabled={enviandoPedido}
-                className="w-full bg-black hover:bg-gray-800 text-white h-12 disabled:opacity-60"
+                className="w-full bg-black hover:bg-gray-800 text-white h-12 disabled:opacity-60 transition-all duration-200 hover:scale-[1.02]"
                 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
               >
                 {enviandoPedido ? 'Procesando...' : metodoPago === 'transferencia' ? 'Enviar Pedido' : 'Confirmar Compra'}
