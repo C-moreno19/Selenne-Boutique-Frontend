@@ -229,6 +229,46 @@ export const DashboardHome: React.FC = () => {
     productosStock: dashboardStats?.totalProductos ?? 0,
   }), [dashboardStats]);
 
+  // Pedidos del mismo largo de dias, inmediatamente antes del rango
+  // seleccionado — sirve para comparar el periodo actual contra el anterior
+  // con datos reales en vez de un porcentaje inventado.
+  const pedidosPeriodoAnterior = useMemo(() => {
+    const { from, to } = dateRange;
+    const diasDelPeriodo = Math.round((to.getTime() - from.getTime()) / 86400000) + 1;
+    const prevTo = new Date(from.getFullYear(), from.getMonth(), from.getDate());
+    prevTo.setDate(prevTo.getDate() - 1);
+    prevTo.setHours(23, 59, 59, 999);
+    const prevFrom = new Date(prevTo.getFullYear(), prevTo.getMonth(), prevTo.getDate());
+    prevFrom.setDate(prevFrom.getDate() - diasDelPeriodo + 1);
+    return allPedidos.filter((pedido) => {
+      const fecha = new Date(pedido.fechaPedido);
+      return fecha >= prevFrom && fecha <= prevTo;
+    });
+  }, [allPedidos, dateRange]);
+
+  const calcularTendencia = (actual: number, anterior: number): { texto: string; up: boolean } => {
+    if (anterior === 0) return actual === 0 ? { texto: '0%', up: true } : { texto: '+100%', up: true };
+    const cambio = Math.round(((actual - anterior) / anterior) * 100);
+    return { texto: `${cambio >= 0 ? '+' : ''}${cambio}%`, up: cambio >= 0 };
+  };
+
+  const ventasPeriodoActual = useMemo(
+    () => filteredPedidos.reduce((s, p) => s + Number(p.total || 0), 0),
+    [filteredPedidos]
+  );
+  const ventasPeriodoAnterior = useMemo(
+    () => pedidosPeriodoAnterior.reduce((s, p) => s + Number(p.total || 0), 0),
+    [pedidosPeriodoAnterior]
+  );
+  const tendenciaVentas = useMemo(
+    () => calcularTendencia(ventasPeriodoActual, ventasPeriodoAnterior),
+    [ventasPeriodoActual, ventasPeriodoAnterior]
+  );
+  const tendenciaPedidos = useMemo(
+    () => calcularTendencia(filteredPedidos.length, pedidosPeriodoAnterior.length),
+    [filteredPedidos.length, pedidosPeriodoAnterior.length]
+  );
+
   const pendingOrders = useMemo(() =>
     allPedidos.filter(p => p.estado === 'Pendiente'),
     [allPedidos]
@@ -283,10 +323,10 @@ export const DashboardHome: React.FC = () => {
           startY: 40,
           head: [['Métrica', 'Valor']],
           body: [
-            ['Ventas del mes', formatCurrency(totals.ventasMensuales)],
-            ['Pedidos totales', totals.ventasTotales.toLocaleString('es-CO')],
-            ['Clientes activos', totals.clientesActivos.toLocaleString('es-CO')],
-            ['Productos activos', totals.productosStock.toLocaleString('es-CO')],
+            ['Ventas del período', formatCurrency(ventasPeriodoActual)],
+            ['Pedidos del período', filteredPedidos.length.toLocaleString('es-CO')],
+            ['Clientes activos (total)', totals.clientesActivos.toLocaleString('es-CO')],
+            ['Productos activos (total)', totals.productosStock.toLocaleString('es-CO')],
           ],
           headStyles: head_styles,
           alternateRowStyles: alt_row,
@@ -331,10 +371,10 @@ export const DashboardHome: React.FC = () => {
     switch (tipo) {
       case 'Ventas Mensuales':
         data = [
-          { 'Métrica': 'Ventas Mensuales', 'Valor': totals.ventasMensuales },
-          { 'Métrica': 'Pedidos Totales', 'Valor': totals.ventasTotales },
-          { 'Métrica': 'Clientes Activos', 'Valor': totals.clientesActivos },
-          { 'Métrica': 'Productos Activos', 'Valor': totals.productosStock },
+          { 'Métrica': 'Ventas del Período', 'Valor': ventasPeriodoActual },
+          { 'Métrica': 'Pedidos del Período', 'Valor': filteredPedidos.length },
+          { 'Métrica': 'Clientes Activos (total)', 'Valor': totals.clientesActivos },
+          { 'Métrica': 'Productos Activos (total)', 'Valor': totals.productosStock },
           {},
           { 'ID': 'ID', 'Cliente': 'Cliente', 'Producto': 'Producto', 'Monto': 'Monto', 'Fecha': 'Fecha', 'Estado': 'Estado' },
           ...recentSales.map(sale => ({
@@ -379,10 +419,10 @@ export const DashboardHome: React.FC = () => {
       {/* 4 Tarjetas de Métricas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {[
-          { label: 'Ventas Mensuales', rawValue: totals.ventasMensuales, format: formatCurrency, sub: 'Total de ingresos', trend: '+12%', up: true, icon: <TrendingUp className="w-5 h-5 text-[#A3395C]" />, iconBg: 'bg-[#EFD9DF]' },
-          { label: 'Pedidos Totales', rawValue: totals.ventasTotales, format: (n: number) => n.toLocaleString('es-CO'), sub: 'Órdenes registradas', trend: '+8%', up: true, icon: <ShoppingCart className="w-5 h-5 text-[#A3395C]" />, iconBg: 'bg-[#EFD9DF]' },
-          { label: 'Clientes Activos', rawValue: totals.clientesActivos, format: (n: number) => n.toLocaleString('es-CO'), sub: 'Usuarios registrados', trend: '+5%', up: true, icon: <Users className="w-5 h-5 text-[#A3395C]" />, iconBg: 'bg-[#EFD9DF]' },
-          { label: 'Productos Activos', rawValue: totals.productosStock, format: (n: number) => n.toLocaleString('es-CO'), sub: 'Productos en catálogo', trend: '-3%', up: false, icon: <Package className="w-5 h-5 text-[#A3395C]" />, iconBg: 'bg-[#EFD9DF]' },
+          { label: 'Ventas del Período', rawValue: ventasPeriodoActual, format: formatCurrency, sub: dateRangeLabel, trend: tendenciaVentas.texto, up: tendenciaVentas.up, icon: <TrendingUp className="w-5 h-5 text-[#A3395C]" />, iconBg: 'bg-[#EFD9DF]' },
+          { label: 'Pedidos del Período', rawValue: filteredPedidos.length, format: (n: number) => n.toLocaleString('es-CO'), sub: dateRangeLabel, trend: tendenciaPedidos.texto, up: tendenciaPedidos.up, icon: <ShoppingCart className="w-5 h-5 text-[#A3395C]" />, iconBg: 'bg-[#EFD9DF]' },
+          { label: 'Clientes Activos', rawValue: totals.clientesActivos, format: (n: number) => n.toLocaleString('es-CO'), sub: 'Usuarios registrados (total)', trend: null, up: true, icon: <Users className="w-5 h-5 text-[#A3395C]" />, iconBg: 'bg-[#EFD9DF]' },
+          { label: 'Productos Activos', rawValue: totals.productosStock, format: (n: number) => n.toLocaleString('es-CO'), sub: 'Productos en catálogo (total)', trend: null, up: true, icon: <Package className="w-5 h-5 text-[#A3395C]" />, iconBg: 'bg-[#EFD9DF]' },
         ].map((card, i) => (
           <div key={card.label}
             className="animate-fade-slide-in bg-white rounded-xl p-6 border border-[#E7E0DA] transition-all duration-300 cursor-default hover:-translate-y-1"
@@ -393,10 +433,12 @@ export const DashboardHome: React.FC = () => {
               <div className={`w-10 h-10 ${card.iconBg} rounded-xl flex items-center justify-center`}>
                 {card.icon}
               </div>
-              <span className={`text-xs font-semibold flex items-center gap-0.5 ${card.up ? 'text-emerald-600' : 'text-red-400'}`}>
-                {card.up ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-                {card.trend}
-              </span>
+              {card.trend && (
+                <span className={`text-xs font-semibold flex items-center gap-0.5 ${card.up ? 'text-emerald-600' : 'text-red-400'}`}>
+                  {card.up ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                  {card.trend}
+                </span>
+              )}
             </div>
             <p className="text-xs text-gray-400 mb-1 uppercase tracking-wide">{card.label}</p>
             <p className="text-3xl font-bold text-[#241B22] mb-1">
