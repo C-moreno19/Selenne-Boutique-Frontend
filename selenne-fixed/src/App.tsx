@@ -103,6 +103,7 @@ function MainApp() {
           onRegister={() => setCurrentView('register')}
           onShowAlert={showAlert}
           onLoginSuccess={handleLoginSuccess}
+          onBack={() => setCurrentView('landing')}
         />
       ) : (
         <RegisterView

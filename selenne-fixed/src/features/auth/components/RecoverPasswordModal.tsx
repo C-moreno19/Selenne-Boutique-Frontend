@@ -153,23 +153,23 @@ export const RecoverPasswordModal: React.FC<RecoverPasswordModalProps> = ({
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
-            className="bg-white w-full max-w-md p-10 relative rounded-xl shadow-[0_20px_40px_rgba(0,0,0,0.15)]"
+            className="bg-white w-full max-w-md p-6 relative rounded-xl shadow-[0_20px_40px_rgba(0,0,0,0.15)] max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               onClick={handleClose}
               aria-label="Cerrar modal"
-              className="absolute top-4 right-4 text-gray-500 hover:text-[#c84a8f] transition-colors"
+              className="absolute top-3 right-3 text-gray-500 hover:text-[#c84a8f] transition-colors"
             >
-              <X size={24} />
+              <X size={20} />
             </button>
 
-            <h2 className="mb-6 text-[#000000] font-bold text-[32px]">
+            <h2 className="mb-4 text-[#000000] font-bold text-xl">
               Recuperar contraseña
             </h2>
 
             {step === "email" ? (
-              <div className="space-y-6">
+              <div className="space-y-4">
                 <p className="text-[#1a1a1a] mb-4 text-sm font-['Inter']">
                   Ingresa tu email y te enviaremos un código para restablecer tu contraseña.
                 </p>
@@ -199,11 +199,9 @@ export const RecoverPasswordModal: React.FC<RecoverPasswordModalProps> = ({
                 </button>
               </div>
             ) : (
-              <div className="space-y-5">
-                <p className="text-[#1a1a1a] mb-4 text-sm font-['Inter']">
-                  📧 Hemos enviado un token de recuperación a <strong>{email}</strong>. 
-                  <br/><br/>
-                  Revisa tu correo electrónico (incluyendo spam) y copia el token. Luego ingresa tu nueva contraseña abajo.
+              <div className="space-y-3">
+                <p className="text-[#1a1a1a] text-sm font-['Inter']">
+                  📧 Token enviado a <strong>{email}</strong>. Revisa tu correo (incluyendo spam) y pégalo abajo.
                 </p>
 
                 <CustomInput
