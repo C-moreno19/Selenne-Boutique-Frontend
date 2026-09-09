@@ -64,7 +64,7 @@ import { PerfilView } from "./PerfilView";
 import { MensajesClienteView } from "./MensajesClienteView";
 
 type Categoria = "mujer" | "accesorios" | "sale";
-type Vista = "tienda" | "checkout" | "favoritos" | "perfil" | "mensajes";
+type Vista = "home" | "tienda" | "checkout" | "favoritos" | "perfil" | "mensajes";
 
 interface ClienteViewProps {
   onLogout: () => void;
@@ -76,9 +76,17 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
   const [mostrarTelefono, setMostrarTelefono] = useState(false);
   const [telefonoContacto, setTelefonoContacto] = useState('+57 304 292 8493');
   const [vistaActual, setVistaActual] =
-    useState<Vista>("tienda");
+    useState<Vista>("home");
   const [categoriaActiva, setCategoriaActiva] =
     useState<Categoria>("mujer");
+
+  // Unico punto de entrada a la tienda: fija la categoria y cambia de vista,
+  // asi el home no vuelve a mostrar hero+destacados dentro de si mismo.
+  const irATienda = (categoria: Categoria) => {
+    setCategoriaActiva(categoria);
+    setVistaActual("tienda");
+    window.scrollTo({ top: 0 });
+  };
   const [busqueda, setBusqueda] = useState("");
   const [productoSeleccionado, setProductoSeleccionado] =
     useState<Producto | null>(null);
@@ -441,10 +449,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
 
               {/* Logo */}
               <button
-                onClick={() => {
-                  setVistaActual("tienda");
-                  setCategoriaActiva("mujer");
-                }}
+                onClick={() => { setVistaActual("home"); window.scrollTo({ top: 0 }); }}
                 className="flex items-center justify-center hover:opacity-75 transition-opacity"
                 title="Selenne Boutique — Inicio"
               >
@@ -457,46 +462,37 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
             {/* Navegación Desktop */}
             <nav className="hidden lg:flex items-center space-x-10">
               <button
-                onClick={() => {
-                  setVistaActual("tienda");
-                  setCategoriaActiva("mujer");
-                }}
+                onClick={() => irATienda("mujer")}
                 className={`group relative py-2 text-[12px] tracking-[0.12em] uppercase font-semibold transition-opacity ${
-                  categoriaActiva === "mujer"
+                  vistaActual === "tienda" && categoriaActiva === "mujer"
                     ? "text-[#A3395C] opacity-100"
                     : "text-[#241B22] opacity-70 hover:opacity-100"
                 }`}
               >
                 Mujer
-                <span className={`absolute left-0 right-0 -bottom-0.5 h-[1.5px] bg-[#A3395C] origin-left transition-transform duration-300 ${categoriaActiva === "mujer" ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"}`} />
+                <span className={`absolute left-0 right-0 -bottom-0.5 h-[1.5px] bg-[#A3395C] origin-left transition-transform duration-300 ${vistaActual === "tienda" && categoriaActiva === "mujer" ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"}`} />
               </button>
               <button
-                onClick={() => {
-                  setVistaActual("tienda");
-                  setCategoriaActiva("accesorios");
-                }}
+                onClick={() => irATienda("accesorios")}
                 className={`group relative py-2 text-[12px] tracking-[0.12em] uppercase font-semibold transition-opacity ${
-                  categoriaActiva === "accesorios"
+                  vistaActual === "tienda" && categoriaActiva === "accesorios"
                     ? "text-[#A3395C] opacity-100"
                     : "text-[#241B22] opacity-70 hover:opacity-100"
                 }`}
               >
                 Accesorios
-                <span className={`absolute left-0 right-0 -bottom-0.5 h-[1.5px] bg-[#A3395C] origin-left transition-transform duration-300 ${categoriaActiva === "accesorios" ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"}`} />
+                <span className={`absolute left-0 right-0 -bottom-0.5 h-[1.5px] bg-[#A3395C] origin-left transition-transform duration-300 ${vistaActual === "tienda" && categoriaActiva === "accesorios" ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"}`} />
               </button>
               <button
-                onClick={() => {
-                  setVistaActual("tienda");
-                  setCategoriaActiva("sale");
-                }}
+                onClick={() => irATienda("sale")}
                 className={`group relative py-2 text-[12px] tracking-[0.12em] uppercase font-semibold transition-opacity ${
-                  categoriaActiva === "sale"
+                  vistaActual === "tienda" && categoriaActiva === "sale"
                     ? "text-[#A3395C] opacity-100"
                     : "text-[#241B22] opacity-70 hover:opacity-100"
                 }`}
               >
                 Sale
-                <span className={`absolute left-0 right-0 -bottom-0.5 h-[1.5px] bg-[#A3395C] origin-left transition-transform duration-300 ${categoriaActiva === "sale" ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"}`} />
+                <span className={`absolute left-0 right-0 -bottom-0.5 h-[1.5px] bg-[#A3395C] origin-left transition-transform duration-300 ${vistaActual === "tienda" && categoriaActiva === "sale" ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"}`} />
               </button>
             </nav>
 
@@ -780,13 +776,9 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
           {menuMovilAbierto && (
             <nav className="lg:hidden py-4 space-y-2 border-t border-[#E7E0DA]">
               <button
-                onClick={() => {
-                  setVistaActual("tienda");
-                  setCategoriaActiva("mujer");
-                  setMenuMovilAbierto(false);
-                }}
+                onClick={() => { irATienda("mujer"); setMenuMovilAbierto(false); }}
                 className={`block w-full text-left px-4 py-2 rounded-lg text-[13px] tracking-[0.08em] uppercase font-semibold ${
-                  categoriaActiva === "mujer"
+                  vistaActual === "tienda" && categoriaActiva === "mujer"
                     ? "bg-[#A3395C] text-white"
                     : "text-[#241B22] hover:bg-[#EFD9DF]"
                 }`}
@@ -794,13 +786,9 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                 Mujer
               </button>
               <button
-                onClick={() => {
-                  setVistaActual("tienda");
-                  setCategoriaActiva("accesorios");
-                  setMenuMovilAbierto(false);
-                }}
+                onClick={() => { irATienda("accesorios"); setMenuMovilAbierto(false); }}
                 className={`block w-full text-left px-4 py-2 rounded-lg text-[13px] tracking-[0.08em] uppercase font-semibold ${
-                  categoriaActiva === "accesorios"
+                  vistaActual === "tienda" && categoriaActiva === "accesorios"
                     ? "bg-[#A3395C] text-white"
                     : "text-[#241B22] hover:bg-[#EFD9DF]"
                 }`}
@@ -808,13 +796,9 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                 Accesorios
               </button>
               <button
-                onClick={() => {
-                  setVistaActual("tienda");
-                  setCategoriaActiva("sale");
-                  setMenuMovilAbierto(false);
-                }}
+                onClick={() => { irATienda("sale"); setMenuMovilAbierto(false); }}
                 className={`block w-full text-left px-4 py-2 rounded-lg text-[13px] tracking-[0.08em] uppercase font-semibold ${
-                  categoriaActiva === "sale"
+                  vistaActual === "tienda" && categoriaActiva === "sale"
                     ? "bg-[#A3395C] text-white"
                     : "text-[#241B22] hover:bg-[#EFD9DF]"
                 }`}
@@ -837,7 +821,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
           />
         ) : vistaActual === "mensajes" ? (
           <MensajesClienteView onBack={() => setVistaActual("tienda")} onVerPedidos={() => setVistaActual("perfil")} notifHook={notifHook} />
-        ) : (
+        ) : vistaActual === "home" ? (
           <>
             {/* Hero de marca */}
             <section
@@ -863,7 +847,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                   Prendas que realzan tu belleza y te acompañan a brillar en cada momento
                 </p>
                 <button
-                  onClick={() => document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth' })}
+                  onClick={() => irATienda(categoriaActiva)}
                   style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                   className="bg-white text-[#241B22] px-8 py-3 text-xs font-bold tracking-widest uppercase hover:scale-[1.03] transition-transform"
                 >
@@ -883,7 +867,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                     Destacados
                   </h2>
                   <button
-                    onClick={() => document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth' })}
+                    onClick={() => irATienda(categoriaActiva)}
                     style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                     className="text-xs font-bold tracking-widest text-[#A3395C] hover:text-[#8a2f45] transition-colors uppercase"
                   >
@@ -922,9 +906,11 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                 </div>
               </section>
             )}
-
+          </>
+        ) : (
+          <>
             {/* Banner de categoría */}
-            <div id="catalogo" className="w-full relative overflow-hidden" style={{ aspectRatio: '1750 / 899' }}>
+            <div className="w-full relative overflow-hidden" style={{ aspectRatio: '1750 / 899' }}>
               <AnimatePresence>
                 <motion.img
                   key={categoriaActiva}
@@ -1347,7 +1333,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
         </DialogContent>
       </Dialog>
 
-      <StoreFooter telefonoContacto={telefonoContacto} onCategoriaChange={setCategoriaActiva} />
+      <StoreFooter telefonoContacto={telefonoContacto} onCategoriaChange={irATienda} />
     </div>
   );
 };
