@@ -24,20 +24,20 @@ export function EstadoVacioProductos({ busqueda, hayFiltrosActivos, onLimpiarTod
 
   return (
     <div className="flex flex-col items-center justify-center text-center py-20 px-4">
-      <div className="w-14 h-14 rounded-full bg-[#FBF8F5] flex items-center justify-center mb-4">
+      <div className="w-14 h-14 rounded-full bg-[#FBF8F5] dark:bg-[#2c2129] flex items-center justify-center mb-4">
         <PackageSearch className="w-6 h-6 text-[#A3395C]" />
       </div>
       <p
-        className="text-gray-900 text-base font-medium"
+        className="text-gray-900 dark:text-[#F5EDE9] text-base font-medium"
         style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
       >
         {titulo}
       </p>
-      <p className="text-gray-500 text-sm mt-1 max-w-xs">{subtitulo}</p>
+      <p className="text-gray-500 dark:text-[#b8a3ac] text-sm mt-1 max-w-xs">{subtitulo}</p>
       {puedeLimpiar && (
         <button
           onClick={onLimpiarTodo}
-          className="mt-5 px-5 py-2 text-xs font-bold tracking-widest border border-gray-300 rounded-lg hover:border-[#A3395C] hover:text-[#A3395C] transition-colors"
+          className="mt-5 px-5 py-2 text-xs font-bold tracking-widest border border-gray-300 dark:border-[#3a2e35] dark:text-[#F5EDE9] rounded-lg hover:border-[#A3395C] hover:text-[#A3395C] transition-colors"
         >
           VER TODO EL CATÁLOGO
         </button>

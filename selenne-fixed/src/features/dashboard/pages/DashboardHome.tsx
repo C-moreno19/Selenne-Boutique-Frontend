@@ -19,6 +19,7 @@ import { toast } from '@/lib/toast';
 import { getJson, putJson } from '../../../services/api';
 import { formatCurrency } from '../../../shared/utils';
 import { useAuth } from '../../../shared/contexts/AuthContext';
+import { useTheme } from '../../../shared/contexts/ThemeContext';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
@@ -119,6 +120,20 @@ const AnimatedNumber: React.FC<{ value: number; format: (n: number) => string; d
 export const DashboardHome: React.FC = () => {
   const { hasPermission } = useAuth();
   const puedeEditarVentas = hasPermission('pedidos:editar');
+  const { theme } = useTheme();
+  // Recharts no lee clases dark:, asi que los colores del grafico se
+  // resuelven en JS segun el tema actual.
+  const chartGrid = theme === 'dark' ? '#3a2e35' : '#f3f4f6';
+  const chartAxis = theme === 'dark' ? '#5a4d52' : '#e5e7eb';
+  const chartTick = theme === 'dark' ? '#b8a3ac' : '#9ca3af';
+  const tooltipStyle = {
+    fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+    borderRadius: '10px',
+    border: theme === 'dark' ? '1px solid #3a2e35' : '1px solid #e7c2ce',
+    backgroundColor: theme === 'dark' ? '#241B22' : '#ffffff',
+    color: theme === 'dark' ? '#F5EDE9' : '#241B22',
+    fontSize: '12px',
+  };
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [reportType, setReportType] = useState('');
   const [salesDetailOpen, setSalesDetailOpen] = useState(false);
@@ -408,11 +423,11 @@ export const DashboardHome: React.FC = () => {
   const cardShadowHover = { boxShadow: '0 6px 24px rgba(163, 57, 92, 0.13)' };
 
   return (
-    <div className="p-8 bg-[#FBF8F5] min-h-screen">
+    <div className="p-8 bg-[#FBF8F5] dark:bg-[#1c151a] min-h-screen">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="admin-page-title text-3xl font-medium tracking-[0.01em] text-[#241B22] mb-1">Dashboard</h1>
-        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-400">
+        <h1 className="admin-page-title text-3xl font-medium tracking-[0.01em] text-[#241B22] dark:text-[#F5EDE9] mb-1">Dashboard</h1>
+        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-400 dark:text-[#b8a3ac]">
           {loading ? 'Cargando datos...' : 'Resumen general del sistema'}
         </p>
       </div>
@@ -420,13 +435,13 @@ export const DashboardHome: React.FC = () => {
       {/* 4 Tarjetas de Métricas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {[
-          { label: 'Ventas del Período', rawValue: ventasPeriodoActual, format: formatCurrency, sub: dateRangeLabel, trend: tendenciaVentas?.texto ?? null, up: tendenciaVentas?.up ?? true, icon: <TrendingUp className="w-5 h-5 text-[#A3395C]" />, iconBg: 'bg-[#EFD9DF]' },
-          { label: 'Pedidos del Período', rawValue: filteredPedidos.length, format: (n: number) => n.toLocaleString('es-CO'), sub: dateRangeLabel, trend: tendenciaPedidos?.texto ?? null, up: tendenciaPedidos?.up ?? true, icon: <ShoppingCart className="w-5 h-5 text-[#A3395C]" />, iconBg: 'bg-[#EFD9DF]' },
-          { label: 'Clientes Activos', rawValue: totals.clientesActivos, format: (n: number) => n.toLocaleString('es-CO'), sub: 'Usuarios registrados (total)', trend: null, up: true, icon: <Users className="w-5 h-5 text-[#A3395C]" />, iconBg: 'bg-[#EFD9DF]' },
-          { label: 'Productos Activos', rawValue: totals.productosStock, format: (n: number) => n.toLocaleString('es-CO'), sub: 'Productos en catálogo (total)', trend: null, up: true, icon: <Package className="w-5 h-5 text-[#A3395C]" />, iconBg: 'bg-[#EFD9DF]' },
+          { label: 'Ventas del Período', rawValue: ventasPeriodoActual, format: formatCurrency, sub: dateRangeLabel, trend: tendenciaVentas?.texto ?? null, up: tendenciaVentas?.up ?? true, icon: <TrendingUp className="w-5 h-5 text-[#A3395C]" />, iconBg: 'bg-[#EFD9DF] dark:bg-[#3a2530]' },
+          { label: 'Pedidos del Período', rawValue: filteredPedidos.length, format: (n: number) => n.toLocaleString('es-CO'), sub: dateRangeLabel, trend: tendenciaPedidos?.texto ?? null, up: tendenciaPedidos?.up ?? true, icon: <ShoppingCart className="w-5 h-5 text-[#A3395C]" />, iconBg: 'bg-[#EFD9DF] dark:bg-[#3a2530]' },
+          { label: 'Clientes Activos', rawValue: totals.clientesActivos, format: (n: number) => n.toLocaleString('es-CO'), sub: 'Usuarios registrados (total)', trend: null, up: true, icon: <Users className="w-5 h-5 text-[#A3395C]" />, iconBg: 'bg-[#EFD9DF] dark:bg-[#3a2530]' },
+          { label: 'Productos Activos', rawValue: totals.productosStock, format: (n: number) => n.toLocaleString('es-CO'), sub: 'Productos en catálogo (total)', trend: null, up: true, icon: <Package className="w-5 h-5 text-[#A3395C]" />, iconBg: 'bg-[#EFD9DF] dark:bg-[#3a2530]' },
         ].map((card, i) => (
           <div key={card.label}
-            className="animate-fade-slide-in bg-white rounded-xl p-6 border border-[#E7E0DA] transition-all duration-300 cursor-default hover:-translate-y-1"
+            className="animate-fade-slide-in bg-white dark:bg-[#241B22] rounded-xl p-6 border border-[#E7E0DA] dark:border-[#3a2e35] transition-all duration-300 cursor-default hover:-translate-y-1"
             style={{ ...cardShadow, animationDelay: `${i * 80}ms` }}
             onMouseEnter={e => Object.assign((e.currentTarget as HTMLElement).style, cardShadowHover)}
             onMouseLeave={e => Object.assign((e.currentTarget as HTMLElement).style, cardShadow)}>
@@ -441,28 +456,28 @@ export const DashboardHome: React.FC = () => {
                 </span>
               )}
             </div>
-            <p className="text-xs text-gray-400 mb-1 uppercase tracking-wide">{card.label}</p>
-            <p className="text-3xl font-bold text-[#241B22] mb-1">
+            <p className="text-xs text-gray-400 dark:text-[#b8a3ac] mb-1 uppercase tracking-wide">{card.label}</p>
+            <p className="text-3xl font-bold text-[#241B22] dark:text-[#F5EDE9] mb-1">
               <AnimatedNumber value={card.rawValue} format={card.format} />
             </p>
-            <p className="text-xs text-gray-400">{card.sub}</p>
+            <p className="text-xs text-gray-400 dark:text-[#b8a3ac]">{card.sub}</p>
           </div>
         ))}
       </div>
 
       {/* Selector de fechas */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-        <h2 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-lg font-semibold text-[#241B22]">Análisis de Ventas</h2>
-        <div className="flex items-center gap-2 bg-white border border-[#E7E0DA] rounded-xl px-4 py-2.5" style={cardShadow}>
-          <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 whitespace-nowrap">Desde</span>
+        <h2 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-lg font-semibold text-[#241B22] dark:text-[#F5EDE9]">Análisis de Ventas</h2>
+        <div className="flex items-center gap-2 bg-white dark:bg-[#241B22] border border-[#E7E0DA] dark:border-[#3a2e35] rounded-xl px-4 py-2.5" style={cardShadow}>
+          <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac] whitespace-nowrap">Desde</span>
           <input type="date" value={toInputValue(dateRange.from)} max={toInputValue(dateRange.to)}
             onChange={(e) => { const val = e.target.value; if (val) setDateRange((prev) => ({ ...prev, from: new Date(val + 'T00:00:00') })); }}
-            className="text-sm text-gray-600 border-none outline-none bg-transparent cursor-pointer" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} />
-          <span className="text-gray-300">—</span>
-          <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 whitespace-nowrap">Hasta</span>
+            className="text-sm text-gray-600 dark:text-[#F5EDE9] border-none outline-none bg-transparent cursor-pointer" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} />
+          <span className="text-gray-300 dark:text-[#5a4d52]">—</span>
+          <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac] whitespace-nowrap">Hasta</span>
           <input type="date" value={toInputValue(dateRange.to)} min={toInputValue(dateRange.from)} max={toInputValue(new Date())}
             onChange={(e) => { const val = e.target.value; if (val) setDateRange((prev) => ({ ...prev, to: new Date(val + 'T00:00:00') })); }}
-            className="text-sm text-gray-600 border-none outline-none bg-transparent cursor-pointer" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} />
+            className="text-sm text-gray-600 dark:text-[#F5EDE9] border-none outline-none bg-transparent cursor-pointer" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} />
           <button onClick={() => setDateRange(defaultDateRange())}
             className="ml-1 text-xs text-[#A3395C] hover:text-[#8a2e4d] whitespace-nowrap transition" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
             Resetear
@@ -472,43 +487,43 @@ export const DashboardHome: React.FC = () => {
 
       {/* Gráficos */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <div className="animate-fade-slide-in bg-white rounded-xl p-6 border border-[#E7E0DA]" style={{ ...cardShadow, animationDelay: '160ms' }}>
+        <div className="animate-fade-slide-in bg-white dark:bg-[#241B22] rounded-xl p-6 border border-[#E7E0DA] dark:border-[#3a2e35]" style={{ ...cardShadow, animationDelay: '160ms' }}>
           <div className="flex items-start justify-between mb-5">
             <div>
-              <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#241B22] mb-0.5">Ventas por Período</h3>
-              <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">{dateRangeLabel}</p>
+              <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#241B22] dark:text-[#F5EDE9] mb-0.5">Ventas por Período</h3>
+              <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac]">{dateRangeLabel}</p>
             </div>
-            <button onClick={() => handleExport('Ventas Mensuales')} className="p-2 hover:bg-[#EFD9DF] rounded-lg transition-all hover:scale-110 active:scale-95" title="Exportar">
+            <button onClick={() => handleExport('Ventas Mensuales')} className="p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-lg transition-all hover:scale-110 active:scale-95" title="Exportar">
               <Download className="w-4 h-4 text-[#A3395C]" />
             </button>
           </div>
           <ResponsiveContainer width="100%" height={250}>
             <LineChart data={salesData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-              <XAxis dataKey="name" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: '11px' }} stroke="#e5e7eb" tick={{ fill: '#9ca3af' }} />
-              <YAxis style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: '11px' }} stroke="#e5e7eb" tick={{ fill: '#9ca3af' }} />
-              <Tooltip contentStyle={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', borderRadius: '10px', border: '1px solid #e7c2ce', fontSize: '12px' }} />
+              <CartesianGrid strokeDasharray="3 3" stroke={chartGrid} />
+              <XAxis dataKey="name" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: '11px' }} stroke={chartAxis} tick={{ fill: chartTick }} />
+              <YAxis style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: '11px' }} stroke={chartAxis} tick={{ fill: chartTick }} />
+              <Tooltip contentStyle={tooltipStyle} />
               <Line type="monotone" dataKey="value" name="Ventas" stroke="#A3395C" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: '#A3395C', stroke: '#fff', strokeWidth: 2 }} />
             </LineChart>
           </ResponsiveContainer>
         </div>
 
-        <div className="animate-fade-slide-in bg-white rounded-xl p-6 border border-[#E7E0DA]" style={{ ...cardShadow, animationDelay: '220ms' }}>
+        <div className="animate-fade-slide-in bg-white dark:bg-[#241B22] rounded-xl p-6 border border-[#E7E0DA] dark:border-[#3a2e35]" style={{ ...cardShadow, animationDelay: '220ms' }}>
           <div className="flex items-start justify-between mb-5">
             <div>
-              <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#241B22] mb-0.5">Productos Más Vendidos</h3>
-              <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">{dateRangeLabel}</p>
+              <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#241B22] dark:text-[#F5EDE9] mb-0.5">Productos Más Vendidos</h3>
+              <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac]">{dateRangeLabel}</p>
             </div>
-            <button onClick={() => handleExport('Productos Más Vendidos')} className="p-2 hover:bg-[#EFD9DF] rounded-lg transition-all hover:scale-110 active:scale-95" title="Exportar">
+            <button onClick={() => handleExport('Productos Más Vendidos')} className="p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-lg transition-all hover:scale-110 active:scale-95" title="Exportar">
               <Download className="w-4 h-4 text-[#A3395C]" />
             </button>
           </div>
           <ResponsiveContainer width="100%" height={250}>
             <BarChart data={topProductsData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-              <XAxis dataKey="name" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: '11px' }} stroke="#e5e7eb" tick={{ fill: '#9ca3af' }} />
-              <YAxis style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: '11px' }} stroke="#e5e7eb" tick={{ fill: '#9ca3af' }} />
-              <Tooltip contentStyle={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', borderRadius: '10px', border: '1px solid #e7c2ce', fontSize: '12px' }} />
+              <CartesianGrid strokeDasharray="3 3" stroke={chartGrid} />
+              <XAxis dataKey="name" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: '11px' }} stroke={chartAxis} tick={{ fill: chartTick }} />
+              <YAxis style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: '11px' }} stroke={chartAxis} tick={{ fill: chartTick }} />
+              <Tooltip contentStyle={tooltipStyle} />
               <Bar dataKey="value" fill="#A3395C" radius={[6, 6, 0, 0]} opacity={0.85} />
             </BarChart>
           </ResponsiveContainer>
@@ -517,53 +532,53 @@ export const DashboardHome: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         {/* Pedidos Pendientes */}
-        <div className="animate-fade-slide-in bg-white rounded-xl p-6 border border-[#E7E0DA] flex flex-col" style={{ ...cardShadow, animationDelay: '280ms' }}>
+        <div className="animate-fade-slide-in bg-white dark:bg-[#241B22] rounded-xl p-6 border border-[#E7E0DA] dark:border-[#3a2e35] flex flex-col" style={{ ...cardShadow, animationDelay: '280ms' }}>
           <div className="flex items-start justify-between mb-5">
             <div>
-              <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#241B22] mb-0.5">Pedidos Pendientes</h3>
-              <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">
+              <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#241B22] dark:text-[#F5EDE9] mb-0.5">Pedidos Pendientes</h3>
+              <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac]">
                 {pendingOrders.length === 0 ? 'Sin pedidos por revisar' : `${pendingOrders.length} pedido${pendingOrders.length !== 1 ? 's' : ''} por revisar`}
               </p>
             </div>
-            <div className="w-9 h-9 bg-amber-50 rounded-xl flex items-center justify-center flex-shrink-0">
-              <Clock className="w-4 h-4 text-amber-500" />
+            <div className="w-9 h-9 bg-amber-50 dark:bg-amber-950/40 rounded-xl flex items-center justify-center flex-shrink-0">
+              <Clock className="w-4 h-4 text-amber-500 dark:text-amber-400" />
             </div>
           </div>
 
           <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
             {pendingOrders.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-10 text-center">
-                <div className="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center mb-3">
-                  <CheckCircle className="w-6 h-6 text-emerald-400" />
+                <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-950/40 rounded-full flex items-center justify-center mb-3">
+                  <CheckCircle className="w-6 h-6 text-emerald-400 dark:text-emerald-400" />
                 </div>
-                <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-400">¡Todo al día! No hay pedidos pendientes.</p>
+                <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-400 dark:text-[#b8a3ac]">¡Todo al día! No hay pedidos pendientes.</p>
               </div>
             ) : pendingOrders.map((pedido) => (
-              <div key={pedido.pedidoID} className="flex items-center gap-3 px-3 py-3 bg-amber-50/60 border border-amber-100 rounded-xl">
+              <div key={pedido.pedidoID} className="flex items-center gap-3 px-3 py-3 bg-amber-50/60 dark:bg-amber-950/30 border border-amber-100 dark:border-amber-900/40 rounded-xl">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
-                    <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs font-bold text-amber-600">PED-{pedido.pedidoID}</span>
-                    <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">
+                    <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs font-bold text-amber-600 dark:text-amber-400">PED-{pedido.pedidoID}</span>
+                    <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac]">
                       {new Date(pedido.fechaPedido).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })}
                     </span>
                   </div>
-                  <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-[#241B22] truncate">{pedido.nombreCliente}</p>
-                  <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 truncate">
+                  <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-[#241B22] dark:text-[#F5EDE9] truncate">{pedido.nombreCliente}</p>
+                  <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac] truncate">
                     {pedido.detalles?.[0]?.productoNombre}
                     {(pedido.detalles?.length ?? 0) > 1 ? ` +${pedido.detalles.length - 1} más` : ''}
                   </p>
                 </div>
-                <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#241B22] flex-shrink-0 mr-1">
+                <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#241B22] dark:text-[#F5EDE9] flex-shrink-0 mr-1">
                   {formatCurrency(pedido.total)}
                 </p>
                 {puedeEditarVentas && (
                   <div className="flex gap-1.5 flex-shrink-0">
                     <button onClick={() => handleAprobar(pedido.pedidoID)}
-                      className="p-1.5 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-100 transition-all hover:scale-110 active:scale-95" title="Aprobar">
+                      className="p-1.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition-all hover:scale-110 active:scale-95" title="Aprobar">
                       <CheckCircle className="w-4 h-4" />
                     </button>
                     <button onClick={() => handleRechazar(pedido.pedidoID)}
-                      className="p-1.5 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition-all hover:scale-110 active:scale-95" title="Rechazar">
+                      className="p-1.5 bg-red-50 dark:bg-red-950/40 text-red-500 dark:text-red-400 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/50 transition-all hover:scale-110 active:scale-95" title="Rechazar">
                       <XCircle className="w-4 h-4" />
                     </button>
                   </div>
@@ -574,11 +589,11 @@ export const DashboardHome: React.FC = () => {
         </div>
 
         {/* Últimas Ventas */}
-        <div className="animate-fade-slide-in bg-white rounded-xl p-6 border border-[#E7E0DA]" style={{ ...cardShadow, animationDelay: '340ms' }}>
+        <div className="animate-fade-slide-in bg-white dark:bg-[#241B22] rounded-xl p-6 border border-[#E7E0DA] dark:border-[#3a2e35]" style={{ ...cardShadow, animationDelay: '340ms' }}>
           <div className="flex items-center justify-between mb-5">
             <div>
-              <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#241B22] mb-0.5">Últimas Ventas</h3>
-              <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">{dateRangeLabel}</p>
+              <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#241B22] dark:text-[#F5EDE9] mb-0.5">Últimas Ventas</h3>
+              <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac]">{dateRangeLabel}</p>
             </div>
             <button onClick={() => setSalesDetailOpen(true)}
               className="group text-xs text-[#A3395C] hover:text-[#8a2e4d] transition flex items-center gap-1" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
@@ -587,22 +602,22 @@ export const DashboardHome: React.FC = () => {
           </div>
           <div className="space-y-1">
             {recentSales.slice(0, 5).map((sale) => (
-              <div key={sale.id} className="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-[#EFD9DF] transition">
-                <div className="w-9 h-9 bg-[#EFD9DF] rounded-lg flex items-center justify-center flex-shrink-0">
+              <div key={sale.id} className="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] transition">
+                <div className="w-9 h-9 bg-[#EFD9DF] dark:bg-[#3a2530] rounded-lg flex items-center justify-center flex-shrink-0">
                   <ShoppingCart className="w-4 h-4 text-[#A3395C]" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-[#241B22] truncate">{sale.cliente}</p>
-                  <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 truncate">{sale.producto}</p>
+                  <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-[#241B22] dark:text-[#F5EDE9] truncate">{sale.cliente}</p>
+                  <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac] truncate">{sale.producto}</p>
                 </div>
                 <div className="text-right flex-shrink-0">
                   <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#A3395C]">{formatCurrency(sale.monto)}</p>
-                  <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">{sale.fecha}</p>
+                  <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac]">{sale.fecha}</p>
                 </div>
               </div>
             ))}
             {recentSales.length === 0 && (
-              <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-400 text-center py-8">Sin ventas en el período</p>
+              <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-400 dark:text-[#b8a3ac] text-center py-8">Sin ventas en el período</p>
             )}
           </div>
         </div>
@@ -611,44 +626,44 @@ export const DashboardHome: React.FC = () => {
       {/* Modal Reporte */}
       <Dialog open={reportModalOpen} onOpenChange={setReportModalOpen}>
         <DialogContent className="max-w-md p-0 gap-0 overflow-hidden">
-          <DialogHeader className="px-8 pt-6 pb-4 border-b border-[#E7E0DA]">
+          <DialogHeader className="px-8 pt-6 pb-4 border-b border-[#E7E0DA] dark:border-[#3a2e35]">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 bg-[#EFD9DF] rounded-xl flex items-center justify-center">
+              <div className="w-9 h-9 bg-[#EFD9DF] dark:bg-[#3a2530] rounded-xl flex items-center justify-center">
                 <Download className="w-4 h-4 text-[#A3395C]" />
               </div>
               <div>
-                <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-base font-semibold text-[#241B22]">Generar Reporte</DialogTitle>
-                <DialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 mt-0.5">Período: {dateRangeLabel}</DialogDescription>
+                <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-base font-semibold text-[#241B22] dark:text-[#F5EDE9]">Generar Reporte</DialogTitle>
+                <DialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac] mt-0.5">Período: {dateRangeLabel}</DialogDescription>
               </div>
             </div>
           </DialogHeader>
 
           <div className="px-8 py-6 space-y-5">
-            <div className="flex items-center gap-3 bg-[#EFD9DF] border border-[#e7c2ce] rounded-xl px-4 py-3">
-              <div className="w-8 h-8 bg-[#e7c2ce] rounded-lg flex items-center justify-center flex-shrink-0">
+            <div className="flex items-center gap-3 bg-[#EFD9DF] dark:bg-[#3a2530] border border-[#e7c2ce] dark:border-[#4a3540] rounded-xl px-4 py-3">
+              <div className="w-8 h-8 bg-[#e7c2ce] dark:bg-[#4a3540] rounded-lg flex items-center justify-center flex-shrink-0">
                 <FileText className="w-4 h-4 text-[#A3395C]" />
               </div>
               <div>
-                <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#241B22]">{reportType}</p>
-                <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">Datos del período seleccionado</p>
+                <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#241B22] dark:text-[#F5EDE9]">{reportType}</p>
+                <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac]">Datos del período seleccionado</p>
               </div>
             </div>
 
             <div>
-              <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Formato</p>
+              <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs font-semibold text-gray-400 dark:text-[#b8a3ac] uppercase tracking-wider mb-3">Formato</p>
               <div className="grid grid-cols-2 gap-3">
                 {[
                   { value: 'xlsx', label: 'Excel', ext: '.xlsx', icon: <FileSpreadsheet className="w-4 h-4 text-emerald-500" /> },
                   { value: 'pdf', label: 'PDF', ext: '.pdf', icon: <FileText className="w-4 h-4 text-red-400" /> },
                 ].map(opt => (
                   <label key={opt.value}
-                    className="flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-all has-[:checked]:border-[#A3395C] has-[:checked]:bg-[#EFD9DF] border-[#E7E0DA] hover:border-[#EFD9DF]">
+                    className="flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-all has-[:checked]:border-[#A3395C] has-[:checked]:bg-[#EFD9DF] dark:has-[:checked]:bg-[#3a2530] border-[#E7E0DA] dark:border-[#3a2e35] hover:border-[#EFD9DF]">
                     <input type="radio" name="report-format-radio" value={opt.value} defaultChecked={opt.value === 'xlsx'} className="accent-[#A3395C]" />
                     <div>
                       <div className="flex items-center gap-1.5 mb-0.5">{opt.icon}
-                        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#241B22]">{opt.label}</p>
+                        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#241B22] dark:text-[#F5EDE9]">{opt.label}</p>
                       </div>
-                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">{opt.ext}</p>
+                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac]">{opt.ext}</p>
                     </div>
                   </label>
                 ))}
@@ -658,7 +673,7 @@ export const DashboardHome: React.FC = () => {
 
           <div className="flex gap-3 px-8 pb-6">
             <button type="button" onClick={() => setReportModalOpen(false)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="flex-1 py-2.5 bg-gray-100 text-gray-600 rounded-xl hover:bg-gray-200 transition text-sm font-medium">
+              className="flex-1 py-2.5 bg-gray-100 dark:bg-[#2c2129] text-gray-600 dark:text-[#F5EDE9] rounded-xl hover:bg-gray-200 dark:hover:bg-[#3a2530] transition text-sm font-medium">
               Cancelar
             </button>
             <button type="button" onClick={() => {
@@ -682,38 +697,38 @@ export const DashboardHome: React.FC = () => {
       {/* Modal Últimas Ventas */}
       <Dialog open={salesDetailOpen} onOpenChange={setSalesDetailOpen}>
         <DialogContent className="max-w-2xl p-0 gap-0">
-          <DialogHeader className="px-8 pt-6 pb-4 border-b border-[#E7E0DA]">
-            <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-base font-semibold text-[#241B22]">Ventas del Período</DialogTitle>
-            <DialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">
+          <DialogHeader className="px-8 pt-6 pb-4 border-b border-[#E7E0DA] dark:border-[#3a2e35]">
+            <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-base font-semibold text-[#241B22] dark:text-[#F5EDE9]">Ventas del Período</DialogTitle>
+            <DialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac]">
               {dateRangeLabel} · {recentSales.length} venta{recentSales.length !== 1 ? 's' : ''}
             </DialogDescription>
           </DialogHeader>
-          <div className="divide-y divide-gray-50 max-h-[480px] overflow-y-auto">
+          <div className="divide-y divide-gray-50 dark:divide-[#3a2e35] max-h-[480px] overflow-y-auto">
             {recentSales.map((sale) => (
-              <div key={sale.id} className="flex items-center gap-4 px-8 py-4 hover:bg-[#EFD9DF] transition">
-                <div className="w-9 h-9 bg-[#EFD9DF] rounded-lg flex items-center justify-center flex-shrink-0">
+              <div key={sale.id} className="flex items-center gap-4 px-8 py-4 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] transition">
+                <div className="w-9 h-9 bg-[#EFD9DF] dark:bg-[#3a2530] rounded-lg flex items-center justify-center flex-shrink-0">
                   <ShoppingCart className="w-4 h-4 text-[#A3395C]" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-[#241B22]">{sale.id} — {sale.cliente}</p>
-                  <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">{sale.producto} · {sale.cantidad} {sale.cantidad === 1 ? 'unidad' : 'unidades'}</p>
+                  <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-[#241B22] dark:text-[#F5EDE9]">{sale.id} — {sale.cliente}</p>
+                  <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac]">{sale.producto} · {sale.cantidad} {sale.cantidad === 1 ? 'unidad' : 'unidades'}</p>
                 </div>
                 <div className="text-right flex-shrink-0">
                   <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#A3395C]">{formatCurrency(sale.monto)}</p>
                   <div className="flex items-center gap-2 justify-end mt-0.5">
-                    <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">{sale.fecha}</span>
-                    <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className={`text-xs font-medium px-2 py-0.5 rounded-full ${sale.estado === 'Completada' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>{sale.estado}</span>
+                    <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac]">{sale.fecha}</span>
+                    <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className={`text-xs font-medium px-2 py-0.5 rounded-full ${sale.estado === 'Completada' ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400' : 'bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400'}`}>{sale.estado}</span>
                   </div>
                 </div>
               </div>
             ))}
             {recentSales.length === 0 && (
-              <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-400 text-center py-12">Sin ventas en el período seleccionado</p>
+              <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-400 dark:text-[#b8a3ac] text-center py-12">Sin ventas en el período seleccionado</p>
             )}
           </div>
-          <DialogFooter className="px-8 py-4 border-t border-[#E7E0DA]">
+          <DialogFooter className="px-8 py-4 border-t border-[#E7E0DA] dark:border-[#3a2e35]">
             <button onClick={() => setSalesDetailOpen(false)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="px-5 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition text-sm">
+              className="px-5 py-2 bg-gray-100 dark:bg-[#2c2129] text-gray-600 dark:text-[#F5EDE9] rounded-lg hover:bg-gray-200 dark:hover:bg-[#3a2530] transition text-sm">
               Cerrar
             </button>
           </DialogFooter>

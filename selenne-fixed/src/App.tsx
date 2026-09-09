@@ -13,6 +13,7 @@ const DashboardView = lazy(() => import('./features/dashboard/components/Dashboa
 const ClienteView = lazy(() => import('./features/tienda/ClienteView').then(m => ({ default: m.ClienteView })));
 const CheckoutView = lazy(() => import('./features/tienda/CheckoutView').then(m => ({ default: m.CheckoutView })));
 import { AuthProvider, useAuth } from './shared/contexts/AuthContext';
+import { ThemeProvider } from './shared/contexts/ThemeContext';
 import { PermisosProvider } from './shared/contexts/PermisosContext';
 import { TiendaProvider } from './shared/contexts/TiendaContext';
 import { ProductosProvider } from './shared/contexts/ProductosContext';
@@ -148,6 +149,7 @@ function MainApp() {
 export default function App() {
   return (
     <BrowserRouter>
+      <ThemeProvider>
       <AuthProvider>
         <PermisosProvider>
           <SubcategoriasProvider>
@@ -167,6 +169,7 @@ export default function App() {
           </SubcategoriasProvider>
         </PermisosProvider>
       </AuthProvider>
+      </ThemeProvider>
     </BrowserRouter>
   );
 }

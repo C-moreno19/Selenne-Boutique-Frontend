@@ -57,7 +57,7 @@ const DialogContent = React.forwardRef<
         ref={ref}
         data-slot="dialog-content"
         className={cn(
-          "bg-white text-[#241B22] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 w-full translate-x-[-50%] translate-y-[-50%] rounded-xl border border-[#E7E0DA] shadow-lg duration-200 overflow-y-auto max-h-[90vh]",
+          "bg-white text-[#241B22] dark:bg-[#241B22] dark:text-[#F5EDE9] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 w-full translate-x-[-50%] translate-y-[-50%] rounded-xl border border-[#E7E0DA] dark:border-[#3a2e35] shadow-lg duration-200 overflow-y-auto max-h-[90vh]",
           className,
         )}
         style={{ display: 'flex', flexDirection: 'column', ...props.style }}
@@ -65,7 +65,7 @@ const DialogContent = React.forwardRef<
       >
         {children}
         {!hideCloseButton && (
-          <DialogPrimitive.Close className="ring-offset-white focus:ring-[#A3395C] text-[#241B22] hover:bg-[#EFD9DF] hover:text-[#A3395C] absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center opacity-80 transition-colors hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4">
+          <DialogPrimitive.Close className="ring-offset-white focus:ring-[#A3395C] text-[#241B22] dark:text-[#F5EDE9] hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] hover:text-[#A3395C] absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center opacity-80 transition-colors hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4">
             <XIcon />
             <span className="sr-only">Close</span>
           </DialogPrimitive.Close>

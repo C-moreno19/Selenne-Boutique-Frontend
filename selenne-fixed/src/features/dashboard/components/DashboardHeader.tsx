@@ -80,7 +80,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   return (
     <>
       <header 
-        className={`fixed top-0 right-0 h-20 bg-white border-b border-[#E7E0DA] z-30 transition-all duration-300 ${
+        className={`fixed top-0 right-0 h-20 bg-white dark:bg-[#241B22] border-b border-[#E7E0DA] dark:border-[#3a2e35] z-30 transition-all duration-300 ${
           isOpen ? 'left-64' : 'left-0'
         }`}
       >
@@ -89,7 +89,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           <div className="flex items-center gap-4">
             <button
               onClick={toggleSidebar}
-              className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition"
+              className="p-2 text-gray-600 dark:text-[#b8a3ac] hover:bg-gray-100 dark:hover:bg-[#3a2530] rounded-lg transition"
               aria-label="Toggle sidebar"
             >
               <Menu className="w-6 h-6" />
@@ -107,14 +107,14 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           {/* Barra de Búsqueda Global */}
           <div className="flex-1 max-w-2xl">
             <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-[#b8a3ac]" />
               <input
                 type="text"
                 placeholder="Buscar productos, usuarios, ventas..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                className="w-full pl-12 pr-4 py-3 bg-[#FBF8F5] border border-[#E7E0DA] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A3395C] focus:border-transparent transition-all"
+                className="w-full pl-12 pr-4 py-3 bg-[#FBF8F5] dark:bg-[#1c151a] dark:text-[#F5EDE9] dark:placeholder-[#b8a3ac] border border-[#E7E0DA] dark:border-[#3a2e35] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A3395C] focus:border-transparent transition-all"
               />
             </div>
           </div>
@@ -124,7 +124,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
             {/* Mensajes / Notificaciones unificado */}
             <button
               onClick={() => setMessagesOpen(true)}
-              className="relative p-2.5 text-gray-600 hover:bg-[#FBF8F5] rounded-lg transition"
+              className="relative p-2.5 text-gray-600 dark:text-[#b8a3ac] hover:bg-[#FBF8F5] dark:hover:bg-[#1c151a] rounded-lg transition"
               title="Mensajes y notificaciones"
             >
               <MessageCircle className="w-5 h-5" />
@@ -136,26 +136,26 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
             </button>
 
             {/* Separador */}
-            <div className="w-px h-8 bg-gray-200 mx-2"></div>
+            <div className="w-px h-8 bg-gray-200 dark:bg-[#3a2e35] mx-2"></div>
 
             {/* Menú de Usuario */}
             <div className="relative">
               <button
                 onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#FBF8F5] transition"
+                className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#FBF8F5] dark:hover:bg-[#1c151a] transition"
               >
                 <div className="w-10 h-10 bg-gradient-to-br from-[#A3395C] to-[#EFD9DF] rounded-full flex items-center justify-center">
                   <User className="w-5 h-5 text-white" />
                 </div>
                 <div className="text-left">
-                  <div style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-[#241B22]">
+                  <div style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-[#241B22] dark:text-[#F5EDE9]">
                     {user?.name}
                   </div>
                   <div style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-[#A3395C]">
                     {user?.role}
                   </div>
                 </div>
-                <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isUserMenuOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-4 h-4 text-gray-400 dark:text-[#b8a3ac] transition-transform ${isUserMenuOpen ? 'rotate-180' : ''}`} />
               </button>
 
               {isUserMenuOpen && (
@@ -164,20 +164,20 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                     className="fixed inset-0 z-40" 
                     onClick={() => setIsUserMenuOpen(false)}
                   />
-                  <div className="absolute top-full right-0 mt-2 bg-white rounded-lg shadow-lg border border-[#E7E0DA] py-2 min-w-[220px] z-50">
+                  <div className="absolute top-full right-0 mt-2 bg-white dark:bg-[#241B22] rounded-lg shadow-lg border border-[#E7E0DA] dark:border-[#3a2e35] py-2 min-w-[220px] z-50">
                     <button
                       onClick={() => {
                         onSectionChange('perfil');
                         setIsUserMenuOpen(false);
                       }}
-                      className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-[#FBF8F5] transition text-left"
+                      className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-[#FBF8F5] dark:hover:bg-[#1c151a] transition text-left"
                     >
-                      <User className="w-4 h-4 text-gray-600" />
-                      <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-700">
+                      <User className="w-4 h-4 text-gray-600 dark:text-[#b8a3ac]" />
+                      <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-700 dark:text-[#F5EDE9]">
                         Mi Perfil
                       </span>
                     </button>
-                    <div className="border-t border-[#E7E0DA] my-2" />
+                    <div className="border-t border-[#E7E0DA] dark:border-[#3a2e35] my-2" />
                     <button
                       onClick={onLogout}
                       className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-red-50 transition text-left"
@@ -198,7 +198,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
       {/* Modal unificado de Mensajes y Notificaciones */}
       <Dialog open={messagesOpen} onOpenChange={setMessagesOpen}>
         <DialogContent className="max-w-2xl h-auto flex flex-col p-0 gap-0">
-          <DialogHeader className="px-8 pt-6 pb-4 border-b border-[#E7E0DA] flex-shrink-0">
+          <DialogHeader className="px-8 pt-6 pb-4 border-b border-[#E7E0DA] dark:border-[#3a2e35] flex-shrink-0">
             <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-2xl">
               Mensajes
             </DialogTitle>
@@ -209,20 +209,20 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 
           <div className="flex-1 overflow-y-auto">
             <div className="space-y-6 py-6 px-8">
-              <div className="bg-white rounded-xl border border-[#E7E0DA] shadow-sm overflow-hidden">
-                <div className="bg-[#FBF8F5] px-6 py-4 border-b border-[#E7E0DA] flex items-center justify-between">
-                  <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#241B22] text-base">💬 Actividad reciente</h3>
+              <div className="bg-white dark:bg-[#241B22] rounded-xl border border-[#E7E0DA] dark:border-[#3a2e35] shadow-sm overflow-hidden">
+                <div className="bg-[#FBF8F5] dark:bg-[#1c151a] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#3a2e35] flex items-center justify-between">
+                  <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#241B22] dark:text-[#F5EDE9] text-base">💬 Actividad reciente</h3>
                   {unreadMessages > 0 && (
                     <span className="px-2 py-0.5 bg-[#A3395C] text-white text-xs rounded-full" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                       {unreadMessages} sin leer
                     </span>
                   )}
                 </div>
-                <div className="divide-y divide-gray-100">
+                <div className="divide-y divide-gray-100 dark:divide-[#3a2e35]">
                   {adminMsgs.length === 0 ? (
                     <div className="text-center py-12">
-                      <MessageCircle className="w-10 h-10 mx-auto text-gray-200 mb-3" />
-                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-400">
+                      <MessageCircle className="w-10 h-10 mx-auto text-gray-200 dark:text-[#3a2e35] mb-3" />
+                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-400 dark:text-[#b8a3ac]">
                         No hay mensajes por el momento
                       </p>
                     </div>
@@ -240,10 +240,10 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                             }
                           }}
                           className={`flex items-start gap-4 px-6 py-4 transition cursor-pointer ${
-                            msg.leido ? 'opacity-60' : 'hover:bg-pink-50'
+                            msg.leido ? 'opacity-60' : 'hover:bg-pink-50 dark:hover:bg-[#3a2530]'
                           }`}
                         >
-                          <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${msg.leido ? 'bg-gray-100' : 'bg-pink-100'}`}>
+                          <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${msg.leido ? 'bg-gray-100 dark:bg-[#2c2129]' : 'bg-pink-100 dark:bg-[#3a2530]'}`}>
                             {getMsgIcon(msg.tipo)}
                           </div>
                           <div className="flex-1 min-w-0">
@@ -251,11 +251,11 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                               <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs font-semibold text-[#A3395C] uppercase tracking-wide">
                                 {getMsgLabel(msg.tipo)}
                               </p>
-                              <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 whitespace-nowrap flex-shrink-0">
+                              <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac] whitespace-nowrap flex-shrink-0">
                                 {new Date(msg.fecha).toLocaleDateString('es-CO')}
                               </span>
                             </div>
-                            <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-700 mt-0.5 truncate">
+                            <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-700 dark:text-[#F5EDE9] mt-0.5 truncate">
                               {msg.contenido}
                             </p>
                             {navSection && !msg.leido && (
@@ -276,7 +276,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
             </div>
           </div>
 
-          <DialogFooter className="gap-2 px-8 py-5 border-t border-[#E7E0DA] flex-shrink-0">
+          <DialogFooter className="gap-2 px-8 py-5 border-t border-[#E7E0DA] dark:border-[#3a2e35] flex-shrink-0">
             {adminMsgs.some(m => !m.leido) && (
               <button
                 onClick={() => {
@@ -284,7 +284,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                   toast.success('Todos los mensajes marcados como leídos');
                 }}
                 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
+                className="px-6 py-2 bg-gray-100 dark:bg-[#2c2129] text-gray-700 dark:text-[#F5EDE9] rounded-lg hover:bg-gray-200 dark:hover:bg-[#3a2530] transition"
               >
                 Marcar todos como leídos
               </button>

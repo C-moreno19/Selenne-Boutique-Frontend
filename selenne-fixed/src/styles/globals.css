@@ -1,5 +1,5 @@
 
-/* @custom-variant dark (&:is(.dark *)); */
+@custom-variant dark (&:where(.dark, .dark *));
 
 :root {
   --font-size: 16px;
@@ -43,25 +43,27 @@
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.145 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.145 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.985 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.396 0.141 25.723);
-  --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: oklch(0.269 0 0);
-  --input: oklch(0.269 0 0);
-  --ring: oklch(0.439 0 0);
+  --background: #1c151a;
+  --foreground: #F5EDE9;
+  --card: #241B22;
+  --card-foreground: #F5EDE9;
+  --popover: #241B22;
+  --popover-foreground: #F5EDE9;
+  --primary: #A3395C;
+  --primary-foreground: #ffffff;
+  --secondary: #3a2530;
+  --secondary-foreground: #F5EDE9;
+  --muted: #2c2129;
+  --muted-foreground: #b8a3ac;
+  --accent: #3a2530;
+  --accent-foreground: #F5EDE9;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: #3a2e35;
+  --input: #3a2e35;
+  --input-background: #241B22;
+  --switch-background: #3a2e35;
+  --ring: #A3395C;
   --font-weight-medium: 500;
   --font-weight-normal: 400;
   --chart-1: oklch(0.488 0.243 264.376);

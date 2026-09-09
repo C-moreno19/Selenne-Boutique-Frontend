@@ -83,7 +83,7 @@ export function LegalDialog({ doc, onClose }: LegalDialogProps) {
     <Dialog open={!!doc} onOpenChange={(open) => { if (!open) onClose(); }}>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle style={{ fontFamily: PLAYFAIR }} className="text-2xl text-[#241B22]">
+          <DialogTitle style={{ fontFamily: PLAYFAIR }} className="text-2xl text-[#241B22] dark:text-[#F5EDE9]">
             {titulo}
           </DialogTitle>
           <DialogDescription className="sr-only">{titulo}</DialogDescription>
@@ -93,7 +93,7 @@ export function LegalDialog({ doc, onClose }: LegalDialogProps) {
             <div key={s.h}>
               <h3 className="text-sm font-bold tracking-wide text-[#A3395C] mb-2">{s.h}</h3>
               {s.p.map((linea, i) => (
-                <p key={i} className="text-sm text-gray-600 leading-relaxed">{linea}</p>
+                <p key={i} className="text-sm text-gray-600 dark:text-[#b8a3ac] leading-relaxed">{linea}</p>
               ))}
             </div>
           ))}

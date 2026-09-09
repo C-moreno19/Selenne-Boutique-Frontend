@@ -20,9 +20,12 @@ import {
   Package,
   Globe,
   Lock,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
+import { useTheme } from "../../shared/contexts/ThemeContext";
 import { Badge } from "../../components/ui/badge";
 import {
   Dialog,
@@ -76,6 +79,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
 }) => {
   const [mostrarTelefono, setMostrarTelefono] = useState(false);
   const [telefonoContacto, setTelefonoContacto] = useState('+57 304 292 8493');
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   // La categoria vive en la URL (/dashboard/tienda/:categoria), igual que en
@@ -431,23 +435,23 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-white dark:bg-[#1c151a] flex flex-col">
       {/* Header - Siempre Visible */}
-      <header className="sticky top-0 z-50 bg-[#FBF8F5] border-b border-[#E7E0DA] shadow-sm">
+      <header className="sticky top-0 z-50 bg-[#FBF8F5] dark:bg-[#1c151a] border-b border-[#E7E0DA] dark:border-[#3a2e35] shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
             <div className="flex items-center gap-2">
               <button
-                className="lg:hidden mr-2 p-2 hover:bg-[#EFD9DF] rounded-full"
+                className="lg:hidden mr-2 p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full"
                 onClick={() =>
                   setMenuMovilAbierto(!menuMovilAbierto)
                 }
               >
                 {menuMovilAbierto ? (
-                  <X className="w-6 h-6 text-[#241B22]" />
+                  <X className="w-6 h-6 text-[#241B22] dark:text-[#F5EDE9]" />
                 ) : (
-                  <Menu className="w-6 h-6 text-[#241B22]" />
+                  <Menu className="w-6 h-6 text-[#241B22] dark:text-[#F5EDE9]" />
                 )}
               </button>
 
@@ -457,7 +461,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                 className="flex items-center justify-center hover:opacity-75 transition-opacity"
                 title="Selenne Boutique — Inicio"
               >
-                <span className="text-lg sm:text-2xl font-medium tracking-[0.04em] text-[#241B22] whitespace-nowrap" style={{ fontFamily: '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}>
+                <span className="text-lg sm:text-2xl font-medium tracking-[0.04em] text-[#241B22] dark:text-[#F5EDE9] whitespace-nowrap" style={{ fontFamily: '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}>
                   Selenne Boutique
                 </span>
               </button>
@@ -470,7 +474,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                 className={`group relative py-2 text-[12px] tracking-[0.12em] uppercase font-semibold transition-opacity ${
                   vistaActual === "tienda" && categoriaActiva === "mujer"
                     ? "text-[#A3395C] opacity-100"
-                    : "text-[#241B22] opacity-70 hover:opacity-100"
+                    : "text-[#241B22] dark:text-[#F5EDE9] opacity-70 hover:opacity-100"
                 }`}
               >
                 Mujer
@@ -481,7 +485,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                 className={`group relative py-2 text-[12px] tracking-[0.12em] uppercase font-semibold transition-opacity ${
                   vistaActual === "tienda" && categoriaActiva === "accesorios"
                     ? "text-[#A3395C] opacity-100"
-                    : "text-[#241B22] opacity-70 hover:opacity-100"
+                    : "text-[#241B22] dark:text-[#F5EDE9] opacity-70 hover:opacity-100"
                 }`}
               >
                 Accesorios
@@ -492,7 +496,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                 className={`group relative py-2 text-[12px] tracking-[0.12em] uppercase font-semibold transition-opacity ${
                   vistaActual === "tienda" && categoriaActiva === "sale"
                     ? "text-[#A3395C] opacity-100"
-                    : "text-[#241B22] opacity-70 hover:opacity-100"
+                    : "text-[#241B22] dark:text-[#F5EDE9] opacity-70 hover:opacity-100"
                 }`}
               >
                 Sale
@@ -502,13 +506,24 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
 
             {/* Acciones */}
             <div className="flex items-center space-x-4">
+              <button
+                onClick={toggleTheme}
+                className="p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full transition-colors"
+                title={theme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
+              >
+                {theme === "dark" ? (
+                  <Sun className="w-5 h-5 text-[#F5EDE9]" />
+                ) : (
+                  <Moon className="w-5 h-5 text-[#241B22]" />
+                )}
+              </button>
               {vistaActual === 'perfil' ? (
                 <button
                   onClick={() => setSubVista("mensajes")}
-                  className="p-2 hover:bg-[#EFD9DF] rounded-full transition-colors relative"
+                  className="p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full transition-colors relative"
                   title="Mensajes"
                 >
-                  <svg className="w-6 h-6 text-[#241B22]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-6 h-6 text-[#241B22] dark:text-[#F5EDE9]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
                   {notifHook.noLeidas > 0 && (
@@ -522,19 +537,19 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                   <SheetTrigger asChild>
                     <button
                       onClick={() => setBusquedaModal('')}
-                      className="hidden md:flex items-center gap-2 rounded-full border border-[#E7E0DA] bg-white pl-4 pr-3 py-2 w-[190px] text-left hover:border-[#A3395C] transition-colors"
+                      className="hidden md:flex items-center gap-2 rounded-full border border-[#E7E0DA] dark:border-[#3a2e35] bg-white dark:bg-[#241B22] pl-4 pr-3 py-2 w-[190px] text-left hover:border-[#A3395C] transition-colors"
                     >
-                      <Search className="w-4 h-4 text-[#7d6f77] flex-shrink-0" />
-                      <span className="text-[13px] text-[#7d6f77]">Buscar productos…</span>
+                      <Search className="w-4 h-4 text-[#7d6f77] dark:text-[#b8a3ac] flex-shrink-0" />
+                      <span className="text-[13px] text-[#7d6f77] dark:text-[#b8a3ac]">Buscar productos…</span>
                     </button>
                   </SheetTrigger>
                   <SheetTrigger asChild>
                     <button
                       onClick={() => setBusquedaModal('')}
-                      className="md:hidden p-2 hover:bg-[#EFD9DF] rounded-full transition-colors"
+                      className="md:hidden p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full transition-colors"
                       title="Buscar"
                     >
-                      <Search className="w-6 h-6 text-[#241B22]" />
+                      <Search className="w-6 h-6 text-[#241B22] dark:text-[#F5EDE9]" />
                     </button>
                   </SheetTrigger>
                   <SheetContent side="right">
@@ -542,32 +557,32 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                       <SheetTitle>Buscar</SheetTitle>
                     </SheetHeader>
                     <div className="mt-4 flex flex-col gap-4">
-                      <div className="flex items-center gap-2 border border-gray-200 px-3 py-2">
-                        <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                      <div className="flex items-center gap-2 border border-gray-200 dark:border-[#3a2e35] px-3 py-2">
+                        <Search className="w-4 h-4 text-gray-400 dark:text-[#b8a3ac] flex-shrink-0" />
                         <input
                           autoFocus
                           type="text"
                           value={busquedaModal}
                           onChange={e => setBusquedaModal(e.target.value)}
                           placeholder="Buscar productos..."
-                          className="flex-1 text-sm outline-none text-gray-900 placeholder-gray-400"
+                          className="flex-1 text-sm outline-none text-gray-900 dark:text-[#F5EDE9] placeholder-gray-400 dark:placeholder-[#b8a3ac] bg-transparent"
                         />
                         {busquedaModal && (
-                          <button onClick={() => setBusquedaModal('')} className="text-gray-400 hover:text-gray-600">
+                          <button onClick={() => setBusquedaModal('')} className="text-gray-400 hover:text-gray-600 dark:text-[#b8a3ac] dark:hover:text-[#F5EDE9]">
                             <X className="w-4 h-4" />
                           </button>
                         )}
                       </div>
                       <div className="overflow-y-auto flex-1">
                         {busquedaModal.trim() === '' ? (
-                          <p className="text-sm text-gray-400 py-6 text-center">Empieza a escribir para buscar</p>
+                          <p className="text-sm text-gray-400 dark:text-[#b8a3ac] py-6 text-center">Empieza a escribir para buscar</p>
                         ) : (() => {
                           const resultados = productosData.filter(p =>
                             p.nombre.toLowerCase().includes(busquedaModal.toLowerCase()) ||
                             (p.descripcion || '').toLowerCase().includes(busquedaModal.toLowerCase())
                           );
                           return resultados.length === 0 ? (
-                            <p className="text-sm text-gray-400 py-6 text-center">Sin resultados para "{busquedaModal}"</p>
+                            <p className="text-sm text-gray-400 dark:text-[#b8a3ac] py-6 text-center">Sin resultados para "{busquedaModal}"</p>
                           ) : (
                             <div className="space-y-3">
                               {resultados.map(p => (
@@ -580,13 +595,13 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                                     setImagenActual(0);
                                     setBusquedaModalAbierta(false);
                                   }}
-                                  className="w-full flex items-center gap-3 hover:bg-gray-50 transition-colors p-2 border border-gray-100"
+                                  className="w-full flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-[#2c2129] transition-colors p-2 border border-gray-100 dark:border-[#3a2e35]"
                                 >
                                   <img src={p.imagen} alt={p.nombre} className="w-16 h-16 object-cover flex-shrink-0" />
                                   <div className="flex-1 text-left min-w-0">
-                                    <p className="text-sm font-medium text-gray-900 truncate">{p.nombre}</p>
-                                    {p.descripcion && <p className="text-xs text-gray-400 truncate mt-0.5">{p.descripcion}</p>}
-                                    <p className="text-sm font-bold text-gray-900 mt-1">{formatPrecio(p.precio)}</p>
+                                    <p className="text-sm font-medium text-gray-900 dark:text-[#F5EDE9] truncate">{p.nombre}</p>
+                                    {p.descripcion && <p className="text-xs text-gray-400 dark:text-[#b8a3ac] truncate mt-0.5">{p.descripcion}</p>}
+                                    <p className="text-sm font-bold text-gray-900 dark:text-[#F5EDE9] mt-1">{formatPrecio(p.precio)}</p>
                                   </div>
                                 </button>
                               ))}
@@ -600,14 +615,14 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
               )}
               <button
                 onClick={() => setSubVista("perfil")}
-                className="p-2 hover:bg-[#EFD9DF] rounded-full transition-colors"
+                className="p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full transition-colors"
               >
-                <User className="w-6 h-6 text-[#241B22]" />
+                <User className="w-6 h-6 text-[#241B22] dark:text-[#F5EDE9]" />
               </button>
               <Sheet open={favoritosOpen} onOpenChange={setFavoritosOpen}>
                 <SheetTrigger asChild>
-                  <button className="p-2 hover:bg-[#EFD9DF] rounded-full transition-colors relative">
-                    <Heart className="w-6 h-6 text-[#241B22]" />
+                  <button className="p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full transition-colors relative">
+                    <Heart className="w-6 h-6 text-[#241B22] dark:text-[#F5EDE9]" />
                     {favoritos.length > 0 && (
                       <span className="absolute -top-1 -right-1 bg-[#A3395C] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                         {favoritos.length}
@@ -624,8 +639,8 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                   <div className="mt-6">
                     {favoritos.length === 0 ? (
                       <div className="text-center py-12">
-                        <Heart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                        <p className="text-gray-500">No tienes productos en favoritos</p>
+                        <Heart className="w-16 h-16 text-gray-300 dark:text-[#3a2e35] mx-auto mb-4" />
+                        <p className="text-gray-500 dark:text-[#b8a3ac]">No tienes productos en favoritos</p>
                       </div>
                     ) : (
                       <div className="space-y-4">
@@ -638,7 +653,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                               <div className="flex-1">
                                 <div className="flex justify-between items-center">
                                   <span className="text-sm font-medium">{prod.nombre}</span>
-                                  <span className="text-sm text-gray-600">{formatPrecio(prod.precio)}</span>
+                                  <span className="text-sm text-gray-600 dark:text-[#b8a3ac]">{formatPrecio(prod.precio)}</span>
                                 </div>
                                 <div className="mt-2 flex gap-2">
                                   <Button size="sm" onClick={() => { setProductoSeleccionado(prod); setTallaSeleccionada(prod.tallas[0]); setColorSeleccionado(prod.colores?.[0] || ''); }}>
@@ -662,8 +677,8 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                 onOpenChange={setCarritoAbierto}
               >
                 <SheetTrigger asChild>
-                  <button className="p-2 hover:bg-[#EFD9DF] rounded-full transition-colors relative">
-                    <ShoppingBag className="w-6 h-6 text-[#241B22]" />
+                  <button className="p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full transition-colors relative">
+                    <ShoppingBag className="w-6 h-6 text-[#241B22] dark:text-[#F5EDE9]" />
                     {carritoItems.length > 0 && (
                       <span className="absolute -top-1 -right-1 bg-[#A3395C] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                         {carritoItems.length}
@@ -672,19 +687,19 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                   </button>
                 </SheetTrigger>
                 <SheetContent className="flex flex-col w-[420px] sm:w-[460px] p-0">
-                  <SheetHeader className="px-6 pt-6 pb-4 border-b border-gray-100 flex-shrink-0">
+                  <SheetHeader className="px-6 pt-6 pb-4 border-b border-gray-100 dark:border-[#3a2e35] flex-shrink-0">
                     <SheetTitle className="text-xl">
                       Carrito de Compras
                       {carritoItems.length > 0 && (
-                        <span className="ml-2 text-sm font-normal text-gray-400">({carritoItems.length} {carritoItems.length === 1 ? 'producto' : 'productos'})</span>
+                        <span className="ml-2 text-sm font-normal text-gray-400 dark:text-[#b8a3ac]">({carritoItems.length} {carritoItems.length === 1 ? 'producto' : 'productos'})</span>
                       )}
                     </SheetTitle>
                   </SheetHeader>
 
                   {carritoItems.length === 0 ? (
                     <div className="flex-1 flex flex-col items-center justify-center py-12 px-6">
-                      <ShoppingCart className="w-16 h-16 text-gray-200 mb-4" />
-                      <p className="text-gray-400 text-sm">Tu carrito está vacío</p>
+                      <ShoppingCart className="w-16 h-16 text-gray-200 dark:text-[#3a2e35] mb-4" />
+                      <p className="text-gray-400 dark:text-[#b8a3ac] text-sm">Tu carrito está vacío</p>
                     </div>
                   ) : (
                     <>
@@ -693,7 +708,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                         {carritoItems.map((item) => (
                           <div
                             key={`${item.carritoID}`}
-                            className="flex gap-4 bg-gray-50 p-3 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors"
+                            className="flex gap-4 bg-gray-50 dark:bg-[#2c2129] p-3 rounded-xl cursor-pointer hover:bg-gray-100 dark:hover:bg-[#3a2530] transition-colors"
                             onClick={() => {
                               const fullProduct = productosData.find(p => p.id === item.id);
                               setProductoSeleccionado(fullProduct || item);
@@ -705,8 +720,8 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                           >
                             <img src={item.imagen} alt={item.nombre} className="w-20 h-20 object-cover rounded-lg flex-shrink-0" />
                             <div className="flex-1 min-w-0">
-                              <h4 className="text-sm font-medium text-gray-900 truncate">{item.nombre}</h4>
-                              <p className="text-xs text-gray-400 mt-0.5">
+                              <h4 className="text-sm font-medium text-gray-900 dark:text-[#F5EDE9] truncate">{item.nombre}</h4>
+                              <p className="text-xs text-gray-400 dark:text-[#b8a3ac] mt-0.5">
                                 Talla: {item.tallaSeleccionada}{item.colorSeleccionado && ` · ${item.colorSeleccionado}`}
                               </p>
                               <p className="text-sm font-semibold text-[#A3395C] mt-1">
@@ -714,13 +729,13 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                               </p>
                               <div className="flex items-center gap-2 mt-2">
                                 <button onClick={(e: React.MouseEvent) => { e.stopPropagation(); actualizarCantidad(item.carritoID, item.cantidad - 1); }}
-                                  className="w-6 h-6 flex items-center justify-center bg-white border border-gray-200 rounded-full hover:bg-gray-100 transition-colors">
-                                  <Minus className="w-3 h-3 text-gray-600" />
+                                  className="w-6 h-6 flex items-center justify-center bg-white dark:bg-[#241B22] border border-gray-200 dark:border-[#3a2e35] rounded-full hover:bg-gray-100 dark:hover:bg-[#3a2530] transition-colors">
+                                  <Minus className="w-3 h-3 text-gray-600 dark:text-[#F5EDE9]" />
                                 </button>
                                 <span className="text-sm font-medium w-5 text-center">{item.cantidad}</span>
                                 <button onClick={(e: React.MouseEvent) => { e.stopPropagation(); actualizarCantidad(item.carritoID, item.cantidad + 1); }}
-                                  className="w-6 h-6 flex items-center justify-center bg-white border border-gray-200 rounded-full hover:bg-gray-100 transition-colors">
-                                  <Plus className="w-3 h-3 text-gray-600" />
+                                  className="w-6 h-6 flex items-center justify-center bg-white dark:bg-[#241B22] border border-gray-200 dark:border-[#3a2e35] rounded-full hover:bg-gray-100 dark:hover:bg-[#3a2530] transition-colors">
+                                  <Plus className="w-3 h-3 text-gray-600 dark:text-[#F5EDE9]" />
                                 </button>
                                 <button onClick={(e: React.MouseEvent) => { e.stopPropagation(); removerDelCarrito(item.carritoID); }}
                                   className="ml-auto text-xs text-red-400 hover:text-red-600 transition-colors">
@@ -733,33 +748,33 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                       </div>
 
                       {/* Resumen — fijo en la parte inferior */}
-                      <div className="flex-shrink-0 border-t border-gray-100 px-6 pt-5 pb-6 bg-white space-y-3">
+                      <div className="flex-shrink-0 border-t border-gray-100 dark:border-[#3a2e35] px-6 pt-5 pb-6 bg-white dark:bg-[#241B22] space-y-3">
                         <div className="flex justify-between items-center">
-                          <span className="text-sm text-gray-500">Subtotal</span>
-                          <span className="text-sm font-medium text-gray-900">{formatPrecio(getTotalCarrito())}</span>
+                          <span className="text-sm text-gray-500 dark:text-[#b8a3ac]">Subtotal</span>
+                          <span className="text-sm font-medium text-gray-900 dark:text-[#F5EDE9]">{formatPrecio(getTotalCarrito())}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="text-sm text-gray-500">Envío</span>
+                          <span className="text-sm text-gray-500 dark:text-[#b8a3ac]">Envío</span>
                           <span className="text-sm font-medium text-green-600">Gratis</span>
                         </div>
                         <Separator />
                         <div className="flex justify-between items-center">
-                          <span className="text-base font-semibold text-gray-900">Total</span>
+                          <span className="text-base font-semibold text-gray-900 dark:text-[#F5EDE9]">Total</span>
                           <span className="text-base font-bold text-[#A3395C]">{formatPrecio(getTotalCarrito())}</span>
                         </div>
-                        <p className="text-xs text-gray-400 text-center">IVA incluido en el precio</p>
-                        <div className="grid grid-cols-3 gap-1 bg-[#FBF8F5] rounded-lg py-3 px-2">
+                        <p className="text-xs text-gray-400 dark:text-[#b8a3ac] text-center">IVA incluido en el precio</p>
+                        <div className="grid grid-cols-3 gap-1 bg-[#FBF8F5] dark:bg-[#1c151a] rounded-lg py-3 px-2">
                           <div className="flex flex-col items-center text-center gap-1.5 px-1">
                             <Package className="w-[18px] h-[18px] text-[#A3395C]" />
-                            <span className="text-[10px] uppercase tracking-wide font-semibold text-[#7d6f77] leading-tight">Envío 3-5 días</span>
+                            <span className="text-[10px] uppercase tracking-wide font-semibold text-[#7d6f77] dark:text-[#b8a3ac] leading-tight">Envío 3-5 días</span>
                           </div>
-                          <div className="flex flex-col items-center text-center gap-1.5 px-1 border-x border-[#E7E0DA]">
+                          <div className="flex flex-col items-center text-center gap-1.5 px-1 border-x border-[#E7E0DA] dark:border-[#3a2e35]">
                             <Globe className="w-[18px] h-[18px] text-[#A3395C]" />
-                            <span className="text-[10px] uppercase tracking-wide font-semibold text-[#7d6f77] leading-tight">A todo el país</span>
+                            <span className="text-[10px] uppercase tracking-wide font-semibold text-[#7d6f77] dark:text-[#b8a3ac] leading-tight">A todo el país</span>
                           </div>
                           <div className="flex flex-col items-center text-center gap-1.5 px-1">
                             <Lock className="w-[18px] h-[18px] text-[#A3395C]" />
-                            <span className="text-[10px] uppercase tracking-wide font-semibold text-[#7d6f77] leading-tight">Pago seguro</span>
+                            <span className="text-[10px] uppercase tracking-wide font-semibold text-[#7d6f77] dark:text-[#b8a3ac] leading-tight">Pago seguro</span>
                           </div>
                         </div>
                         <Button
@@ -778,13 +793,13 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
 
           {/* Navegación Móvil */}
           {menuMovilAbierto && (
-            <nav className="lg:hidden py-4 space-y-2 border-t border-[#E7E0DA]">
+            <nav className="lg:hidden py-4 space-y-2 border-t border-[#E7E0DA] dark:border-[#3a2e35]">
               <button
                 onClick={() => { irATienda("mujer"); setMenuMovilAbierto(false); }}
                 className={`block w-full text-left px-4 py-2 rounded-lg text-[13px] tracking-[0.08em] uppercase font-semibold ${
                   vistaActual === "tienda" && categoriaActiva === "mujer"
                     ? "bg-[#A3395C] text-white"
-                    : "text-[#241B22] hover:bg-[#EFD9DF]"
+                    : "text-[#241B22] dark:text-[#F5EDE9] hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530]"
                 }`}
               >
                 Mujer
@@ -794,7 +809,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                 className={`block w-full text-left px-4 py-2 rounded-lg text-[13px] tracking-[0.08em] uppercase font-semibold ${
                   vistaActual === "tienda" && categoriaActiva === "accesorios"
                     ? "bg-[#A3395C] text-white"
-                    : "text-[#241B22] hover:bg-[#EFD9DF]"
+                    : "text-[#241B22] dark:text-[#F5EDE9] hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530]"
                 }`}
               >
                 Accesorios
@@ -804,7 +819,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                 className={`block w-full text-left px-4 py-2 rounded-lg text-[13px] tracking-[0.08em] uppercase font-semibold ${
                   vistaActual === "tienda" && categoriaActiva === "sale"
                     ? "bg-[#A3395C] text-white"
-                    : "text-[#241B22] hover:bg-[#EFD9DF]"
+                    : "text-[#241B22] dark:text-[#F5EDE9] hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530]"
                 }`}
               >
                 Sale
@@ -866,7 +881,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                 <div className="flex items-end justify-between mb-6">
                   <h2
                     style={{ fontFamily: '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}
-                    className="text-2xl sm:text-3xl text-[#241B22]"
+                    className="text-2xl sm:text-3xl text-[#241B22] dark:text-[#F5EDE9]"
                   >
                     Destacados
                   </h2>
@@ -895,7 +910,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                       </div>
                       <p
                         style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                        className="text-sm text-gray-900 truncate"
+                        className="text-sm text-gray-900 dark:text-[#F5EDE9] truncate"
                       >
                         {producto.nombre}
                       </p>
@@ -936,11 +951,11 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
             </div>
 
             {/* Barra de Búsqueda y Filtros */}
-            <div className="bg-white border-b border-gray-200">
+            <div className="bg-white dark:bg-[#1c151a] border-b border-gray-200 dark:border-[#3a2e35]">
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
                 <div className="flex items-center justify-between gap-3">
                   <Select value={ordenar} onValueChange={setOrdenar}>
-                    <SelectTrigger className="w-52 bg-white h-9 text-sm">
+                    <SelectTrigger className="w-52 bg-white dark:bg-[#241B22] dark:text-[#F5EDE9] dark:border-[#3a2e35] h-9 text-sm">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -952,7 +967,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                   </Select>
                   <button
                     onClick={() => setFiltrosAbiertos(true)}
-                    className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:border-gray-900 transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-[#3a2e35] dark:text-[#F5EDE9] rounded-lg text-sm font-medium hover:border-gray-900 dark:hover:border-[#A3395C] transition-colors"
                   >
                     <SlidersHorizontal className="w-4 h-4" />
                     FILTROS
@@ -983,7 +998,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="mb-4 flex justify-between items-center">
           <p
-            className="text-gray-600"
+            className="text-gray-600 dark:text-[#b8a3ac]"
           >
             {productosLoading
               ? 'Cargando productos…'
@@ -995,9 +1010,9 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {Array.from({ length: 8 }).map((_, i) => (
               <div key={i} className="animate-pulse">
-                <div className="w-full aspect-[3/4] bg-gray-200 rounded" />
-                <div className="h-4 bg-gray-200 rounded mt-3 w-3/4" />
-                <div className="h-4 bg-gray-200 rounded mt-2 w-1/2" />
+                <div className="w-full aspect-[3/4] bg-gray-200 dark:bg-[#2c2129] rounded" />
+                <div className="h-4 bg-gray-200 dark:bg-[#2c2129] rounded mt-3 w-3/4" />
+                <div className="h-4 bg-gray-200 dark:bg-[#2c2129] rounded mt-2 w-1/2" />
               </div>
             ))}
           </div>
@@ -1015,7 +1030,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.35, delay: Math.min(indiceProducto, 8) * 0.04 }}
-                className="bg-white overflow-hidden group transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                className="bg-white dark:bg-[#241B22] overflow-hidden group transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
                 <div className="relative overflow-hidden">
                   <img
                     src={producto.imagen}
@@ -1059,7 +1074,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                 </div>
                 <div className="pt-3 pb-4 px-1">
                   <h3
-                    className="text-gray-900 text-sm font-semibold uppercase tracking-wide mb-1 line-clamp-2"
+                    className="text-gray-900 dark:text-[#F5EDE9] text-sm font-semibold uppercase tracking-wide mb-1 line-clamp-2"
                   >
                     {producto.nombre}
                   </h3>
@@ -1069,12 +1084,12 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                         <span className="text-[#A3395C]">
                           {formatPrecio(producto.precio)}
                         </span>
-                        <span className="text-sm text-gray-400 line-through">
+                        <span className="text-sm text-gray-400 dark:text-[#7d6f77] line-through">
                           {formatPrecio(producto.precioOriginal)}
                         </span>
                       </>
                     ) : (
-                      <span className="text-gray-900">
+                      <span className="text-gray-900 dark:text-[#F5EDE9]">
                         {formatPrecio(producto.precio)}
                       </span>
                     )}
@@ -1086,12 +1101,12 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                           key={color}
                           onClick={() => abrirDetalleProducto(producto, color)}
                           title={color}
-                          className="w-4 h-4 rounded-full border border-gray-300 hover:scale-125 transition-transform"
+                          className="w-4 h-4 rounded-full border border-gray-300 dark:border-[#3a2e35] hover:scale-125 transition-transform"
                           style={{ backgroundColor: getColorHex(color) }}
                         />
                       ))}
                       {producto.colores.length > 5 && (
-                        <span className="text-[10px] text-gray-400">+{producto.colores.length - 5}</span>
+                        <span className="text-[10px] text-gray-400 dark:text-[#b8a3ac]">+{producto.colores.length - 5}</span>
                       )}
                     </div>
                   )}
@@ -1107,17 +1122,17 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
             <button
               onClick={() => { setPaginaActual(p => p - 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
               disabled={paginaActual === 1}
-              className="px-5 py-2 text-sm border border-gray-300 rounded-lg hover:border-[#A3395C] hover:text-[#A3395C] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="px-5 py-2 text-sm border border-gray-300 dark:border-[#3a2e35] dark:text-[#F5EDE9] rounded-lg hover:border-[#A3395C] hover:text-[#A3395C] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               ← Anterior
             </button>
-            <span className="text-sm text-gray-600">
+            <span className="text-sm text-gray-600 dark:text-[#b8a3ac]">
               {paginaActual} / {totalPaginasCliente}
             </span>
             <button
               onClick={() => { setPaginaActual(p => p + 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
               disabled={paginaActual === totalPaginasCliente}
-              className="px-5 py-2 text-sm border border-gray-300 rounded-lg hover:border-[#A3395C] hover:text-[#A3395C] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="px-5 py-2 text-sm border border-gray-300 dark:border-[#3a2e35] dark:text-[#F5EDE9] rounded-lg hover:border-[#A3395C] hover:text-[#A3395C] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               Siguiente →
             </button>
@@ -1151,7 +1166,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
             return (
               <div className="flex flex-col sm:flex-row sm:h-[85vh]">
                 {/* LEFT: Image panel */}
-                <div className="relative w-full h-72 sm:w-[44%] sm:min-w-[44%] sm:h-auto flex-shrink-0 overflow-hidden" style={{ backgroundColor: '#FBF8F5' }}>
+                <div className="relative w-full h-72 sm:w-[44%] sm:min-w-[44%] sm:h-auto flex-shrink-0 overflow-hidden bg-[#FBF8F5] dark:bg-[#1c151a]">
                   <ImageCarousel
                     key={`${productoSeleccionado.id}-${colorSeleccionado || 'default'}`}
                     imagenes={imgsForColor}
@@ -1161,11 +1176,11 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                 </div>
 
                 {/* RIGHT: Details panel */}
-                <div className="flex-1 flex flex-col gap-4 sm:gap-[18px] p-5 sm:p-9 sm:overflow-y-auto" style={{ backgroundColor: '#ffffff' }}>
+                <div className="flex-1 flex flex-col gap-4 sm:gap-[18px] p-5 sm:p-9 sm:overflow-y-auto bg-white dark:bg-[#241B22]">
 
                   {/* Name */}
                   <h1
-                    className="text-2xl font-semibold uppercase tracking-[0.03em] text-[#241B22] leading-tight"
+                    className="text-2xl font-semibold uppercase tracking-[0.03em] text-[#241B22] dark:text-[#F5EDE9] leading-tight"
                   >
                     {productoSeleccionado.nombre}
                   </h1>
@@ -1177,7 +1192,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                     </span>
                     {productoSeleccionado.precioOriginal && (
                       <>
-                        <span className="text-sm text-[#7d6f77] line-through">
+                        <span className="text-sm text-[#7d6f77] dark:text-[#b8a3ac] line-through">
                           {formatPrecio(productoSeleccionado.precioOriginal)}
                         </span>
                         <span className="text-xs font-semibold text-red-500">
@@ -1189,24 +1204,24 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
 
                   {/* Description */}
                   {productoSeleccionado.descripcion && (
-                    <p className="text-sm text-[#7d6f77] leading-relaxed -mt-2">
+                    <p className="text-sm text-[#7d6f77] dark:text-[#b8a3ac] leading-relaxed -mt-2">
                       {productoSeleccionado.descripcion}
                     </p>
                   )}
 
                   {/* Info icons */}
-                  <div className="grid grid-cols-3 gap-1 bg-[#FBF8F5] rounded-lg py-4 px-2">
+                  <div className="grid grid-cols-3 gap-1 bg-[#FBF8F5] dark:bg-[#1c151a] rounded-lg py-4 px-2">
                     <div className="flex flex-col items-center text-center gap-1.5 px-1">
                       <Package className="w-[18px] h-[18px] text-[#A3395C]" />
-                      <span className="text-[10px] uppercase tracking-wide font-semibold text-[#7d6f77] leading-tight">Envío 3-5 días hábiles</span>
+                      <span className="text-[10px] uppercase tracking-wide font-semibold text-[#7d6f77] dark:text-[#b8a3ac] leading-tight">Envío 3-5 días hábiles</span>
                     </div>
-                    <div className="flex flex-col items-center text-center gap-1.5 px-1 border-x border-[#E7E0DA]">
+                    <div className="flex flex-col items-center text-center gap-1.5 px-1 border-x border-[#E7E0DA] dark:border-[#3a2e35]">
                       <Globe className="w-[18px] h-[18px] text-[#A3395C]" />
-                      <span className="text-[10px] uppercase tracking-wide font-semibold text-[#7d6f77] leading-tight">Envíos a todo el país</span>
+                      <span className="text-[10px] uppercase tracking-wide font-semibold text-[#7d6f77] dark:text-[#b8a3ac] leading-tight">Envíos a todo el país</span>
                     </div>
                     <div className="flex flex-col items-center text-center gap-1.5 px-1">
                       <Lock className="w-[18px] h-[18px] text-[#A3395C]" />
-                      <span className="text-[10px] uppercase tracking-wide font-semibold text-[#7d6f77] leading-tight">Pago 100% seguro</span>
+                      <span className="text-[10px] uppercase tracking-wide font-semibold text-[#7d6f77] dark:text-[#b8a3ac] leading-tight">Pago 100% seguro</span>
                     </div>
                   </div>
 
@@ -1218,7 +1233,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                     if (coloresProducto.length === 0) return null;
                     return (
                       <div>
-                        <p className="text-sm font-semibold text-[#241B22] mb-2">Color</p>
+                        <p className="text-sm font-semibold text-[#241B22] dark:text-[#F5EDE9] mb-2">Color</p>
                         <div className="flex gap-3 flex-wrap">
                           {coloresProducto.map((color) => {
                             const hexColor = getColorHex(color);
@@ -1229,7 +1244,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                                 className={`w-8 h-8 rounded-full border-2 transition-all ${
                                   colorSeleccionado === color
                                     ? 'border-[#A3395C] ring-2 ring-[#A3395C] ring-offset-2'
-                                    : 'border-[#E7E0DA] hover:border-[#A3395C]'
+                                    : 'border-[#E7E0DA] dark:border-[#3a2e35] hover:border-[#A3395C]'
                                 }`}
                                 style={{ backgroundColor: hexColor }}
                                 title={color}
@@ -1244,7 +1259,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                   {/* Sizes — solo si el producto tiene tallas definidas */}
                   {productoSeleccionado.tallas.length > 0 && (
                     <div>
-                      <p className="text-sm font-semibold text-[#241B22] mb-2">Talla</p>
+                      <p className="text-sm font-semibold text-[#241B22] dark:text-[#F5EDE9] mb-2">Talla</p>
                       <div className="flex flex-wrap gap-2">
                         {productoSeleccionado.tallas.map((talla: string) => (
                           <button
@@ -1254,7 +1269,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                             className={`w-12 h-10 rounded-md border text-sm font-medium transition-all ${
                               tallaSeleccionada === talla
                                 ? 'border-[#241B22] bg-[#241B22] text-white'
-                                : 'border-[#E7E0DA] text-[#241B22] hover:border-[#A3395C]'
+                                : 'border-[#E7E0DA] dark:border-[#3a2e35] text-[#241B22] dark:text-[#F5EDE9] hover:border-[#A3395C]'
                             }`}
                           >
                             {talla}
@@ -1267,10 +1282,10 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                   {/* Materials */}
                   {productoSeleccionado.materiales && productoSeleccionado.materiales.length > 0 && (
                     <div>
-                      <p className="text-sm font-semibold text-[#241B22] mb-2">Material</p>
+                      <p className="text-sm font-semibold text-[#241B22] dark:text-[#F5EDE9] mb-2">Material</p>
                       <div className="flex flex-wrap gap-2">
                         {productoSeleccionado.materiales.map((material: string) => (
-                          <span key={material} className="px-3 py-1 bg-[#EFD9DF] text-xs font-medium text-[#A3395C] rounded-full">
+                          <span key={material} className="px-3 py-1 bg-[#EFD9DF] dark:bg-[#3a2530] text-xs font-medium text-[#A3395C] rounded-full">
                             {material}
                           </span>
                         ))}
@@ -1279,18 +1294,18 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                   )}
 
                   {/* Quantity + Add to cart + Favorite */}
-                  <div className="flex flex-wrap items-center gap-3 pt-3 mt-1 border-t border-[#E7E0DA]" style={{ flexShrink: 0 }}>
+                  <div className="flex flex-wrap items-center gap-3 pt-3 mt-1 border-t border-[#E7E0DA] dark:border-[#3a2e35]" style={{ flexShrink: 0 }}>
                     <div className="flex items-center gap-3">
                       <button
                         onClick={() => setCantidadSeleccionada(Math.max(1, cantidadSeleccionada - 1))}
-                        className="w-8 h-8 rounded-full border border-[#E7E0DA] flex items-center justify-center hover:bg-[#EFD9DF] transition-colors text-[#241B22]"
+                        className="w-8 h-8 rounded-full border border-[#E7E0DA] dark:border-[#3a2e35] flex items-center justify-center hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] transition-colors text-[#241B22] dark:text-[#F5EDE9]"
                       >
                         <Minus className="w-3 h-3" />
                       </button>
-                      <span className="text-sm font-medium w-4 text-center text-[#241B22]">{cantidadSeleccionada}</span>
+                      <span className="text-sm font-medium w-4 text-center text-[#241B22] dark:text-[#F5EDE9]">{cantidadSeleccionada}</span>
                       <button
                         onClick={() => setCantidadSeleccionada(cantidadSeleccionada + 1)}
-                        className="w-8 h-8 rounded-full border border-[#E7E0DA] flex items-center justify-center hover:bg-[#EFD9DF] transition-colors text-[#241B22]"
+                        className="w-8 h-8 rounded-full border border-[#E7E0DA] dark:border-[#3a2e35] flex items-center justify-center hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] transition-colors text-[#241B22] dark:text-[#F5EDE9]"
                       >
                         <Plus className="w-3 h-3" />
                       </button>
@@ -1300,8 +1315,8 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                       disabled={!tallaSeleccionada}
                       className={`flex-1 min-w-[120px] min-h-10 h-auto py-2 px-2 rounded-md border text-xs font-semibold uppercase tracking-wider transition-all ${
                         !tallaSeleccionada
-                          ? 'border-[#E7E0DA] text-[#c3bab3] cursor-not-allowed'
-                          : 'border-[#241B22] text-[#241B22] hover:bg-[#241B22] hover:text-white'
+                          ? 'border-[#E7E0DA] dark:border-[#3a2e35] text-[#c3bab3] dark:text-[#5a4d52] cursor-not-allowed'
+                          : 'border-[#241B22] text-[#241B22] dark:text-[#F5EDE9] hover:bg-[#241B22] hover:text-white'
                       }`}
                     >
                       Agregar al Carrito
@@ -1312,7 +1327,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                       className={`w-10 h-10 rounded-md border flex items-center justify-center transition-all flex-shrink-0 ${
                         esFavorito(productoSeleccionado.id)
                           ? 'border-[#A3395C] bg-[#A3395C] text-white'
-                          : 'border-[#E7E0DA] text-[#7d6f77] hover:border-[#A3395C] hover:text-[#A3395C]'
+                          : 'border-[#E7E0DA] dark:border-[#3a2e35] text-[#7d6f77] dark:text-[#b8a3ac] hover:border-[#A3395C] hover:text-[#A3395C]'
                       }`}
                     >
                       <Heart className="w-4 h-4" fill={esFavorito(productoSeleccionado.id) ? 'currentColor' : 'none'} />
@@ -1325,7 +1340,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                     disabled={!tallaSeleccionada}
                     style={{ flexShrink: 0 }}
                     className={`w-full h-11 rounded-md text-xs font-semibold uppercase tracking-wider text-white transition-all ${
-                      !tallaSeleccionada ? 'bg-[#E7E0DA] cursor-not-allowed' : 'bg-[#A3395C] hover:bg-[#8a2e4d] shadow-sm hover:shadow-md'
+                      !tallaSeleccionada ? 'bg-[#E7E0DA] dark:bg-[#3a2e35] cursor-not-allowed' : 'bg-[#A3395C] hover:bg-[#8a2e4d] shadow-sm hover:shadow-md'
                     }`}
                   >
                     Comprar Ahora

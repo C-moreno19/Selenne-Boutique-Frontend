@@ -124,21 +124,21 @@ export function FiltrosPanel({
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ duration: 0.3, ease: 'easeOut' }}
-            className="fixed right-0 top-0 h-full w-80 bg-white z-50 flex flex-col shadow-2xl">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-          <span className="text-xs font-bold tracking-widest text-gray-900">APLICAR FILTROS</span>
-          <button onClick={onClose} className="flex items-center gap-1 text-xs font-bold tracking-widest text-gray-900 hover:text-gray-600">
+            className="fixed right-0 top-0 h-full w-80 bg-white dark:bg-[#241B22] z-50 flex flex-col shadow-2xl">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-[#3a2e35]">
+          <span className="text-xs font-bold tracking-widest text-gray-900 dark:text-[#F5EDE9]">APLICAR FILTROS</span>
+          <button onClick={onClose} className="flex items-center gap-1 text-xs font-bold tracking-widest text-gray-900 dark:text-[#F5EDE9] hover:text-gray-600 dark:hover:text-[#b8a3ac]">
             CERCA <X className="w-4 h-4" />
           </button>
         </div>
 
         <div className="flex-1 overflow-y-auto">
           {/* PRECIO */}
-          <div className="px-5 py-4 border-b border-gray-100">
+          <div className="px-5 py-4 border-b border-gray-100 dark:border-[#3a2e35]">
             <button onClick={() => setSeccionesAbiertas(s => ({ ...s, precio: !s.precio }))}
               className="w-full flex items-center justify-between mb-3">
-              <span className="text-xs font-bold tracking-widest text-gray-900">PRECIO</span>
-              <ChevronUp className={`w-4 h-4 text-gray-500 transition-transform ${seccionesAbiertas.precio ? '' : 'rotate-180'}`} />
+              <span className="text-xs font-bold tracking-widest text-gray-900 dark:text-[#F5EDE9]">PRECIO</span>
+              <ChevronUp className={`w-4 h-4 text-gray-500 dark:text-[#b8a3ac] transition-transform ${seccionesAbiertas.precio ? '' : 'rotate-180'}`} />
             </button>
             {seccionesAbiertas.precio && (
               <>
@@ -146,21 +146,21 @@ export function FiltrosPanel({
                   onPointerDown={handleRangePointerDown}
                   onPointerMove={handleRangePointerMove}
                   onPointerUp={handleRangePointerUp}>
-                  <div className="absolute top-1/2 -translate-y-1/2 w-full h-[2px] bg-gray-200 rounded-full">
-                    <div className="absolute h-full bg-black rounded-full"
+                  <div className="absolute top-1/2 -translate-y-1/2 w-full h-[2px] bg-gray-200 dark:bg-[#3a2e35] rounded-full">
+                    <div className="absolute h-full bg-black dark:bg-[#A3395C] rounded-full"
                       style={{ left: `${(precioMinLocal / maxPrecioGlobal) * 100}%`, width: `${((precioMaxLocal - precioMinLocal) / maxPrecioGlobal) * 100}%` }} />
                   </div>
-                  <div className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-black rounded-full border-2 border-white shadow pointer-events-none"
+                  <div className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-black dark:bg-[#A3395C] rounded-full border-2 border-white dark:border-[#241B22] shadow pointer-events-none"
                     style={{ left: `calc(${(precioMinLocal / maxPrecioGlobal) * 100}% - 8px)` }} />
-                  <div className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-black rounded-full border-2 border-white shadow pointer-events-none"
+                  <div className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-black dark:bg-[#A3395C] rounded-full border-2 border-white dark:border-[#241B22] shadow pointer-events-none"
                     style={{ left: `calc(${(precioMaxLocal / maxPrecioGlobal) * 100}% - 8px)` }} />
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="flex-1 border border-gray-200 rounded px-3 py-2 text-sm text-gray-700">
+                  <div className="flex-1 border border-gray-200 dark:border-[#3a2e35] rounded px-3 py-2 text-sm text-gray-700 dark:text-[#F5EDE9]">
                     {formatCurrency(precioMinLocal)}
                   </div>
-                  <span className="text-gray-400">—</span>
-                  <div className="flex-1 border border-gray-200 rounded px-3 py-2 text-sm text-gray-700">
+                  <span className="text-gray-400 dark:text-[#b8a3ac]">—</span>
+                  <div className="flex-1 border border-gray-200 dark:border-[#3a2e35] rounded px-3 py-2 text-sm text-gray-700 dark:text-[#F5EDE9]">
                     {formatCurrency(precioMaxLocal)}
                   </div>
                 </div>
@@ -170,17 +170,17 @@ export function FiltrosPanel({
 
           {/* TALLA */}
           {tallasDisponibles.length > 0 && (
-            <div className="px-5 py-4 border-b border-gray-100">
+            <div className="px-5 py-4 border-b border-gray-100 dark:border-[#3a2e35]">
               <button onClick={() => setSeccionesAbiertas(s => ({ ...s, talla: !s.talla }))}
                 className="w-full flex items-center justify-between mb-3">
-                <span className="text-xs font-bold tracking-widest text-gray-900">TALLA</span>
-                <ChevronUp className={`w-4 h-4 text-gray-500 transition-transform ${seccionesAbiertas.talla ? '' : 'rotate-180'}`} />
+                <span className="text-xs font-bold tracking-widest text-gray-900 dark:text-[#F5EDE9]">TALLA</span>
+                <ChevronUp className={`w-4 h-4 text-gray-500 dark:text-[#b8a3ac] transition-transform ${seccionesAbiertas.talla ? '' : 'rotate-180'}`} />
               </button>
               {seccionesAbiertas.talla && (
                 <div className="flex flex-wrap gap-2">
                   {tallasDisponibles.map(t => (
                     <button key={t} onClick={() => setTallaLocal(tallaLocal.includes(t) ? tallaLocal.filter(x => x !== t) : [...tallaLocal, t])}
-                      className={`px-3 py-1.5 text-sm border rounded transition-colors ${tallaLocal.includes(t) ? 'border-black bg-black text-white' : 'border-gray-300 text-gray-700 hover:border-gray-900'}`}>
+                      className={`px-3 py-1.5 text-sm border rounded transition-colors ${tallaLocal.includes(t) ? 'border-black dark:border-[#A3395C] bg-black dark:bg-[#A3395C] text-white' : 'border-gray-300 dark:border-[#3a2e35] text-gray-700 dark:text-[#F5EDE9] hover:border-gray-900 dark:hover:border-[#A3395C]'}`}>
                       {t}
                     </button>
                   ))}
@@ -191,17 +191,17 @@ export function FiltrosPanel({
 
           {/* TIPO DE PRODUCTO */}
           {tiposProductoDisponibles.length > 0 && (
-            <div className="px-5 py-4 border-b border-gray-100">
+            <div className="px-5 py-4 border-b border-gray-100 dark:border-[#3a2e35]">
               <button onClick={() => setSeccionesAbiertas(s => ({ ...s, tipo: !s.tipo }))}
                 className="w-full flex items-center justify-between mb-3">
-                <span className="text-xs font-bold tracking-widest text-gray-900">TIPO DE PRODUCTO</span>
-                <ChevronUp className={`w-4 h-4 text-gray-500 transition-transform ${seccionesAbiertas.tipo ? '' : 'rotate-180'}`} />
+                <span className="text-xs font-bold tracking-widest text-gray-900 dark:text-[#F5EDE9]">TIPO DE PRODUCTO</span>
+                <ChevronUp className={`w-4 h-4 text-gray-500 dark:text-[#b8a3ac] transition-transform ${seccionesAbiertas.tipo ? '' : 'rotate-180'}`} />
               </button>
               {seccionesAbiertas.tipo && (
                 <div className="flex flex-wrap gap-2">
                   {tiposProductoDisponibles.map(t => (
                     <button key={t} onClick={() => setTipoLocal(tipoLocal === t ? '' : t)}
-                      className={`px-3 py-1.5 text-sm border rounded transition-colors ${tipoLocal === t ? 'border-black bg-black text-white' : 'border-gray-300 text-gray-700 hover:border-gray-900'}`}>
+                      className={`px-3 py-1.5 text-sm border rounded transition-colors ${tipoLocal === t ? 'border-black dark:border-[#A3395C] bg-black dark:bg-[#A3395C] text-white' : 'border-gray-300 dark:border-[#3a2e35] text-gray-700 dark:text-[#F5EDE9] hover:border-gray-900 dark:hover:border-[#A3395C]'}`}>
                       {t}
                     </button>
                   ))}
@@ -212,17 +212,17 @@ export function FiltrosPanel({
 
           {/* CATEGORÍA */}
           {categoriasRopaDisponibles.length > 0 && (
-            <div className="px-5 py-4 border-b border-gray-100">
+            <div className="px-5 py-4 border-b border-gray-100 dark:border-[#3a2e35]">
               <button onClick={() => setSeccionesAbiertas(s => ({ ...s, categoria: !s.categoria }))}
                 className="w-full flex items-center justify-between mb-3">
-                <span className="text-xs font-bold tracking-widest text-gray-900">CATEGORÍA</span>
-                <ChevronUp className={`w-4 h-4 text-gray-500 transition-transform ${seccionesAbiertas.categoria ? '' : 'rotate-180'}`} />
+                <span className="text-xs font-bold tracking-widest text-gray-900 dark:text-[#F5EDE9]">CATEGORÍA</span>
+                <ChevronUp className={`w-4 h-4 text-gray-500 dark:text-[#b8a3ac] transition-transform ${seccionesAbiertas.categoria ? '' : 'rotate-180'}`} />
               </button>
               {seccionesAbiertas.categoria && (
                 <div className="flex flex-wrap gap-2">
                   {categoriasRopaDisponibles.map(c => (
                     <button key={c} onClick={() => setCategoriaLocal(categoriaLocal === c ? '' : c)}
-                      className={`px-3 py-1.5 text-sm border rounded transition-colors ${categoriaLocal === c ? 'border-black bg-black text-white' : 'border-gray-300 text-gray-700 hover:border-gray-900'}`}>
+                      className={`px-3 py-1.5 text-sm border rounded transition-colors ${categoriaLocal === c ? 'border-black dark:border-[#A3395C] bg-black dark:bg-[#A3395C] text-white' : 'border-gray-300 dark:border-[#3a2e35] text-gray-700 dark:text-[#F5EDE9] hover:border-gray-900 dark:hover:border-[#A3395C]'}`}>
                       {c}
                     </button>
                   ))}
@@ -233,13 +233,13 @@ export function FiltrosPanel({
 
           {/* Limpiar filtros */}
           {(tallaLocal.length > 0 || tipoLocal || categoriaLocal || precioMinLocal > 0 || precioMaxLocal < maxPrecioGlobal) && (
-            <button onClick={limpiarFiltros} className="w-full px-5 py-3 text-xs text-gray-500 hover:text-gray-900 underline transition-colors">
+            <button onClick={limpiarFiltros} className="w-full px-5 py-3 text-xs text-gray-500 dark:text-[#b8a3ac] hover:text-gray-900 dark:hover:text-[#F5EDE9] underline transition-colors">
               Limpiar filtros
             </button>
           )}
         </div>
 
-        <div className="px-5 py-4 border-t border-gray-100">
+        <div className="px-5 py-4 border-t border-gray-100 dark:border-[#3a2e35]">
           <button onClick={aplicarFiltros}
             className="w-full bg-black text-white py-3 text-xs font-bold tracking-widest hover:bg-gray-800 transition-all duration-200 hover:scale-[1.02]">
             MOSTRAR ARTÍCULOS
