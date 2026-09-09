@@ -1,4 +1,5 @@
 ﻿import React, { useState, useMemo, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { motion, AnimatePresence } from "motion/react";
 import {
   ShoppingBag,
@@ -75,14 +76,15 @@ export const LandingView: React.FC<LandingViewProps> = ({
 }) => {
   const [mostrarTelefono, setMostrarTelefono] = useState(false);
   const [telefonoContacto, setTelefonoContacto] = useState('+57 304 292 8493');
-  const [vista, setVista] = useState<Vista>("home");
-  const [categoriaActiva, setCategoriaActiva] = useState<Categoria>("mujer");
+  const navigate = useNavigate();
+  const { categoria: categoriaUrl } = useParams<{ categoria?: string }>();
+  // La categoria y la vista viven en la URL (/, /tienda/:categoria), no en
+  // estado local: asi son compartibles y el back/forward del navegador funciona.
+  const categoriaActiva: Categoria = categoriaUrl === "accesorios" || categoriaUrl === "sale" ? categoriaUrl : "mujer";
+  const vista: Vista = categoriaUrl ? "tienda" : "home";
 
-  // Unico punto de entrada a la tienda: fija la categoria y cambia de vista,
-  // asi el home no vuelve a mostrar hero+destacados dentro de si mismo.
   const irATienda = (categoria: Categoria) => {
-    setCategoriaActiva(categoria);
-    setVista("tienda");
+    navigate(`/tienda/${categoria}`);
     window.scrollTo({ top: 0 });
   };
   const [busqueda, setBusqueda] = useState("");
@@ -369,7 +371,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                 )}
               </button>
               <button
-                onClick={() => { setVista("home"); window.scrollTo({ top: 0 }); }}
+                onClick={() => { navigate("/"); window.scrollTo({ top: 0 }); }}
                 className="flex items-center justify-center hover:opacity-75 transition-opacity"
                 title="Selenne Boutique — Inicio"
               >

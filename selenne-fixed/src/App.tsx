@@ -1,4 +1,5 @@
-import React, { useState, useEffect, lazy, Suspense } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { RecoverPasswordModal } from './features/auth/components/RecoverPasswordModal';
 import { CustomAlert } from './features/auth/components/CustomAlert';
 import { LandingView } from './features/landing';
@@ -21,8 +22,6 @@ import { ComprasAdminProvider } from './shared/contexts/ComprasAdminContext';
 import { PedidosAdminProvider } from './shared/contexts/PedidosAdminContext';
 import { MensajesProvider } from './shared/contexts/MensajesContext';
 
-type View = 'landing' | 'login' | 'register' | 'dashboard' | 'checkout';
-
 interface Alert {
   type: 'success' | 'error' | 'info';
   message: string;
@@ -30,34 +29,10 @@ interface Alert {
 
 function MainApp() {
   const { user, authLoading } = useAuth();
-  const [currentView, setCurrentView] = useState<View>(() => {
-    try {
-      const vistaGuardada = sessionStorage.getItem('_selenne_view') as View | null;
-      if (vistaGuardada === 'landing' || vistaGuardada === 'dashboard' || vistaGuardada === 'checkout') {
-        return vistaGuardada;
-      }
-      return sessionStorage.getItem('_selenne_user') ? 'dashboard' : 'landing';
-    }
-    catch { return 'landing'; }
-  });
-
-  // Recordar la vista actual para que un refresh (F5, ctrl+shift+r) no
-  // saque al usuario del landing/tienda solo porque tiene sesion activa
-  useEffect(() => {
-    if (currentView === 'landing' || currentView === 'dashboard' || currentView === 'checkout') {
-      try { sessionStorage.setItem('_selenne_view', currentView); } catch {}
-    }
-  }, [currentView]);
+  const navigate = useNavigate();
   const [isRecoverModalOpen, setIsRecoverModalOpen] = useState(false);
   const [alert, setAlert] = useState<Alert | null>(null);
   const [pendingCheckout, setPendingCheckout] = useState(false);
-
-  // Si la restauración de sesión termina y no hay usuario, volver al landing
-  useEffect(() => {
-    if (!authLoading && !user && currentView === 'dashboard') {
-      setCurrentView('landing');
-    }
-  }, [authLoading, user]);
 
   const showAlert = (type: 'success' | 'error' | 'info', message: string) => {
     setAlert({ type, message });
@@ -70,13 +45,13 @@ function MainApp() {
   const handleLoginSuccess = () => {
     showAlert('success', 'Inicio de sesión exitoso. Redirigiendo…');
     setTimeout(() => {
-      setCurrentView(pendingCheckout ? 'checkout' : 'dashboard');
+      navigate(pendingCheckout ? '/checkout' : '/dashboard', { replace: true });
       setPendingCheckout(false);
     }, 1500);
   };
 
   const handleLogout = () => {
-    setCurrentView('landing');
+    navigate('/', { replace: true });
     showAlert('info', 'Sesión cerrada exitosamente');
   };
 
@@ -91,7 +66,7 @@ function MainApp() {
   return (
     <div className="relative min-h-screen">
       <Toaster position="top-center" />
-      
+
       {alert && (
         <div className="fixed top-8 left-1/2 -translate-x-1/2 w-full max-w-md px-4" style={{ zIndex: 9999 }}>
           <CustomAlert
@@ -107,35 +82,58 @@ function MainApp() {
             <div className="w-8 h-8 border-4 border-[#A3395C] border-t-transparent rounded-full animate-spin" />
           </div>
         }>
-          {currentView === 'landing' ? (
-            <LandingView
-              onNavigateToLogin={() => setCurrentView('login')}
-              onNavigateToRegister={() => setCurrentView('register')}
-              onNavigateToCheckout={() => setCurrentView('checkout')}
-              onNavigateToLoginForCheckout={() => { setPendingCheckout(true); setCurrentView('login'); }}
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <LandingView
+                  onNavigateToLogin={() => navigate('/login')}
+                  onNavigateToRegister={() => navigate('/registro')}
+                  onNavigateToLoginForCheckout={() => { setPendingCheckout(true); navigate('/login'); }}
+                />
+              }
             />
-          ) : currentView === 'checkout' ? (
-            <CheckoutView onBack={() => setCurrentView('landing')} />
-          ) : currentView === 'dashboard' ? (
-            user?.role === 'Cliente' ? (
-              <ClienteView onLogout={handleLogout} />
-            ) : (
-              <DashboardView onLogout={handleLogout} />
-            )
-          ) : currentView === 'login' ? (
-            <LoginView
-              onForgotPassword={() => setIsRecoverModalOpen(true)}
-              onRegister={() => setCurrentView('register')}
-              onShowAlert={showAlert}
-              onLoginSuccess={handleLoginSuccess}
-              onBack={() => setCurrentView('landing')}
+            <Route
+              path="/tienda/:categoria"
+              element={
+                <LandingView
+                  onNavigateToLogin={() => navigate('/login')}
+                  onNavigateToRegister={() => navigate('/registro')}
+                  onNavigateToLoginForCheckout={() => { setPendingCheckout(true); navigate('/login'); }}
+                />
+              }
             />
-          ) : (
-            <RegisterView
-              onBackToLogin={() => setCurrentView('login')}
-              onShowAlert={showAlert}
+            <Route path="/checkout" element={<CheckoutView onBack={() => navigate('/')} />} />
+            <Route
+              path="/login"
+              element={
+                <LoginView
+                  onForgotPassword={() => setIsRecoverModalOpen(true)}
+                  onRegister={() => navigate('/registro')}
+                  onShowAlert={showAlert}
+                  onLoginSuccess={handleLoginSuccess}
+                  onBack={() => navigate('/')}
+                />
+              }
             />
-          )}
+            <Route
+              path="/registro"
+              element={<RegisterView onBackToLogin={() => navigate('/login')} onShowAlert={showAlert} />}
+            />
+            <Route
+              path="/dashboard"
+              element={
+                !user ? (
+                  <Navigate to="/" replace />
+                ) : user.role === 'Cliente' ? (
+                  <ClienteView onLogout={handleLogout} />
+                ) : (
+                  <DashboardView onLogout={handleLogout} />
+                )
+              }
+            />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
         </Suspense>
 
       <RecoverPasswordModal
@@ -149,24 +147,26 @@ function MainApp() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <PermisosProvider>
-        <SubcategoriasProvider>
-          <ProductosProvider>
-            <TiendaProvider>
-              <SidebarProvider>
-                <ComprasAdminProvider>
-                  <PedidosAdminProvider>
-                    <MensajesProvider>
-                      <MainApp />
-                    </MensajesProvider>
-                  </PedidosAdminProvider>
-                </ComprasAdminProvider>
-              </SidebarProvider>
-            </TiendaProvider>
-          </ProductosProvider>
-        </SubcategoriasProvider>
-      </PermisosProvider>
-    </AuthProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <PermisosProvider>
+          <SubcategoriasProvider>
+            <ProductosProvider>
+              <TiendaProvider>
+                <SidebarProvider>
+                  <ComprasAdminProvider>
+                    <PedidosAdminProvider>
+                      <MensajesProvider>
+                        <MainApp />
+                      </MensajesProvider>
+                    </PedidosAdminProvider>
+                  </ComprasAdminProvider>
+                </SidebarProvider>
+              </TiendaProvider>
+            </ProductosProvider>
+          </SubcategoriasProvider>
+        </PermisosProvider>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
