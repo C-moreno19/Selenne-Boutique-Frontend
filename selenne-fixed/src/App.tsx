@@ -121,7 +121,7 @@ function MainApp() {
               element={<RegisterView onBackToLogin={() => navigate('/login')} onShowAlert={showAlert} />}
             />
             <Route
-              path="/dashboard"
+              path="/dashboard/*"
               element={
                 !user ? (
                   <Navigate to="/" replace />

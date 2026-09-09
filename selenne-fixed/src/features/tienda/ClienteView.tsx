@@ -1,5 +1,6 @@
 
 import React, { useState, useMemo, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "motion/react";
 import {
   ShoppingBag,
@@ -75,16 +76,19 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
 }) => {
   const [mostrarTelefono, setMostrarTelefono] = useState(false);
   const [telefonoContacto, setTelefonoContacto] = useState('+57 304 292 8493');
-  const [vistaActual, setVistaActual] =
-    useState<Vista>("home");
-  const [categoriaActiva, setCategoriaActiva] =
-    useState<Categoria>("mujer");
+  const navigate = useNavigate();
+  const location = useLocation();
+  // La categoria vive en la URL (/dashboard/tienda/:categoria), igual que en
+  // LandingView; los paneles internos (checkout/perfil/mensajes) quedan como
+  // overlay local, todavia no tienen ruta propia.
+  const categoriaUrlMatch = location.pathname.match(/^\/dashboard\/tienda\/(mujer|accesorios|sale)$/);
+  const categoriaUrl = categoriaUrlMatch ? (categoriaUrlMatch[1] as Categoria) : undefined;
+  const categoriaActiva: Categoria = categoriaUrl ?? "mujer";
+  const [subVista, setSubVista] = useState<"checkout" | "perfil" | "mensajes" | null>(null);
+  const vistaActual: Vista = subVista ?? (categoriaUrl ? "tienda" : "home");
 
-  // Unico punto de entrada a la tienda: fija la categoria y cambia de vista,
-  // asi el home no vuelve a mostrar hero+destacados dentro de si mismo.
   const irATienda = (categoria: Categoria) => {
-    setCategoriaActiva(categoria);
-    setVistaActual("tienda");
+    navigate(`/dashboard/tienda/${categoria}`);
     window.scrollTo({ top: 0 });
   };
   const [busqueda, setBusqueda] = useState("");
@@ -365,7 +369,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
       setColorSeleccionado("");
       setCantidadSeleccionada(1);
       setImagenActual(0);
-      setVistaActual("checkout");
+      setSubVista("checkout");
     }
   };
 
@@ -449,7 +453,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
 
               {/* Logo */}
               <button
-                onClick={() => { setVistaActual("home"); window.scrollTo({ top: 0 }); }}
+                onClick={() => { setSubVista(null); navigate("/dashboard"); window.scrollTo({ top: 0 }); }}
                 className="flex items-center justify-center hover:opacity-75 transition-opacity"
                 title="Selenne Boutique — Inicio"
               >
@@ -500,7 +504,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
             <div className="flex items-center space-x-4">
               {vistaActual === 'perfil' ? (
                 <button
-                  onClick={() => setVistaActual("mensajes")}
+                  onClick={() => setSubVista("mensajes")}
                   className="p-2 hover:bg-[#EFD9DF] rounded-full transition-colors relative"
                   title="Mensajes"
                 >
@@ -595,7 +599,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                 </Sheet>
               )}
               <button
-                onClick={() => setVistaActual("perfil")}
+                onClick={() => setSubVista("perfil")}
                 className="p-2 hover:bg-[#EFD9DF] rounded-full transition-colors"
               >
                 <User className="w-6 h-6 text-[#241B22]" />
@@ -759,7 +763,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                           </div>
                         </div>
                         <Button
-                          onClick={() => { setCarritoAbierto(false); setVistaActual("checkout"); }}
+                          onClick={() => { setCarritoAbierto(false); setSubVista("checkout"); }}
                           className="w-full bg-black hover:bg-gray-800 text-white h-11 mt-1 transition-all duration-200 hover:scale-[1.02]"
                         >
                           Proceder al Pago
@@ -813,14 +817,14 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
       {/* Contenedor flexible para todas las vistas */}
       <div className="flex-1 flex flex-col">
         {vistaActual === "checkout" ? (
-          <CheckoutView onBack={() => setVistaActual("tienda")} />
+          <CheckoutView onBack={() => setSubVista(null)} />
         ) : vistaActual === "perfil" ? (
           <PerfilView
-            onBack={() => setVistaActual("tienda")}
+            onBack={() => setSubVista(null)}
             onLogout={handleLogout}
           />
         ) : vistaActual === "mensajes" ? (
-          <MensajesClienteView onBack={() => setVistaActual("tienda")} onVerPedidos={() => setVistaActual("perfil")} notifHook={notifHook} />
+          <MensajesClienteView onBack={() => setSubVista(null)} onVerPedidos={() => setSubVista("perfil")} notifHook={notifHook} />
         ) : vistaActual === "home" ? (
           <>
             {/* Hero de marca */}
