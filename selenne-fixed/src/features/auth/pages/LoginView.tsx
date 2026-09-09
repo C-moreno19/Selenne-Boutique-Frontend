@@ -168,7 +168,6 @@ export const LoginView: React.FC<LoginViewProps> = ({
                   setPasswordError('');
                 }}
                 error={passwordError}
-                placeholder="••••••••"
                 showPasswordToggle
               />
               <div className="flex justify-end mt-2">

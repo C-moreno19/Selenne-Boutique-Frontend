@@ -318,7 +318,6 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
               value={formData.password}
               onChange={(value) => updateField('password', value)}
               error={errors.password}
-              placeholder="••••••••"
               showPasswordToggle
             />
 
@@ -352,7 +351,6 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
               value={formData.confirmPassword}
               onChange={(value) => updateField('confirmPassword', value)}
               error={errors.confirmPassword}
-              placeholder="••••••••"
               showPasswordToggle
             />
 

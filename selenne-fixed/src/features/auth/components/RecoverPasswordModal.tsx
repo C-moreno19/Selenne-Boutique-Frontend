@@ -227,7 +227,6 @@ export const RecoverPasswordModal: React.FC<RecoverPasswordModalProps> = ({
                     setNewPasswordError("");
                   }}
                   error={newPasswordError}
-                  placeholder="••••••••"
                   showPasswordToggle
                 />
 
@@ -240,7 +239,6 @@ export const RecoverPasswordModal: React.FC<RecoverPasswordModalProps> = ({
                     setConfirmPasswordError("");
                   }}
                   error={confirmPasswordError}
-                  placeholder="••••••••"
                   showPasswordToggle
                 />
 

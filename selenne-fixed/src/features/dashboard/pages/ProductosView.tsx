@@ -286,13 +286,25 @@ export const ProductosView: React.FC = () => {
     }
   };
 
+  // "Talla unica" (u "Unica") es una designacion de que la prenda no tiene
+  // tallas especificas, asi que no puede coexistir con S/M/L/etc en el mismo
+  // producto: seleccionar una desmarca la otra.
+  const esTallaUnica = (nombre: string) => {
+    const n = nombre.trim().toLowerCase();
+    return n === 'única' || n === 'unica' || n === 'talla única' || n === 'talla unica';
+  };
+
   const toggleTalla = (nombre: string) => {
     if (form.tallasSeleccionadas.includes(nombre)) {
       setForm(f => ({ ...f, tallasSeleccionadas: f.tallasSeleccionadas.filter(t => t !== nombre), variantes: f.variantes.filter(v => v.tallaNombre !== nombre) }));
     } else {
       setForm(f => {
         const defaultStock = Math.max(1, Number(f.stock) || 1);
-        const newVariantes = [...f.variantes];
+        // Talla unica es excluyente con el resto: al elegir una se descarta la otra.
+        const tallasSeleccionadas = esTallaUnica(nombre)
+          ? [nombre]
+          : [...f.tallasSeleccionadas.filter(t => !esTallaUnica(t)), nombre];
+        const newVariantes = f.variantes.filter(v => tallasSeleccionadas.includes(v.tallaNombre));
         if (f.coloresSeleccionados.length === 0) {
           // Sin colores: variante solo por talla
           if (!newVariantes.find(v => v.tallaNombre === nombre && !v.colorNombre))
@@ -303,7 +315,7 @@ export const ProductosView: React.FC = () => {
               newVariantes.push({ tallaNombre: nombre, colorNombre: color, stock: defaultStock });
           });
         }
-        return { ...f, tallasSeleccionadas: [...f.tallasSeleccionadas, nombre], variantes: newVariantes };
+        return { ...f, tallasSeleccionadas, variantes: newVariantes };
       });
     }
   };
