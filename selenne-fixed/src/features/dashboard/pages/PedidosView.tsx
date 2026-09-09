@@ -20,12 +20,12 @@ interface Pedido {
 
 const fmt = (n: number) => `$${new Intl.NumberFormat('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(n)} COP`;
 const estadoBadgeClass = (e: string) => {
-  if (e === 'Completado' || e === 'Completada') return 'bg-green-50 text-green-600 border-green-200';
-  if (e === 'Enviado') return 'bg-[#FBF8F5] text-[#A3395C] border-pink-200';
-  if (e === 'Aprobado' || e === 'Aprobada') return 'bg-blue-50 text-blue-600 border-blue-200';
-  if (e === 'Rechazado' || e === 'Rechazada') return 'bg-orange-50 text-orange-600 border-orange-200';
-  if (e === 'Pendiente') return 'bg-yellow-50 text-yellow-600 border-yellow-200';
-  return 'bg-[#FBF8F5] text-gray-600 border-[#E7E0DA]';
+  if (e === 'Completado' || e === 'Completada') return 'bg-green-50 dark:bg-green-950/40 text-green-600 dark:text-green-400 border-green-200 dark:border-green-900/50';
+  if (e === 'Enviado') return 'bg-[#FBF8F5] dark:bg-[#1c151a] text-[#A3395C] border-pink-200 dark:border-[#3a2530]';
+  if (e === 'Aprobado' || e === 'Aprobada') return 'bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-900/50';
+  if (e === 'Rechazado' || e === 'Rechazada') return 'bg-orange-50 dark:bg-orange-950/40 text-orange-600 dark:text-orange-400 border-orange-200 dark:border-orange-900/50';
+  if (e === 'Pendiente') return 'bg-yellow-50 dark:bg-yellow-950/40 text-yellow-600 dark:text-yellow-400 border-yellow-200 dark:border-yellow-900/50';
+  return 'bg-[#FBF8F5] dark:bg-[#1c151a] text-gray-600 dark:text-[#b8a3ac] border-[#E7E0DA] dark:border-[#3a2e35]';
 };
 
 export const PedidosView: React.FC = () => {
@@ -113,76 +113,76 @@ export const PedidosView: React.FC = () => {
   );
 
   return (
-    <div className="p-8 bg-[#FBF8F5] min-h-screen">
+    <div className="p-8 bg-[#FBF8F5] dark:bg-[#1c151a] min-h-screen">
       <div className="flex items-center gap-2 mb-4">
-        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500">Dashboard</span>
-        <ChevronRight className="w-4 h-4 text-gray-400" />
-        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-[#241B22]">Pedidos Pendientes</span>
+        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500 dark:text-[#b8a3ac]">Dashboard</span>
+        <ChevronRight className="w-4 h-4 text-gray-400 dark:text-[#b8a3ac]" />
+        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-[#241B22] dark:text-[#F5EDE9]">Pedidos Pendientes</span>
       </div>
-      <h1 className="admin-page-title text-4xl text-[#241B22] mb-6">Pedidos Pendientes</h1>
+      <h1 className="admin-page-title text-4xl text-[#241B22] dark:text-[#F5EDE9] mb-6">Pedidos Pendientes</h1>
 
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-[#E7E0DA] flex gap-4 mb-6">
+      <div className="bg-white dark:bg-[#241B22] rounded-xl p-6 shadow-sm border border-[#E7E0DA] dark:border-[#3a2e35] flex gap-4 mb-6">
         <div className="flex-1 relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-[#b8a3ac]" />
           <input type="text" placeholder="Buscar por cliente o email..." value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-            className="w-full pl-12 pr-4 py-3 bg-[#FBF8F5] border border-[#E7E0DA] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A3395C]" />
+            className="w-full pl-12 pr-4 py-3 bg-[#FBF8F5] dark:bg-[#1c151a] border border-[#E7E0DA] dark:border-[#3a2e35] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A3395C]" />
         </div>
-        <button onClick={() => { setLoading(true); loadData(); }} className="px-4 py-3 bg-white border border-[#E7E0DA] text-gray-700 rounded-lg hover:bg-[#FBF8F5] transition">
+        <button onClick={() => { setLoading(true); loadData(); }} className="px-4 py-3 bg-white dark:bg-[#241B22] border border-[#E7E0DA] dark:border-[#3a2e35] text-gray-700 dark:text-[#F5EDE9] rounded-lg hover:bg-[#FBF8F5] dark:hover:bg-[#2c2129] transition">
           <RefreshCw className="w-5 h-5" />
         </button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-[#E7E0DA] overflow-hidden">
+      <div className="bg-white dark:bg-[#241B22] rounded-xl shadow-sm border border-[#E7E0DA] dark:border-[#3a2e35] overflow-hidden">
         <table className="w-full">
-          <thead className="bg-[#FBF8F5] border-b border-[#E7E0DA]">
+          <thead className="bg-[#FBF8F5] dark:bg-[#1c151a] border-b border-[#E7E0DA] dark:border-[#3a2e35]">
             <tr>
               {['#', 'CLIENTE', 'FECHA', 'TOTAL', 'MÉTODO PAGO', 'COMPROBANTE', 'ACCIONES'].map(h => (
                 <th key={h} className="px-6 py-4 text-left">
-                  <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs font-semibold uppercase tracking-wider text-gray-500">{h}</span>
+                  <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-[#b8a3ac]">{h}</span>
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-gray-100 dark:divide-[#3a2e35]">
             {filtered.map((p, idx) => (
-              <tr key={p.pedidoID} className="hover:bg-[#FBF8F5] transition">
-                <td className="px-6 py-4"><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-medium text-[#241B22]">#{idx + 1}</span></td>
+              <tr key={p.pedidoID} className="hover:bg-[#FBF8F5] dark:hover:bg-[#2c2129] transition">
+                <td className="px-6 py-4"><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-medium text-[#241B22] dark:text-[#F5EDE9]">#{idx + 1}</span></td>
                 <td className="px-6 py-4">
-                  <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-medium text-[#241B22]">{p.nombreCliente}</p>
-                  <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500">{p.emailCliente}</p>
+                  <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-medium text-[#241B22] dark:text-[#F5EDE9]">{p.nombreCliente}</p>
+                  <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500 dark:text-[#b8a3ac]">{p.emailCliente}</p>
                 </td>
-                <td className="px-6 py-4"><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-600">{new Date(p.fechaPedido).toLocaleDateString('es-CO')}</span></td>
+                <td className="px-6 py-4"><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-600 dark:text-[#b8a3ac]">{new Date(p.fechaPedido).toLocaleDateString('es-CO')}</span></td>
                 <td className="px-6 py-4"><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold">{fmt(p.total)}</span></td>
-                <td className="px-6 py-4"><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-600">{p.metodoPago}</span></td>
+                <td className="px-6 py-4"><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-600 dark:text-[#b8a3ac]">{p.metodoPago}</span></td>
                 <td className="px-6 py-4">
                   {p.comprobantePago ? (
                     <button onClick={() => { setSelectedPedido(p); setComprobanteOpen(true); }}
                       style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-[#A3395C] text-sm underline hover:text-[#8a2e4d] flex items-center gap-1">
                       <Image className="w-4 h-4" /> Ver
                     </button>
-                  ) : <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400">Sin comprobante</span>}
+                  ) : <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac]">Sin comprobante</span>}
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-2">
                     <button onClick={() => { setSelectedPedido(p); setViewOpen(true); }}
-                      className="p-2 text-gray-500 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition" title="Ver detalles">
+                      className="p-2 text-gray-500 dark:text-[#b8a3ac] hover:bg-blue-50 dark:hover:bg-blue-950/40 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg transition" title="Ver detalles">
                       <Eye className="w-5 h-5" />
                     </button>
                     {puedeEditar && (
                       <button onClick={() => { setSelectedPedido(p); setEmailPagoOpen(true); }}
-                        className="p-2 text-gray-500 hover:bg-[#FBF8F5] hover:text-[#A3395C] rounded-lg transition" title="Enviar correo de pago">
+                        className="p-2 text-gray-500 dark:text-[#b8a3ac] hover:bg-[#FBF8F5] dark:hover:bg-[#2c2129] hover:text-[#A3395C] rounded-lg transition" title="Enviar correo de pago">
                         <Mail className="w-5 h-5" />
                       </button>
                     )}
                     {puedeEditar && (
                       <>
                         <button onClick={() => { setSelectedPedido(p); setAprobarOpen(true); }}
-                          className="p-2 text-gray-500 hover:bg-green-50 hover:text-green-600 rounded-lg transition" title="Aprobar">
+                          className="p-2 text-gray-500 dark:text-[#b8a3ac] hover:bg-green-50 dark:hover:bg-green-950/40 hover:text-green-600 dark:hover:text-green-400 rounded-lg transition" title="Aprobar">
                           <CheckCircle className="w-5 h-5" />
                         </button>
                         <button onClick={() => { setSelectedPedido(p); setRechazarOpen(true); }}
-                          className="p-2 text-gray-500 hover:bg-red-50 hover:text-red-600 rounded-lg transition" title="Rechazar">
+                          className="p-2 text-gray-500 dark:text-[#b8a3ac] hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-600 dark:hover:text-red-400 rounded-lg transition" title="Rechazar">
                           <XCircle className="w-5 h-5" />
                         </button>
                       </>
@@ -192,13 +192,13 @@ export const PedidosView: React.FC = () => {
               </tr>
             ))}
             {filtered.length === 0 && (
-              <tr><td colSpan={7} className="px-6 py-12 text-center text-gray-400" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>No hay pedidos pendientes</td></tr>
+              <tr><td colSpan={7} className="px-6 py-12 text-center text-gray-400 dark:text-[#b8a3ac]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>No hay pedidos pendientes</td></tr>
             )}
           </tbody>
         </table>
-        <div className="px-6 py-4 border-t border-[#E7E0DA]">
-          <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500">
-            <span className="font-medium text-[#241B22]">{filtered.length}</span> pedidos pendientes
+        <div className="px-6 py-4 border-t border-[#E7E0DA] dark:border-[#3a2e35]">
+          <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500 dark:text-[#b8a3ac]">
+            <span className="font-medium text-[#241B22] dark:text-[#F5EDE9]">{filtered.length}</span> pedidos pendientes
           </span>
         </div>
       </div>
@@ -225,83 +225,83 @@ export const PedidosView: React.FC = () => {
 
 
           {/* Body */}
-          <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4 bg-[#FBF8F5]">
+          <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4 bg-[#FBF8F5] dark:bg-[#1c151a]">
             {selectedPedido && (
               <>
                 {/* Cliente */}
-                <div className="bg-white rounded-xl p-4 border border-[#E7E0DA]">
-                  <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                <div className="bg-white dark:bg-[#241B22] rounded-xl p-4 border border-[#E7E0DA] dark:border-[#3a2e35]">
+                  <p className="text-[10px] font-semibold text-gray-400 dark:text-[#b8a3ac] uppercase tracking-widest mb-3 flex items-center gap-1.5">
                     <User className="w-3.5 h-3.5" /> Información del cliente
                   </p>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <p className="text-xs text-gray-400 mb-1">Nombre</p>
-                      <p className="text-sm font-semibold text-[#241B22]">{selectedPedido.nombreCliente}</p>
+                      <p className="text-xs text-gray-400 dark:text-[#b8a3ac] mb-1">Nombre</p>
+                      <p className="text-sm font-semibold text-[#241B22] dark:text-[#F5EDE9]">{selectedPedido.nombreCliente}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-400 mb-1">Teléfono</p>
-                      <p className="text-sm font-semibold text-[#241B22]">{selectedPedido.telefonoCliente || '—'}</p>
+                      <p className="text-xs text-gray-400 dark:text-[#b8a3ac] mb-1">Teléfono</p>
+                      <p className="text-sm font-semibold text-[#241B22] dark:text-[#F5EDE9]">{selectedPedido.telefonoCliente || '—'}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-400 mb-1">Método de pago</p>
-                      <p className="text-sm font-semibold text-[#241B22] capitalize">{selectedPedido.metodoPago}</p>
+                      <p className="text-xs text-gray-400 dark:text-[#b8a3ac] mb-1">Método de pago</p>
+                      <p className="text-sm font-semibold text-[#241B22] dark:text-[#F5EDE9] capitalize">{selectedPedido.metodoPago}</p>
                     </div>
                     {selectedPedido.documentoCliente && (
                       <div>
-                        <p className="text-xs text-gray-400 mb-1">Documento</p>
-                        <p className="text-sm font-semibold text-[#241B22]">{selectedPedido.documentoCliente}</p>
+                        <p className="text-xs text-gray-400 dark:text-[#b8a3ac] mb-1">Documento</p>
+                        <p className="text-sm font-semibold text-[#241B22] dark:text-[#F5EDE9]">{selectedPedido.documentoCliente}</p>
                       </div>
                     )}
                     <div>
-                      <p className="text-xs text-gray-400 mb-1">Comprobante</p>
+                      <p className="text-xs text-gray-400 dark:text-[#b8a3ac] mb-1">Comprobante</p>
                       {selectedPedido.comprobantePago
                         ? <button type="button" onClick={() => setComprobanteOpen(true)} className="text-xs font-semibold flex items-center gap-1 hover:underline" style={{ color: '#A3395C' }}>
                             <Image className="w-3 h-3" /> Ver comprobante
                           </button>
-                        : <p className="text-xs text-gray-400">Sin comprobante</p>
+                        : <p className="text-xs text-gray-400 dark:text-[#b8a3ac]">Sin comprobante</p>
                       }
                     </div>
                     <div className="col-span-2">
-                      <p className="text-xs text-gray-400 mb-1">Email</p>
-                      <p className="text-xs font-semibold text-[#241B22] break-all">{selectedPedido.emailCliente}</p>
+                      <p className="text-xs text-gray-400 dark:text-[#b8a3ac] mb-1">Email</p>
+                      <p className="text-xs font-semibold text-[#241B22] dark:text-[#F5EDE9] break-all">{selectedPedido.emailCliente}</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Dirección */}
                 {(selectedPedido.direccionEnvio || selectedPedido.ciudad) && (
-                  <div className="bg-white rounded-xl p-4 border border-[#E7E0DA]">
-                    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                  <div className="bg-white dark:bg-[#241B22] rounded-xl p-4 border border-[#E7E0DA] dark:border-[#3a2e35]">
+                    <p className="text-[10px] font-semibold text-gray-400 dark:text-[#b8a3ac] uppercase tracking-widest mb-3 flex items-center gap-1.5">
                       <MapPin className="w-3.5 h-3.5" /> Dirección de envío
                     </p>
-                    <p className="text-sm font-semibold text-[#241B22]">{selectedPedido.direccionEnvio || '—'}</p>
-                    {selectedPedido.ciudad && <p className="text-xs text-gray-500 mt-0.5">{selectedPedido.ciudad}</p>}
+                    <p className="text-sm font-semibold text-[#241B22] dark:text-[#F5EDE9]">{selectedPedido.direccionEnvio || '—'}</p>
+                    {selectedPedido.ciudad && <p className="text-xs text-gray-500 dark:text-[#b8a3ac] mt-0.5">{selectedPedido.ciudad}</p>}
                   </div>
                 )}
 
                 {/* Productos */}
-                <div className="bg-white rounded-xl p-4 border border-[#E7E0DA]">
-                  <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                <div className="bg-white dark:bg-[#241B22] rounded-xl p-4 border border-[#E7E0DA] dark:border-[#3a2e35]">
+                  <p className="text-[10px] font-semibold text-gray-400 dark:text-[#b8a3ac] uppercase tracking-widest mb-3 flex items-center gap-1.5">
                     <ShoppingBag className="w-3.5 h-3.5" /> Productos
                   </p>
                   {selectedPedido.detalles.length === 0 ? (
-                    <p className="text-sm text-gray-400 text-center py-2">Sin productos</p>
+                    <p className="text-sm text-gray-400 dark:text-[#b8a3ac] text-center py-2">Sin productos</p>
                   ) : (
                     <div className="space-y-2">
                       {selectedPedido.detalles.map((d, i) => (
-                        <div key={i} className="flex items-center gap-3 bg-white rounded-lg p-2.5 border border-[#E7E0DA]">
+                        <div key={i} className="flex items-center gap-3 bg-white dark:bg-[#241B22] rounded-lg p-2.5 border border-[#E7E0DA] dark:border-[#3a2e35]">
                           <div className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
                             style={{ background: '#A3395C' }}>
                             {d.cantidad}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-[#241B22] truncate">{d.productoNombre}</p>
+                            <p className="text-sm font-medium text-[#241B22] dark:text-[#F5EDE9] truncate">{d.productoNombre}</p>
                             <div className="flex gap-1.5 mt-0.5 flex-wrap">
-                              {d.talla && <span className="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">T: {d.talla}</span>}
-                              {d.color && <span className="text-[10px] bg-[#FBF8F5] px-1.5 py-0.5 rounded" style={{ color: '#A3395C' }}>{d.color}</span>}
+                              {d.talla && <span className="text-[10px] bg-gray-100 dark:bg-[#2c2129] text-gray-500 dark:text-[#b8a3ac] px-1.5 py-0.5 rounded">T: {d.talla}</span>}
+                              {d.color && <span className="text-[10px] bg-[#FBF8F5] dark:bg-[#1c151a] px-1.5 py-0.5 rounded" style={{ color: '#A3395C' }}>{d.color}</span>}
                             </div>
                           </div>
-                          <p className="text-sm font-bold text-[#241B22] flex-shrink-0">{fmt(d.subtotal)}</p>
+                          <p className="text-sm font-bold text-[#241B22] dark:text-[#F5EDE9] flex-shrink-0">{fmt(d.subtotal)}</p>
                         </div>
                       ))}
                     </div>
@@ -310,15 +310,15 @@ export const PedidosView: React.FC = () => {
 
                 {/* Total */}
                 <div className="flex items-center justify-between rounded-xl px-4 py-3" style={{ background: 'linear-gradient(135deg, #e7c2ce 0%, #EFD9DF 100%)' }}>
-                  <p className="text-sm font-semibold text-gray-600">Total</p>
+                  <p className="text-sm font-semibold text-gray-600 dark:text-[#b8a3ac]">Total</p>
                   <p className="text-xl font-bold" style={{ color: '#8a2e4d' }}>{fmt(selectedPedido.total)}</p>
                 </div>
 
                 {/* Notas */}
                 {selectedPedido.notas && (
-                  <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
-                    <p className="text-xs font-semibold text-amber-600 mb-1">Nota del cliente</p>
-                    <p className="text-sm text-amber-800 leading-snug">{selectedPedido.notas}</p>
+                  <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 rounded-xl px-4 py-3">
+                    <p className="text-xs font-semibold text-amber-600 dark:text-amber-400 mb-1">Nota del cliente</p>
+                    <p className="text-sm text-amber-800 dark:text-amber-300 leading-snug">{selectedPedido.notas}</p>
                   </div>
                 )}
               </>
@@ -326,15 +326,15 @@ export const PedidosView: React.FC = () => {
           </div>
 
           {/* Footer */}
-          <div className="flex-shrink-0 px-6 py-4 border-t border-[#E7E0DA] bg-[#FBF8F5]">
+          <div className="flex-shrink-0 px-6 py-4 border-t border-[#E7E0DA] dark:border-[#3a2e35] bg-[#FBF8F5] dark:bg-[#1c151a]">
             {puedeEditar ? (
               <div className="flex items-center justify-center gap-2">
                 <button type="button" onClick={() => setViewOpen(false)}
-                  className="px-5 py-2 rounded-full border border-[#E7E0DA] bg-white text-gray-500 text-sm font-medium hover:bg-[#FBF8F5] transition-all shadow-sm">
+                  className="px-5 py-2 rounded-full border border-[#E7E0DA] dark:border-[#3a2e35] bg-white dark:bg-[#241B22] text-gray-500 dark:text-[#b8a3ac] text-sm font-medium hover:bg-[#FBF8F5] dark:hover:bg-[#2c2129] transition-all shadow-sm">
                   Cerrar
                 </button>
                 <button type="button" onClick={() => { setViewOpen(false); setRechazarOpen(true); }}
-                  className="px-5 py-2 rounded-full border border-rose-200 bg-white text-rose-500 text-sm font-medium hover:bg-rose-50 flex items-center gap-1.5 transition-all shadow-sm">
+                  className="px-5 py-2 rounded-full border border-rose-200 dark:border-rose-900/50 bg-white dark:bg-[#241B22] text-rose-500 dark:text-rose-400 text-sm font-medium hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center gap-1.5 transition-all shadow-sm">
                   <XCircle className="w-3.5 h-3.5" /> Rechazar
                 </button>
                 <button type="button" onClick={() => { setViewOpen(false); setAprobarOpen(true); }}
@@ -346,7 +346,7 @@ export const PedidosView: React.FC = () => {
             ) : (
               <div className="flex justify-center">
                 <button type="button" onClick={() => setViewOpen(false)}
-                  className="px-8 py-2 rounded-full border border-[#E7E0DA] bg-white text-gray-500 text-sm font-medium hover:bg-[#FBF8F5] transition-all shadow-sm">
+                  className="px-8 py-2 rounded-full border border-[#E7E0DA] dark:border-[#3a2e35] bg-white dark:bg-[#241B22] text-gray-500 dark:text-[#b8a3ac] text-sm font-medium hover:bg-[#FBF8F5] dark:hover:bg-[#2c2129] transition-all shadow-sm">
                   Cerrar
                 </button>
               </div>
@@ -358,7 +358,7 @@ export const PedidosView: React.FC = () => {
       {/* Modal Comprobante */}
       <Dialog open={comprobanteOpen} onOpenChange={setComprobanteOpen}>
         <DialogContent className="max-w-2xl">
-          <DialogHeader className="px-6 pt-6 pb-4 border-b border-[#E7E0DA]">
+          <DialogHeader className="px-6 pt-6 pb-4 border-b border-[#E7E0DA] dark:border-[#3a2e35]">
             <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xl">Comprobante de Pago</DialogTitle>
           </DialogHeader>
           <div className="p-6">
@@ -368,14 +368,14 @@ export const PedidosView: React.FC = () => {
                   ? selectedPedido.comprobantePago
                   : `${apiBase}${selectedPedido.comprobantePago}`}
                 alt="Comprobante"
-                className="w-full rounded-xl border border-[#E7E0DA] shadow-sm" />
+                className="w-full rounded-xl border border-[#E7E0DA] dark:border-[#3a2e35] shadow-sm" />
             ) : (
-              <p className="text-center text-gray-400">Sin comprobante</p>
+              <p className="text-center text-gray-400 dark:text-[#b8a3ac]">Sin comprobante</p>
             )}
           </div>
           <DialogFooter className="px-6 pb-6">
             <button type="button" onClick={() => setComprobanteOpen(false)}
-              className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">Cerrar</button>
+              className="px-6 py-2 bg-gray-100 dark:bg-[#2c2129] text-gray-700 dark:text-[#F5EDE9] rounded-lg hover:bg-gray-200 dark:hover:bg-[#3a2530] transition">Cerrar</button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -385,47 +385,47 @@ export const PedidosView: React.FC = () => {
         <DialogContent className="max-w-md flex flex-col p-0 gap-0 overflow-hidden max-h-[90vh]">
           <DialogDescription className="sr-only">Enviar correo de pago al cliente</DialogDescription>
           {/* Header */}
-          <div className="px-6 pt-6 pb-4 border-b border-[#E7E0DA] flex-shrink-0 pr-14" style={{ background: 'linear-gradient(135deg, #EFD9DF 0%, #EFD9DF 100%)' }}>
+          <div className="px-6 pt-6 pb-4 border-b border-[#E7E0DA] dark:border-[#3a2e35] flex-shrink-0 pr-14 bg-[#EFD9DF] dark:bg-[#3a2530]">
             <div className="flex items-center gap-3 mb-1">
-              <div className="w-9 h-9 bg-[#e7c2ce] rounded-xl flex items-center justify-center flex-shrink-0">
+              <div className="w-9 h-9 bg-[#e7c2ce] dark:bg-[#4a3540] rounded-xl flex items-center justify-center flex-shrink-0">
                 <Mail className="w-5 h-5 text-[#A3395C]" />
               </div>
-              <DialogTitle className="text-xl font-semibold text-[#241B22]">
+              <DialogTitle className="text-xl font-semibold text-[#241B22] dark:text-[#F5EDE9]">
                 Correo de pago
               </DialogTitle>
             </div>
-            <p className="text-sm text-gray-500 ml-12">
-              Para <strong className="text-gray-700">{selectedPedido?.nombreCliente}</strong>
+            <p className="text-sm text-gray-500 dark:text-[#b8a3ac] ml-12">
+              Para <strong className="text-gray-700 dark:text-[#F5EDE9]">{selectedPedido?.nombreCliente}</strong>
             </p>
           </div>
           {/* Body */}
-          <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4 bg-[#FBF8F5]">
-            <div className="bg-white border border-[#E7E0DA] rounded-xl p-4 flex gap-3 items-start">
-              <div className="w-8 h-8 bg-[#e7c2ce] rounded-lg flex items-center justify-center flex-shrink-0">
+          <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4 bg-[#FBF8F5] dark:bg-[#1c151a]">
+            <div className="bg-white dark:bg-[#241B22] border border-[#E7E0DA] dark:border-[#3a2e35] rounded-xl p-4 flex gap-3 items-start">
+              <div className="w-8 h-8 bg-[#e7c2ce] dark:bg-[#4a3540] rounded-lg flex items-center justify-center flex-shrink-0">
                 <Mail className="w-4 h-4 text-[#A3395C]" />
               </div>
-              <p className="text-sm text-gray-600 leading-relaxed">
-                Se enviará al cliente la <span className="font-semibold text-[#241B22]">información bancaria con código QR</span> para que complete su pago pendiente.
+              <p className="text-sm text-gray-600 dark:text-[#b8a3ac] leading-relaxed">
+                Se enviará al cliente la <span className="font-semibold text-[#241B22] dark:text-[#F5EDE9]">información bancaria con código QR</span> para que complete su pago pendiente.
               </p>
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label className="text-sm font-medium text-gray-700">
-                Mensaje adicional <span className="text-gray-400 font-normal">(opcional)</span>
+              <Label className="text-sm font-medium text-gray-700 dark:text-[#F5EDE9]">
+                Mensaje adicional <span className="text-gray-400 dark:text-[#b8a3ac] font-normal">(opcional)</span>
               </Label>
               <textarea value={mensajePago} onChange={e => setMensajePago(e.target.value)}
                 placeholder="Ej: Hola, falta el saldo de $50.000 para completar tu pedido..."
                 rows={3}
-                className="w-full px-3 py-2.5 border border-pink-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-pink-200 focus:border-[#A3395C] resize-none bg-white transition-all" />
+                className="w-full px-3 py-2.5 border border-pink-200 dark:border-[#3a2530] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-pink-200 focus:border-[#A3395C] resize-none bg-white dark:bg-[#241B22] transition-all" />
             </div>
-            <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-3 flex items-center gap-3">
+            <div className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-900/50 rounded-xl p-3 flex items-center gap-3">
               <div className="w-2 h-2 rounded-full bg-emerald-400 flex-shrink-0" />
-              <p className="text-xs text-gray-600 font-medium">Información bancaria y QR configurados correctamente</p>
+              <p className="text-xs text-gray-600 dark:text-[#b8a3ac] font-medium">Información bancaria y QR configurados correctamente</p>
             </div>
           </div>
           {/* Footer */}
-          <div className="px-6 py-4 border-t border-[#E7E0DA] bg-[#FBF8F5] flex-shrink-0 flex gap-2">
+          <div className="px-6 py-4 border-t border-[#E7E0DA] dark:border-[#3a2e35] bg-[#FBF8F5] dark:bg-[#1c151a] flex-shrink-0 flex gap-2">
             <button type="button" onClick={() => setEmailPagoOpen(false)}
-              className="flex-1 py-2.5 rounded-full border border-[#E7E0DA] bg-white text-gray-500 hover:bg-[#FBF8F5] transition-all text-sm font-medium shadow-sm">
+              className="flex-1 py-2.5 rounded-full border border-[#E7E0DA] dark:border-[#3a2e35] bg-white dark:bg-[#241B22] text-gray-500 dark:text-[#b8a3ac] hover:bg-[#FBF8F5] dark:hover:bg-[#2c2129] transition-all text-sm font-medium shadow-sm">
               Cancelar
             </button>
             <button type="button" onClick={enviarEmailPago} disabled={saving}
@@ -443,30 +443,29 @@ export const PedidosView: React.FC = () => {
         <DialogContent className="max-w-md p-0 gap-0 overflow-hidden">
           <DialogDescription className="sr-only">Confirmar aprobación del pedido</DialogDescription>
           {/* Header */}
-          <div className="px-6 pt-6 pb-4 border-b border-[#E7E0DA] pr-14"
-            style={{ background: 'linear-gradient(135deg, #EFD9DF 0%, #EFD9DF 100%)' }}>
+          <div className="px-6 pt-6 pb-4 border-b border-[#E7E0DA] dark:border-[#3a2e35] pr-14 bg-[#EFD9DF] dark:bg-[#3a2530]">
             <div className="flex items-center gap-3 mb-1">
               <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(34, 197, 94, 0.15)' }}>
                 <CheckCircle className="w-5 h-5 text-green-600" />
               </div>
-              <DialogTitle className="text-xl font-semibold text-[#241B22]">Aprobar pedido</DialogTitle>
+              <DialogTitle className="text-xl font-semibold text-[#241B22] dark:text-[#F5EDE9]">Aprobar pedido</DialogTitle>
             </div>
-            <p className="text-sm text-gray-500 ml-12">
-              Pedido de <strong className="text-gray-700">{selectedPedido?.nombreCliente}</strong>
+            <p className="text-sm text-gray-500 dark:text-[#b8a3ac] ml-12">
+              Pedido de <strong className="text-gray-700 dark:text-[#F5EDE9]">{selectedPedido?.nombreCliente}</strong>
             </p>
           </div>
           {/* Body */}
-          <div className="px-6 py-5 bg-[#FBF8F5]">
-            <div className="bg-white border border-[#E7E0DA] rounded-xl px-4 py-3">
-              <p className="text-sm text-gray-700 leading-relaxed">
-                El pedido pasará al módulo de <strong className="text-[#241B22]">Ventas</strong> para su despacho. Esta acción no se puede deshacer.
+          <div className="px-6 py-5 bg-[#FBF8F5] dark:bg-[#1c151a]">
+            <div className="bg-white dark:bg-[#241B22] border border-[#E7E0DA] dark:border-[#3a2e35] rounded-xl px-4 py-3">
+              <p className="text-sm text-gray-700 dark:text-[#F5EDE9] leading-relaxed">
+                El pedido pasará al módulo de <strong className="text-[#241B22] dark:text-[#F5EDE9]">Ventas</strong> para su despacho. Esta acción no se puede deshacer.
               </p>
             </div>
           </div>
           {/* Footer */}
-          <div className="px-6 py-4 border-t border-[#E7E0DA] bg-[#FBF8F5] flex gap-2">
+          <div className="px-6 py-4 border-t border-[#E7E0DA] dark:border-[#3a2e35] bg-[#FBF8F5] dark:bg-[#1c151a] flex gap-2">
             <button type="button" onClick={() => setAprobarOpen(false)}
-              className="flex-1 py-2.5 rounded-full border border-[#E7E0DA] bg-white text-gray-500 hover:bg-[#FBF8F5] transition-all text-sm font-medium shadow-sm">
+              className="flex-1 py-2.5 rounded-full border border-[#E7E0DA] dark:border-[#3a2e35] bg-white dark:bg-[#241B22] text-gray-500 dark:text-[#b8a3ac] hover:bg-[#FBF8F5] dark:hover:bg-[#2c2129] transition-all text-sm font-medium shadow-sm">
               Cancelar
             </button>
             <button type="button" onClick={() => selectedPedido && cambiarEstado(selectedPedido, 'Aprobado')}
@@ -485,8 +484,7 @@ export const PedidosView: React.FC = () => {
         <DialogContent className="max-w-md flex flex-col p-0 gap-0 overflow-hidden">
           <DialogDescription className="sr-only">Rechazar pedido</DialogDescription>
           {/* Header */}
-          <div className="px-6 pt-6 pb-4 border-b border-[#E7E0DA] flex-shrink-0 pr-14"
-            style={{ background: 'linear-gradient(135deg, #EFD9DF 0%, #EFD9DF 100%)' }}>
+          <div className="px-6 pt-6 pb-4 border-b border-[#E7E0DA] dark:border-[#3a2e35] flex-shrink-0 pr-14 bg-[#EFD9DF] dark:bg-[#3a2530]">
             <svg width="0" height="0" className="absolute">
               <defs>
                 <linearGradient id="rechazarIconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -497,26 +495,26 @@ export const PedidosView: React.FC = () => {
             </svg>
             <div className="flex items-center gap-3 mb-1">
               <XCircle className="w-7 h-7 flex-shrink-0" stroke="url(#rechazarIconGradient)" />
-              <DialogTitle className="text-xl font-semibold text-[#241B22]">Rechazar pedido</DialogTitle>
+              <DialogTitle className="text-xl font-semibold text-[#241B22] dark:text-[#F5EDE9]">Rechazar pedido</DialogTitle>
             </div>
-            <p className="text-sm text-gray-500 ml-10">
-              Pedido de <strong className="text-gray-700">{selectedPedido?.nombreCliente}</strong>
+            <p className="text-sm text-gray-500 dark:text-[#b8a3ac] ml-10">
+              Pedido de <strong className="text-gray-700 dark:text-[#F5EDE9]">{selectedPedido?.nombreCliente}</strong>
             </p>
           </div>
           {/* Body */}
-          <div className="px-6 py-5 space-y-3 bg-[#FBF8F5]">
+          <div className="px-6 py-5 space-y-3 bg-[#FBF8F5] dark:bg-[#1c151a]">
             <div className="flex flex-col gap-1.5">
-              <Label className="text-sm font-medium text-gray-700">Razón del rechazo <span className="text-red-500">*</span></Label>
+              <Label className="text-sm font-medium text-gray-700 dark:text-[#F5EDE9]">Razón del rechazo <span className="text-red-500">*</span></Label>
               <textarea value={razonRechazo} onChange={e => setRazonRechazo(e.target.value)}
                 placeholder="Ej: Comprobante ilegible, pago insuficiente..."
                 rows={3}
-                className="w-full px-3 py-2.5 border border-pink-200 rounded-xl text-sm focus:outline-none focus:border-[#A3395C] resize-none bg-white transition" />
+                className="w-full px-3 py-2.5 border border-pink-200 dark:border-[#3a2530] rounded-xl text-sm focus:outline-none focus:border-[#A3395C] resize-none bg-white dark:bg-[#241B22] transition" />
             </div>
           </div>
           {/* Footer */}
-          <div className="px-6 py-4 border-t border-[#E7E0DA] bg-[#FBF8F5] flex gap-2 flex-shrink-0">
+          <div className="px-6 py-4 border-t border-[#E7E0DA] dark:border-[#3a2e35] bg-[#FBF8F5] dark:bg-[#1c151a] flex gap-2 flex-shrink-0">
             <button type="button" onClick={() => setRechazarOpen(false)}
-              className="flex-1 py-2.5 rounded-full border border-[#E7E0DA] bg-white text-gray-500 hover:bg-[#FBF8F5] transition-all text-sm font-medium shadow-sm">
+              className="flex-1 py-2.5 rounded-full border border-[#E7E0DA] dark:border-[#3a2e35] bg-white dark:bg-[#241B22] text-gray-500 dark:text-[#b8a3ac] hover:bg-[#FBF8F5] dark:hover:bg-[#2c2129] transition-all text-sm font-medium shadow-sm">
               Cancelar
             </button>
             <button type="button" onClick={() => {
