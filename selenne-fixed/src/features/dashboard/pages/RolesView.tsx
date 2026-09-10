@@ -139,9 +139,9 @@ const PermisosEditor: React.FC<PermisosEditorProps> = ({ arr, onToggle, onToggle
       const allSel = permisos.every(p => arr.includes(p.id));
       const someSel = permisos.some(p => arr.includes(p.id));
       return (
-        <div key={id} className="bg-white dark:bg-[#241B22] rounded-xl border border-[#E7E0DA] dark:border-[#3a2e35] shadow-sm overflow-hidden">
+        <div key={id} className="bg-white dark:bg-[#322631] rounded-xl border border-[#E7E0DA] dark:border-[#453840] shadow-sm overflow-hidden">
           {/* Header del módulo */}
-          <div className="bg-[#FBF8F5] dark:bg-[#1c151a] px-5 py-3 border-b border-[#E7E0DA] dark:border-[#3a2e35]">
+          <div className="bg-[#FBF8F5] dark:bg-[#2a2029] px-5 py-3 border-b border-[#E7E0DA] dark:border-[#453840]">
             <div className="flex items-center gap-3">
               <input
                 type="checkbox"
@@ -346,7 +346,7 @@ export const RolesView: React.FC = () => {
   );
 
   return (
-    <div className="p-8 bg-[#FBF8F5] dark:bg-[#1c151a] min-h-screen">
+    <div className="p-8 bg-[#FBF8F5] dark:bg-[#2a2029] min-h-screen">
       <div className="flex items-center gap-2 mb-4">
         <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500 dark:text-[#b8a3ac]">Dashboard</span>
         <ChevronRight className="w-4 h-4 text-gray-400 dark:text-[#b8a3ac]" />
@@ -358,16 +358,16 @@ export const RolesView: React.FC = () => {
       <h1 className="admin-page-title text-3xl font-bold text-[#241B22] dark:text-[#F5EDE9] mb-6">Gestión de Roles</h1>
 
       <div className="space-y-6">
-        <div className="bg-white dark:bg-[#241B22] rounded-xl p-6 shadow-sm border border-[#E7E0DA] dark:border-[#3a2e35] flex flex-col lg:flex-row gap-4">
+        <div className="bg-white dark:bg-[#322631] rounded-xl p-6 shadow-sm border border-[#E7E0DA] dark:border-[#453840] flex flex-col lg:flex-row gap-4">
           <div className="flex-1 relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-[#b8a3ac]" />
             <input type="text" placeholder="Buscar por nombre o descripción..." value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="w-full pl-12 pr-4 py-3 bg-[#FBF8F5] dark:bg-[#1c151a] border border-[#E7E0DA] dark:border-[#3a2e35] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A3395C]" />
+              className="w-full pl-12 pr-4 py-3 bg-[#FBF8F5] dark:bg-[#2a2029] border border-[#E7E0DA] dark:border-[#453840] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A3395C]" />
           </div>
           <div className="flex gap-3">
             <button onClick={() => { setLoading(true); Promise.all([loadRoles(), loadPermisos()]).finally(() => setLoading(false)); }}
-              className="px-4 py-3 bg-white dark:bg-[#241B22] border border-[#E7E0DA] dark:border-[#3a2e35] text-gray-700 dark:text-[#F5EDE9] rounded-lg hover:bg-[#FBF8F5] dark:hover:bg-[#2c2129] transition">
+              className="px-4 py-3 bg-white dark:bg-[#322631] border border-[#E7E0DA] dark:border-[#453840] text-gray-700 dark:text-[#F5EDE9] rounded-lg hover:bg-[#FBF8F5] dark:hover:bg-[#362b34] transition">
               <RefreshCw className="w-5 h-5" />
             </button>
             {puedeCrear && (
@@ -379,9 +379,9 @@ export const RolesView: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-[#241B22] rounded-xl shadow-sm border border-[#E7E0DA] dark:border-[#3a2e35] overflow-hidden">
+        <div className="bg-white dark:bg-[#322631] rounded-xl shadow-sm border border-[#E7E0DA] dark:border-[#453840] overflow-hidden">
           <table className="w-full">
-            <thead className="bg-[#FBF8F5] dark:bg-[#1c151a] border-b border-[#E7E0DA] dark:border-[#3a2e35]">
+            <thead className="bg-[#FBF8F5] dark:bg-[#2a2029] border-b border-[#E7E0DA] dark:border-[#453840]">
               <tr>
                 {['NOMBRE DEL ROL', 'DESCRIPCIÓN', 'PERMISOS', 'ESTADO', 'ACCIONES'].map(h => (
                   <th key={h} className="px-6 py-4 text-left">
@@ -390,15 +390,15 @@ export const RolesView: React.FC = () => {
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-[#3a2e35]">
+            <tbody className="divide-y divide-gray-100 dark:divide-[#453840]">
               {filtered.map(role => (
-                <tr key={role.roleID} className="hover:bg-[#FBF8F5] dark:hover:bg-[#2c2129] transition">
+                <tr key={role.roleID} className="hover:bg-[#FBF8F5] dark:hover:bg-[#362b34] transition">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <span className="text-gray-500 dark:text-[#b8a3ac]">{getRolIcon(role.nombre)}</span>
                       <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-bold text-[#241B22] dark:text-[#F5EDE9]">{role.nombre.toUpperCase()}</span>
                       {isPreexistente(role.nombre) && (
-                        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="px-2 py-0.5 bg-gray-100 dark:bg-[#2c2129] text-gray-500 dark:text-[#b8a3ac] rounded-full text-xs">Preexistente</span>
+                        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="px-2 py-0.5 bg-gray-100 dark:bg-[#362b34] text-gray-500 dark:text-[#b8a3ac] rounded-full text-xs">Preexistente</span>
                       )}
                     </div>
                   </td>
@@ -437,7 +437,7 @@ export const RolesView: React.FC = () => {
                         </button>
                       )}
                       {puedeEliminar && (isPreexistente(role.nombre) ? (
-                        <button disabled className="p-2 text-gray-300 dark:text-[#3a2e35] cursor-not-allowed rounded-lg" title="No eliminable">
+                        <button disabled className="p-2 text-gray-300 dark:text-[#453840] cursor-not-allowed rounded-lg" title="No eliminable">
                           <Ban className="w-5 h-5" />
                         </button>
                       ) : (
@@ -455,7 +455,7 @@ export const RolesView: React.FC = () => {
               )}
             </tbody>
           </table>
-          <div className="px-6 py-4 border-t border-[#E7E0DA] dark:border-[#3a2e35]">
+          <div className="px-6 py-4 border-t border-[#E7E0DA] dark:border-[#453840]">
             <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500 dark:text-[#b8a3ac]">Mostrando <span className="font-medium text-[#241B22] dark:text-[#F5EDE9]">{filtered.length}</span> de <span className="font-medium text-[#241B22] dark:text-[#F5EDE9]">{roles.length}</span> roles</span>
           </div>
         </div>
@@ -477,8 +477,8 @@ export const RolesView: React.FC = () => {
           {selectedRole && (
             <div className="flex-1 overflow-y-auto">
               <div className="space-y-6 py-6 px-8">
-                <div className="bg-white dark:bg-[#241B22] rounded-xl border border-[#E7E0DA] dark:border-[#3a2e35] shadow-sm overflow-hidden">
-                  <div className="bg-[#FBF8F5] dark:bg-[#1c151a] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#3a2e35]">
+                <div className="bg-white dark:bg-[#322631] rounded-xl border border-[#E7E0DA] dark:border-[#453840] shadow-sm overflow-hidden">
+                  <div className="bg-[#FBF8F5] dark:bg-[#2a2029] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#453840]">
                     <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#241B22] dark:text-[#F5EDE9] text-base flex items-center gap-2"><Shield className="w-4 h-4 text-gray-400 dark:text-[#b8a3ac]" />Permisos asignados ({selectedRole.permisos.length})</h3>
                   </div>
                   <div className="p-6">
@@ -492,7 +492,7 @@ export const RolesView: React.FC = () => {
                             <div className="flex flex-wrap gap-2">
                               {m.permisos.filter(p => selectedRole.permisos.includes(p.id)).map(p => (
                                 <span key={p.id} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                                  className="px-2 py-1 bg-gray-100 dark:bg-[#2c2129] text-gray-700 dark:text-[#F5EDE9] rounded text-xs font-medium">
+                                  className="px-2 py-1 bg-gray-100 dark:bg-[#362b34] text-gray-700 dark:text-[#F5EDE9] rounded text-xs font-medium">
                                   {p.label}
                                 </span>
                               ))}
@@ -506,9 +506,9 @@ export const RolesView: React.FC = () => {
               </div>
             </div>
           )}
-          <DialogFooter className="gap-2 px-8 py-5 border-t border-[#E7E0DA] dark:border-[#3a2e35] flex-shrink-0">
+          <DialogFooter className="gap-2 px-8 py-5 border-t border-[#E7E0DA] dark:border-[#453840] flex-shrink-0">
             <button onClick={() => setViewOpen(false)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="px-6 py-2 bg-gray-100 dark:bg-[#2c2129] text-gray-700 dark:text-[#F5EDE9] rounded-lg hover:bg-gray-200 dark:hover:bg-[#3a2530] transition">Cerrar</button>
+              className="px-6 py-2 bg-gray-100 dark:bg-[#362b34] text-gray-700 dark:text-[#F5EDE9] rounded-lg hover:bg-gray-200 dark:hover:bg-[#3a2530] transition">Cerrar</button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -516,7 +516,7 @@ export const RolesView: React.FC = () => {
       {/* ═══ CONFIGURAR PERMISOS ═══ */}
       <Dialog open={permisosOpen} onOpenChange={setPermisosOpen}>
         <DialogContent className="max-w-2xl h-auto flex flex-col p-0 gap-0">
-          <DialogHeader className="px-8 pt-6 pb-4 border-b border-[#E7E0DA] dark:border-[#3a2e35] flex-shrink-0">
+          <DialogHeader className="px-8 pt-6 pb-4 border-b border-[#E7E0DA] dark:border-[#453840] flex-shrink-0">
             <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-2xl">
               Configurar Permisos
             </DialogTitle>
@@ -536,9 +536,9 @@ export const RolesView: React.FC = () => {
               />
             </div>
           </div>
-          <DialogFooter className="gap-2 px-8 py-5 border-t border-[#E7E0DA] dark:border-[#3a2e35] flex-shrink-0">
+          <DialogFooter className="gap-2 px-8 py-5 border-t border-[#E7E0DA] dark:border-[#453840] flex-shrink-0">
             <button onClick={() => setPermisosOpen(false)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="px-6 py-2 bg-gray-100 dark:bg-[#2c2129] text-gray-700 dark:text-[#F5EDE9] rounded-lg hover:bg-gray-200 dark:hover:bg-[#3a2530] transition">Cancelar</button>
+              className="px-6 py-2 bg-gray-100 dark:bg-[#362b34] text-gray-700 dark:text-[#F5EDE9] rounded-lg hover:bg-gray-200 dark:hover:bg-[#3a2530] transition">Cancelar</button>
             <button onClick={savePermisos} disabled={saving} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
               className="px-6 py-2 bg-gradient-to-r from-[#241B22] via-[#7a3350] to-[#A3395C] text-white rounded-lg hover:opacity-90 disabled:opacity-50 flex items-center gap-2 transition">
               {saving && <Loader2 className="w-4 h-4 animate-spin" />} Guardar Permisos
@@ -550,35 +550,35 @@ export const RolesView: React.FC = () => {
       {/* ═══ EDITAR ROL ═══ */}
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent className="max-w-2xl h-auto flex flex-col p-0 gap-0">
-          <DialogHeader className="px-8 pt-6 pb-4 border-b border-[#E7E0DA] dark:border-[#3a2e35] flex-shrink-0">
+          <DialogHeader className="px-8 pt-6 pb-4 border-b border-[#E7E0DA] dark:border-[#453840] flex-shrink-0">
             <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-2xl">Editar Rol</DialogTitle>
             <DialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Modifica el nombre y descripción del rol</DialogDescription>
           </DialogHeader>
           <div className="flex-1 overflow-y-auto">
             <div className="space-y-6 py-6 px-8">
-              <div className="bg-white dark:bg-[#241B22] rounded-xl border border-[#E7E0DA] dark:border-[#3a2e35] shadow-sm overflow-hidden">
-                <div className="bg-[#FBF8F5] dark:bg-[#1c151a] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#3a2e35]">
+              <div className="bg-white dark:bg-[#322631] rounded-xl border border-[#E7E0DA] dark:border-[#453840] shadow-sm overflow-hidden">
+                <div className="bg-[#FBF8F5] dark:bg-[#2a2029] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#453840]">
                   <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#241B22] dark:text-[#F5EDE9] text-base flex items-center gap-2"><ClipboardList className="w-4 h-4 text-gray-400 dark:text-[#b8a3ac]" />Información del Rol</h3>
                 </div>
                 <div className="p-6 flex flex-col gap-5">
                   <div className="flex flex-col gap-2">
                     <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 dark:text-[#F5EDE9]">Nombre del Rol <span className="text-red-500">*</span></Label>
-                    <Input value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })} placeholder="Ej: Vendedor" className="h-10 border-gray-300 dark:border-[#3a2e35]" />
+                    <Input value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })} placeholder="Ej: Vendedor" className="h-10 border-gray-300 dark:border-[#453840]" />
                     {formErrors.nombre && <p className="text-red-500 text-xs">{formErrors.nombre}</p>}
                   </div>
                   <div className="flex flex-col gap-2">
                     <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 dark:text-[#F5EDE9]">Descripción</Label>
                     <textarea value={form.descripcion} onChange={e => setForm({ ...form, descripcion: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-[#3a2e35] dark:bg-[#1c151a] dark:text-[#F5EDE9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A3395C] text-sm min-h-[80px] resize-none"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-[#453840] dark:bg-[#2a2029] dark:text-[#F5EDE9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A3395C] text-sm min-h-[80px] resize-none"
                       style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} placeholder="Descripción del rol..." />
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          <DialogFooter className="gap-2 px-8 py-5 border-t border-[#E7E0DA] dark:border-[#3a2e35] flex-shrink-0">
+          <DialogFooter className="gap-2 px-8 py-5 border-t border-[#E7E0DA] dark:border-[#453840] flex-shrink-0">
             <button onClick={() => setEditOpen(false)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="px-6 py-2 bg-gray-100 dark:bg-[#2c2129] text-gray-700 dark:text-[#F5EDE9] rounded-lg hover:bg-gray-200 dark:hover:bg-[#3a2530] transition">Cancelar</button>
+              className="px-6 py-2 bg-gray-100 dark:bg-[#362b34] text-gray-700 dark:text-[#F5EDE9] rounded-lg hover:bg-gray-200 dark:hover:bg-[#3a2530] transition">Cancelar</button>
             <button onClick={saveEdit} disabled={saving} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
               className="px-6 py-2 bg-gradient-to-r from-[#241B22] via-[#7a3350] to-[#A3395C] text-white rounded-lg hover:opacity-90 disabled:opacity-50 flex items-center gap-2 transition">
               {saving && <Loader2 className="w-4 h-4 animate-spin" />} Guardar
@@ -590,26 +590,26 @@ export const RolesView: React.FC = () => {
       {/* ═══ CREAR ROL ═══ */}
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent className="max-w-2xl h-auto flex flex-col p-0 gap-0">
-          <DialogHeader className="px-8 pt-6 pb-4 border-b border-[#E7E0DA] dark:border-[#3a2e35] flex-shrink-0">
+          <DialogHeader className="px-8 pt-6 pb-4 border-b border-[#E7E0DA] dark:border-[#453840] flex-shrink-0">
             <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-2xl">Nuevo Rol</DialogTitle>
             <DialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Crea un nuevo rol y asigna sus permisos</DialogDescription>
           </DialogHeader>
           <div className="flex-1 overflow-y-auto">
             <div className="space-y-6 py-6 px-8">
-              <div className="bg-white dark:bg-[#241B22] rounded-xl border border-[#E7E0DA] dark:border-[#3a2e35] shadow-sm overflow-hidden">
-                <div className="bg-[#FBF8F5] dark:bg-[#1c151a] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#3a2e35]">
+              <div className="bg-white dark:bg-[#322631] rounded-xl border border-[#E7E0DA] dark:border-[#453840] shadow-sm overflow-hidden">
+                <div className="bg-[#FBF8F5] dark:bg-[#2a2029] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#453840]">
                   <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#241B22] dark:text-[#F5EDE9] text-base flex items-center gap-2"><ClipboardList className="w-4 h-4 text-gray-400 dark:text-[#b8a3ac]" />Información del Rol</h3>
                 </div>
                 <div className="p-6 flex flex-col gap-5">
                   <div className="flex flex-col gap-2">
                     <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 dark:text-[#F5EDE9]">Nombre del Rol <span className="text-red-500">*</span></Label>
-                    <Input value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })} placeholder="Ej: Vendedor" className="h-10 border-gray-300 dark:border-[#3a2e35]" />
+                    <Input value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })} placeholder="Ej: Vendedor" className="h-10 border-gray-300 dark:border-[#453840]" />
                     {formErrors.nombre && <p className="text-red-500 text-xs">{formErrors.nombre}</p>}
                   </div>
                   <div className="flex flex-col gap-2">
                     <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 dark:text-[#F5EDE9]">Descripción</Label>
                     <textarea value={form.descripcion} onChange={e => setForm({ ...form, descripcion: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-[#3a2e35] dark:bg-[#1c151a] dark:text-[#F5EDE9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A3395C] text-sm min-h-[80px] resize-none"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-[#453840] dark:bg-[#2a2029] dark:text-[#F5EDE9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A3395C] text-sm min-h-[80px] resize-none"
                       style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} placeholder="Descripción del rol..." />
                   </div>
                 </div>
@@ -627,9 +627,9 @@ export const RolesView: React.FC = () => {
               </div>
             </div>
           </div>
-          <DialogFooter className="gap-2 px-8 py-5 border-t border-[#E7E0DA] dark:border-[#3a2e35] flex-shrink-0">
+          <DialogFooter className="gap-2 px-8 py-5 border-t border-[#E7E0DA] dark:border-[#453840] flex-shrink-0">
             <button onClick={() => setCreateOpen(false)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="px-6 py-2 bg-gray-100 dark:bg-[#2c2129] text-gray-700 dark:text-[#F5EDE9] rounded-lg hover:bg-gray-200 dark:hover:bg-[#3a2530] transition">Cancelar</button>
+              className="px-6 py-2 bg-gray-100 dark:bg-[#362b34] text-gray-700 dark:text-[#F5EDE9] rounded-lg hover:bg-gray-200 dark:hover:bg-[#3a2530] transition">Cancelar</button>
             <button onClick={saveCreate} disabled={saving} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
               className="px-6 py-2 bg-gradient-to-r from-[#241B22] via-[#7a3350] to-[#A3395C] text-white rounded-lg hover:opacity-90 disabled:opacity-50 flex items-center gap-2 transition">
               {saving && <Loader2 className="w-4 h-4 animate-spin" />} Crear Rol

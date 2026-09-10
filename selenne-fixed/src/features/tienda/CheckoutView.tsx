@@ -434,7 +434,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
             <ArrowLeft className="w-4 h-4" />
             Volver a la tienda
           </button>
-          <Logo className="h-9 w-20" />
+          <Logo className="h-9 w-9" />
           <div className="w-[120px] hidden sm:block" aria-hidden="true" />
         </div>
       </div>

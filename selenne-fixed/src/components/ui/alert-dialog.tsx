@@ -37,7 +37,7 @@ const AlertDialogOverlay = React.forwardRef<
       ref={ref}
       data-slot="alert-dialog-overlay"
       className={cn(
-        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-[#1c151a]/60",
+        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-[#2a2029]/60",
         className,
       )}
       {...props}
@@ -56,7 +56,7 @@ function AlertDialogContent({
       <AlertDialogPrimitive.Content
         data-slot="alert-dialog-content"
         className={cn(
-          "bg-white text-[#241B22] border-[#E7E0DA] dark:bg-[#241B22] dark:text-[#F5EDE9] dark:border-[#3a2e35] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-xl border p-6 shadow-lg duration-200 sm:max-w-lg",
+          "bg-white text-[#241B22] border-[#E7E0DA] dark:bg-[#322631] dark:text-[#F5EDE9] dark:border-[#453840] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-xl border p-6 shadow-lg duration-200 sm:max-w-lg",
           className,
         )}
         {...props}
@@ -138,7 +138,7 @@ function AlertDialogCancel({
 }: React.ComponentProps<typeof AlertDialogPrimitive.Cancel>) {
   return (
     <AlertDialogPrimitive.Cancel
-      className={cn(buttonVariants({ variant: "outline" }), "border-[#E7E0DA] dark:border-[#3a2e35] bg-white dark:bg-[#241B22] text-[#241B22] dark:text-[#F5EDE9] hover:bg-[#FBF8F5] dark:hover:bg-[#1c151a] hover:text-[#241B22] dark:hover:text-[#F5EDE9]", className)}
+      className={cn(buttonVariants({ variant: "outline" }), "border-[#E7E0DA] dark:border-[#453840] bg-white dark:bg-[#322631] text-[#241B22] dark:text-[#F5EDE9] hover:bg-[#FBF8F5] dark:hover:bg-[#2a2029] hover:text-[#241B22] dark:hover:text-[#F5EDE9]", className)}
       {...props}
     />
   );

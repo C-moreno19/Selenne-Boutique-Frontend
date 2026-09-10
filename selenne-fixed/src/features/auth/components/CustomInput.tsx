@@ -31,7 +31,7 @@ export const CustomInput: React.FC<CustomInputProps> = ({
     if (error) return 'border-[#d64545] dark:border-red-900/50';
     if (success) return 'border-[#2eaf6f] dark:border-green-900/50';
     if (isFocused) return 'border-[#A3395C] ring-2 ring-[#EFD9DF] dark:ring-[#3a2530]';
-    return 'border-[#E7E0DA] dark:border-[#3a2e35]';
+    return 'border-[#E7E0DA] dark:border-[#453840]';
   };
 
   return (
@@ -48,7 +48,7 @@ export const CustomInput: React.FC<CustomInputProps> = ({
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           placeholder={placeholder}
-          className={`w-full px-4 py-3 border rounded-lg transition-all duration-200 outline-none bg-white dark:bg-[#241B22] text-[#241B22] dark:text-[#F5EDE9] ${getBorderColor()}`}
+          className={`w-full px-4 py-3 border rounded-lg transition-all duration-200 outline-none bg-white dark:bg-[#322631] text-[#241B22] dark:text-[#F5EDE9] ${getBorderColor()}`}
         />
 
         {showPasswordToggle && (

@@ -108,7 +108,7 @@ export const PerfilView: React.FC = () => {
 
   const fieldClass = (error?: string) =>
     `w-full pl-10 pr-3 h-[42px] text-sm border rounded-xl focus:outline-none focus:ring-2 transition-all ${
-      error ? 'border-red-300 dark:border-red-900/50 focus:ring-red-200 dark:focus:ring-red-900/30 bg-red-50 dark:bg-red-950/40' : 'border-[#E7E0DA] dark:border-[#3a2e35] focus:ring-[#A3395C]/30 focus:border-[#A3395C]'
+      error ? 'border-red-300 dark:border-red-900/50 focus:ring-red-200 dark:focus:ring-red-900/30 bg-red-50 dark:bg-red-950/40' : 'border-[#E7E0DA] dark:border-[#453840] focus:ring-[#A3395C]/30 focus:border-[#A3395C]'
     }`;
 
   return (
@@ -118,8 +118,8 @@ export const PerfilView: React.FC = () => {
       <h1 className="admin-page-title text-sm font-bold text-[#241B22] dark:text-[#F5EDE9] uppercase tracking-widest mb-6">Perfil</h1>
 
       {/* Card info personal */}
-      <div className="border border-[#E7E0DA] dark:border-[#3a2e35] overflow-hidden mb-6">
-        <div className="px-5 py-4 flex items-center justify-between border-b border-[#E7E0DA] dark:border-[#3a2e35]">
+      <div className="border border-[#E7E0DA] dark:border-[#453840] overflow-hidden mb-6">
+        <div className="px-5 py-4 flex items-center justify-between border-b border-[#E7E0DA] dark:border-[#453840]">
           <span className="text-sm font-medium text-[#241B22] dark:text-[#F5EDE9]">{user?.name}</span>
           <button
             onClick={() => {
@@ -132,7 +132,7 @@ export const PerfilView: React.FC = () => {
             <Edit className="w-4 h-4" />
           </button>
         </div>
-        <div className="divide-y divide-gray-100 dark:divide-[#3a2e35]">
+        <div className="divide-y divide-gray-100 dark:divide-[#453840]">
           {[
             { label: 'Correo electrónico',      value: user?.email },
             { label: 'Teléfono',                value: profileData.phone     || '—' },
@@ -150,10 +150,10 @@ export const PerfilView: React.FC = () => {
 
       {/* Cambiar contraseña */}
       <h2 className="text-sm font-bold text-[#241B22] dark:text-[#F5EDE9] uppercase tracking-widest mb-3">Cambiar contraseña</h2>
-      <div className="border border-[#E7E0DA] dark:border-[#3a2e35] overflow-hidden mb-2">
+      <div className="border border-[#E7E0DA] dark:border-[#453840] overflow-hidden mb-2">
         <button
           onClick={() => setPasswordModalOpen(true)}
-          className="w-full px-5 py-4 text-left flex items-center justify-between hover:bg-[#FBF8F5] dark:hover:bg-[#2c2129] transition"
+          className="w-full px-5 py-4 text-left flex items-center justify-between hover:bg-[#FBF8F5] dark:hover:bg-[#362b34] transition"
         >
           <span className="text-sm text-gray-700 dark:text-[#F5EDE9]">Cambiar contraseña</span>
           <Edit className="w-4 h-4 text-gray-400 dark:text-[#b8a3ac]" />
@@ -283,7 +283,7 @@ export const PerfilView: React.FC = () => {
                       value={formData.ciudad}
                       onChange={(e) => setFormData({ ...formData, ciudad: e.target.value })}
                       style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                      className="w-full pl-10 pr-8 h-[42px] text-sm border border-[#E7E0DA] dark:border-[#3a2e35] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#A3395C]/30 focus:border-[#A3395C] transition-all appearance-none bg-white dark:bg-[#241B22] text-[#241B22] dark:text-[#F5EDE9]"
+                      className="w-full pl-10 pr-8 h-[42px] text-sm border border-[#E7E0DA] dark:border-[#453840] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#A3395C]/30 focus:border-[#A3395C] transition-all appearance-none bg-white dark:bg-[#322631] text-[#241B22] dark:text-[#F5EDE9]"
                     >
                       <option value="">Selecciona una ciudad</option>
                       {CIUDADES_COLOMBIA.sort().map((c) => (
@@ -301,7 +301,7 @@ export const PerfilView: React.FC = () => {
                     <MapPin className={`absolute left-3 top-3 w-4 h-4 ${errors.address ? 'text-red-400' : 'text-[#A3395C]'}`} />
                     <textarea value={formData.address} onChange={(e) => { setFormData({ ...formData, address: e.target.value }); setErrors({ ...errors, address: '' }); }}
                       style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                      className={`w-full pl-10 pr-3 py-2.5 text-sm border rounded-xl focus:outline-none focus:ring-2 min-h-[42px] max-h-[80px] resize-none transition-all ${errors.address ? 'border-red-300 dark:border-red-900/50 focus:ring-red-200 dark:focus:ring-red-900/30 bg-red-50 dark:bg-red-950/40' : 'border-[#E7E0DA] dark:border-[#3a2e35] focus:ring-[#A3395C]/30 focus:border-[#A3395C]'}`}
+                      className={`w-full pl-10 pr-3 py-2.5 text-sm border rounded-xl focus:outline-none focus:ring-2 min-h-[42px] max-h-[80px] resize-none transition-all ${errors.address ? 'border-red-300 dark:border-red-900/50 focus:ring-red-200 dark:focus:ring-red-900/30 bg-red-50 dark:bg-red-950/40' : 'border-[#E7E0DA] dark:border-[#453840] focus:ring-[#A3395C]/30 focus:border-[#A3395C]'}`}
                       placeholder="Calle 123 # 45-67, Barrio..." />
                   </div>
                   {errors.address && <p className="text-xs text-red-500 mt-1" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>{errors.address}</p>}
@@ -310,9 +310,9 @@ export const PerfilView: React.FC = () => {
             </div>
           </div>
 
-          <div className="px-6 py-4 bg-[#FBF8F5] dark:bg-[#1c151a] border-t border-[#E7E0DA] dark:border-[#3a2e35] flex justify-end gap-3">
+          <div className="px-6 py-4 bg-[#FBF8F5] dark:bg-[#2a2029] border-t border-[#E7E0DA] dark:border-[#453840] flex justify-end gap-3">
             <button onClick={() => setEditModalOpen(false)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="px-5 h-[40px] text-sm bg-white dark:bg-[#241B22] border border-[#E7E0DA] dark:border-[#3a2e35] text-gray-700 dark:text-[#F5EDE9] rounded-xl hover:bg-gray-100 dark:hover:bg-[#2c2129] transition flex items-center gap-2">
+              className="px-5 h-[40px] text-sm bg-white dark:bg-[#322631] border border-[#E7E0DA] dark:border-[#453840] text-gray-700 dark:text-[#F5EDE9] rounded-xl hover:bg-gray-100 dark:hover:bg-[#362b34] transition flex items-center gap-2">
               <X className="w-4 h-4" /> Cancelar
             </button>
             <button onClick={handleSaveProfile} disabled={saving} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
@@ -361,7 +361,7 @@ export const PerfilView: React.FC = () => {
                     onChange={(e) => setPasswordData({ ...passwordData, [key]: e.target.value })}
                     placeholder={placeholder}
                     style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                    className="w-full pl-10 pr-10 h-[42px] text-sm border border-[#E7E0DA] dark:border-[#3a2e35] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#A3395C]/30 focus:border-[#A3395C] transition-all"
+                    className="w-full pl-10 pr-10 h-[42px] text-sm border border-[#E7E0DA] dark:border-[#453840] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#A3395C]/30 focus:border-[#A3395C] transition-all"
                   />
                   <button type="button" aria-label={showPasswords[key as keyof typeof showPasswords] ? 'Ocultar contraseña' : 'Mostrar contraseña'} onClick={() => setShowPasswords({ ...showPasswords, [key]: !showPasswords[key as keyof typeof showPasswords] })}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-[#b8a3ac] hover:text-gray-600 dark:hover:text-[#F5EDE9] transition">
@@ -375,7 +375,7 @@ export const PerfilView: React.FC = () => {
                         <div key={i} className={`h-1 flex-1 rounded-full transition ${
                           passwordData.new.length >= i * 3
                             ? i <= 1 ? 'bg-red-400' : i <= 2 ? 'bg-yellow-400' : i <= 3 ? 'bg-blue-400' : 'bg-green-400'
-                            : 'bg-gray-200 dark:bg-[#3a2e35]'
+                            : 'bg-gray-200 dark:bg-[#453840]'
                         }`} />
                       ))}
                     </div>
@@ -391,10 +391,10 @@ export const PerfilView: React.FC = () => {
             ))}
           </div>
 
-          <div className="px-6 py-4 bg-[#FBF8F5] dark:bg-[#1c151a] border-t border-[#E7E0DA] dark:border-[#3a2e35] flex justify-end gap-3">
+          <div className="px-6 py-4 bg-[#FBF8F5] dark:bg-[#2a2029] border-t border-[#E7E0DA] dark:border-[#453840] flex justify-end gap-3">
             <button onClick={() => { setPasswordModalOpen(false); setPasswordData({ current: '', new: '', confirm: '' }); }}
               style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="px-5 h-[40px] text-sm bg-white dark:bg-[#241B22] border border-[#E7E0DA] dark:border-[#3a2e35] text-gray-700 dark:text-[#F5EDE9] rounded-xl hover:bg-gray-100 dark:hover:bg-[#2c2129] transition flex items-center gap-2">
+              className="px-5 h-[40px] text-sm bg-white dark:bg-[#322631] border border-[#E7E0DA] dark:border-[#453840] text-gray-700 dark:text-[#F5EDE9] rounded-xl hover:bg-gray-100 dark:hover:bg-[#362b34] transition flex items-center gap-2">
               <X className="w-4 h-4" /> Cancelar
             </button>
             <button onClick={handleChangePassword} disabled={saving} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}

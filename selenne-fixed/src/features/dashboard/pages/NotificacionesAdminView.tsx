@@ -78,7 +78,7 @@ export const NotificacionesAdminView: React.FC = () => {
   };
 
   return (
-    <div className="p-8 bg-[#FBF8F5] dark:bg-[#1c151a] min-h-screen">
+    <div className="p-8 bg-[#FBF8F5] dark:bg-[#2a2029] min-h-screen">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 mb-4">
         <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500 dark:text-[#b8a3ac]">
@@ -108,14 +108,14 @@ export const NotificacionesAdminView: React.FC = () => {
       </div>
 
       {/* Filtros */}
-      <div className="bg-white dark:bg-[#241B22] rounded-xl p-6 shadow-sm border border-[#E7E0DA] dark:border-[#3a2e35] mb-6">
+      <div className="bg-white dark:bg-[#322631] rounded-xl p-6 shadow-sm border border-[#E7E0DA] dark:border-[#453840] mb-6">
         <div className="flex gap-3">
           <button
             onClick={() => setFilterType('todos')}
             className={`px-4 py-2 rounded-lg transition font-semibold ${
               filterType === 'todos'
                 ? 'bg-[#A3395C] text-white'
-                : 'bg-gray-100 dark:bg-[#2c2129] text-gray-700 dark:text-[#F5EDE9] hover:bg-gray-200 dark:hover:bg-[#3a2530]'
+                : 'bg-gray-100 dark:bg-[#362b34] text-gray-700 dark:text-[#F5EDE9] hover:bg-gray-200 dark:hover:bg-[#3a2530]'
             }`}
           >
             📋 Todas ({todosMsg.length})
@@ -125,7 +125,7 @@ export const NotificacionesAdminView: React.FC = () => {
             className={`px-4 py-2 rounded-lg transition font-semibold ${
               filterType === 'respuestas'
                 ? 'bg-[#A3395C] text-white'
-                : 'bg-gray-100 dark:bg-[#2c2129] text-gray-700 dark:text-[#F5EDE9] hover:bg-gray-200 dark:hover:bg-[#3a2530]'
+                : 'bg-gray-100 dark:bg-[#362b34] text-gray-700 dark:text-[#F5EDE9] hover:bg-gray-200 dark:hover:bg-[#3a2530]'
             }`}
           >
             💬 Respuestas ({respuestas.length})
@@ -135,7 +135,7 @@ export const NotificacionesAdminView: React.FC = () => {
             className={`px-4 py-2 rounded-lg transition font-semibold ${
               filterType === 'consultas'
                 ? 'bg-[#A3395C] text-white'
-                : 'bg-gray-100 dark:bg-[#2c2129] text-gray-700 dark:text-[#F5EDE9] hover:bg-gray-200 dark:hover:bg-[#3a2530]'
+                : 'bg-gray-100 dark:bg-[#362b34] text-gray-700 dark:text-[#F5EDE9] hover:bg-gray-200 dark:hover:bg-[#3a2530]'
             }`}
           >
             📧 Consultas ({consultas.length})
@@ -144,7 +144,7 @@ export const NotificacionesAdminView: React.FC = () => {
       </div>
 
       {/* Lista de Notificaciones */}
-      <div className="bg-white dark:bg-[#241B22] rounded-xl shadow-sm border border-[#E7E0DA] dark:border-[#3a2e35] overflow-hidden">
+      <div className="bg-white dark:bg-[#322631] rounded-xl shadow-sm border border-[#E7E0DA] dark:border-[#453840] overflow-hidden">
         {mensajesFiltrados.length === 0 ? (
           <div className="p-12 text-center">
             <div className="text-5xl mb-4">📭</div>
@@ -153,14 +153,14 @@ export const NotificacionesAdminView: React.FC = () => {
             </p>
           </div>
         ) : (
-          <div className="divide-y divide-gray-100 dark:divide-[#3a2e35]">
+          <div className="divide-y divide-gray-100 dark:divide-[#453840]">
             {mensajesFiltrados.map((msg) => (
               <div
                 key={msg.id}
-                className={`p-4 hover:bg-[#FBF8F5] dark:hover:bg-[#2c2129] transition cursor-pointer border-l-4 ${
+                className={`p-4 hover:bg-[#FBF8F5] dark:hover:bg-[#362b34] transition cursor-pointer border-l-4 ${
                   !msg.leido
                     ? 'border-l-blue-600 bg-blue-50 dark:bg-blue-950/40'
-                    : 'border-l-gray-200 dark:border-l-[#3a2e35] bg-white dark:bg-[#241B22]'
+                    : 'border-l-gray-200 dark:border-l-[#453840] bg-white dark:bg-[#322631]'
                 }`}
                 onClick={() => handleView(msg)}
               >
@@ -232,9 +232,9 @@ export const NotificacionesAdminView: React.FC = () => {
           </div>
 
           {selectedMsg && (
-            <div className="space-y-4 px-8 py-6 bg-[#FBF8F5] dark:bg-[#1c151a]">
+            <div className="space-y-4 px-8 py-6 bg-[#FBF8F5] dark:bg-[#2a2029]">
               {/* Info del Mensaje */}
-              <div className="bg-[#FBF8F5] dark:bg-[#241B22] rounded-lg p-4">
+              <div className="bg-[#FBF8F5] dark:bg-[#322631] rounded-lg p-4">
                 <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-gray-600 dark:text-[#b8a3ac] uppercase mb-2">
                   Información
                 </h3>

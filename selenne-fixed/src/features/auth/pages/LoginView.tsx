@@ -122,7 +122,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
       </div>
 
       {/* Login Panel - Right (45%) */}
-      <div className="flex-1 lg:w-[45%] flex items-center justify-center bg-white dark:bg-[#1c151a] px-16 py-12">
+      <div className="flex-1 lg:w-[45%] flex items-center justify-center bg-white dark:bg-[#2a2029] px-16 py-12">
         <div className="w-full max-w-md space-y-8">
           {/* Back arrow */}
           {onBack && (
@@ -137,7 +137,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
           )}
           {/* Logo */}
           <div className="flex justify-center mb-10">
-            <Logo className="w-[160px] h-[90px]" />
+            <Logo className="w-[140px] h-[140px]" />
           </div>
 
           {/* Form */}

@@ -354,9 +354,9 @@ export const LandingView: React.FC<LandingViewProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#1c151a] flex flex-col">
+    <div className="min-h-screen bg-white dark:bg-[#2a2029] flex flex-col">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-[#FBF8F5] dark:bg-[#1c151a] border-b border-[#E7E0DA] dark:border-[#3a2e35] shadow-sm">
+      <header className="sticky top-0 z-50 bg-[#FBF8F5] dark:bg-[#2a2029] border-b border-[#E7E0DA] dark:border-[#453840] shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
@@ -429,7 +429,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                 <SheetTrigger asChild>
                   <button
                     onClick={() => setBusquedaModal('')}
-                    className="hidden md:flex items-center gap-2 rounded-full border border-[#E7E0DA] dark:border-[#3a2e35] bg-white dark:bg-[#241B22] pl-4 pr-3 py-2 w-[190px] text-left hover:border-[#A3395C] transition-colors"
+                    className="hidden md:flex items-center gap-2 rounded-full border border-[#E7E0DA] dark:border-[#453840] bg-white dark:bg-[#322631] pl-4 pr-3 py-2 w-[190px] text-left hover:border-[#A3395C] transition-colors"
                   >
                     <Search className="w-4 h-4 text-[#7d6f77] dark:text-[#b8a3ac] flex-shrink-0" />
                     <span className="text-[13px] text-[#7d6f77] dark:text-[#b8a3ac]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
@@ -447,11 +447,11 @@ export const LandingView: React.FC<LandingViewProps> = ({
                   </button>
                 </SheetTrigger>
                 <SheetContent side="right" className="w-full sm:max-w-md flex flex-col p-0">
-                  <SheetHeader className="px-4 py-3 border-b border-gray-100 dark:border-[#3a2e35]">
+                  <SheetHeader className="px-4 py-3 border-b border-gray-100 dark:border-[#453840]">
                     <SheetTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Buscar</SheetTitle>
                   </SheetHeader>
                   <div className="mt-0 flex flex-col gap-0 flex-1 overflow-hidden">
-                    <div className="flex items-center gap-2 border-b border-gray-200 dark:border-[#3a2e35] px-4 py-3">
+                    <div className="flex items-center gap-2 border-b border-gray-200 dark:border-[#453840] px-4 py-3">
                       <Search className="w-5 h-5 text-gray-400 dark:text-[#b8a3ac] flex-shrink-0" />
                       <input
                         autoFocus
@@ -490,7 +490,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                                   setImagenActual(0);
                                   setBusquedaModalAbierta(false);
                                 }}
-                                className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-[#2c2129] transition-colors border-b border-gray-100 dark:border-[#3a2e35] last:border-b-0"
+                                className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-[#362b34] transition-colors border-b border-gray-100 dark:border-[#453840] last:border-b-0"
                               >
                                 <img src={p.imagen} alt={p.nombre} className="w-14 h-14 object-cover flex-shrink-0" />
                                 <div className="flex-1 text-left min-w-0">
@@ -554,7 +554,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                   <div className="mt-6">
                     {favoritosValidos.length === 0 ? (
                       <div className="text-center py-12">
-                        <Heart className="w-16 h-16 text-gray-300 dark:text-[#3a2e35] mx-auto mb-4" />
+                        <Heart className="w-16 h-16 text-gray-300 dark:text-[#453840] mx-auto mb-4" />
                         <p className="text-gray-500 dark:text-[#b8a3ac] mb-4">No tienes productos en favoritos</p>
                         <Button onClick={() => setFavoritosOpen(false)} className="w-full bg-[#A3395C] text-white">
                           Seguir comprando
@@ -621,7 +621,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                   <div className="mt-8 space-y-4">
                     {carritoItems.length === 0 ? (
                       <div className="text-center py-12">
-                        <ShoppingCart className="w-16 h-16 text-gray-300 dark:text-[#3a2e35] mx-auto mb-4" />
+                        <ShoppingCart className="w-16 h-16 text-gray-300 dark:text-[#453840] mx-auto mb-4" />
                         <p className="text-gray-500 dark:text-[#b8a3ac]">Tu carrito está vacío</p>
                       </div>
                     ) : (
@@ -630,7 +630,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                           {carritoItems.map((item) => (
                             <div
                               key={`${item.carritoID}`}
-                              className="flex gap-4 bg-gray-50 dark:bg-[#2c2129] p-3 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-[#3a2530] transition-colors"
+                              className="flex gap-4 bg-gray-50 dark:bg-[#362b34] p-3 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-[#3a2530] transition-colors"
                               onClick={() => {
                                 const fullProduct = productosData.find(p => p.id === item.id);
                                 setProductoSeleccionado(fullProduct || item);
@@ -709,12 +709,12 @@ export const LandingView: React.FC<LandingViewProps> = ({
                           </div>
                           <p className="text-xs text-gray-500 dark:text-[#b8a3ac] mt-3 text-center">*IVA incluido en el precio</p>
                         </div>
-                        <div className="grid grid-cols-3 gap-1 bg-[#FBF8F5] dark:bg-[#1c151a] rounded-lg py-3 px-2">
+                        <div className="grid grid-cols-3 gap-1 bg-[#FBF8F5] dark:bg-[#2a2029] rounded-lg py-3 px-2">
                           <div className="flex flex-col items-center text-center gap-1.5 px-1">
                             <Package className="w-[18px] h-[18px] text-[#A3395C]" />
                             <span className="text-[10px] uppercase tracking-wide font-semibold text-[#7d6f77] dark:text-[#b8a3ac] leading-tight">Envío 3-5 días</span>
                           </div>
-                          <div className="flex flex-col items-center text-center gap-1.5 px-1 border-x border-[#E7E0DA] dark:border-[#3a2e35]">
+                          <div className="flex flex-col items-center text-center gap-1.5 px-1 border-x border-[#E7E0DA] dark:border-[#453840]">
                             <Globe className="w-[18px] h-[18px] text-[#A3395C]" />
                             <span className="text-[10px] uppercase tracking-wide font-semibold text-[#7d6f77] dark:text-[#b8a3ac] leading-tight">A todo el país</span>
                           </div>
@@ -743,12 +743,12 @@ export const LandingView: React.FC<LandingViewProps> = ({
 
           {/* Navegación Móvil */}
           {menuMovilAbierto && (
-            <nav className="lg:hidden py-4 space-y-2 border-t border-gray-200 dark:border-[#3a2e35]">
+            <nav className="lg:hidden py-4 space-y-2 border-t border-gray-200 dark:border-[#453840]">
               <button
                 onClick={() => { irATienda("mujer"); setMenuMovilAbierto(false); }}
                 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className={`block w-full text-left px-4 py-2 rounded-lg ${
-                  vista === "tienda" && categoriaActiva === "mujer" ? "bg-[#f8a9c5] text-white" : "text-gray-700 dark:text-[#F5EDE9] hover:bg-gray-100 dark:hover:bg-[#2c2129]"
+                  vista === "tienda" && categoriaActiva === "mujer" ? "bg-[#f8a9c5] text-white" : "text-gray-700 dark:text-[#F5EDE9] hover:bg-gray-100 dark:hover:bg-[#362b34]"
                 }`}
               >
                 Mujer
@@ -757,7 +757,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                 onClick={() => { irATienda("accesorios"); setMenuMovilAbierto(false); }}
                 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className={`block w-full text-left px-4 py-2 rounded-lg ${
-                  vista === "tienda" && categoriaActiva === "accesorios" ? "bg-[#f8a9c5] text-white" : "text-gray-700 dark:text-[#F5EDE9] hover:bg-gray-100 dark:hover:bg-[#2c2129]"
+                  vista === "tienda" && categoriaActiva === "accesorios" ? "bg-[#f8a9c5] text-white" : "text-gray-700 dark:text-[#F5EDE9] hover:bg-gray-100 dark:hover:bg-[#362b34]"
                 }`}
               >
                 Accesorios
@@ -766,7 +766,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                 onClick={() => { irATienda("sale"); setMenuMovilAbierto(false); }}
                 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 className={`block w-full text-left px-4 py-2 rounded-lg ${
-                  vista === "tienda" && categoriaActiva === "sale" ? "bg-[#f8a9c5] text-white" : "text-gray-700 dark:text-[#F5EDE9] hover:bg-gray-100 dark:hover:bg-[#2c2129]"
+                  vista === "tienda" && categoriaActiva === "sale" ? "bg-[#f8a9c5] text-white" : "text-gray-700 dark:text-[#F5EDE9] hover:bg-gray-100 dark:hover:bg-[#362b34]"
                 }`}
               >
                 Sale
@@ -907,11 +907,11 @@ export const LandingView: React.FC<LandingViewProps> = ({
         </div>
 
         {/* Barra de Búsqueda y Filtros */}
-        <div className="bg-white dark:bg-[#1c151a] border-b border-gray-200 dark:border-[#3a2e35]">
+        <div className="bg-white dark:bg-[#2a2029] border-b border-gray-200 dark:border-[#453840]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
             <div className="flex items-center justify-between gap-3">
               <Select value={ordenar} onValueChange={setOrdenar}>
-                <SelectTrigger className="w-52 bg-white dark:bg-[#241B22] dark:text-[#F5EDE9] dark:border-[#3a2e35] h-9 text-sm" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                <SelectTrigger className="w-52 bg-white dark:bg-[#322631] dark:text-[#F5EDE9] dark:border-[#453840] h-9 text-sm" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -923,7 +923,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
               </Select>
               <button onClick={() => setFiltrosAbiertos(true)}
                 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                className="flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-[#3a2e35] dark:text-[#F5EDE9] rounded-lg text-sm font-medium hover:border-gray-900 dark:hover:border-[#A3395C] transition-colors">
+                className="flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-[#453840] dark:text-[#F5EDE9] rounded-lg text-sm font-medium hover:border-gray-900 dark:hover:border-[#A3395C] transition-colors">
                 <SlidersHorizontal className="w-4 h-4" />
                 FILTROS
                 {contadorFiltros > 0 && (
@@ -964,9 +964,9 @@ export const LandingView: React.FC<LandingViewProps> = ({
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {Array.from({ length: 8 }).map((_, i) => (
                 <div key={i} className="animate-pulse">
-                  <div className="w-full aspect-[3/4] bg-gray-200 dark:bg-[#2c2129] rounded" />
-                  <div className="h-4 bg-gray-200 dark:bg-[#2c2129] rounded mt-3 w-3/4" />
-                  <div className="h-4 bg-gray-200 dark:bg-[#2c2129] rounded mt-2 w-1/2" />
+                  <div className="w-full aspect-[3/4] bg-gray-200 dark:bg-[#362b34] rounded" />
+                  <div className="h-4 bg-gray-200 dark:bg-[#362b34] rounded mt-3 w-3/4" />
+                  <div className="h-4 bg-gray-200 dark:bg-[#362b34] rounded mt-2 w-1/2" />
                 </div>
               ))}
             </div>
@@ -984,7 +984,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.35, delay: Math.min(indiceProducto, 8) * 0.04 }}
-                  className="bg-white dark:bg-[#241B22] overflow-hidden group transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                  className="bg-white dark:bg-[#322631] overflow-hidden group transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
                   <div className="relative overflow-hidden">
                     <img
                       src={producto.imagen}
@@ -1065,7 +1065,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                             key={color}
                             onClick={() => abrirDetalleProducto(producto, color)}
                             title={color}
-                            className="w-4 h-4 rounded-full border border-gray-300 dark:border-[#3a2e35] hover:scale-125 transition-transform"
+                            className="w-4 h-4 rounded-full border border-gray-300 dark:border-[#453840] hover:scale-125 transition-transform"
                             style={{ backgroundColor: getColorHex(color) }}
                           />
                         ))}
@@ -1087,7 +1087,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                 onClick={() => { setPaginaActual(p => p - 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                 disabled={paginaActual === 1}
                 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                className="px-5 py-2 text-sm border border-gray-300 dark:border-[#3a2e35] dark:text-[#F5EDE9] rounded-lg hover:border-[#A3395C] hover:text-[#A3395C] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                className="px-5 py-2 text-sm border border-gray-300 dark:border-[#453840] dark:text-[#F5EDE9] rounded-lg hover:border-[#A3395C] hover:text-[#A3395C] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 ← Anterior
               </button>
@@ -1098,7 +1098,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                 onClick={() => { setPaginaActual(p => p + 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                 disabled={paginaActual === totalPaginasLanding}
                 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                className="px-5 py-2 text-sm border border-gray-300 dark:border-[#3a2e35] dark:text-[#F5EDE9] rounded-lg hover:border-[#A3395C] hover:text-[#A3395C] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                className="px-5 py-2 text-sm border border-gray-300 dark:border-[#453840] dark:text-[#F5EDE9] rounded-lg hover:border-[#A3395C] hover:text-[#A3395C] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Siguiente →
               </button>
@@ -1123,7 +1123,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
             return (
               <div className="flex flex-col sm:flex-row sm:h-[85vh]">
                 {/* LEFT: Image panel */}
-                <div className="relative w-full h-72 sm:w-[44%] sm:min-w-[44%] sm:h-auto flex-shrink-0 overflow-hidden bg-[#FBF8F5] dark:bg-[#1c151a]">
+                <div className="relative w-full h-72 sm:w-[44%] sm:min-w-[44%] sm:h-auto flex-shrink-0 overflow-hidden bg-[#FBF8F5] dark:bg-[#2a2029]">
                   <ImageCarousel
                     key={`${productoSeleccionado.id}-${colorSeleccionado || 'default'}`}
                     imagenes={imgsForColor}
@@ -1133,7 +1133,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                 </div>
 
                 {/* RIGHT: Details panel */}
-                <div className="flex-1 flex flex-col gap-4 sm:gap-[18px] p-5 sm:p-9 sm:overflow-y-auto bg-white dark:bg-[#241B22]">
+                <div className="flex-1 flex flex-col gap-4 sm:gap-[18px] p-5 sm:p-9 sm:overflow-y-auto bg-white dark:bg-[#322631]">
 
                   {/* Name */}
                   <h1
@@ -1168,12 +1168,12 @@ export const LandingView: React.FC<LandingViewProps> = ({
                   )}
 
                   {/* Info icons */}
-                  <div className="grid grid-cols-3 gap-1 bg-[#FBF8F5] dark:bg-[#1c151a] rounded-lg py-4 px-2">
+                  <div className="grid grid-cols-3 gap-1 bg-[#FBF8F5] dark:bg-[#2a2029] rounded-lg py-4 px-2">
                     <div className="flex flex-col items-center text-center gap-1.5 px-1">
                       <Package className="w-[18px] h-[18px] text-[#A3395C]" />
                       <span className="text-[10px] uppercase tracking-wide font-semibold text-[#7d6f77] dark:text-[#b8a3ac] leading-tight">Envío 3-5 días hábiles</span>
                     </div>
-                    <div className="flex flex-col items-center text-center gap-1.5 px-1 border-x border-[#E7E0DA] dark:border-[#3a2e35]">
+                    <div className="flex flex-col items-center text-center gap-1.5 px-1 border-x border-[#E7E0DA] dark:border-[#453840]">
                       <Globe className="w-[18px] h-[18px] text-[#A3395C]" />
                       <span className="text-[10px] uppercase tracking-wide font-semibold text-[#7d6f77] dark:text-[#b8a3ac] leading-tight">Envíos a todo el país</span>
                     </div>
@@ -1206,7 +1206,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                                 className={`w-8 h-8 rounded-full border-2 transition-all ${
                                   colorSeleccionado === color
                                     ? 'border-[#A3395C] ring-2 ring-[#A3395C] ring-offset-2'
-                                    : 'border-[#E7E0DA] dark:border-[#3a2e35] hover:border-[#A3395C]'
+                                    : 'border-[#E7E0DA] dark:border-[#453840] hover:border-[#A3395C]'
                                 }`}
                                 style={{ backgroundColor: hexColor }}
                                 title={color}
@@ -1262,10 +1262,10 @@ export const LandingView: React.FC<LandingViewProps> = ({
                                 onClick={() => !sinStock && setTallaSeleccionada(talla)}
                                 className={`w-12 h-10 rounded-md border text-sm font-medium transition-all ${
                                   sinStock
-                                    ? 'border-[#E7E0DA] dark:border-[#3a2e35] text-[#c3bab3] dark:text-[#5a4d52] bg-[#FBF8F5] dark:bg-[#1c151a] cursor-not-allowed line-through'
+                                    ? 'border-[#E7E0DA] dark:border-[#453840] text-[#c3bab3] dark:text-[#5a4d52] bg-[#FBF8F5] dark:bg-[#2a2029] cursor-not-allowed line-through'
                                     : seleccionada
                                       ? 'border-[#241B22] bg-[#241B22] text-white'
-                                      : 'border-[#E7E0DA] dark:border-[#3a2e35] text-[#241B22] dark:text-[#F5EDE9] hover:border-[#A3395C]'
+                                      : 'border-[#E7E0DA] dark:border-[#453840] text-[#241B22] dark:text-[#F5EDE9] hover:border-[#A3395C]'
                                 }`}
                                 title={sinStock ? 'Agotado' : `${talla} — ${stockDisponible} disponibles`}
                               >
@@ -1293,18 +1293,18 @@ export const LandingView: React.FC<LandingViewProps> = ({
                   )}
 
                   {/* Quantity + Add to cart + Favorite */}
-                  <div className="flex flex-wrap items-center gap-3 pt-3 mt-1 border-t border-[#E7E0DA] dark:border-[#3a2e35]" style={{ flexShrink: 0 }}>
+                  <div className="flex flex-wrap items-center gap-3 pt-3 mt-1 border-t border-[#E7E0DA] dark:border-[#453840]" style={{ flexShrink: 0 }}>
                     <div className="flex items-center gap-3">
                       <button
                         onClick={() => setCantidadSeleccionada(Math.max(1, cantidadSeleccionada - 1))}
-                        className="w-8 h-8 rounded-full border border-[#E7E0DA] dark:border-[#3a2e35] flex items-center justify-center hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] transition-colors text-[#241B22] dark:text-[#F5EDE9]"
+                        className="w-8 h-8 rounded-full border border-[#E7E0DA] dark:border-[#453840] flex items-center justify-center hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] transition-colors text-[#241B22] dark:text-[#F5EDE9]"
                       >
                         <Minus className="w-3 h-3" />
                       </button>
                       <span className="text-sm font-medium w-4 text-center text-[#241B22] dark:text-[#F5EDE9]">{cantidadSeleccionada}</span>
                       <button
                         onClick={() => setCantidadSeleccionada(cantidadSeleccionada + 1)}
-                        className="w-8 h-8 rounded-full border border-[#E7E0DA] dark:border-[#3a2e35] flex items-center justify-center hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] transition-colors text-[#241B22] dark:text-[#F5EDE9]"
+                        className="w-8 h-8 rounded-full border border-[#E7E0DA] dark:border-[#453840] flex items-center justify-center hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] transition-colors text-[#241B22] dark:text-[#F5EDE9]"
                       >
                         <Plus className="w-3 h-3" />
                       </button>
@@ -1314,7 +1314,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                       onClick={handleAgregarAlCarrito}
                       className={`flex-1 min-w-[120px] min-h-10 h-auto py-2 px-2 rounded-md border text-xs font-semibold uppercase tracking-wider transition-all ${
                         productoSeleccionado.agotado
-                          ? 'border-[#E7E0DA] dark:border-[#3a2e35] text-[#c3bab3] dark:text-[#5a4d52] cursor-not-allowed'
+                          ? 'border-[#E7E0DA] dark:border-[#453840] text-[#c3bab3] dark:text-[#5a4d52] cursor-not-allowed'
                           : 'border-[#241B22] text-[#241B22] dark:text-[#F5EDE9] hover:bg-[#241B22] hover:text-white'
                       }`}
                     >
@@ -1323,7 +1323,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                     <button
                       onClick={() => onNavigateToLogin()}
                       title="Inicia sesión para guardar en favoritos"
-                      className="w-10 h-10 rounded-md border border-[#E7E0DA] dark:border-[#3a2e35] flex items-center justify-center transition-all flex-shrink-0 text-[#7d6f77] dark:text-[#b8a3ac] hover:border-[#A3395C] hover:text-[#A3395C]"
+                      className="w-10 h-10 rounded-md border border-[#E7E0DA] dark:border-[#453840] flex items-center justify-center transition-all flex-shrink-0 text-[#7d6f77] dark:text-[#b8a3ac] hover:border-[#A3395C] hover:text-[#A3395C]"
                     >
                       <Heart className="w-4 h-4" fill="none" />
                     </button>
@@ -1335,7 +1335,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                     onClick={handleComprarAhora}
                     style={{ flexShrink: 0 }}
                     className={`w-full h-11 rounded-md text-xs font-semibold uppercase tracking-wider text-white transition-all ${
-                      productoSeleccionado.agotado ? 'bg-[#E7E0DA] dark:bg-[#3a2e35] cursor-not-allowed' : 'bg-[#A3395C] hover:bg-[#8a2e4d] shadow-sm hover:shadow-md'
+                      productoSeleccionado.agotado ? 'bg-[#E7E0DA] dark:bg-[#453840] cursor-not-allowed' : 'bg-[#A3395C] hover:bg-[#8a2e4d] shadow-sm hover:shadow-md'
                     }`}
                   >
                     {productoSeleccionado.agotado ? 'Agotado' : 'Comprar Ahora'}
@@ -1376,7 +1376,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
             <Button
               onClick={() => { setMostrarModalLoginCarrito(false); onNavigateToRegister(); }}
               variant="outline"
-              className="w-full border-[#E7E0DA] dark:border-[#3a2e35] text-[#241B22] dark:text-[#F5EDE9] hover:bg-[#FBF8F5] dark:hover:bg-[#1c151a] h-10 text-sm"
+              className="w-full border-[#E7E0DA] dark:border-[#453840] text-[#241B22] dark:text-[#F5EDE9] hover:bg-[#FBF8F5] dark:hover:bg-[#2a2029] h-10 text-sm"
               style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
             >
               Crear cuenta

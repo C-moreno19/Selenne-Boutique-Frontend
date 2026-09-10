@@ -32,7 +32,7 @@ const estadoColor = (e: string) => {
 };
 const estadoBadgeClass = (e: string) => {
   if (e === 'Completado' || e === 'Completada') return 'bg-green-50 dark:bg-green-950/40 text-green-600 dark:text-green-400 border-green-200 dark:border-green-900/50';
-  if (e === 'Enviado') return 'bg-[#FBF8F5] dark:bg-[#1c151a] text-[#A3395C] border-pink-200 dark:border-[#3a2530]';
+  if (e === 'Enviado') return 'bg-[#FBF8F5] dark:bg-[#2a2029] text-[#A3395C] border-pink-200 dark:border-[#3a2530]';
   if (e === 'Aprobado' || e === 'Aprobada') return 'bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-900/50';
   if (e === 'Rechazado' || e === 'Rechazada') return 'bg-orange-50 dark:bg-orange-950/40 text-orange-600 dark:text-orange-400 border-orange-200 dark:border-orange-900/50';
   return 'bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 border-red-200 dark:border-red-900/50';
@@ -205,7 +205,7 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
   );
 
   return (
-    <div className="p-8 bg-[#FBF8F5] dark:bg-[#1c151a] min-h-screen">
+    <div className="p-8 bg-[#FBF8F5] dark:bg-[#2a2029] min-h-screen">
       <div className="flex items-center gap-2 mb-4">
         <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500 dark:text-[#b8a3ac]">Dashboard</span>
         <ChevronRight className="w-4 h-4 text-gray-400 dark:text-[#b8a3ac]" />
@@ -213,19 +213,19 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
       </div>
       <h1 className="admin-page-title text-4xl text-[#241B22] dark:text-[#F5EDE9] mb-6">Gestión de Ventas</h1>
 
-      <div className="bg-white dark:bg-[#241B22] rounded-xl p-6 shadow-sm border border-[#E7E0DA] dark:border-[#3a2e35] flex gap-4 mb-6">
+      <div className="bg-white dark:bg-[#322631] rounded-xl p-6 shadow-sm border border-[#E7E0DA] dark:border-[#453840] flex gap-4 mb-6">
         <div className="flex-1 relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-[#b8a3ac]" />
           <input type="text" placeholder="Buscar por cliente o email..." value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-            className="w-full pl-12 pr-4 py-3 bg-[#FBF8F5] dark:bg-[#1c151a] border border-[#E7E0DA] dark:border-[#3a2e35] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A3395C]" />
+            className="w-full pl-12 pr-4 py-3 bg-[#FBF8F5] dark:bg-[#2a2029] border border-[#E7E0DA] dark:border-[#453840] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A3395C]" />
         </div>
         <div className="flex gap-3">
-          <button onClick={() => { setLoading(true); loadData(); }} className="px-4 py-3 bg-white dark:bg-[#241B22] border border-[#E7E0DA] dark:border-[#3a2e35] text-gray-700 dark:text-[#F5EDE9] rounded-lg hover:bg-[#FBF8F5] dark:bg-[#1c151a] dark:hover:bg-[#2c2129] transition">
+          <button onClick={() => { setLoading(true); loadData(); }} className="px-4 py-3 bg-white dark:bg-[#322631] border border-[#E7E0DA] dark:border-[#453840] text-gray-700 dark:text-[#F5EDE9] rounded-lg hover:bg-[#FBF8F5] dark:bg-[#2a2029] dark:hover:bg-[#362b34] transition">
             <RefreshCw className="w-5 h-5" />
           </button>
           <button onClick={onNavigateToHistorial} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-            className="px-4 py-3 bg-white dark:bg-[#241B22] border border-[#E7E0DA] dark:border-[#3a2e35] text-gray-700 dark:text-[#F5EDE9] rounded-lg hover:bg-[#FBF8F5] dark:bg-[#1c151a] dark:hover:bg-[#2c2129] flex items-center gap-2 transition">
+            className="px-4 py-3 bg-white dark:bg-[#322631] border border-[#E7E0DA] dark:border-[#453840] text-gray-700 dark:text-[#F5EDE9] rounded-lg hover:bg-[#FBF8F5] dark:bg-[#2a2029] dark:hover:bg-[#362b34] flex items-center gap-2 transition">
             <Archive className="w-5 h-5" /> Historial de Ventas
           </button>
           {puedeCrear && (
@@ -237,9 +237,9 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
         </div>
       </div>
 
-      <div className="bg-white dark:bg-[#241B22] rounded-xl shadow-sm border border-[#E7E0DA] dark:border-[#3a2e35] overflow-hidden">
+      <div className="bg-white dark:bg-[#322631] rounded-xl shadow-sm border border-[#E7E0DA] dark:border-[#453840] overflow-hidden">
         <table className="w-full">
-          <thead className="bg-[#FBF8F5] dark:bg-[#1c151a] border-b border-[#E7E0DA] dark:border-[#3a2e35]">
+          <thead className="bg-[#FBF8F5] dark:bg-[#2a2029] border-b border-[#E7E0DA] dark:border-[#453840]">
             <tr>
               {['#', 'CLIENTE', 'FECHA', 'TOTAL', 'ESTADO', 'ACCIONES'].map(h => (
                 <th key={h} className="px-6 py-4 text-left">
@@ -248,9 +248,9 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100 dark:divide-[#3a2e35]">
+          <tbody className="divide-y divide-gray-100 dark:divide-[#453840]">
             {filtered.map((p, idx) => (
-              <tr key={p.pedidoID} className="hover:bg-[#FBF8F5] dark:bg-[#1c151a] dark:hover:bg-[#2c2129] transition">
+              <tr key={p.pedidoID} className="hover:bg-[#FBF8F5] dark:bg-[#2a2029] dark:hover:bg-[#362b34] transition">
                 <td className="px-6 py-4"><span className="font-medium text-[#241B22] dark:text-[#F5EDE9]">#{p.pedidoID}</span></td>
                 <td className="px-6 py-4">
                   <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-medium text-[#241B22] dark:text-[#F5EDE9]">{p.nombreCliente}</p>
@@ -300,7 +300,7 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
             )}
           </tbody>
         </table>
-        <div className="px-6 py-4 border-t border-[#E7E0DA] dark:border-[#3a2e35]">
+        <div className="px-6 py-4 border-t border-[#E7E0DA] dark:border-[#453840]">
           <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500 dark:text-[#b8a3ac]">
             <span className="font-medium text-[#241B22] dark:text-[#F5EDE9]">{filtered.length}</span> ventas aprobadas
           </span>
@@ -328,11 +328,11 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
           </div>
 
           {/* Body */}
-          <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4 bg-[#FBF8F5] dark:bg-[#1c151a]">
+          <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4 bg-[#FBF8F5] dark:bg-[#2a2029]">
             {selectedPedido && (
               <>
                 {/* Cliente */}
-                <div className="bg-white dark:bg-[#241B22] rounded-xl p-4 border border-[#E7E0DA] dark:border-[#3a2e35]">
+                <div className="bg-white dark:bg-[#322631] rounded-xl p-4 border border-[#E7E0DA] dark:border-[#453840]">
                   <p className="text-[10px] font-semibold text-gray-400 dark:text-[#b8a3ac] uppercase tracking-widest mb-3 flex items-center gap-1.5">
                     <User className="w-3.5 h-3.5" /> Información del cliente
                   </p>
@@ -364,7 +364,7 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
 
                 {/* Dirección */}
                 {(selectedPedido.direccionEnvio || selectedPedido.ciudad) && (
-                  <div className="bg-white dark:bg-[#241B22] rounded-xl p-4 border border-[#E7E0DA] dark:border-[#3a2e35]">
+                  <div className="bg-white dark:bg-[#322631] rounded-xl p-4 border border-[#E7E0DA] dark:border-[#453840]">
                     <p className="text-[10px] font-semibold text-gray-400 dark:text-[#b8a3ac] uppercase tracking-widest mb-3 flex items-center gap-1.5">
                       <MapPin className="w-3.5 h-3.5" /> Dirección de envío
                     </p>
@@ -375,22 +375,22 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
 
                 {/* Productos */}
                 {selectedPedido.detalles.length > 0 && (
-                  <div className="bg-white dark:bg-[#241B22] rounded-xl p-4 border border-[#E7E0DA] dark:border-[#3a2e35]">
+                  <div className="bg-white dark:bg-[#322631] rounded-xl p-4 border border-[#E7E0DA] dark:border-[#453840]">
                     <p className="text-[10px] font-semibold text-gray-400 dark:text-[#b8a3ac] uppercase tracking-widest mb-3 flex items-center gap-1.5">
                       <ShoppingBag className="w-3.5 h-3.5" /> Productos
                     </p>
                     <div className="space-y-2">
                       {selectedPedido.detalles.map((d, i) => (
-                        <div key={i} className="flex items-center gap-3 bg-white dark:bg-[#241B22] rounded-lg p-2.5 border border-[#E7E0DA] dark:border-[#3a2e35]">
+                        <div key={i} className="flex items-center gap-3 bg-white dark:bg-[#322631] rounded-lg p-2.5 border border-[#E7E0DA] dark:border-[#453840]">
                           {d.imagenProducto
-                            ? <img src={d.imagenProducto} alt={d.productoNombre} className="w-10 h-10 object-cover rounded-lg flex-shrink-0 border border-[#E7E0DA] dark:border-[#3a2e35]" />
+                            ? <img src={d.imagenProducto} alt={d.productoNombre} className="w-10 h-10 object-cover rounded-lg flex-shrink-0 border border-[#E7E0DA] dark:border-[#453840]" />
                             : <div className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white flex-shrink-0" style={{ background: '#A3395C' }}>{d.cantidad}</div>
                           }
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-[#241B22] dark:text-[#F5EDE9] truncate">{d.productoNombre}</p>
                             <div className="flex gap-1.5 mt-0.5 flex-wrap">
                               {d.talla && <span className="text-[10px] bg-gray-100 text-gray-500 dark:text-[#b8a3ac] px-1.5 py-0.5 rounded">T: {d.talla}</span>}
-                              {d.color && <span className="text-[10px] bg-[#FBF8F5] dark:bg-[#1c151a] px-1.5 py-0.5 rounded" style={{ color: '#A3395C' }}>{d.color}</span>}
+                              {d.color && <span className="text-[10px] bg-[#FBF8F5] dark:bg-[#2a2029] px-1.5 py-0.5 rounded" style={{ color: '#A3395C' }}>{d.color}</span>}
                             </div>
                           </div>
                           <p className="text-sm font-bold text-[#241B22] dark:text-[#F5EDE9] flex-shrink-0">{fmt(d.subtotal)}</p>
@@ -410,9 +410,9 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
           </div>
 
           {/* Footer */}
-          <div className="px-6 py-4 bg-[#FBF8F5] dark:bg-[#1c151a] border-t border-[#E7E0DA] dark:border-[#3a2e35] flex justify-center flex-shrink-0">
+          <div className="px-6 py-4 bg-[#FBF8F5] dark:bg-[#2a2029] border-t border-[#E7E0DA] dark:border-[#453840] flex justify-center flex-shrink-0">
             <button type="button" onClick={() => setViewOpen(false)}
-              className="px-8 py-2 rounded-full border border-[#E7E0DA] dark:border-[#3a2e35] bg-white dark:bg-[#241B22] text-gray-500 dark:text-[#b8a3ac] text-sm font-medium hover:bg-[#FBF8F5] dark:bg-[#1c151a] dark:hover:bg-[#2c2129] transition-all shadow-sm">
+              className="px-8 py-2 rounded-full border border-[#E7E0DA] dark:border-[#453840] bg-white dark:bg-[#322631] text-gray-500 dark:text-[#b8a3ac] text-sm font-medium hover:bg-[#FBF8F5] dark:bg-[#2a2029] dark:hover:bg-[#362b34] transition-all shadow-sm">
               Cerrar
             </button>
           </div>
@@ -422,7 +422,7 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
       {/* Modal Email Guía */}
       <Dialog open={emailGuiaOpen} onOpenChange={v => { setEmailGuiaOpen(v); if (!v) { setNumeroGuia(''); setTransportadora(''); setFotoGuia(null); } }}>
         <DialogContent className="max-w-md flex flex-col p-0 gap-0 max-h-[90vh]">
-          <DialogHeader className="px-6 pt-6 pb-4 border-b border-[#E7E0DA] dark:border-[#3a2e35] flex-shrink-0">
+          <DialogHeader className="px-6 pt-6 pb-4 border-b border-[#E7E0DA] dark:border-[#453840] flex-shrink-0">
             <div className="flex items-center gap-3 mb-1">
               <div className="w-9 h-9 bg-[#e7c2ce] dark:bg-[#4a3540] rounded-xl flex items-center justify-center flex-shrink-0">
                 <Truck className="w-5 h-5 text-[#A3395C]" />
@@ -440,19 +440,19 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
               <div className="flex flex-col gap-1.5">
                 <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 dark:text-[#F5EDE9]">Número de guía</Label>
                 <Input value={numeroGuia} onChange={e => setNumeroGuia(e.target.value)}
-                  placeholder="Ej: 123456789" className="h-10 border-[#E7E0DA] dark:border-[#3a2e35] rounded-xl bg-[#FBF8F5] dark:bg-[#1c151a] focus:ring-[#A3395C]" />
+                  placeholder="Ej: 123456789" className="h-10 border-[#E7E0DA] dark:border-[#453840] rounded-xl bg-[#FBF8F5] dark:bg-[#2a2029] focus:ring-[#A3395C]" />
               </div>
               <div className="flex flex-col gap-1.5">
                 <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 dark:text-[#F5EDE9]">Transportadora</Label>
                 <Input value={transportadora} onChange={e => setTransportadora(e.target.value)}
-                  placeholder="Ej: Servientrega" className="h-10 border-[#E7E0DA] dark:border-[#3a2e35] rounded-xl bg-[#FBF8F5] dark:bg-[#1c151a] focus:ring-[#A3395C]" />
+                  placeholder="Ej: Servientrega" className="h-10 border-[#E7E0DA] dark:border-[#453840] rounded-xl bg-[#FBF8F5] dark:bg-[#2a2029] focus:ring-[#A3395C]" />
               </div>
             </div>
             <div className="flex flex-col gap-1.5">
               <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 dark:text-[#F5EDE9]">
                 Foto del paquete <span className="text-gray-400 dark:text-[#b8a3ac] font-normal">(opcional)</span>
               </Label>
-              <label className="flex items-center gap-3 px-4 py-3 border-2 border-dashed border-[#E7E0DA] dark:border-[#3a2e35] rounded-xl cursor-pointer hover:border-[#A3395C] hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] transition">
+              <label className="flex items-center gap-3 px-4 py-3 border-2 border-dashed border-[#E7E0DA] dark:border-[#453840] rounded-xl cursor-pointer hover:border-[#A3395C] hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] transition">
                 <Package className="w-5 h-5 text-gray-400 dark:text-[#b8a3ac]" />
                 <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500 dark:text-[#b8a3ac]">
                   {fotoGuia ? fotoGuia.name : 'Seleccionar imagen del paquete...'}
@@ -470,9 +470,9 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
               )}
             </div>
           </div>
-          <DialogFooter className="px-6 py-4 border-t border-[#E7E0DA] dark:border-[#3a2e35] flex-shrink-0 flex gap-2">
+          <DialogFooter className="px-6 py-4 border-t border-[#E7E0DA] dark:border-[#453840] flex-shrink-0 flex gap-2">
             <button onClick={() => setEmailGuiaOpen(false)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="flex-1 py-2.5 bg-gray-100 dark:bg-[#2c2129] text-gray-700 dark:text-[#F5EDE9] dark:text-[#F5EDE9] rounded-xl hover:bg-gray-200 dark:hover:bg-[#3a2530] transition text-sm font-medium">
+              className="flex-1 py-2.5 bg-gray-100 dark:bg-[#362b34] text-gray-700 dark:text-[#F5EDE9] dark:text-[#F5EDE9] rounded-xl hover:bg-gray-200 dark:hover:bg-[#3a2530] transition text-sm font-medium">
               Cancelar
             </button>
             <button onClick={enviarEmailGuia} disabled={saving} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
@@ -487,14 +487,14 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
       {/* Modal Nueva Venta Manual */}
       <Dialog open={nuevaVentaOpen} onOpenChange={v => { setNuevaVentaOpen(v); if (!v) resetNuevaVenta(); }}>
         <DialogContent className="max-w-2xl flex flex-col p-0 gap-0 max-h-[90vh]">
-          <DialogHeader className="px-8 pt-6 pb-4 border-b border-[#E7E0DA] dark:border-[#3a2e35] flex-shrink-0">
+          <DialogHeader className="px-8 pt-6 pb-4 border-b border-[#E7E0DA] dark:border-[#453840] flex-shrink-0">
             <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-2xl">Nueva Venta Manual</DialogTitle>
             <DialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Registra una venta directamente sin pasar por el checkout del cliente</DialogDescription>
           </DialogHeader>
           <div className="flex-1 overflow-y-auto p-8 space-y-6">
             {/* Datos del cliente */}
-            <div className="bg-white dark:bg-[#241B22] rounded-xl border border-[#E7E0DA] dark:border-[#3a2e35] shadow-sm overflow-hidden">
-              <div className="bg-[#FBF8F5] dark:bg-[#1c151a] px-6 py-3 border-b border-[#E7E0DA] dark:border-[#3a2e35]">
+            <div className="bg-white dark:bg-[#322631] rounded-xl border border-[#E7E0DA] dark:border-[#453840] shadow-sm overflow-hidden">
+              <div className="bg-[#FBF8F5] dark:bg-[#2a2029] px-6 py-3 border-b border-[#E7E0DA] dark:border-[#453840]">
                 <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-sm text-gray-700 dark:text-[#F5EDE9] flex items-center gap-2"><User className="w-4 h-4 text-gray-400 dark:text-[#b8a3ac]" />Datos del Cliente</p>
               </div>
               <div className="p-6 grid grid-cols-2 gap-4">
@@ -508,7 +508,7 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
                     }
                     setVentaErrors(prev => ({ ...prev, nombreCliente: '' }));
                     setNombreCliente(val);
-                  }} placeholder="Nombre del cliente" className={`h-10 ${ventaErrors.nombreCliente ? 'border-red-500' : 'border-gray-300 dark:border-[#3a2e35]'}`} />
+                  }} placeholder="Nombre del cliente" className={`h-10 ${ventaErrors.nombreCliente ? 'border-red-500' : 'border-gray-300 dark:border-[#453840]'}`} />
                   {ventaErrors.nombreCliente && <p className="text-xs text-red-500 mt-1">{ventaErrors.nombreCliente}</p>}
                 </div>
                 <div className="flex flex-col gap-2">
@@ -521,7 +521,7 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
                     }
                     setVentaErrors(prev => ({ ...prev, documentoCliente: '' }));
                     setDocumentoCliente(val);
-                  }} placeholder="Cédula o NIT" className={`h-10 ${ventaErrors.documentoCliente ? 'border-red-500' : 'border-gray-300 dark:border-[#3a2e35]'}`} />
+                  }} placeholder="Cédula o NIT" className={`h-10 ${ventaErrors.documentoCliente ? 'border-red-500' : 'border-gray-300 dark:border-[#453840]'}`} />
                   {ventaErrors.documentoCliente && <p className="text-xs text-red-500 mt-1">{ventaErrors.documentoCliente}</p>}
                 </div>
                 <div className="flex flex-col gap-2">
@@ -535,7 +535,7 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
                       setVentaErrors(prev => ({ ...prev, emailCliente: '' }));
                     }
                     setEmailCliente(val);
-                  }} placeholder="email@ejemplo.com" className={`h-10 ${ventaErrors.emailCliente ? 'border-red-500' : 'border-gray-300 dark:border-[#3a2e35]'}`} />
+                  }} placeholder="email@ejemplo.com" className={`h-10 ${ventaErrors.emailCliente ? 'border-red-500' : 'border-gray-300 dark:border-[#453840]'}`} />
                   {ventaErrors.emailCliente && <p className="text-xs text-red-500 mt-1">{ventaErrors.emailCliente}</p>}
                 </div>
                 <div className="flex flex-col gap-2">
@@ -548,13 +548,13 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
                     }
                     setVentaErrors(prev => ({ ...prev, telefonoCliente: '' }));
                     setTelefonoCliente(val);
-                  }} placeholder="3001234567" className={`h-10 ${ventaErrors.telefonoCliente ? 'border-red-500' : 'border-gray-300 dark:border-[#3a2e35]'}`} />
+                  }} placeholder="3001234567" className={`h-10 ${ventaErrors.telefonoCliente ? 'border-red-500' : 'border-gray-300 dark:border-[#453840]'}`} />
                   {ventaErrors.telefonoCliente && <p className="text-xs text-red-500 mt-1">{ventaErrors.telefonoCliente}</p>}
                 </div>
                 <div className="flex flex-col gap-2">
                   <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 dark:text-[#F5EDE9]">Método de Pago</Label>
                   <Select value={metodoPago} onValueChange={setMetodoPago}>
-                    <SelectTrigger className="h-10 border-gray-300 dark:border-[#3a2e35]"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="h-10 border-gray-300 dark:border-[#453840]"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Transferencia">Transferencia</SelectItem>
                       <SelectItem value="Efectivo">Efectivo</SelectItem>
@@ -565,14 +565,14 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
                 </div>
                 <div className="flex flex-col gap-2">
                   <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 dark:text-[#F5EDE9]">Notas</Label>
-                  <Input value={notasVenta} onChange={e => setNotasVenta(e.target.value)} placeholder="Observaciones de la venta..." className="h-10 border-gray-300 dark:border-[#3a2e35]" />
+                  <Input value={notasVenta} onChange={e => setNotasVenta(e.target.value)} placeholder="Observaciones de la venta..." className="h-10 border-gray-300 dark:border-[#453840]" />
                 </div>
               </div>
             </div>
 
             {/* Productos */}
-            <div className="bg-white dark:bg-[#241B22] rounded-xl border border-[#E7E0DA] dark:border-[#3a2e35] shadow-sm overflow-hidden">
-              <div className="bg-[#FBF8F5] dark:bg-[#1c151a] px-6 py-3 border-b border-[#E7E0DA] dark:border-[#3a2e35] flex items-center justify-between">
+            <div className="bg-white dark:bg-[#322631] rounded-xl border border-[#E7E0DA] dark:border-[#453840] shadow-sm overflow-hidden">
+              <div className="bg-[#FBF8F5] dark:bg-[#2a2029] px-6 py-3 border-b border-[#E7E0DA] dark:border-[#453840] flex items-center justify-between">
                 <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-sm text-gray-700 dark:text-[#F5EDE9] flex items-center gap-2"><Package className="w-4 h-4 text-gray-400 dark:text-[#b8a3ac]" />Productos <span className="text-red-500">*</span></p>
                 <button onClick={agregarItemVenta} disabled={productosDisponibles.length === 0}
                   style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
@@ -582,7 +582,7 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
               </div>
               <div className="p-6">
                 {itemsVenta.length === 0 ? (
-                  <div className="text-center py-8 bg-[#FBF8F5] dark:bg-[#1c151a] rounded-xl border-2 border-dashed border-[#E7E0DA] dark:border-[#3a2e35]">
+                  <div className="text-center py-8 bg-[#FBF8F5] dark:bg-[#2a2029] rounded-xl border-2 border-dashed border-[#E7E0DA] dark:border-[#453840]">
                     <Package className="w-10 h-10 mx-auto mb-2 text-gray-300 dark:text-[#5a4d52]" />
                     <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-400 dark:text-[#b8a3ac]">Agrega al menos un producto</p>
                   </div>
@@ -591,7 +591,7 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
                     {itemsVenta.map((item, idx) => {
                       const prod = productosDisponibles.find(p => p.productoID === item.productoID);
                       return (
-                        <div key={idx} className="bg-[#FBF8F5] dark:bg-[#1c151a] rounded-xl p-4 border border-[#E7E0DA] dark:border-[#3a2e35]">
+                        <div key={idx} className="bg-[#FBF8F5] dark:bg-[#2a2029] rounded-xl p-4 border border-[#E7E0DA] dark:border-[#453840]">
                           <div className="flex justify-between items-center mb-3">
                             <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs font-semibold text-gray-400 dark:text-[#b8a3ac] uppercase">Producto #{idx + 1}</span>
                             <button type="button" title="Eliminar producto" onClick={() => setItemsVenta(prev => prev.filter((_, i) => i !== idx))}
@@ -603,7 +603,7 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
                             <div className="flex flex-col gap-1 col-span-2">
                               <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs font-medium text-gray-600 dark:text-[#b8a3ac]">Producto</Label>
                               <Select value={String(item.productoID)} onValueChange={v => actualizarItemVenta(idx, 'productoID', v)}>
-                                <SelectTrigger className="h-9 bg-white dark:bg-[#241B22] border-gray-300 dark:border-[#3a2e35] text-sm"><SelectValue /></SelectTrigger>
+                                <SelectTrigger className="h-9 bg-white dark:bg-[#322631] border-gray-300 dark:border-[#453840] text-sm"><SelectValue /></SelectTrigger>
                                 <SelectContent>
                                   {productosDisponibles.map(p => <SelectItem key={p.productoID} value={String(p.productoID)}>{p.nombre}</SelectItem>)}
                                 </SelectContent>
@@ -613,7 +613,7 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
                               <div className="flex flex-col gap-1">
                                 <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs font-medium text-gray-600 dark:text-[#b8a3ac]">Talla</Label>
                                 <Select value={item.tallaID ? String(item.tallaID) : ''} onValueChange={v => actualizarItemVenta(idx, 'tallaID', v)}>
-                                  <SelectTrigger className="h-9 bg-white dark:bg-[#241B22] border-gray-300 dark:border-[#3a2e35] text-sm"><SelectValue placeholder="Seleccionar..." /></SelectTrigger>
+                                  <SelectTrigger className="h-9 bg-white dark:bg-[#322631] border-gray-300 dark:border-[#453840] text-sm"><SelectValue placeholder="Seleccionar..." /></SelectTrigger>
                                   <SelectContent>
                                     {prod.tallas.map(t => <SelectItem key={t.tallaID} value={String(t.tallaID)}>{t.nombre}</SelectItem>)}
                                   </SelectContent>
@@ -624,7 +624,7 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
                               <div className="flex flex-col gap-1">
                                 <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs font-medium text-gray-600 dark:text-[#b8a3ac]">Color</Label>
                                 <Select value={item.colorID ? String(item.colorID) : ''} onValueChange={v => actualizarItemVenta(idx, 'colorID', v)}>
-                                  <SelectTrigger className="h-9 bg-white dark:bg-[#241B22] border-gray-300 dark:border-[#3a2e35] text-sm"><SelectValue placeholder="Seleccionar..." /></SelectTrigger>
+                                  <SelectTrigger className="h-9 bg-white dark:bg-[#322631] border-gray-300 dark:border-[#453840] text-sm"><SelectValue placeholder="Seleccionar..." /></SelectTrigger>
                                   <SelectContent>
                                     {prod.colores.map(c => <SelectItem key={c.colorID} value={String(c.colorID)}>{c.nombre}</SelectItem>)}
                                   </SelectContent>
@@ -644,7 +644,7 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
                                 type="number" min="1" max={item.stock || undefined}
                                 value={item.cantidad}
                                 onChange={e => actualizarItemVenta(idx, 'cantidad', e.target.value)}
-                                className={`h-9 bg-white dark:bg-[#241B22] text-sm ${item.cantidad >= item.stock && item.stock > 0 ? 'border-orange-400 focus:ring-orange-400' : 'border-gray-300 dark:border-[#3a2e35]'}`}
+                                className={`h-9 bg-white dark:bg-[#322631] text-sm ${item.cantidad >= item.stock && item.stock > 0 ? 'border-orange-400 focus:ring-orange-400' : 'border-gray-300 dark:border-[#453840]'}`}
                               />
                               {item.stock === 0 && (
                                 <p className="text-xs text-red-500 font-medium">Sin stock disponible</p>
@@ -652,11 +652,11 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
                             </div>
                             <div className="flex flex-col gap-1">
                               <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs font-medium text-gray-600 dark:text-[#b8a3ac]">Precio Unit. ($)</Label>
-                              <Input type="number" min="0" step="1000" value={item.precio} onChange={e => actualizarItemVenta(idx, 'precio', e.target.value)} className="h-9 bg-white dark:bg-[#241B22] border-gray-300 dark:border-[#3a2e35] text-sm" />
+                              <Input type="number" min="0" step="1000" value={item.precio} onChange={e => actualizarItemVenta(idx, 'precio', e.target.value)} className="h-9 bg-white dark:bg-[#322631] border-gray-300 dark:border-[#453840] text-sm" />
                             </div>
                             <div className="flex flex-col gap-1 col-span-2">
                               <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs font-medium text-gray-600 dark:text-[#b8a3ac]">Subtotal</Label>
-                              <div className="h-9 flex items-center px-3 bg-[#FBF8F5] dark:bg-[#1c151a] border border-pink-200 rounded-lg">
+                              <div className="h-9 flex items-center px-3 bg-[#FBF8F5] dark:bg-[#2a2029] border border-pink-200 rounded-lg">
                                 <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-bold text-[#A3395C]">{fmt(item.subtotal)}</span>
                               </div>
                             </div>
@@ -664,7 +664,7 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
                         </div>
                       );
                     })}
-                    <div className="flex justify-end pt-2 border-t border-[#E7E0DA] dark:border-[#3a2e35]">
+                    <div className="flex justify-end pt-2 border-t border-[#E7E0DA] dark:border-[#453840]">
                       <div className="text-right">
                         <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500 dark:text-[#b8a3ac]">Total</p>
                         <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-2xl font-bold text-[#A3395C]">{fmt(itemsVenta.reduce((s, i) => s + i.subtotal, 0))}</p>
@@ -675,9 +675,9 @@ export const VentasView: React.FC<VentasViewProps> = ({ onNavigateToHistorial })
               </div>
             </div>
           </div>
-          <DialogFooter className="px-8 py-5 border-t border-[#E7E0DA] dark:border-[#3a2e35] flex-shrink-0 gap-2">
+          <DialogFooter className="px-8 py-5 border-t border-[#E7E0DA] dark:border-[#453840] flex-shrink-0 gap-2">
             <button onClick={() => { setNuevaVentaOpen(false); resetNuevaVenta(); }}
-              style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="px-6 py-2 bg-gray-100 dark:bg-[#2c2129] text-gray-700 dark:text-[#F5EDE9] dark:text-[#F5EDE9] rounded-lg hover:bg-gray-200 dark:hover:bg-[#3a2530] transition">Cancelar</button>
+              style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="px-6 py-2 bg-gray-100 dark:bg-[#362b34] text-gray-700 dark:text-[#F5EDE9] dark:text-[#F5EDE9] rounded-lg hover:bg-gray-200 dark:hover:bg-[#3a2530] transition">Cancelar</button>
             <button onClick={async () => {
               if (!nombreCliente.trim()) { toast.error('El nombre es obligatorio'); return; }
               if (!emailCliente.trim()) { toast.error('El email del cliente es obligatorio'); return; }

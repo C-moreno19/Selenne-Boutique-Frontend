@@ -153,7 +153,7 @@ export const RecoverPasswordModal: React.FC<RecoverPasswordModalProps> = ({
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
-            className="bg-white dark:bg-[#241B22] w-full max-w-md p-6 relative rounded-xl shadow-[0_20px_40px_rgba(0,0,0,0.15)] max-h-[90vh] overflow-y-auto"
+            className="bg-white dark:bg-[#322631] w-full max-w-md p-6 relative rounded-xl shadow-[0_20px_40px_rgba(0,0,0,0.15)] max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <button

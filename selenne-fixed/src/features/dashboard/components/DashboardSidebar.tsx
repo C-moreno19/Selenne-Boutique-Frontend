@@ -160,19 +160,19 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
 
   return (
     <aside
-      className={`fixed left-0 top-0 h-screen bg-white dark:bg-[#241B22] border-r border-[#E7E0DA] dark:border-[#3a2e35] flex flex-col z-40 transition-all duration-300 ${
+      className={`fixed left-0 top-0 h-screen bg-white dark:bg-[#322631] border-r border-[#E7E0DA] dark:border-[#453840] flex flex-col z-40 transition-all duration-300 ${
         isOpen ? 'w-64' : 'w-0'
       }`}
       style={{ overflow: isOpen ? 'visible' : 'hidden' }}
     >
       <div className={`${isOpen ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300`}>
         {/* Logo Header */}
-        <div className="p-6 border-b border-[#E7E0DA] dark:border-[#3a2e35]">
+        <div className="p-6 border-b border-[#E7E0DA] dark:border-[#453840]">
           <div
             className="flex items-center gap-3 cursor-pointer group"
             onClick={() => onSectionChange('home')}
           >
-            <Logo className="h-8 w-20 transition-transform duration-300 group-hover:scale-105" />
+            <Logo className="h-8 w-8 flex-shrink-0 transition-transform duration-300 group-hover:scale-105" />
             <span className="text-[18px] text-[#241B22] dark:text-[#F5EDE9] transition group-hover:text-[#A3395C]">
               Selenne Boutique
             </span>
@@ -207,7 +207,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                   className={`group relative w-full flex items-center gap-3 pl-4 pr-3 py-2.5 rounded-lg transition-all duration-200 ${
                     isActive
                       ? 'text-[#A3395C] font-semibold bg-[#EFD9DF] dark:bg-[#3a2530]'
-                      : 'text-[#241B22] dark:text-[#F5EDE9] hover:bg-[#FBF8F5] dark:hover:bg-[#2c2129] hover:pl-5'
+                      : 'text-[#241B22] dark:text-[#F5EDE9] hover:bg-[#FBF8F5] dark:hover:bg-[#362b34] hover:pl-5'
                   }`}
                 >
                   <span
@@ -254,7 +254,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                                 className={`group w-full flex items-center gap-2 pl-3 pr-3 py-2 rounded-lg transition-all duration-200 text-left ${
                                   isSubActive
                                     ? 'text-[#A3395C] font-semibold bg-[#EFD9DF] dark:bg-[#3a2530]'
-                                    : 'text-[#241B22] dark:text-[#F5EDE9] hover:bg-[#FBF8F5] dark:hover:bg-[#2c2129] hover:pl-4'
+                                    : 'text-[#241B22] dark:text-[#F5EDE9] hover:bg-[#FBF8F5] dark:hover:bg-[#362b34] hover:pl-4'
                                 }`}
                               >
                                 <span className="text-sm flex-1">
@@ -286,7 +286,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                                           className={`w-full flex items-center gap-2 pl-3 pr-3 py-1.5 rounded-lg transition-all duration-200 text-left ${
                                             currentSection === nestedItem.id
                                               ? 'text-[#A3395C] font-semibold bg-[#EFD9DF] dark:bg-[#3a2530]'
-                                              : 'text-[#7d6f77] dark:text-[#b8a3ac] hover:bg-[#FBF8F5] dark:hover:bg-[#2c2129] hover:pl-4'
+                                              : 'text-[#7d6f77] dark:text-[#b8a3ac] hover:bg-[#FBF8F5] dark:hover:bg-[#362b34] hover:pl-4'
                                           }`}
                                         >
                                           <span className="text-xs">

@@ -21,11 +21,11 @@ interface Pedido {
 const fmt = (n: number) => `$${new Intl.NumberFormat('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(n)} COP`;
 const estadoBadgeClass = (e: string) => {
   if (e === 'Completado' || e === 'Completada') return 'bg-green-50 dark:bg-green-950/40 text-green-600 dark:text-green-400 border-green-200 dark:border-green-900/50';
-  if (e === 'Enviado') return 'bg-[#FBF8F5] dark:bg-[#1c151a] text-[#A3395C] border-pink-200 dark:border-[#3a2530]';
+  if (e === 'Enviado') return 'bg-[#FBF8F5] dark:bg-[#2a2029] text-[#A3395C] border-pink-200 dark:border-[#3a2530]';
   if (e === 'Aprobado' || e === 'Aprobada') return 'bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-900/50';
   if (e === 'Rechazado' || e === 'Rechazada') return 'bg-orange-50 dark:bg-orange-950/40 text-orange-600 dark:text-orange-400 border-orange-200 dark:border-orange-900/50';
   if (e === 'Pendiente') return 'bg-yellow-50 dark:bg-yellow-950/40 text-yellow-600 dark:text-yellow-400 border-yellow-200 dark:border-yellow-900/50';
-  return 'bg-[#FBF8F5] dark:bg-[#1c151a] text-gray-600 dark:text-[#b8a3ac] border-[#E7E0DA] dark:border-[#3a2e35]';
+  return 'bg-[#FBF8F5] dark:bg-[#2a2029] text-gray-600 dark:text-[#b8a3ac] border-[#E7E0DA] dark:border-[#453840]';
 };
 
 export const PedidosView: React.FC = () => {
@@ -113,7 +113,7 @@ export const PedidosView: React.FC = () => {
   );
 
   return (
-    <div className="p-8 bg-[#FBF8F5] dark:bg-[#1c151a] min-h-screen">
+    <div className="p-8 bg-[#FBF8F5] dark:bg-[#2a2029] min-h-screen">
       <div className="flex items-center gap-2 mb-4">
         <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500 dark:text-[#b8a3ac]">Dashboard</span>
         <ChevronRight className="w-4 h-4 text-gray-400 dark:text-[#b8a3ac]" />
@@ -121,21 +121,21 @@ export const PedidosView: React.FC = () => {
       </div>
       <h1 className="admin-page-title text-4xl text-[#241B22] dark:text-[#F5EDE9] mb-6">Pedidos Pendientes</h1>
 
-      <div className="bg-white dark:bg-[#241B22] rounded-xl p-6 shadow-sm border border-[#E7E0DA] dark:border-[#3a2e35] flex gap-4 mb-6">
+      <div className="bg-white dark:bg-[#322631] rounded-xl p-6 shadow-sm border border-[#E7E0DA] dark:border-[#453840] flex gap-4 mb-6">
         <div className="flex-1 relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-[#b8a3ac]" />
           <input type="text" placeholder="Buscar por cliente o email..." value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-            className="w-full pl-12 pr-4 py-3 bg-[#FBF8F5] dark:bg-[#1c151a] border border-[#E7E0DA] dark:border-[#3a2e35] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A3395C]" />
+            className="w-full pl-12 pr-4 py-3 bg-[#FBF8F5] dark:bg-[#2a2029] border border-[#E7E0DA] dark:border-[#453840] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A3395C]" />
         </div>
-        <button onClick={() => { setLoading(true); loadData(); }} className="px-4 py-3 bg-white dark:bg-[#241B22] border border-[#E7E0DA] dark:border-[#3a2e35] text-gray-700 dark:text-[#F5EDE9] rounded-lg hover:bg-[#FBF8F5] dark:hover:bg-[#2c2129] transition">
+        <button onClick={() => { setLoading(true); loadData(); }} className="px-4 py-3 bg-white dark:bg-[#322631] border border-[#E7E0DA] dark:border-[#453840] text-gray-700 dark:text-[#F5EDE9] rounded-lg hover:bg-[#FBF8F5] dark:hover:bg-[#362b34] transition">
           <RefreshCw className="w-5 h-5" />
         </button>
       </div>
 
-      <div className="bg-white dark:bg-[#241B22] rounded-xl shadow-sm border border-[#E7E0DA] dark:border-[#3a2e35] overflow-hidden">
+      <div className="bg-white dark:bg-[#322631] rounded-xl shadow-sm border border-[#E7E0DA] dark:border-[#453840] overflow-hidden">
         <table className="w-full">
-          <thead className="bg-[#FBF8F5] dark:bg-[#1c151a] border-b border-[#E7E0DA] dark:border-[#3a2e35]">
+          <thead className="bg-[#FBF8F5] dark:bg-[#2a2029] border-b border-[#E7E0DA] dark:border-[#453840]">
             <tr>
               {['#', 'CLIENTE', 'FECHA', 'TOTAL', 'MÉTODO PAGO', 'COMPROBANTE', 'ACCIONES'].map(h => (
                 <th key={h} className="px-6 py-4 text-left">
@@ -144,9 +144,9 @@ export const PedidosView: React.FC = () => {
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100 dark:divide-[#3a2e35]">
+          <tbody className="divide-y divide-gray-100 dark:divide-[#453840]">
             {filtered.map((p, idx) => (
-              <tr key={p.pedidoID} className="hover:bg-[#FBF8F5] dark:hover:bg-[#2c2129] transition">
+              <tr key={p.pedidoID} className="hover:bg-[#FBF8F5] dark:hover:bg-[#362b34] transition">
                 <td className="px-6 py-4"><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-medium text-[#241B22] dark:text-[#F5EDE9]">#{idx + 1}</span></td>
                 <td className="px-6 py-4">
                   <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-medium text-[#241B22] dark:text-[#F5EDE9]">{p.nombreCliente}</p>
@@ -171,7 +171,7 @@ export const PedidosView: React.FC = () => {
                     </button>
                     {puedeEditar && (
                       <button onClick={() => { setSelectedPedido(p); setEmailPagoOpen(true); }}
-                        className="p-2 text-gray-500 dark:text-[#b8a3ac] hover:bg-[#FBF8F5] dark:hover:bg-[#2c2129] hover:text-[#A3395C] rounded-lg transition" title="Enviar correo de pago">
+                        className="p-2 text-gray-500 dark:text-[#b8a3ac] hover:bg-[#FBF8F5] dark:hover:bg-[#362b34] hover:text-[#A3395C] rounded-lg transition" title="Enviar correo de pago">
                         <Mail className="w-5 h-5" />
                       </button>
                     )}
@@ -196,7 +196,7 @@ export const PedidosView: React.FC = () => {
             )}
           </tbody>
         </table>
-        <div className="px-6 py-4 border-t border-[#E7E0DA] dark:border-[#3a2e35]">
+        <div className="px-6 py-4 border-t border-[#E7E0DA] dark:border-[#453840]">
           <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500 dark:text-[#b8a3ac]">
             <span className="font-medium text-[#241B22] dark:text-[#F5EDE9]">{filtered.length}</span> pedidos pendientes
           </span>
@@ -225,11 +225,11 @@ export const PedidosView: React.FC = () => {
 
 
           {/* Body */}
-          <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4 bg-[#FBF8F5] dark:bg-[#1c151a]">
+          <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4 bg-[#FBF8F5] dark:bg-[#2a2029]">
             {selectedPedido && (
               <>
                 {/* Cliente */}
-                <div className="bg-white dark:bg-[#241B22] rounded-xl p-4 border border-[#E7E0DA] dark:border-[#3a2e35]">
+                <div className="bg-white dark:bg-[#322631] rounded-xl p-4 border border-[#E7E0DA] dark:border-[#453840]">
                   <p className="text-[10px] font-semibold text-gray-400 dark:text-[#b8a3ac] uppercase tracking-widest mb-3 flex items-center gap-1.5">
                     <User className="w-3.5 h-3.5" /> Información del cliente
                   </p>
@@ -270,7 +270,7 @@ export const PedidosView: React.FC = () => {
 
                 {/* Dirección */}
                 {(selectedPedido.direccionEnvio || selectedPedido.ciudad) && (
-                  <div className="bg-white dark:bg-[#241B22] rounded-xl p-4 border border-[#E7E0DA] dark:border-[#3a2e35]">
+                  <div className="bg-white dark:bg-[#322631] rounded-xl p-4 border border-[#E7E0DA] dark:border-[#453840]">
                     <p className="text-[10px] font-semibold text-gray-400 dark:text-[#b8a3ac] uppercase tracking-widest mb-3 flex items-center gap-1.5">
                       <MapPin className="w-3.5 h-3.5" /> Dirección de envío
                     </p>
@@ -280,7 +280,7 @@ export const PedidosView: React.FC = () => {
                 )}
 
                 {/* Productos */}
-                <div className="bg-white dark:bg-[#241B22] rounded-xl p-4 border border-[#E7E0DA] dark:border-[#3a2e35]">
+                <div className="bg-white dark:bg-[#322631] rounded-xl p-4 border border-[#E7E0DA] dark:border-[#453840]">
                   <p className="text-[10px] font-semibold text-gray-400 dark:text-[#b8a3ac] uppercase tracking-widest mb-3 flex items-center gap-1.5">
                     <ShoppingBag className="w-3.5 h-3.5" /> Productos
                   </p>
@@ -289,7 +289,7 @@ export const PedidosView: React.FC = () => {
                   ) : (
                     <div className="space-y-2">
                       {selectedPedido.detalles.map((d, i) => (
-                        <div key={i} className="flex items-center gap-3 bg-white dark:bg-[#241B22] rounded-lg p-2.5 border border-[#E7E0DA] dark:border-[#3a2e35]">
+                        <div key={i} className="flex items-center gap-3 bg-white dark:bg-[#322631] rounded-lg p-2.5 border border-[#E7E0DA] dark:border-[#453840]">
                           <div className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
                             style={{ background: '#A3395C' }}>
                             {d.cantidad}
@@ -297,8 +297,8 @@ export const PedidosView: React.FC = () => {
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-[#241B22] dark:text-[#F5EDE9] truncate">{d.productoNombre}</p>
                             <div className="flex gap-1.5 mt-0.5 flex-wrap">
-                              {d.talla && <span className="text-[10px] bg-gray-100 dark:bg-[#2c2129] text-gray-500 dark:text-[#b8a3ac] px-1.5 py-0.5 rounded">T: {d.talla}</span>}
-                              {d.color && <span className="text-[10px] bg-[#FBF8F5] dark:bg-[#1c151a] px-1.5 py-0.5 rounded" style={{ color: '#A3395C' }}>{d.color}</span>}
+                              {d.talla && <span className="text-[10px] bg-gray-100 dark:bg-[#362b34] text-gray-500 dark:text-[#b8a3ac] px-1.5 py-0.5 rounded">T: {d.talla}</span>}
+                              {d.color && <span className="text-[10px] bg-[#FBF8F5] dark:bg-[#2a2029] px-1.5 py-0.5 rounded" style={{ color: '#A3395C' }}>{d.color}</span>}
                             </div>
                           </div>
                           <p className="text-sm font-bold text-[#241B22] dark:text-[#F5EDE9] flex-shrink-0">{fmt(d.subtotal)}</p>
@@ -326,15 +326,15 @@ export const PedidosView: React.FC = () => {
           </div>
 
           {/* Footer */}
-          <div className="flex-shrink-0 px-6 py-4 border-t border-[#E7E0DA] dark:border-[#3a2e35] bg-[#FBF8F5] dark:bg-[#1c151a]">
+          <div className="flex-shrink-0 px-6 py-4 border-t border-[#E7E0DA] dark:border-[#453840] bg-[#FBF8F5] dark:bg-[#2a2029]">
             {puedeEditar ? (
               <div className="flex items-center justify-center gap-2">
                 <button type="button" onClick={() => setViewOpen(false)}
-                  className="px-5 py-2 rounded-full border border-[#E7E0DA] dark:border-[#3a2e35] bg-white dark:bg-[#241B22] text-gray-500 dark:text-[#b8a3ac] text-sm font-medium hover:bg-[#FBF8F5] dark:hover:bg-[#2c2129] transition-all shadow-sm">
+                  className="px-5 py-2 rounded-full border border-[#E7E0DA] dark:border-[#453840] bg-white dark:bg-[#322631] text-gray-500 dark:text-[#b8a3ac] text-sm font-medium hover:bg-[#FBF8F5] dark:hover:bg-[#362b34] transition-all shadow-sm">
                   Cerrar
                 </button>
                 <button type="button" onClick={() => { setViewOpen(false); setRechazarOpen(true); }}
-                  className="px-5 py-2 rounded-full border border-rose-200 dark:border-rose-900/50 bg-white dark:bg-[#241B22] text-rose-500 dark:text-rose-400 text-sm font-medium hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center gap-1.5 transition-all shadow-sm">
+                  className="px-5 py-2 rounded-full border border-rose-200 dark:border-rose-900/50 bg-white dark:bg-[#322631] text-rose-500 dark:text-rose-400 text-sm font-medium hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center gap-1.5 transition-all shadow-sm">
                   <XCircle className="w-3.5 h-3.5" /> Rechazar
                 </button>
                 <button type="button" onClick={() => { setViewOpen(false); setAprobarOpen(true); }}
@@ -346,7 +346,7 @@ export const PedidosView: React.FC = () => {
             ) : (
               <div className="flex justify-center">
                 <button type="button" onClick={() => setViewOpen(false)}
-                  className="px-8 py-2 rounded-full border border-[#E7E0DA] dark:border-[#3a2e35] bg-white dark:bg-[#241B22] text-gray-500 dark:text-[#b8a3ac] text-sm font-medium hover:bg-[#FBF8F5] dark:hover:bg-[#2c2129] transition-all shadow-sm">
+                  className="px-8 py-2 rounded-full border border-[#E7E0DA] dark:border-[#453840] bg-white dark:bg-[#322631] text-gray-500 dark:text-[#b8a3ac] text-sm font-medium hover:bg-[#FBF8F5] dark:hover:bg-[#362b34] transition-all shadow-sm">
                   Cerrar
                 </button>
               </div>
@@ -358,7 +358,7 @@ export const PedidosView: React.FC = () => {
       {/* Modal Comprobante */}
       <Dialog open={comprobanteOpen} onOpenChange={setComprobanteOpen}>
         <DialogContent className="max-w-2xl">
-          <DialogHeader className="px-6 pt-6 pb-4 border-b border-[#E7E0DA] dark:border-[#3a2e35]">
+          <DialogHeader className="px-6 pt-6 pb-4 border-b border-[#E7E0DA] dark:border-[#453840]">
             <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xl">Comprobante de Pago</DialogTitle>
           </DialogHeader>
           <div className="p-6">
@@ -368,14 +368,14 @@ export const PedidosView: React.FC = () => {
                   ? selectedPedido.comprobantePago
                   : `${apiBase}${selectedPedido.comprobantePago}`}
                 alt="Comprobante"
-                className="w-full rounded-xl border border-[#E7E0DA] dark:border-[#3a2e35] shadow-sm" />
+                className="w-full rounded-xl border border-[#E7E0DA] dark:border-[#453840] shadow-sm" />
             ) : (
               <p className="text-center text-gray-400 dark:text-[#b8a3ac]">Sin comprobante</p>
             )}
           </div>
           <DialogFooter className="px-6 pb-6">
             <button type="button" onClick={() => setComprobanteOpen(false)}
-              className="px-6 py-2 bg-gray-100 dark:bg-[#2c2129] text-gray-700 dark:text-[#F5EDE9] rounded-lg hover:bg-gray-200 dark:hover:bg-[#3a2530] transition">Cerrar</button>
+              className="px-6 py-2 bg-gray-100 dark:bg-[#362b34] text-gray-700 dark:text-[#F5EDE9] rounded-lg hover:bg-gray-200 dark:hover:bg-[#3a2530] transition">Cerrar</button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -385,7 +385,7 @@ export const PedidosView: React.FC = () => {
         <DialogContent className="max-w-md flex flex-col p-0 gap-0 overflow-hidden max-h-[90vh]">
           <DialogDescription className="sr-only">Enviar correo de pago al cliente</DialogDescription>
           {/* Header */}
-          <div className="px-6 pt-6 pb-4 border-b border-[#E7E0DA] dark:border-[#3a2e35] flex-shrink-0 pr-14 bg-[#EFD9DF] dark:bg-[#3a2530]">
+          <div className="px-6 pt-6 pb-4 border-b border-[#E7E0DA] dark:border-[#453840] flex-shrink-0 pr-14 bg-[#EFD9DF] dark:bg-[#3a2530]">
             <div className="flex items-center gap-3 mb-1">
               <div className="w-9 h-9 bg-[#e7c2ce] dark:bg-[#4a3540] rounded-xl flex items-center justify-center flex-shrink-0">
                 <Mail className="w-5 h-5 text-[#A3395C]" />
@@ -399,8 +399,8 @@ export const PedidosView: React.FC = () => {
             </p>
           </div>
           {/* Body */}
-          <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4 bg-[#FBF8F5] dark:bg-[#1c151a]">
-            <div className="bg-white dark:bg-[#241B22] border border-[#E7E0DA] dark:border-[#3a2e35] rounded-xl p-4 flex gap-3 items-start">
+          <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4 bg-[#FBF8F5] dark:bg-[#2a2029]">
+            <div className="bg-white dark:bg-[#322631] border border-[#E7E0DA] dark:border-[#453840] rounded-xl p-4 flex gap-3 items-start">
               <div className="w-8 h-8 bg-[#e7c2ce] dark:bg-[#4a3540] rounded-lg flex items-center justify-center flex-shrink-0">
                 <Mail className="w-4 h-4 text-[#A3395C]" />
               </div>
@@ -415,7 +415,7 @@ export const PedidosView: React.FC = () => {
               <textarea value={mensajePago} onChange={e => setMensajePago(e.target.value)}
                 placeholder="Ej: Hola, falta el saldo de $50.000 para completar tu pedido..."
                 rows={3}
-                className="w-full px-3 py-2.5 border border-pink-200 dark:border-[#3a2530] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-pink-200 focus:border-[#A3395C] resize-none bg-white dark:bg-[#241B22] transition-all" />
+                className="w-full px-3 py-2.5 border border-pink-200 dark:border-[#3a2530] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-pink-200 focus:border-[#A3395C] resize-none bg-white dark:bg-[#322631] transition-all" />
             </div>
             <div className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-900/50 rounded-xl p-3 flex items-center gap-3">
               <div className="w-2 h-2 rounded-full bg-emerald-400 flex-shrink-0" />
@@ -423,9 +423,9 @@ export const PedidosView: React.FC = () => {
             </div>
           </div>
           {/* Footer */}
-          <div className="px-6 py-4 border-t border-[#E7E0DA] dark:border-[#3a2e35] bg-[#FBF8F5] dark:bg-[#1c151a] flex-shrink-0 flex gap-2">
+          <div className="px-6 py-4 border-t border-[#E7E0DA] dark:border-[#453840] bg-[#FBF8F5] dark:bg-[#2a2029] flex-shrink-0 flex gap-2">
             <button type="button" onClick={() => setEmailPagoOpen(false)}
-              className="flex-1 py-2.5 rounded-full border border-[#E7E0DA] dark:border-[#3a2e35] bg-white dark:bg-[#241B22] text-gray-500 dark:text-[#b8a3ac] hover:bg-[#FBF8F5] dark:hover:bg-[#2c2129] transition-all text-sm font-medium shadow-sm">
+              className="flex-1 py-2.5 rounded-full border border-[#E7E0DA] dark:border-[#453840] bg-white dark:bg-[#322631] text-gray-500 dark:text-[#b8a3ac] hover:bg-[#FBF8F5] dark:hover:bg-[#362b34] transition-all text-sm font-medium shadow-sm">
               Cancelar
             </button>
             <button type="button" onClick={enviarEmailPago} disabled={saving}
@@ -443,7 +443,7 @@ export const PedidosView: React.FC = () => {
         <DialogContent className="max-w-md p-0 gap-0 overflow-hidden">
           <DialogDescription className="sr-only">Confirmar aprobación del pedido</DialogDescription>
           {/* Header */}
-          <div className="px-6 pt-6 pb-4 border-b border-[#E7E0DA] dark:border-[#3a2e35] pr-14 bg-[#EFD9DF] dark:bg-[#3a2530]">
+          <div className="px-6 pt-6 pb-4 border-b border-[#E7E0DA] dark:border-[#453840] pr-14 bg-[#EFD9DF] dark:bg-[#3a2530]">
             <div className="flex items-center gap-3 mb-1">
               <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(34, 197, 94, 0.15)' }}>
                 <CheckCircle className="w-5 h-5 text-green-600" />
@@ -455,17 +455,17 @@ export const PedidosView: React.FC = () => {
             </p>
           </div>
           {/* Body */}
-          <div className="px-6 py-5 bg-[#FBF8F5] dark:bg-[#1c151a]">
-            <div className="bg-white dark:bg-[#241B22] border border-[#E7E0DA] dark:border-[#3a2e35] rounded-xl px-4 py-3">
+          <div className="px-6 py-5 bg-[#FBF8F5] dark:bg-[#2a2029]">
+            <div className="bg-white dark:bg-[#322631] border border-[#E7E0DA] dark:border-[#453840] rounded-xl px-4 py-3">
               <p className="text-sm text-gray-700 dark:text-[#F5EDE9] leading-relaxed">
                 El pedido pasará al módulo de <strong className="text-[#241B22] dark:text-[#F5EDE9]">Ventas</strong> para su despacho. Esta acción no se puede deshacer.
               </p>
             </div>
           </div>
           {/* Footer */}
-          <div className="px-6 py-4 border-t border-[#E7E0DA] dark:border-[#3a2e35] bg-[#FBF8F5] dark:bg-[#1c151a] flex gap-2">
+          <div className="px-6 py-4 border-t border-[#E7E0DA] dark:border-[#453840] bg-[#FBF8F5] dark:bg-[#2a2029] flex gap-2">
             <button type="button" onClick={() => setAprobarOpen(false)}
-              className="flex-1 py-2.5 rounded-full border border-[#E7E0DA] dark:border-[#3a2e35] bg-white dark:bg-[#241B22] text-gray-500 dark:text-[#b8a3ac] hover:bg-[#FBF8F5] dark:hover:bg-[#2c2129] transition-all text-sm font-medium shadow-sm">
+              className="flex-1 py-2.5 rounded-full border border-[#E7E0DA] dark:border-[#453840] bg-white dark:bg-[#322631] text-gray-500 dark:text-[#b8a3ac] hover:bg-[#FBF8F5] dark:hover:bg-[#362b34] transition-all text-sm font-medium shadow-sm">
               Cancelar
             </button>
             <button type="button" onClick={() => selectedPedido && cambiarEstado(selectedPedido, 'Aprobado')}
@@ -484,7 +484,7 @@ export const PedidosView: React.FC = () => {
         <DialogContent className="max-w-md flex flex-col p-0 gap-0 overflow-hidden">
           <DialogDescription className="sr-only">Rechazar pedido</DialogDescription>
           {/* Header */}
-          <div className="px-6 pt-6 pb-4 border-b border-[#E7E0DA] dark:border-[#3a2e35] flex-shrink-0 pr-14 bg-[#EFD9DF] dark:bg-[#3a2530]">
+          <div className="px-6 pt-6 pb-4 border-b border-[#E7E0DA] dark:border-[#453840] flex-shrink-0 pr-14 bg-[#EFD9DF] dark:bg-[#3a2530]">
             <svg width="0" height="0" className="absolute">
               <defs>
                 <linearGradient id="rechazarIconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -502,19 +502,19 @@ export const PedidosView: React.FC = () => {
             </p>
           </div>
           {/* Body */}
-          <div className="px-6 py-5 space-y-3 bg-[#FBF8F5] dark:bg-[#1c151a]">
+          <div className="px-6 py-5 space-y-3 bg-[#FBF8F5] dark:bg-[#2a2029]">
             <div className="flex flex-col gap-1.5">
               <Label className="text-sm font-medium text-gray-700 dark:text-[#F5EDE9]">Razón del rechazo <span className="text-red-500">*</span></Label>
               <textarea value={razonRechazo} onChange={e => setRazonRechazo(e.target.value)}
                 placeholder="Ej: Comprobante ilegible, pago insuficiente..."
                 rows={3}
-                className="w-full px-3 py-2.5 border border-pink-200 dark:border-[#3a2530] rounded-xl text-sm focus:outline-none focus:border-[#A3395C] resize-none bg-white dark:bg-[#241B22] transition" />
+                className="w-full px-3 py-2.5 border border-pink-200 dark:border-[#3a2530] rounded-xl text-sm focus:outline-none focus:border-[#A3395C] resize-none bg-white dark:bg-[#322631] transition" />
             </div>
           </div>
           {/* Footer */}
-          <div className="px-6 py-4 border-t border-[#E7E0DA] dark:border-[#3a2e35] bg-[#FBF8F5] dark:bg-[#1c151a] flex gap-2 flex-shrink-0">
+          <div className="px-6 py-4 border-t border-[#E7E0DA] dark:border-[#453840] bg-[#FBF8F5] dark:bg-[#2a2029] flex gap-2 flex-shrink-0">
             <button type="button" onClick={() => setRechazarOpen(false)}
-              className="flex-1 py-2.5 rounded-full border border-[#E7E0DA] dark:border-[#3a2e35] bg-white dark:bg-[#241B22] text-gray-500 dark:text-[#b8a3ac] hover:bg-[#FBF8F5] dark:hover:bg-[#2c2129] transition-all text-sm font-medium shadow-sm">
+              className="flex-1 py-2.5 rounded-full border border-[#E7E0DA] dark:border-[#453840] bg-white dark:bg-[#322631] text-gray-500 dark:text-[#b8a3ac] hover:bg-[#FBF8F5] dark:hover:bg-[#362b34] transition-all text-sm font-medium shadow-sm">
               Cancelar
             </button>
             <button type="button" onClick={() => {

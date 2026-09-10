@@ -19,7 +19,7 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
 
   if (!imagenesValidas || imagenesValidas.length === 0) {
     return (
-      <div className={`bg-[#fdf2f8] dark:bg-[#2c2129] flex flex-col items-center justify-center gap-3 ${className}`}>
+      <div className={`bg-[#fdf2f8] dark:bg-[#362b34] flex flex-col items-center justify-center gap-3 ${className}`}>
         <div className="w-20 h-20 rounded-full bg-pink-100 dark:bg-[#3a2530] flex items-center justify-center">
           <svg xmlns="http://www.w3.org/2000/svg" className="w-10 h-10 text-[#A3395C] opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -43,7 +43,7 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
   };
 
   return (
-    <div className={`relative w-full h-full bg-[#fafafa] dark:bg-[#1c151a] ${className}`}>
+    <div className={`relative w-full h-full bg-[#fafafa] dark:bg-[#2a2029] ${className}`}>
       {/* Imagen principal */}
       <img
         src={imagenesValidas[imagenActual]}
@@ -111,7 +111,7 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
                 className={`w-12 h-12 rounded border-2 overflow-hidden transition-all ${
                   idx === imagenActual
                     ? 'border-[#A3395C] scale-105'
-                    : 'border-gray-300 dark:border-[#3a2e35] hover:border-gray-400 dark:hover:border-[#A3395C] opacity-70 hover:opacity-100'
+                    : 'border-gray-300 dark:border-[#453840] hover:border-gray-400 dark:hover:border-[#A3395C] opacity-70 hover:opacity-100'
                 }`}
                 title={`Ir a imagen ${idx + 1}`}
               >

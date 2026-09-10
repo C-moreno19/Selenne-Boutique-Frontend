@@ -58,7 +58,7 @@ export const MaterialesView: React.FC = () => {
   };
 
   return (
-    <div className="p-8 bg-[#FBF8F5] dark:bg-[#1c151a] min-h-screen">
+    <div className="p-8 bg-[#FBF8F5] dark:bg-[#2a2029] min-h-screen">
       <div className="flex items-center gap-2 mb-4">
         <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500 dark:text-[#b8a3ac]">Dashboard</span>
         <ChevronRight className="w-4 h-4 text-gray-400 dark:text-[#b8a3ac]" />
@@ -77,25 +77,25 @@ export const MaterialesView: React.FC = () => {
         )}
       </div>
 
-      <div className="bg-white dark:bg-[#241B22] rounded-xl p-6 border border-[#E7E0DA] dark:border-[#3a2e35] mb-6" style={{ boxShadow: '0 2px 12px rgba(214, 83, 145, 0.07)' }}>
+      <div className="bg-white dark:bg-[#322631] rounded-xl p-6 border border-[#E7E0DA] dark:border-[#453840] mb-6" style={{ boxShadow: '0 2px 12px rgba(214, 83, 145, 0.07)' }}>
         <div className="relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-[#b8a3ac]" />
           <input type="text" placeholder="Buscar materiales..." value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-            className="w-full pl-12 pr-4 py-3 bg-[#FBF8F5] dark:bg-[#1c151a] border border-[#E7E0DA] dark:border-[#3a2e35] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A3395C]" />
+            className="w-full pl-12 pr-4 py-3 bg-[#FBF8F5] dark:bg-[#2a2029] border border-[#E7E0DA] dark:border-[#453840] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A3395C]" />
         </div>
       </div>
 
-      <div className="bg-white dark:bg-[#241B22] rounded-xl border border-[#E7E0DA] dark:border-[#3a2e35] overflow-hidden" style={{ boxShadow: '0 2px 12px rgba(214, 83, 145, 0.07)' }}>
+      <div className="bg-white dark:bg-[#322631] rounded-xl border border-[#E7E0DA] dark:border-[#453840] overflow-hidden" style={{ boxShadow: '0 2px 12px rgba(214, 83, 145, 0.07)' }}>
         <table className="w-full">
-          <thead className="bg-[#FBF8F5] dark:bg-[#1c151a] border-b border-[#E7E0DA] dark:border-[#3a2e35]">
+          <thead className="bg-[#FBF8F5] dark:bg-[#2a2029] border-b border-[#E7E0DA] dark:border-[#453840]">
             <tr>
               
               <th className="px-6 py-4 text-left"><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-[#b8a3ac]">NOMBRE</span></th>
               <th className="px-6 py-4 text-right"><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-[#b8a3ac]">ACCIONES</span></th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100 dark:divide-[#3a2e35]">
+          <tbody className="divide-y divide-gray-100 dark:divide-[#453840]">
             {filtered.map(item => (
               <tr key={item.id} className="hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] transition">
                 
@@ -125,7 +125,7 @@ export const MaterialesView: React.FC = () => {
             )}
           </tbody>
         </table>
-        <div className="px-6 py-4 border-t border-[#E7E0DA] dark:border-[#3a2e35]">
+        <div className="px-6 py-4 border-t border-[#E7E0DA] dark:border-[#453840]">
           <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500 dark:text-[#b8a3ac]">
             Mostrando <span className="font-medium text-[#241B22] dark:text-[#F5EDE9]">{filtered.length}</span> de <span className="font-medium text-[#241B22] dark:text-[#F5EDE9]">{materiales.length}</span> materiales
           </span>
@@ -135,7 +135,7 @@ export const MaterialesView: React.FC = () => {
       {/* Modal Crear / Editar */}
       <Dialog open={formOpen} onOpenChange={setFormOpen}>
         <DialogContent className="max-w-2xl h-auto flex flex-col p-0 gap-0">
-          <DialogHeader className="px-8 pt-6 pb-4 border-b border-[#E7E0DA] dark:border-[#3a2e35] flex-shrink-0">
+          <DialogHeader className="px-8 pt-6 pb-4 border-b border-[#E7E0DA] dark:border-[#453840] flex-shrink-0">
             <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xl font-semibold">
               {isEditing ? 'Editar Material' : 'Nuevo Material'}
             </DialogTitle>
@@ -145,23 +145,23 @@ export const MaterialesView: React.FC = () => {
           </DialogHeader>
           <div className="flex-1 overflow-y-auto">
             <div className="space-y-6 py-6 px-8">
-              <div className="bg-white dark:bg-[#241B22] rounded-xl border border-[#E7E0DA] dark:border-[#3a2e35] shadow-sm overflow-hidden">
-                <div className="bg-[#FBF8F5] dark:bg-[#1c151a] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#3a2e35]">
+              <div className="bg-white dark:bg-[#322631] rounded-xl border border-[#E7E0DA] dark:border-[#453840] shadow-sm overflow-hidden">
+                <div className="bg-[#FBF8F5] dark:bg-[#2a2029] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#453840]">
                   <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#241B22] dark:text-[#F5EDE9] text-base">Información</h3>
                 </div>
                 <div className="p-6 flex flex-col gap-5">
                   <div className="flex flex-col gap-2">
                     <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 dark:text-[#F5EDE9]">Nombre <span className="text-red-500">*</span></Label>
                     <Input value={formName} onChange={e => setFormName(e.target.value)}
-                      placeholder="Ej: Algodón, Poliéster..." className="h-10 border-gray-300 dark:border-[#3a2e35]" />
+                      placeholder="Ej: Algodón, Poliéster..." className="h-10 border-gray-300 dark:border-[#453840]" />
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          <DialogFooter className="gap-2 px-8 py-5 border-t border-[#E7E0DA] dark:border-[#3a2e35] flex-shrink-0">
+          <DialogFooter className="gap-2 px-8 py-5 border-t border-[#E7E0DA] dark:border-[#453840] flex-shrink-0">
             <button onClick={() => setFormOpen(false)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="px-6 py-2 bg-gray-100 dark:bg-[#2c2129] text-gray-700 dark:text-[#F5EDE9] rounded-lg hover:bg-gray-200 dark:hover:bg-[#3a2530] transition">Cancelar</button>
+              className="px-6 py-2 bg-gray-100 dark:bg-[#362b34] text-gray-700 dark:text-[#F5EDE9] rounded-lg hover:bg-gray-200 dark:hover:bg-[#3a2530] transition">Cancelar</button>
             <button onClick={guardar} disabled={saving} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
               className="px-6 py-2 bg-gradient-to-r from-[#241B22] via-[#7a3350] to-[#A3395C] text-white rounded-lg hover:opacity-90 disabled:opacity-50 flex items-center gap-2 transition">
               {saving && <Loader2 className="w-4 h-4 animate-spin" />}

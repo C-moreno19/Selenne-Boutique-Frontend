@@ -13,7 +13,7 @@ export function StoreFooter({ telefonoContacto, onCategoriaChange }: StoreFooter
   const [legalAbierto, setLegalAbierto] = useState<LegalDoc>(null);
 
   return (
-    <footer className="text-white mt-20" style={{ background: 'linear-gradient(90deg, #1c151a 0%, #241B22 30%, #7a3350 68%, #A3395C 100%)' }}>
+    <footer className="text-white mt-20" style={{ background: 'linear-gradient(90deg, #2a2029 0%, #241B22 30%, #7a3350 68%, #A3395C 100%)' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10" style={{ fontFamily: PLAYFAIR }}>
           <div>

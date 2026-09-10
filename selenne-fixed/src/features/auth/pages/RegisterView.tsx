@@ -272,11 +272,11 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
       </div>
 
       {/* Register Panel - Right (45%) — solo esta parte scrollea */}
-      <div className="flex-1 lg:w-[45%] h-full overflow-y-auto bg-white dark:bg-[#1c151a] px-16 py-12 flex flex-col items-center justify-start">
+      <div className="flex-1 lg:w-[45%] h-full overflow-y-auto bg-white dark:bg-[#2a2029] px-16 py-12 flex flex-col items-center justify-start">
         <div className="w-full max-w-md mt-auto mb-auto">
           {/* Header */}
           <div className="mb-8 flex flex-col items-center space-y-5">
-            <Logo className="w-[140px] h-[79px]" />
+            <Logo className="w-[120px] h-[120px]" />
             <h1
               className="text-[#000000] dark:text-[#F5EDE9] text-center"
               style={{

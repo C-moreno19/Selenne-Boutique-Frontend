@@ -160,7 +160,7 @@ export const ProveedoresView: React.FC = () => {
   );
 
   return (
-    <div className="p-8 bg-[#FBF8F5] dark:bg-[#1c151a] min-h-screen">
+    <div className="p-8 bg-[#FBF8F5] dark:bg-[#2a2029] min-h-screen">
       <div className="flex items-center gap-2 mb-4">
         <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500 dark:text-[#b8a3ac]">Dashboard</span>
         <ChevronRight className="w-4 h-4 text-gray-400 dark:text-[#b8a3ac]" />
@@ -169,15 +169,15 @@ export const ProveedoresView: React.FC = () => {
       <h1 className="admin-page-title text-4xl text-[#241B22] dark:text-[#F5EDE9] mb-6">Gestión de Proveedores</h1>
 
       {/* Barra */}
-      <div className="bg-white dark:bg-[#241B22] rounded-xl p-6 shadow-sm border border-[#E7E0DA] dark:border-[#3a2e35] flex flex-col lg:flex-row gap-4 mb-6">
+      <div className="bg-white dark:bg-[#322631] rounded-xl p-6 shadow-sm border border-[#E7E0DA] dark:border-[#453840] flex flex-col lg:flex-row gap-4 mb-6">
         <div className="flex-1 relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-[#b8a3ac]" />
           <input type="text" placeholder="Buscar proveedores..." value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-            className="w-full pl-12 pr-4 py-3 bg-[#FBF8F5] dark:bg-[#1c151a] border border-[#E7E0DA] dark:border-[#3a2e35] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A3395C]" />
+            className="w-full pl-12 pr-4 py-3 bg-[#FBF8F5] dark:bg-[#2a2029] border border-[#E7E0DA] dark:border-[#453840] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A3395C]" />
         </div>
         <div className="flex gap-3">
-          <button onClick={() => { setLoading(true); loadData(); }} className="px-4 py-3 bg-white dark:bg-[#241B22] border border-[#E7E0DA] dark:border-[#3a2e35] text-gray-700 dark:text-[#F5EDE9] rounded-lg hover:bg-[#FBF8F5] dark:hover:bg-[#2c2129] transition">
+          <button onClick={() => { setLoading(true); loadData(); }} className="px-4 py-3 bg-white dark:bg-[#322631] border border-[#E7E0DA] dark:border-[#453840] text-gray-700 dark:text-[#F5EDE9] rounded-lg hover:bg-[#FBF8F5] dark:hover:bg-[#362b34] transition">
             <RefreshCw className="w-5 h-5" />
           </button>
           {puedeCrear && (
@@ -190,9 +190,9 @@ export const ProveedoresView: React.FC = () => {
       </div>
 
       {/* Tabla */}
-      <div className="bg-white dark:bg-[#241B22] rounded-xl shadow-sm border border-[#E7E0DA] dark:border-[#3a2e35] overflow-hidden">
+      <div className="bg-white dark:bg-[#322631] rounded-xl shadow-sm border border-[#E7E0DA] dark:border-[#453840] overflow-hidden">
         <table className="w-full">
-          <thead className="bg-[#FBF8F5] dark:bg-[#1c151a] border-b border-[#E7E0DA] dark:border-[#3a2e35]">
+          <thead className="bg-[#FBF8F5] dark:bg-[#2a2029] border-b border-[#E7E0DA] dark:border-[#453840]">
             <tr>
               {['NOMBRE', 'CONTACTO', 'EMAIL', 'TELÉFONO', 'DOCUMENTO', 'ESTADO', 'ACCIONES'].map(h => (
                 <th key={h} className="px-6 py-4 text-left">
@@ -201,9 +201,9 @@ export const ProveedoresView: React.FC = () => {
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100 dark:divide-[#3a2e35]">
+          <tbody className="divide-y divide-gray-100 dark:divide-[#453840]">
             {filtered.map(p => (
-              <tr key={p.proveedorID} className="hover:bg-[#FBF8F5] dark:hover:bg-[#2c2129] transition">
+              <tr key={p.proveedorID} className="hover:bg-[#FBF8F5] dark:hover:bg-[#362b34] transition">
                 <td className="px-6 py-4"><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-medium text-[#241B22] dark:text-[#F5EDE9]">{p.nombre}</span></td>
                 <td className="px-6 py-4"><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-600 dark:text-[#b8a3ac]">{p.contacto || '—'}</span></td>
                 <td className="px-6 py-4"><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-600 dark:text-[#b8a3ac] text-sm">{p.email || '—'}</span></td>
@@ -217,7 +217,7 @@ export const ProveedoresView: React.FC = () => {
                     className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
                       p.estado === 'activo'
                         ? 'bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-400 border-green-200 dark:border-green-900/50 hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-600 dark:hover:text-red-400 hover:border-red-200 dark:hover:border-red-900/50'
-                        : 'bg-gray-100 dark:bg-[#2c2129] text-gray-500 dark:text-[#b8a3ac] border-[#E7E0DA] dark:border-[#3a2e35] hover:bg-green-50 dark:hover:bg-green-950/40 hover:text-green-700 dark:hover:text-green-400 hover:border-green-200 dark:hover:border-green-900/50'
+                        : 'bg-gray-100 dark:bg-[#362b34] text-gray-500 dark:text-[#b8a3ac] border-[#E7E0DA] dark:border-[#453840] hover:bg-green-50 dark:hover:bg-green-950/40 hover:text-green-700 dark:hover:text-green-400 hover:border-green-200 dark:hover:border-green-900/50'
                     } ${!puedeAdmin ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                     title={p.estado === 'activo' ? 'Clic para desactivar' : 'Clic para activar'}
                   >
@@ -248,7 +248,7 @@ export const ProveedoresView: React.FC = () => {
             )}
           </tbody>
         </table>
-        <div className="px-6 py-4 border-t border-[#E7E0DA] dark:border-[#3a2e35]">
+        <div className="px-6 py-4 border-t border-[#E7E0DA] dark:border-[#453840]">
           <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500 dark:text-[#b8a3ac]">
             Mostrando <span className="font-medium text-[#241B22] dark:text-[#F5EDE9]">{filtered.length}</span> de <span className="font-medium text-[#241B22] dark:text-[#F5EDE9]">{proveedores.length}</span> proveedores
           </span>
@@ -258,7 +258,7 @@ export const ProveedoresView: React.FC = () => {
       {/* Modal Crear / Editar */}
       <Dialog open={formOpen} onOpenChange={setFormOpen}>
         <DialogContent className="max-w-2xl h-auto flex flex-col p-0 gap-0">
-          <DialogHeader className="px-8 pt-6 pb-4 border-b border-[#E7E0DA] dark:border-[#3a2e35] flex-shrink-0">
+          <DialogHeader className="px-8 pt-6 pb-4 border-b border-[#E7E0DA] dark:border-[#453840] flex-shrink-0">
             <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-2xl text-[#241B22] dark:text-[#F5EDE9]">
               {isEditing ? 'Editar Proveedor' : 'Nuevo Proveedor'}
             </DialogTitle>
@@ -269,8 +269,8 @@ export const ProveedoresView: React.FC = () => {
 
           <div className="flex-1 overflow-y-auto">
             <div className="space-y-6 py-6 px-8">
-              <div className="bg-white dark:bg-[#241B22] rounded-xl border border-[#E7E0DA] dark:border-[#3a2e35] shadow-sm overflow-hidden">
-                <div className="bg-[#EFD9DF]/50 dark:bg-[#3a2530]/50 px-6 py-4 border-b border-[#E7E0DA] dark:border-[#3a2e35]">
+              <div className="bg-white dark:bg-[#322631] rounded-xl border border-[#E7E0DA] dark:border-[#453840] shadow-sm overflow-hidden">
+                <div className="bg-[#EFD9DF]/50 dark:bg-[#3a2530]/50 px-6 py-4 border-b border-[#E7E0DA] dark:border-[#453840]">
                   <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#A3395C] text-base flex items-center gap-2"><ClipboardList className="w-4 h-4" />Información del Proveedor</h3>
                 </div>
                 <div className="p-6 grid grid-cols-2 gap-6">
@@ -280,14 +280,14 @@ export const ProveedoresView: React.FC = () => {
                     </Label>
                     <Input value={form.nombre} onChange={e => updateForm('nombre', e.target.value)}
                       placeholder="Nombre del proveedor"
-                      className={`h-10 focus-visible:ring-[#A3395C] focus-visible:border-[#A3395C] ${formErrors.nombre ? 'border-red-500' : 'border-[#E7E0DA] dark:border-[#3a2e35]'}`} />
+                      className={`h-10 focus-visible:ring-[#A3395C] focus-visible:border-[#A3395C] ${formErrors.nombre ? 'border-red-500' : 'border-[#E7E0DA] dark:border-[#453840]'}`} />
                     {formErrors.nombre && <p className="text-red-500 text-xs">{formErrors.nombre}</p>}
                   </div>
 
                   <div className="flex flex-col gap-2">
                     <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-[#241B22] dark:text-[#F5EDE9]">Contacto</Label>
                     <Input value={form.contacto} onChange={e => updateForm('contacto', e.target.value)}
-                      placeholder="Nombre del contacto" className={`h-10 focus-visible:ring-[#A3395C] focus-visible:border-[#A3395C] ${formErrors.contacto ? 'border-red-500' : 'border-[#E7E0DA] dark:border-[#3a2e35]'}`} />
+                      placeholder="Nombre del contacto" className={`h-10 focus-visible:ring-[#A3395C] focus-visible:border-[#A3395C] ${formErrors.contacto ? 'border-red-500' : 'border-[#E7E0DA] dark:border-[#453840]'}`} />
                     {formErrors.contacto && <p className="text-red-500 text-xs">{formErrors.contacto}</p>}
                   </div>
 
@@ -297,7 +297,7 @@ export const ProveedoresView: React.FC = () => {
                     </Label>
                     <Input type="email" value={form.email} onChange={e => updateForm('email', e.target.value)}
                       placeholder="email@ejemplo.com"
-                      className={`h-10 focus-visible:ring-[#A3395C] focus-visible:border-[#A3395C] ${formErrors.email ? 'border-red-500' : 'border-[#E7E0DA] dark:border-[#3a2e35]'}`} />
+                      className={`h-10 focus-visible:ring-[#A3395C] focus-visible:border-[#A3395C] ${formErrors.email ? 'border-red-500' : 'border-[#E7E0DA] dark:border-[#453840]'}`} />
                     {formErrors.email && <p className="text-red-500 text-xs">{formErrors.email}</p>}
                   </div>
 
@@ -307,14 +307,14 @@ export const ProveedoresView: React.FC = () => {
                     </Label>
                     <Input type="tel" value={form.telefono} onChange={e => updateForm('telefono', e.target.value)}
                       placeholder="3001234567"
-                      className={`h-10 focus-visible:ring-[#A3395C] focus-visible:border-[#A3395C] ${formErrors.telefono ? 'border-red-500' : 'border-[#E7E0DA] dark:border-[#3a2e35]'}`} />
+                      className={`h-10 focus-visible:ring-[#A3395C] focus-visible:border-[#A3395C] ${formErrors.telefono ? 'border-red-500' : 'border-[#E7E0DA] dark:border-[#453840]'}`} />
                     {formErrors.telefono && <p className="text-red-500 text-xs">{formErrors.telefono}</p>}
                   </div>
 
                   <div className="flex flex-col gap-2 col-span-2">
                     <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-[#241B22] dark:text-[#F5EDE9]">Documento (NIT / Cédula)</Label>
                     <Input value={form.documento} onChange={e => updateForm('documento', e.target.value)}
-                      placeholder="NIT o número de cédula" className={`h-10 focus-visible:ring-[#A3395C] focus-visible:border-[#A3395C] ${formErrors.documento ? 'border-red-500' : 'border-[#E7E0DA] dark:border-[#3a2e35]'}`} />
+                      placeholder="NIT o número de cédula" className={`h-10 focus-visible:ring-[#A3395C] focus-visible:border-[#A3395C] ${formErrors.documento ? 'border-red-500' : 'border-[#E7E0DA] dark:border-[#453840]'}`} />
                     {formErrors.documento && <p className="text-red-500 text-xs">{formErrors.documento}</p>}
                   </div>
                 </div>
@@ -322,9 +322,9 @@ export const ProveedoresView: React.FC = () => {
             </div>
           </div>
 
-          <DialogFooter className="gap-2 px-8 py-5 border-t border-[#E7E0DA] dark:border-[#3a2e35] flex-shrink-0">
+          <DialogFooter className="gap-2 px-8 py-5 border-t border-[#E7E0DA] dark:border-[#453840] flex-shrink-0">
             <button onClick={() => { setFormOpen(false); resetForm(); }} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="px-6 py-2 bg-gray-100 dark:bg-[#2c2129] text-gray-700 dark:text-[#F5EDE9] rounded-lg hover:bg-gray-200 dark:hover:bg-[#3a2530] transition">Cancelar</button>
+              className="px-6 py-2 bg-gray-100 dark:bg-[#362b34] text-gray-700 dark:text-[#F5EDE9] rounded-lg hover:bg-gray-200 dark:hover:bg-[#3a2530] transition">Cancelar</button>
             <button onClick={guardar} disabled={saving} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', background: 'linear-gradient(90deg, #241B22 0%, #7a3350 55%, #A3395C 100%)' }}
               className="px-6 py-2 text-white rounded-lg disabled:opacity-50 flex items-center gap-2 transition-transform hover:scale-105">
               {saving && <Loader2 className="w-4 h-4 animate-spin" />}
@@ -345,9 +345,9 @@ export const ProveedoresView: React.FC = () => {
             <DialogDescription className="text-[#EFD9DF] text-sm mt-0.5">Proveedor</DialogDescription>
           </div>
           {selected && (
-            <div className="bg-[#FBF8F5] dark:bg-[#1c151a] px-6 py-5">
-              <div className="bg-white dark:bg-[#241B22] rounded-xl border border-[#E7E0DA] dark:border-[#3a2e35] shadow-sm overflow-hidden">
-                <div className="px-5 py-3 border-b border-[#E7E0DA] dark:border-[#3a2e35] bg-[#EFD9DF]/50 dark:bg-[#3a2530]/50">
+            <div className="bg-[#FBF8F5] dark:bg-[#2a2029] px-6 py-5">
+              <div className="bg-white dark:bg-[#322631] rounded-xl border border-[#E7E0DA] dark:border-[#453840] shadow-sm overflow-hidden">
+                <div className="px-5 py-3 border-b border-[#E7E0DA] dark:border-[#453840] bg-[#EFD9DF]/50 dark:bg-[#3a2530]/50">
                   <h3 className="font-semibold text-[#A3395C] text-xs uppercase tracking-wider">Información General</h3>
                 </div>
                 <div className="p-5 grid grid-cols-2 gap-4">
@@ -367,9 +367,9 @@ export const ProveedoresView: React.FC = () => {
               </div>
             </div>
           )}
-          <div className="px-6 py-4 border-t border-[#E7E0DA] dark:border-[#3a2e35] bg-white dark:bg-[#241B22] flex-shrink-0 flex justify-end">
+          <div className="px-6 py-4 border-t border-[#E7E0DA] dark:border-[#453840] bg-white dark:bg-[#322631] flex-shrink-0 flex justify-end">
             <button onClick={() => setViewOpen(false)}
-              className="px-6 py-2 bg-gray-100 dark:bg-[#2c2129] text-gray-700 dark:text-[#F5EDE9] rounded-lg hover:bg-gray-200 dark:hover:bg-[#3a2530] transition text-sm font-medium">Cerrar</button>
+              className="px-6 py-2 bg-gray-100 dark:bg-[#362b34] text-gray-700 dark:text-[#F5EDE9] rounded-lg hover:bg-gray-200 dark:hover:bg-[#3a2530] transition text-sm font-medium">Cerrar</button>
           </div>
         </DialogContent>
       </Dialog>

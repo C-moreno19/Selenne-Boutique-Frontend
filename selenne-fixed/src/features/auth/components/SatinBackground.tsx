@@ -7,7 +7,7 @@ export const SatinBackground: React.FC = () => {
       <div
         className="absolute inset-0"
         style={{
-          background: 'linear-gradient(135deg, #1c151a 0%, #3a2430 35%, #6b3348 70%, #A3395C 100%)',
+          background: 'linear-gradient(135deg, #2a2029 0%, #3a2430 35%, #6b3348 70%, #A3395C 100%)',
         }}
       />
 

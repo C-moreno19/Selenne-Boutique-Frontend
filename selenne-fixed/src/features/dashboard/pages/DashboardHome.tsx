@@ -123,14 +123,14 @@ export const DashboardHome: React.FC = () => {
   const { resolvedTheme } = useTheme();
   // Recharts no lee clases dark:, asi que los colores del grafico se
   // resuelven en JS segun el tema efectivamente aplicado.
-  const chartGrid = resolvedTheme === 'dark' ? '#3a2e35' : '#f3f4f6';
+  const chartGrid = resolvedTheme === 'dark' ? '#453840' : '#f3f4f6';
   const chartAxis = resolvedTheme === 'dark' ? '#5a4d52' : '#e5e7eb';
   const chartTick = resolvedTheme === 'dark' ? '#b8a3ac' : '#9ca3af';
   const tooltipStyle = {
     fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
     borderRadius: '10px',
-    border: resolvedTheme === 'dark' ? '1px solid #3a2e35' : '1px solid #e7c2ce',
-    backgroundColor: resolvedTheme === 'dark' ? '#241B22' : '#ffffff',
+    border: resolvedTheme === 'dark' ? '1px solid #453840' : '1px solid #e7c2ce',
+    backgroundColor: resolvedTheme === 'dark' ? '#322631' : '#ffffff',
     color: resolvedTheme === 'dark' ? '#F5EDE9' : '#241B22',
     fontSize: '12px',
   };
@@ -423,7 +423,7 @@ export const DashboardHome: React.FC = () => {
   const cardShadowHover = { boxShadow: '0 6px 24px rgba(163, 57, 92, 0.13)' };
 
   return (
-    <div className="p-8 bg-[#FBF8F5] dark:bg-[#1c151a] min-h-screen">
+    <div className="p-8 bg-[#FBF8F5] dark:bg-[#2a2029] min-h-screen">
       {/* Header */}
       <div className="mb-8">
         <h1 className="admin-page-title text-3xl font-medium tracking-[0.01em] text-[#241B22] dark:text-[#F5EDE9] mb-1">Dashboard</h1>
@@ -441,7 +441,7 @@ export const DashboardHome: React.FC = () => {
           { label: 'Productos Activos', rawValue: totals.productosStock, format: (n: number) => n.toLocaleString('es-CO'), sub: 'Productos en catálogo (total)', trend: null, up: true, icon: <Package className="w-5 h-5 text-[#A3395C]" />, iconBg: 'bg-[#EFD9DF] dark:bg-[#3a2530]' },
         ].map((card, i) => (
           <div key={card.label}
-            className="animate-fade-slide-in bg-white dark:bg-[#241B22] rounded-xl p-6 border border-[#E7E0DA] dark:border-[#3a2e35] transition-all duration-300 cursor-default hover:-translate-y-1"
+            className="animate-fade-slide-in bg-white dark:bg-[#322631] rounded-xl p-6 border border-[#E7E0DA] dark:border-[#453840] transition-all duration-300 cursor-default hover:-translate-y-1"
             style={{ ...cardShadow, animationDelay: `${i * 80}ms` }}
             onMouseEnter={e => Object.assign((e.currentTarget as HTMLElement).style, cardShadowHover)}
             onMouseLeave={e => Object.assign((e.currentTarget as HTMLElement).style, cardShadow)}>
@@ -468,7 +468,7 @@ export const DashboardHome: React.FC = () => {
       {/* Selector de fechas */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <h2 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-lg font-semibold text-[#241B22] dark:text-[#F5EDE9]">Análisis de Ventas</h2>
-        <div className="flex items-center gap-2 bg-white dark:bg-[#241B22] border border-[#E7E0DA] dark:border-[#3a2e35] rounded-xl px-4 py-2.5" style={cardShadow}>
+        <div className="flex items-center gap-2 bg-white dark:bg-[#322631] border border-[#E7E0DA] dark:border-[#453840] rounded-xl px-4 py-2.5" style={cardShadow}>
           <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac] whitespace-nowrap">Desde</span>
           <input type="date" value={toInputValue(dateRange.from)} max={toInputValue(dateRange.to)}
             onChange={(e) => { const val = e.target.value; if (val) setDateRange((prev) => ({ ...prev, from: new Date(val + 'T00:00:00') })); }}
@@ -487,7 +487,7 @@ export const DashboardHome: React.FC = () => {
 
       {/* Gráficos */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <div className="animate-fade-slide-in bg-white dark:bg-[#241B22] rounded-xl p-6 border border-[#E7E0DA] dark:border-[#3a2e35]" style={{ ...cardShadow, animationDelay: '160ms' }}>
+        <div className="animate-fade-slide-in bg-white dark:bg-[#322631] rounded-xl p-6 border border-[#E7E0DA] dark:border-[#453840]" style={{ ...cardShadow, animationDelay: '160ms' }}>
           <div className="flex items-start justify-between mb-5">
             <div>
               <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#241B22] dark:text-[#F5EDE9] mb-0.5">Ventas por Período</h3>
@@ -508,7 +508,7 @@ export const DashboardHome: React.FC = () => {
           </ResponsiveContainer>
         </div>
 
-        <div className="animate-fade-slide-in bg-white dark:bg-[#241B22] rounded-xl p-6 border border-[#E7E0DA] dark:border-[#3a2e35]" style={{ ...cardShadow, animationDelay: '220ms' }}>
+        <div className="animate-fade-slide-in bg-white dark:bg-[#322631] rounded-xl p-6 border border-[#E7E0DA] dark:border-[#453840]" style={{ ...cardShadow, animationDelay: '220ms' }}>
           <div className="flex items-start justify-between mb-5">
             <div>
               <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#241B22] dark:text-[#F5EDE9] mb-0.5">Productos Más Vendidos</h3>
@@ -532,7 +532,7 @@ export const DashboardHome: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         {/* Pedidos Pendientes */}
-        <div className="animate-fade-slide-in bg-white dark:bg-[#241B22] rounded-xl p-6 border border-[#E7E0DA] dark:border-[#3a2e35] flex flex-col" style={{ ...cardShadow, animationDelay: '280ms' }}>
+        <div className="animate-fade-slide-in bg-white dark:bg-[#322631] rounded-xl p-6 border border-[#E7E0DA] dark:border-[#453840] flex flex-col" style={{ ...cardShadow, animationDelay: '280ms' }}>
           <div className="flex items-start justify-between mb-5">
             <div>
               <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#241B22] dark:text-[#F5EDE9] mb-0.5">Pedidos Pendientes</h3>
@@ -589,7 +589,7 @@ export const DashboardHome: React.FC = () => {
         </div>
 
         {/* Últimas Ventas */}
-        <div className="animate-fade-slide-in bg-white dark:bg-[#241B22] rounded-xl p-6 border border-[#E7E0DA] dark:border-[#3a2e35]" style={{ ...cardShadow, animationDelay: '340ms' }}>
+        <div className="animate-fade-slide-in bg-white dark:bg-[#322631] rounded-xl p-6 border border-[#E7E0DA] dark:border-[#453840]" style={{ ...cardShadow, animationDelay: '340ms' }}>
           <div className="flex items-center justify-between mb-5">
             <div>
               <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#241B22] dark:text-[#F5EDE9] mb-0.5">Últimas Ventas</h3>
@@ -626,7 +626,7 @@ export const DashboardHome: React.FC = () => {
       {/* Modal Reporte */}
       <Dialog open={reportModalOpen} onOpenChange={setReportModalOpen}>
         <DialogContent className="max-w-md p-0 gap-0 overflow-hidden">
-          <DialogHeader className="px-8 pt-6 pb-4 border-b border-[#E7E0DA] dark:border-[#3a2e35]">
+          <DialogHeader className="px-8 pt-6 pb-4 border-b border-[#E7E0DA] dark:border-[#453840]">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 bg-[#EFD9DF] dark:bg-[#3a2530] rounded-xl flex items-center justify-center">
                 <Download className="w-4 h-4 text-[#A3395C]" />
@@ -657,7 +657,7 @@ export const DashboardHome: React.FC = () => {
                   { value: 'pdf', label: 'PDF', ext: '.pdf', icon: <FileText className="w-4 h-4 text-red-400" /> },
                 ].map(opt => (
                   <label key={opt.value}
-                    className="flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-all has-[:checked]:border-[#A3395C] has-[:checked]:bg-[#EFD9DF] dark:has-[:checked]:bg-[#3a2530] border-[#E7E0DA] dark:border-[#3a2e35] hover:border-[#EFD9DF]">
+                    className="flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-all has-[:checked]:border-[#A3395C] has-[:checked]:bg-[#EFD9DF] dark:has-[:checked]:bg-[#3a2530] border-[#E7E0DA] dark:border-[#453840] hover:border-[#EFD9DF]">
                     <input type="radio" name="report-format-radio" value={opt.value} defaultChecked={opt.value === 'xlsx'} className="accent-[#A3395C]" />
                     <div>
                       <div className="flex items-center gap-1.5 mb-0.5">{opt.icon}
@@ -673,7 +673,7 @@ export const DashboardHome: React.FC = () => {
 
           <div className="flex gap-3 px-8 pb-6">
             <button type="button" onClick={() => setReportModalOpen(false)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="flex-1 py-2.5 bg-gray-100 dark:bg-[#2c2129] text-gray-600 dark:text-[#F5EDE9] rounded-xl hover:bg-gray-200 dark:hover:bg-[#3a2530] transition text-sm font-medium">
+              className="flex-1 py-2.5 bg-gray-100 dark:bg-[#362b34] text-gray-600 dark:text-[#F5EDE9] rounded-xl hover:bg-gray-200 dark:hover:bg-[#3a2530] transition text-sm font-medium">
               Cancelar
             </button>
             <button type="button" onClick={() => {
@@ -697,13 +697,13 @@ export const DashboardHome: React.FC = () => {
       {/* Modal Últimas Ventas */}
       <Dialog open={salesDetailOpen} onOpenChange={setSalesDetailOpen}>
         <DialogContent className="max-w-2xl p-0 gap-0">
-          <DialogHeader className="px-8 pt-6 pb-4 border-b border-[#E7E0DA] dark:border-[#3a2e35]">
+          <DialogHeader className="px-8 pt-6 pb-4 border-b border-[#E7E0DA] dark:border-[#453840]">
             <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-base font-semibold text-[#241B22] dark:text-[#F5EDE9]">Ventas del Período</DialogTitle>
             <DialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac]">
               {dateRangeLabel} · {recentSales.length} venta{recentSales.length !== 1 ? 's' : ''}
             </DialogDescription>
           </DialogHeader>
-          <div className="divide-y divide-gray-50 dark:divide-[#3a2e35] max-h-[480px] overflow-y-auto">
+          <div className="divide-y divide-gray-50 dark:divide-[#453840] max-h-[480px] overflow-y-auto">
             {recentSales.map((sale) => (
               <div key={sale.id} className="flex items-center gap-4 px-8 py-4 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] transition">
                 <div className="w-9 h-9 bg-[#EFD9DF] dark:bg-[#3a2530] rounded-lg flex items-center justify-center flex-shrink-0">
@@ -726,9 +726,9 @@ export const DashboardHome: React.FC = () => {
               <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-400 dark:text-[#b8a3ac] text-center py-12">Sin ventas en el período seleccionado</p>
             )}
           </div>
-          <DialogFooter className="px-8 py-4 border-t border-[#E7E0DA] dark:border-[#3a2e35]">
+          <DialogFooter className="px-8 py-4 border-t border-[#E7E0DA] dark:border-[#453840]">
             <button onClick={() => setSalesDetailOpen(false)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="px-5 py-2 bg-gray-100 dark:bg-[#2c2129] text-gray-600 dark:text-[#F5EDE9] rounded-lg hover:bg-gray-200 dark:hover:bg-[#3a2530] transition text-sm">
+              className="px-5 py-2 bg-gray-100 dark:bg-[#362b34] text-gray-600 dark:text-[#F5EDE9] rounded-lg hover:bg-gray-200 dark:hover:bg-[#3a2530] transition text-sm">
               Cerrar
             </button>
           </DialogFooter>
