@@ -1121,9 +1121,9 @@ export const LandingView: React.FC<LandingViewProps> = ({
               ? imagenesPorColor[colorSeleccionado]
               : (productoSeleccionado.imagenes && productoSeleccionado.imagenes.length > 0 ? productoSeleccionado.imagenes : [productoSeleccionado.imagen]);
             return (
-              <div className="flex flex-col sm:flex-row sm:h-[85vh]">
+              <div className="flex flex-col sm:flex-row sm:max-h-[85vh]">
                 {/* LEFT: Image panel */}
-                <div className="relative w-full h-72 sm:w-[44%] sm:min-w-[44%] sm:h-auto flex-shrink-0 overflow-hidden bg-[#FBF8F5] dark:bg-[#2a2029]">
+                <div className="relative w-full h-72 sm:w-[44%] sm:min-w-[44%] sm:h-auto sm:self-start sm:aspect-[3/4] flex-shrink-0 overflow-hidden bg-[#FBF8F5] dark:bg-[#2a2029]">
                   <ImageCarousel
                     key={`${productoSeleccionado.id}-${colorSeleccionado || 'default'}`}
                     imagenes={imgsForColor}
