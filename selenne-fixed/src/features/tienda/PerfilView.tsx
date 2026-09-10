@@ -30,13 +30,13 @@ const fmt = (n: number) =>
   new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n);
 
 const estadoConfig: Record<string, { label: string; bg: string; text: string }> = {
-  Pendiente:  { label: 'Pendiente',  bg: 'bg-amber-50',   text: 'text-amber-700'   },
-  Aprobado:   { label: 'Aprobado',   bg: 'bg-blue-50',    text: 'text-blue-700'    },
-  Completado: { label: 'Entregado',  bg: 'bg-emerald-50', text: 'text-emerald-700' },
-  Enviado:    { label: 'En camino',  bg: 'bg-violet-50',  text: 'text-violet-700'  },
-  Enviada:    { label: 'En camino',  bg: 'bg-violet-50',  text: 'text-violet-700'  },
-  Rechazado:  { label: 'Rechazado',  bg: 'bg-red-50',     text: 'text-red-600'     },
-  Cancelado:  { label: 'Cancelado',  bg: 'bg-gray-100',   text: 'text-gray-500'    },
+  Pendiente:  { label: 'Pendiente',  bg: 'bg-amber-50 dark:bg-amber-950/40',     text: 'text-amber-700 dark:text-amber-400'   },
+  Aprobado:   { label: 'Aprobado',   bg: 'bg-blue-50 dark:bg-blue-950/40',       text: 'text-blue-700 dark:text-blue-400'    },
+  Completado: { label: 'Entregado',  bg: 'bg-emerald-50 dark:bg-emerald-950/40', text: 'text-emerald-700 dark:text-emerald-400' },
+  Enviado:    { label: 'En camino',  bg: 'bg-violet-50 dark:bg-violet-950/40',   text: 'text-violet-700 dark:text-violet-400'  },
+  Enviada:    { label: 'En camino',  bg: 'bg-violet-50 dark:bg-violet-950/40',   text: 'text-violet-700 dark:text-violet-400'  },
+  Rechazado:  { label: 'Rechazado',  bg: 'bg-red-50 dark:bg-red-950/40',         text: 'text-red-600 dark:text-red-400'     },
+  Cancelado:  { label: 'Cancelado',  bg: 'bg-gray-100 dark:bg-[#362b34]',        text: 'text-gray-500 dark:text-[#b8a3ac]'    },
 };
 
 // ── Ciudades de Colombia ──────────────────────────────────────────────────────
@@ -256,37 +256,37 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
   const pedidosAprobados = pedidos.filter(p => ['Aprobado', 'Completado'].includes(p.estado));
 
   return (
-    <div className="min-h-screen bg-gray-50 overflow-x-hidden">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#2a2029] overflow-x-hidden">
 
       {/* ── Nav top ── */}
-      <div className="bg-white border-b border-gray-100 px-4 py-3 flex items-center gap-3 sticky top-0 z-10 shadow-sm">
-        <button type="button" title="Volver" onClick={onBack} className="p-2 hover:bg-gray-100 rounded-xl transition-colors flex-shrink-0">
-          <ArrowLeft className="w-5 h-5 text-gray-500" />
+      <div className="bg-white dark:bg-[#322631] border-b border-gray-100 dark:border-[#453840] px-4 py-3 flex items-center gap-3 sticky top-0 z-10 shadow-sm">
+        <button type="button" title="Volver" onClick={onBack} className="p-2 hover:bg-gray-100 dark:hover:bg-[#362b34] rounded-xl transition-colors flex-shrink-0">
+          <ArrowLeft className="w-5 h-5 text-gray-500 dark:text-[#b8a3ac]" />
         </button>
-        <span className="text-sm text-gray-500 truncate">Mi cuenta</span>
+        <span className="text-sm text-gray-500 dark:text-[#b8a3ac] truncate">Mi cuenta</span>
       </div>
 
-      <div className="min-h-[calc(100vh-53px)] bg-white">
+      <div className="min-h-[calc(100vh-53px)] bg-white dark:bg-[#322631]">
       <div className="max-w-3xl mx-auto px-8 py-8">
 
         {/* Título */}
-        <h1 className="text-sm font-bold text-gray-900 uppercase tracking-widest mb-6">Perfil</h1>
+        <h1 className="text-sm font-bold text-gray-900 dark:text-[#F5EDE9] uppercase tracking-widest mb-6">Perfil</h1>
 
         {/* Card info personal */}
-        <div className="border border-gray-200 overflow-hidden mb-6">
-          <div className="px-5 py-4 flex items-center justify-between border-b border-gray-200">
-            <span className="text-sm font-medium text-gray-900">{user?.name || 'Mi cuenta'}</span>
+        <div className="border border-gray-200 dark:border-[#453840] overflow-hidden mb-6">
+          <div className="px-5 py-4 flex items-center justify-between border-b border-gray-200 dark:border-[#453840]">
+            <span className="text-sm font-medium text-gray-900 dark:text-[#F5EDE9]">{user?.name || 'Mi cuenta'}</span>
             <button type="button"
               onClick={() => { setFormData({ nombre: user?.name || '', ...profileData }); setErrors({ nombre: '', telefono: '', direccion: '', documento: '' }); setEditModalOpen(true); }}
-              className="text-gray-400 hover:text-gray-600 transition-colors p-1"
+              className="text-gray-400 dark:text-[#b8a3ac] hover:text-gray-600 dark:hover:text-[#F5EDE9] transition-colors p-1"
             >
               <Edit className="w-4 h-4" />
             </button>
           </div>
           <div className="px-5 py-4 space-y-3">
             <div>
-              <p className="text-xs text-gray-400 mb-0.5">Correo electrónico</p>
-              <p className="text-sm text-gray-900">{user?.email}</p>
+              <p className="text-xs text-gray-400 dark:text-[#b8a3ac] mb-0.5">Correo electrónico</p>
+              <p className="text-sm text-gray-900 dark:text-[#F5EDE9]">{user?.email}</p>
             </div>
             {[
               { label: 'Teléfono',    value: profileData.telefono  || '—' },
@@ -295,8 +295,8 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
               { label: 'Dirección',   value: profileData.direccion || '—' },
             ].map(({ label, value }) => (
               <div key={label}>
-                <p className="text-xs text-gray-400 mb-0.5">{label}</p>
-                <p className="text-sm text-gray-900">{value}</p>
+                <p className="text-xs text-gray-400 dark:text-[#b8a3ac] mb-0.5">{label}</p>
+                <p className="text-sm text-gray-900 dark:text-[#F5EDE9]">{value}</p>
               </div>
             ))}
           </div>
