@@ -120,18 +120,18 @@ const AnimatedNumber: React.FC<{ value: number; format: (n: number) => string; d
 export const DashboardHome: React.FC = () => {
   const { hasPermission } = useAuth();
   const puedeEditarVentas = hasPermission('pedidos:editar');
-  const { theme } = useTheme();
+  const { resolvedTheme } = useTheme();
   // Recharts no lee clases dark:, asi que los colores del grafico se
-  // resuelven en JS segun el tema actual.
-  const chartGrid = theme === 'dark' ? '#3a2e35' : '#f3f4f6';
-  const chartAxis = theme === 'dark' ? '#5a4d52' : '#e5e7eb';
-  const chartTick = theme === 'dark' ? '#b8a3ac' : '#9ca3af';
+  // resuelven en JS segun el tema efectivamente aplicado.
+  const chartGrid = resolvedTheme === 'dark' ? '#3a2e35' : '#f3f4f6';
+  const chartAxis = resolvedTheme === 'dark' ? '#5a4d52' : '#e5e7eb';
+  const chartTick = resolvedTheme === 'dark' ? '#b8a3ac' : '#9ca3af';
   const tooltipStyle = {
     fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
     borderRadius: '10px',
-    border: theme === 'dark' ? '1px solid #3a2e35' : '1px solid #e7c2ce',
-    backgroundColor: theme === 'dark' ? '#241B22' : '#ffffff',
-    color: theme === 'dark' ? '#F5EDE9' : '#241B22',
+    border: resolvedTheme === 'dark' ? '1px solid #3a2e35' : '1px solid #e7c2ce',
+    backgroundColor: resolvedTheme === 'dark' ? '#241B22' : '#ffffff',
+    color: resolvedTheme === 'dark' ? '#F5EDE9' : '#241B22',
     fontSize: '12px',
   };
   const [reportModalOpen, setReportModalOpen] = useState(false);

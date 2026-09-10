@@ -23,7 +23,8 @@ import {
   DialogDescription 
 } from '../../../components/ui/dialog';
 import { toast } from '@/lib/toast';
-import imgLogo from 'figma:asset/8184a8c16f30f2f7daa53602475d236bcd50c9b3.png';
+import { ThemeToggle } from '../../../components/ThemeToggle';
+import { Logo } from '../../../components/Logo';
 
 interface DashboardHeaderProps {
   currentSection: DashboardSection;
@@ -100,7 +101,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
               className="cursor-pointer flex-shrink-0"
               onClick={() => onSectionChange('home')}
             >
-              <img src={imgLogo} alt="Selenne Boutique" className="h-12 w-auto dark:invert dark:brightness-90" />
+              <Logo className="h-12 w-32" />
             </div>
           </div>
 
@@ -121,6 +122,9 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 
           {/* Iconos de Acción */}
           <div className="flex items-center gap-2">
+            {/* Selector de tema */}
+            <ThemeToggle buttonClassName="p-2.5 text-gray-600 dark:text-[#b8a3ac] hover:bg-[#FBF8F5] dark:hover:bg-[#1c151a] rounded-lg transition" iconClassName="w-5 h-5" />
+
             {/* Mensajes / Notificaciones unificado */}
             <button
               onClick={() => setMessagesOpen(true)}

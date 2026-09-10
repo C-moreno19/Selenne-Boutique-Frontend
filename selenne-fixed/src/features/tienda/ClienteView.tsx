@@ -20,12 +20,10 @@ import {
   Package,
   Globe,
   Lock,
-  Sun,
-  Moon,
 } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
-import { useTheme } from "../../shared/contexts/ThemeContext";
+import { ThemeToggle } from "../../components/ThemeToggle";
 import { Badge } from "../../components/ui/badge";
 import {
   Dialog,
@@ -79,7 +77,6 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
 }) => {
   const [mostrarTelefono, setMostrarTelefono] = useState(false);
   const [telefonoContacto, setTelefonoContacto] = useState('+57 304 292 8493');
-  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   // La categoria vive en la URL (/dashboard/tienda/:categoria), igual que en
@@ -505,25 +502,15 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
             </nav>
 
             {/* Acciones */}
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={toggleTheme}
-                className="p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full transition-colors"
-                title={theme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
-              >
-                {theme === "dark" ? (
-                  <Sun className="w-5 h-5 text-[#F5EDE9]" />
-                ) : (
-                  <Moon className="w-5 h-5 text-[#241B22]" />
-                )}
-              </button>
+            <div className="flex items-center space-x-0.5 sm:space-x-4">
+              <ThemeToggle buttonClassName="p-1.5 sm:p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full transition-colors" iconClassName="w-[18px] h-[18px] sm:w-5 sm:h-5 text-[#241B22] dark:text-[#F5EDE9]" />
               {vistaActual === 'perfil' ? (
                 <button
                   onClick={() => setSubVista("mensajes")}
-                  className="p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full transition-colors relative"
+                  className="p-1.5 sm:p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full transition-colors relative"
                   title="Mensajes"
                 >
-                  <svg className="w-6 h-6 text-[#241B22] dark:text-[#F5EDE9]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-[18px] h-[18px] sm:w-6 sm:h-6 text-[#241B22] dark:text-[#F5EDE9]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
                   {notifHook.noLeidas > 0 && (
@@ -546,10 +533,10 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                   <SheetTrigger asChild>
                     <button
                       onClick={() => setBusquedaModal('')}
-                      className="md:hidden p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full transition-colors"
+                      className="md:hidden p-1.5 sm:p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full transition-colors"
                       title="Buscar"
                     >
-                      <Search className="w-6 h-6 text-[#241B22] dark:text-[#F5EDE9]" />
+                      <Search className="w-[18px] h-[18px] sm:w-6 sm:h-6 text-[#241B22] dark:text-[#F5EDE9]" />
                     </button>
                   </SheetTrigger>
                   <SheetContent side="right">
@@ -615,14 +602,14 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
               )}
               <button
                 onClick={() => setSubVista("perfil")}
-                className="p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full transition-colors"
+                className="p-1.5 sm:p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full transition-colors"
               >
-                <User className="w-6 h-6 text-[#241B22] dark:text-[#F5EDE9]" />
+                <User className="w-[18px] h-[18px] sm:w-6 sm:h-6 text-[#241B22] dark:text-[#F5EDE9]" />
               </button>
               <Sheet open={favoritosOpen} onOpenChange={setFavoritosOpen}>
                 <SheetTrigger asChild>
-                  <button className="p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full transition-colors relative">
-                    <Heart className="w-6 h-6 text-[#241B22] dark:text-[#F5EDE9]" />
+                  <button className="p-1.5 sm:p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full transition-colors relative">
+                    <Heart className="w-[18px] h-[18px] sm:w-6 sm:h-6 text-[#241B22] dark:text-[#F5EDE9]" />
                     {favoritos.length > 0 && (
                       <span className="absolute -top-1 -right-1 bg-[#A3395C] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                         {favoritos.length}
@@ -677,8 +664,8 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                 onOpenChange={setCarritoAbierto}
               >
                 <SheetTrigger asChild>
-                  <button className="p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full transition-colors relative">
-                    <ShoppingBag className="w-6 h-6 text-[#241B22] dark:text-[#F5EDE9]" />
+                  <button className="p-1.5 sm:p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full transition-colors relative">
+                    <ShoppingBag className="w-[18px] h-[18px] sm:w-6 sm:h-6 text-[#241B22] dark:text-[#F5EDE9]" />
                     {carritoItems.length > 0 && (
                       <span className="absolute -top-1 -right-1 bg-[#A3395C] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                         {carritoItems.length}

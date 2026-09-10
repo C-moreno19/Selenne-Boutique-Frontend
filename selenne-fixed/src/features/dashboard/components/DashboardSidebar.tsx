@@ -11,7 +11,7 @@ import { useAuth } from '../../../shared/contexts/AuthContext';
 import { usePermisos } from '../../../shared/contexts/PermisosContext';
 import { useSidebar } from '../../../shared/contexts/SidebarContext';
 import { DashboardSection } from './DashboardView';
-import imgLogo from 'figma:asset/8184a8c16f30f2f7daa53602475d236bcd50c9b3.png';
+import { Logo } from '../../../components/Logo';
 
 interface DashboardSidebarProps {
   currentSection: DashboardSection;
@@ -172,7 +172,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
             className="flex items-center gap-3 cursor-pointer group"
             onClick={() => onSectionChange('home')}
           >
-            <img src={imgLogo} alt="Selenne Boutique" className="h-8 w-auto dark:invert dark:brightness-90 transition-transform duration-300 group-hover:scale-105" />
+            <Logo className="h-8 w-20 transition-transform duration-300 group-hover:scale-105" />
             <span className="text-[18px] text-[#241B22] dark:text-[#F5EDE9] transition group-hover:text-[#A3395C]">
               Selenne Boutique
             </span>

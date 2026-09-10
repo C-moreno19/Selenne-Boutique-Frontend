@@ -5,7 +5,7 @@ import { CustomButton } from '../components/CustomButton';
 import { SatinBackground } from '../components/SatinBackground';
 import api from '../../../services/api';
 import { useMensajes } from '../../../shared/contexts/MensajesContext';
-import imgLogo from 'figma:asset/8184a8c16f30f2f7daa53602475d236bcd50c9b3.png';
+import { Logo } from '../../../components/Logo';
 
 interface RegisterViewProps {
   onBackToLogin: () => void;
@@ -276,11 +276,7 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
         <div className="w-full max-w-md mt-auto mb-auto">
           {/* Header */}
           <div className="mb-8 flex flex-col items-center space-y-5">
-            <img 
-              src={imgLogo} 
-              alt="Selenne Boutique" 
-              className="w-[140px] h-auto object-contain dark:invert dark:brightness-90"
-            />
+            <Logo className="w-[140px] h-[79px]" />
             <h1
               className="text-[#000000] dark:text-[#F5EDE9] text-center"
               style={{

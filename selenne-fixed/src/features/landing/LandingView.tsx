@@ -20,12 +20,10 @@ import {
   Package,
   Globe,
   Lock,
-  Sun,
-  Moon,
 } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
-import { useTheme } from "../../shared/contexts/ThemeContext";
+import { ThemeToggle } from "../../components/ThemeToggle";
 import { Badge } from "../../components/ui/badge";
 import {
   Dialog,
@@ -79,7 +77,6 @@ export const LandingView: React.FC<LandingViewProps> = ({
 }) => {
   const [mostrarTelefono, setMostrarTelefono] = useState(false);
   const [telefonoContacto, setTelefonoContacto] = useState('+57 304 292 8493');
-  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const { categoria: categoriaUrl } = useParams<{ categoria?: string }>();
   // La categoria y la vista viven en la URL (/, /tienda/:categoria), no en
@@ -426,18 +423,8 @@ export const LandingView: React.FC<LandingViewProps> = ({
             </nav>
 
             {/* Acciones */}
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={toggleTheme}
-                className="p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full transition-colors"
-                title={theme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
-              >
-                {theme === "dark" ? (
-                  <Sun className="w-5 h-5 text-[#F5EDE9]" />
-                ) : (
-                  <Moon className="w-5 h-5 text-[#241B22]" />
-                )}
-              </button>
+            <div className="flex items-center space-x-0.5 sm:space-x-2">
+              <ThemeToggle buttonClassName="p-1.5 sm:p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full transition-colors" iconClassName="w-[18px] h-[18px] sm:w-5 sm:h-5 text-[#241B22] dark:text-[#F5EDE9]" />
               <Sheet open={busquedaModalAbierta} onOpenChange={v => { setBusquedaModalAbierta(v); if (!v) setBusquedaModal(''); }}>
                 <SheetTrigger asChild>
                   <button
@@ -453,10 +440,10 @@ export const LandingView: React.FC<LandingViewProps> = ({
                 <SheetTrigger asChild>
                   <button
                     onClick={() => setBusquedaModal('')}
-                    className="md:hidden p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full transition-colors"
+                    className="md:hidden p-1.5 sm:p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full transition-colors"
                     title="Buscar"
                   >
-                    <Search className="w-6 h-6 text-[#241B22] dark:text-[#F5EDE9]" />
+                    <Search className="w-[18px] h-[18px] sm:w-6 sm:h-6 text-[#241B22] dark:text-[#F5EDE9]" />
                   </button>
                 </SheetTrigger>
                 <SheetContent side="right" className="w-full sm:max-w-md flex flex-col p-0">
@@ -543,14 +530,14 @@ export const LandingView: React.FC<LandingViewProps> = ({
               </Button>
               <button
                 onClick={() => onNavigateToLogin()}
-                className="md:hidden p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full transition-colors"
+                className="md:hidden p-1.5 sm:p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full transition-colors"
               >
-                <User className="w-6 h-6 text-[#241B22] dark:text-[#F5EDE9]" />
+                <User className="w-[18px] h-[18px] sm:w-6 sm:h-6 text-[#241B22] dark:text-[#F5EDE9]" />
               </button>
               <Sheet open={favoritosOpen} onOpenChange={setFavoritosOpen}>
                 <SheetTrigger asChild>
-                  <button className="p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full transition-colors relative">
-                    <Heart className="w-6 h-6 text-[#241B22] dark:text-[#F5EDE9]" />
+                  <button className="p-1.5 sm:p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full transition-colors relative">
+                    <Heart className="w-[18px] h-[18px] sm:w-6 sm:h-6 text-[#241B22] dark:text-[#F5EDE9]" />
                     {favoritosValidos.length > 0 && (
                       <span className="absolute -top-1 -right-1 bg-[#A3395C] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                         {favoritosValidos.length}
@@ -616,8 +603,8 @@ export const LandingView: React.FC<LandingViewProps> = ({
               </Sheet>
               <Sheet open={carritoAbierto} onOpenChange={setCarritoAbierto}>
                 <SheetTrigger asChild>
-                  <button className="p-2 hover:bg-gray-100 dark:hover:bg-[#3a2530] rounded-lg transition-colors relative">
-                    <ShoppingBag className="w-6 h-6 text-gray-700 dark:text-[#F5EDE9]" />
+                  <button className="p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-[#3a2530] rounded-lg transition-colors relative">
+                    <ShoppingBag className="w-[18px] h-[18px] sm:w-6 sm:h-6 text-gray-700 dark:text-[#F5EDE9]" />
                     {carritoItems.length > 0 && (
                       <span className="absolute -top-1 -right-1 bg-[#A3395C] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                         {carritoItems.length}

@@ -20,7 +20,7 @@ import { useMensajes } from '../../shared/contexts/MensajesContext';
 import { generarContraseñaTemporal } from '../../shared/utils/credentialGenerator';
 import { formatCurrency } from '../../shared/utils';
 import { toast } from '@/lib/toast';
-import imgLogo from 'figma:asset/8184a8c16f30f2f7daa53602475d236bcd50c9b3.png';
+import { Logo } from '../../components/Logo';
 
 const PLAYFAIR = '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif';
 
@@ -434,7 +434,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
             <ArrowLeft className="w-4 h-4" />
             Volver a la tienda
           </button>
-          <img src={imgLogo} alt="Selenne Boutique" className="h-9 w-auto object-contain dark:invert dark:brightness-90" />
+          <Logo className="h-9 w-20" />
           <div className="w-[120px] hidden sm:block" aria-hidden="true" />
         </div>
       </div>

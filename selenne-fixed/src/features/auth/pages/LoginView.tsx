@@ -4,7 +4,7 @@ import { CustomInput } from '../components/CustomInput';
 import { CustomButton } from '../components/CustomButton';
 import { SatinBackground } from '../components/SatinBackground';
 import { useAuth } from '../../../shared/contexts/AuthContext';
-import imgLogo from 'figma:asset/8184a8c16f30f2f7daa53602475d236bcd50c9b3.png';
+import { Logo } from '../../../components/Logo';
 
 interface LoginViewProps {
   onForgotPassword: () => void;
@@ -137,11 +137,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
           )}
           {/* Logo */}
           <div className="flex justify-center mb-10">
-            <img 
-              src={imgLogo} 
-              alt="Selenne Boutique" 
-              className="w-[160px] h-auto object-contain dark:invert dark:brightness-90"
-            />
+            <Logo className="w-[160px] h-[90px]" />
           </div>
 
           {/* Form */}

@@ -512,7 +512,7 @@ export const ProductosView: React.FC = () => {
             </thead>
             <tbody className="divide-y divide-gray-50 dark:divide-[#3a2e35]">
               {filtered.map(p => (
-                <tr key={p.id} className="hover:bg-[#FBF8F5] dark:bg-[#1c151a]/70 transition">
+                <tr key={p.id} className="hover:bg-[#FBF8F5] dark:hover:bg-[#1c151a]/70 transition">
                   {/* Imagen */}
                   <td className="px-4 py-3">
                     {p.imagen ? (

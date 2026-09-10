@@ -1,34 +1,55 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 
-type Theme = 'light' | 'dark';
+type ThemePreference = 'light' | 'dark' | 'system';
+type ResolvedTheme = 'light' | 'dark';
 
 interface ThemeContextType {
-  theme: Theme;
+  theme: ThemePreference;
+  resolvedTheme: ResolvedTheme;
+  setTheme: (theme: ThemePreference) => void;
   toggleTheme: () => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-const leerThemeInicial = (): Theme => {
+const getSystemTheme = (): ResolvedTheme =>
+  window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+
+const leerThemeInicial = (): ThemePreference => {
   try {
     const guardado = localStorage.getItem('_selenne_theme');
-    if (guardado === 'light' || guardado === 'dark') return guardado;
+    if (guardado === 'light' || guardado === 'dark' || guardado === 'system') return guardado;
   } catch {}
-  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  return 'system';
 };
 
 export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [theme, setTheme] = useState<Theme>(leerThemeInicial);
+  const [theme, setThemeState] = useState<ThemePreference>(leerThemeInicial);
+  const [systemTheme, setSystemTheme] = useState<ResolvedTheme>(() => getSystemTheme());
 
   useEffect(() => {
-    document.documentElement.classList.toggle('dark', theme === 'dark');
-    try { localStorage.setItem('_selenne_theme', theme); } catch {}
-  }, [theme]);
+    const mq = window.matchMedia?.('(prefers-color-scheme: dark)');
+    if (!mq) return;
+    const handler = (e: MediaQueryListEvent) => setSystemTheme(e.matches ? 'dark' : 'light');
+    mq.addEventListener?.('change', handler);
+    return () => mq.removeEventListener?.('change', handler);
+  }, []);
 
-  const toggleTheme = () => setTheme(t => (t === 'dark' ? 'light' : 'dark'));
+  const resolvedTheme: ResolvedTheme = theme === 'system' ? systemTheme : theme;
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', resolvedTheme === 'dark');
+  }, [resolvedTheme]);
+
+  const setTheme = (next: ThemePreference) => {
+    setThemeState(next);
+    try { localStorage.setItem('_selenne_theme', next); } catch {}
+  };
+
+  const toggleTheme = () => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, resolvedTheme, setTheme, toggleTheme }}>
       {children}
     </ThemeContext.Provider>
   );
