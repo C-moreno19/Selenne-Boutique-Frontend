@@ -272,17 +272,17 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
       </div>
 
       {/* Register Panel - Right (45%) — solo esta parte scrollea */}
-      <div className="flex-1 lg:w-[45%] h-full overflow-y-auto bg-white px-16 py-12 flex flex-col items-center justify-start">
+      <div className="flex-1 lg:w-[45%] h-full overflow-y-auto bg-white dark:bg-[#1c151a] px-16 py-12 flex flex-col items-center justify-start">
         <div className="w-full max-w-md mt-auto mb-auto">
           {/* Header */}
           <div className="mb-8 flex flex-col items-center space-y-5">
             <img 
               src={imgLogo} 
               alt="Selenne Boutique" 
-              className="w-[140px] h-auto object-contain"
+              className="w-[140px] h-auto object-contain dark:invert dark:brightness-90"
             />
             <h1
-              className="text-[#000000] text-center"
+              className="text-[#000000] dark:text-[#F5EDE9] text-center"
               style={{
                 fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
                 fontSize: '36px',
@@ -333,11 +333,11 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
                   {ok ? (
                     <Check className="w-3.5 h-3.5 text-green-500 shrink-0" />
                   ) : (
-                    <X className="w-3.5 h-3.5 text-gray-300 shrink-0" />
+                    <X className="w-3.5 h-3.5 text-gray-300 dark:text-[#5a4d52] shrink-0" />
                   )}
                   <span
                     style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: '12px' }}
-                    className={ok ? 'text-green-500' : 'text-gray-300'}
+                    className={ok ? 'text-green-500' : 'text-gray-300 dark:text-[#5a4d52]'}
                   >
                     {label}
                   </span>
@@ -386,7 +386,7 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
             <div className="text-center pt-2">
               <button
                 onClick={onBackToLogin}
-                className="text-[#1a1a1a] hover:text-[#A3395C] transition-all"
+                className="text-[#1a1a1a] dark:text-[#F5EDE9] hover:text-[#A3395C] transition-all"
                 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: '14px' }}
               >
                 ¿Ya tienes una cuenta? <span className="underline">Inicia sesión</span>

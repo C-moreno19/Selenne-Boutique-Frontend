@@ -100,7 +100,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
               className="cursor-pointer flex-shrink-0"
               onClick={() => onSectionChange('home')}
             >
-              <img src={imgLogo} alt="Selenne Boutique" className="h-12 w-auto" />
+              <img src={imgLogo} alt="Selenne Boutique" className="h-12 w-auto dark:invert dark:brightness-90" />
             </div>
           </div>
 

@@ -22,7 +22,7 @@ export const CustomButton: React.FC<CustomButtonProps> = ({
   
   const variantClasses = variant === 'primary'
     ? 'text-white'
-    : 'bg-[#EFD9DF] text-[#241B22] hover:bg-[#A3395C] hover:text-white';
+    : 'bg-[#EFD9DF] dark:bg-[#3a2530] text-[#241B22] dark:text-[#F5EDE9] hover:bg-[#A3395C] hover:text-white';
 
   return (
     <motion.button

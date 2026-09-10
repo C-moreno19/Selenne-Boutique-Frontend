@@ -122,14 +122,14 @@ export const LoginView: React.FC<LoginViewProps> = ({
       </div>
 
       {/* Login Panel - Right (45%) */}
-      <div className="flex-1 lg:w-[45%] flex items-center justify-center bg-white px-16 py-12">
+      <div className="flex-1 lg:w-[45%] flex items-center justify-center bg-white dark:bg-[#1c151a] px-16 py-12">
         <div className="w-full max-w-md space-y-8">
           {/* Back arrow */}
           {onBack && (
             <button
               type="button"
               onClick={onBack}
-              className="flex items-center gap-1 text-gray-500 hover:text-[#A3395C] transition-colors text-sm"
+              className="flex items-center gap-1 text-gray-500 dark:text-[#b8a3ac] hover:text-[#A3395C] transition-colors text-sm"
             >
               <ArrowLeft size={16} />
               Volver a la tienda
@@ -140,7 +140,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
             <img 
               src={imgLogo} 
               alt="Selenne Boutique" 
-              className="w-[160px] h-auto object-contain"
+              className="w-[160px] h-auto object-contain dark:invert dark:brightness-90"
             />
           </div>
 
@@ -188,7 +188,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
             <div className="text-center pt-4">
               <button
                 onClick={onRegister}
-                className="text-[#1a1a1a] hover:text-[#A3395C] transition-all"
+                className="text-[#1a1a1a] dark:text-[#F5EDE9] hover:text-[#A3395C] transition-all"
                 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: '14px' }}
               >
                 ¿No tienes cuenta? <span className="underline">Registrarse</span>

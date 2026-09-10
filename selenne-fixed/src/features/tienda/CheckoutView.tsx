@@ -434,7 +434,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
             <ArrowLeft className="w-4 h-4" />
             Volver a la tienda
           </button>
-          <img src={imgLogo} alt="Selenne Boutique" className="h-9 w-auto object-contain" />
+          <img src={imgLogo} alt="Selenne Boutique" className="h-9 w-auto object-contain dark:invert dark:brightness-90" />
           <div className="w-[120px] hidden sm:block" aria-hidden="true" />
         </div>
       </div>
