@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+﻿import React, { useState, useRef } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface ImageCarouselProps {
@@ -13,6 +13,20 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
   className = '',
 }) => {
   const [imagenActual, setImagenActual] = useState(0);
+  const [fitMode, setFitMode] = useState<'cover' | 'contain'>('cover');
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Si la proporcion de la foto se aleja mucho de la del marco, se muestra completa (contain)
+  // en vez de recortada (cover), para no cortar partes importantes del producto.
+  const handleImgLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const img = e.currentTarget;
+    const container = containerRef.current;
+    if (!container || !img.naturalWidth || !img.naturalHeight || !container.clientHeight) return;
+    const ratioContenedor = container.clientWidth / container.clientHeight;
+    const ratioImagen = img.naturalWidth / img.naturalHeight;
+    const diferencia = Math.abs(ratioContenedor - ratioImagen) / ratioContenedor;
+    setFitMode(diferencia > 0.3 ? 'contain' : 'cover');
+  };
 
   // Filtrar imágenes vacías
   const imagenesValidas = (imagenes || []).filter(img => img && img.trim() !== '');
@@ -43,14 +57,16 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
   };
 
   return (
-    <div className={`relative w-full h-full bg-[#fafafa] dark:bg-[#2a2029] ${className}`}>
+    <div ref={containerRef} className={`relative w-full h-full bg-[#fafafa] dark:bg-[#2a2029] ${className}`}>
       {/* Imagen principal */}
       <img
+        key={imagenesValidas[imagenActual]}
         src={imagenesValidas[imagenActual]}
         alt={`${nombre} - Imagen ${imagenActual + 1}`}
-        className="w-full h-full object-contain"
+        className={`w-full h-full ${fitMode === 'cover' ? 'object-cover' : 'object-contain'}`}
         loading="eager"
         decoding="async"
+        onLoad={handleImgLoad}
         onError={(e) => {
           console.warn(`Error cargando imagen: ${imagenesValidas[imagenActual]}`);
           (e.target as HTMLImageElement).src = 'https://via.placeholder.com/400x400?text=Imagen+No+Disponible';

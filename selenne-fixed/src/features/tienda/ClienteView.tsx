@@ -1167,7 +1167,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
             return (
               <div className="flex flex-col sm:flex-row sm:max-h-[85vh]">
                 {/* LEFT: Image panel */}
-                <div className="relative w-full h-72 sm:w-[44%] sm:min-w-[44%] sm:h-auto sm:self-start sm:aspect-[3/4] flex-shrink-0 overflow-hidden rounded-t-2xl sm:rounded-t-none sm:rounded-l-2xl bg-[#FBF8F5] dark:bg-[#2a2029]">
+                <div className="relative w-full h-72 sm:w-[48%] sm:min-w-[48%] sm:h-auto sm:self-start sm:aspect-[4/5] flex-shrink-0 overflow-hidden rounded-t-2xl sm:rounded-t-none sm:rounded-l-2xl bg-[#FBF8F5] dark:bg-[#2a2029]">
                   <ImageCarousel
                     key={`${productoSeleccionado.id}-${colorSeleccionado || 'default'}`}
                     imagenes={imgsForColor}
@@ -1181,7 +1181,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
 
                   {/* Name */}
                   <h1
-                    className="text-2xl font-semibold uppercase tracking-[0.03em] text-[#241B22] dark:text-[#F5EDE9] leading-tight"
+                    className="text-2xl font-bold uppercase tracking-[0.01em] text-[#241B22] dark:text-[#F5EDE9] leading-tight"
                   >
                     {productoSeleccionado.nombre}
                   </h1>
@@ -1210,19 +1210,19 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                     </p>
                   )}
 
-                  {/* Info icons */}
-                  <div className="grid grid-cols-3 gap-1 bg-[#FBF8F5] dark:bg-[#2a2029] rounded-xl py-4 px-2">
-                    <div className="flex flex-col items-center text-center gap-1.5 px-1">
-                      <Package className="w-[18px] h-[18px] text-[#A3395C]" />
-                      <span className="text-[10px] uppercase tracking-wide font-semibold text-[#7d6f77] dark:text-[#b8a3ac] leading-tight">Envío 3-5 días hábiles</span>
+                  {/* Info envío */}
+                  <div className="flex flex-col gap-2 py-1">
+                    <div className="flex items-center gap-2.5">
+                      <Package className="w-[15px] h-[15px] text-[#A3395C] flex-shrink-0" />
+                      <span className="text-xs text-[#7d6f77] dark:text-[#b8a3ac]">Envío 3-5 días hábiles</span>
                     </div>
-                    <div className="flex flex-col items-center text-center gap-1.5 px-1 border-x border-[#E7E0DA] dark:border-[#453840]">
-                      <Globe className="w-[18px] h-[18px] text-[#A3395C]" />
-                      <span className="text-[10px] uppercase tracking-wide font-semibold text-[#7d6f77] dark:text-[#b8a3ac] leading-tight">Envíos a todo el país</span>
+                    <div className="flex items-center gap-2.5">
+                      <Globe className="w-[15px] h-[15px] text-[#A3395C] flex-shrink-0" />
+                      <span className="text-xs text-[#7d6f77] dark:text-[#b8a3ac]">Envíos a todo el país</span>
                     </div>
-                    <div className="flex flex-col items-center text-center gap-1.5 px-1">
-                      <Lock className="w-[18px] h-[18px] text-[#A3395C]" />
-                      <span className="text-[10px] uppercase tracking-wide font-semibold text-[#7d6f77] dark:text-[#b8a3ac] leading-tight">Pago 100% seguro</span>
+                    <div className="flex items-center gap-2.5">
+                      <Lock className="w-[15px] h-[15px] text-[#A3395C] flex-shrink-0" />
+                      <span className="text-xs text-[#7d6f77] dark:text-[#b8a3ac]">Pago 100% seguro</span>
                     </div>
                   </div>
 
