@@ -16,8 +16,9 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
   const [fitMode, setFitMode] = useState<'cover' | 'contain'>('cover');
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Si la proporcion de la foto se aleja mucho de la del marco, se muestra completa (contain)
-  // en vez de recortada (cover), para no cortar partes importantes del producto.
+  // Si la proporcion de la foto se aleja de la del marco, se muestra completa (contain)
+  // en vez de recortada (cover), para no cortar cabezas ni partes importantes del producto.
+  // El umbral es bajo a proposito: preferimos dejar un poco de espacio vacio antes que recortar mal.
   const handleImgLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
     const img = e.currentTarget;
     const container = containerRef.current;
@@ -25,7 +26,7 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
     const ratioContenedor = container.clientWidth / container.clientHeight;
     const ratioImagen = img.naturalWidth / img.naturalHeight;
     const diferencia = Math.abs(ratioContenedor - ratioImagen) / ratioContenedor;
-    setFitMode(diferencia > 0.3 ? 'contain' : 'cover');
+    setFitMode(diferencia > 0.12 ? 'contain' : 'cover');
   };
 
   // Filtrar imágenes vacías
@@ -63,7 +64,7 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
         key={imagenesValidas[imagenActual]}
         src={imagenesValidas[imagenActual]}
         alt={`${nombre} - Imagen ${imagenActual + 1}`}
-        className={`w-full h-full ${fitMode === 'cover' ? 'object-cover' : 'object-contain'}`}
+        className={`w-full h-full ${fitMode === 'cover' ? 'object-cover object-top' : 'object-contain'}`}
         loading="eager"
         decoding="async"
         onLoad={handleImgLoad}
