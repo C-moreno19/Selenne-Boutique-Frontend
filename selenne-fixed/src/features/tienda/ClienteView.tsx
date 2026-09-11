@@ -882,13 +882,16 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                   </button>
                 </div>
                 <div className="flex gap-4 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-4 sm:overflow-visible">
-                  {destacados.map((producto) => (
-                    <button
+                  {destacados.map((producto, indiceDestacado) => (
+                    <motion.button
                       key={producto.id}
                       onClick={() => abrirDetalleProducto(producto)}
+                      initial={{ opacity: 0, y: 20, scale: 0.97 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      transition={{ duration: 0.55, delay: indiceDestacado * 0.06, ease: [0.16, 1, 0.3, 1] }}
                       className="text-left flex-shrink-0 w-40 sm:w-auto group"
                     >
-                      <div className="overflow-hidden mb-2">
+                      <div className="rounded-xl overflow-hidden mb-2 shadow-sm transition-shadow duration-300 group-hover:shadow-lg">
                         <img
                           src={producto.imagen}
                           alt={producto.nombre}
@@ -898,7 +901,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                       </div>
                       <p
                         style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                        className="text-sm text-gray-900 dark:text-[#F5EDE9] truncate"
+                        className="text-sm text-gray-900 dark:text-[#F5EDE9] truncate transition-colors group-hover:text-[#A3395C] dark:group-hover:text-[#e0879c]"
                       >
                         {producto.nombre}
                       </p>
@@ -908,7 +911,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                       >
                         {formatPrecio(producto.precio)}
                       </p>
-                    </button>
+                    </motion.button>
                   ))}
                 </div>
               </section>
@@ -1015,10 +1018,10 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
             {productosPaginaCliente.map((producto, indiceProducto) => (
               <motion.div
                 key={producto.id}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.35, delay: Math.min(indiceProducto, 8) * 0.04 }}
-                className="bg-white dark:bg-[#322631] overflow-hidden group transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                initial={{ opacity: 0, y: 20, scale: 0.97 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 0.55, delay: Math.min(indiceProducto, 8) * 0.05, ease: [0.16, 1, 0.3, 1] }}
+                className="bg-white dark:bg-[#322631] rounded-xl overflow-hidden group transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
                 <div className="relative overflow-hidden">
                   <img
                     src={producto.imagen}
@@ -1041,7 +1044,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                   )}
                   <button
                     onClick={() => abrirDetalleProducto(producto)}
-                    className="absolute top-3 right-3 inline-flex items-center gap-1.5 bg-white/95 dark:bg-[#2a2029]/95 hover:bg-white dark:hover:bg-[#2a2029] text-gray-900 dark:text-[#F5EDE9] text-xs font-bold tracking-widest px-3 py-1.5 shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A3395C] focus-visible:ring-offset-1"
+                    className="absolute top-3 right-3 inline-flex items-center gap-1.5 bg-white/95 dark:bg-[#2a2029]/95 hover:bg-white dark:hover:bg-[#2a2029] text-gray-900 dark:text-[#F5EDE9] text-xs font-bold tracking-widest px-3 py-1.5 rounded-full shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A3395C] focus-visible:ring-offset-1"
                   >
                     <Eye className="w-3.5 h-3.5" />
                     DETALLE
@@ -1144,7 +1147,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
         open={!!productoSeleccionado}
         onOpenChange={() => setProductoSeleccionado(null)}
       >
-        <DialogContent className="max-w-4xl w-[92vw] sm:w-full p-0 overflow-y-auto sm:overflow-hidden" style={{ maxHeight: '90vh' }}>
+        <DialogContent className="max-w-4xl w-[92vw] sm:w-full p-0 overflow-y-auto sm:overflow-hidden rounded-2xl duration-300 data-[state=open]:slide-in-from-bottom-3" style={{ maxHeight: '90vh' }}>
           <DialogDescription className="sr-only">
             {productoSeleccionado?.nombre || "Detalle del Producto"}
           </DialogDescription>
@@ -1162,7 +1165,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
             return (
               <div className="flex flex-col sm:flex-row sm:max-h-[85vh]">
                 {/* LEFT: Image panel */}
-                <div className="relative w-full h-72 sm:w-[44%] sm:min-w-[44%] sm:h-auto sm:self-start sm:aspect-[3/4] flex-shrink-0 overflow-hidden bg-[#FBF8F5] dark:bg-[#2a2029]">
+                <div className="relative w-full h-72 sm:w-[44%] sm:min-w-[44%] sm:h-auto sm:self-start sm:aspect-[3/4] flex-shrink-0 overflow-hidden rounded-t-2xl sm:rounded-t-none sm:rounded-l-2xl bg-[#FBF8F5] dark:bg-[#2a2029]">
                   <ImageCarousel
                     key={`${productoSeleccionado.id}-${colorSeleccionado || 'default'}`}
                     imagenes={imgsForColor}
@@ -1206,7 +1209,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                   )}
 
                   {/* Info icons */}
-                  <div className="grid grid-cols-3 gap-1 bg-[#FBF8F5] dark:bg-[#2a2029] rounded-lg py-4 px-2">
+                  <div className="grid grid-cols-3 gap-1 bg-[#FBF8F5] dark:bg-[#2a2029] rounded-xl py-4 px-2">
                     <div className="flex flex-col items-center text-center gap-1.5 px-1">
                       <Package className="w-[18px] h-[18px] text-[#A3395C]" />
                       <span className="text-[10px] uppercase tracking-wide font-semibold text-[#7d6f77] dark:text-[#b8a3ac] leading-tight">Envío 3-5 días hábiles</span>
