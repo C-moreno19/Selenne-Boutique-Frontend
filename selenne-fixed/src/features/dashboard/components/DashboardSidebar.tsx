@@ -168,14 +168,14 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
       {/* Fondo degradado: blanco->rosa en claro, satinado oscuro con brillo en oscuro */}
       <div
         className="absolute inset-0 pointer-events-none dark:hidden"
-        style={{ background: 'linear-gradient(165deg, #FFFFFF 0%, #FDF7F8 45%, #F6DCE6 100%)' }}
+        style={{ background: 'linear-gradient(165deg, #FFFFFF 0%, #FCE9EF 55%, #F3B8CE 100%)' }}
       />
       <div
         className="absolute inset-0 pointer-events-none hidden dark:block"
         style={{
           background: [
-            'radial-gradient(ellipse 70% 45% at 15% 0%, rgba(255,255,255,0.07) 0%, transparent 65%)',
-            'linear-gradient(165deg, #2a2029 0%, #322631 45%, #3a2530 100%)',
+            'radial-gradient(ellipse 80% 55% at 10% 0%, rgba(255,255,255,0.22) 0%, transparent 62%)',
+            'linear-gradient(165deg, #1c151a 0%, #322631 45%, #6b2f47 100%)',
           ].join(', '),
         }}
       />
