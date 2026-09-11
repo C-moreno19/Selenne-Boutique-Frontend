@@ -1,4 +1,5 @@
 ﻿import React, { useState } from 'react';
+import { motion } from 'motion/react';
 import { ArrowLeft } from 'lucide-react';
 import { CustomInput } from '../components/CustomInput';
 import { CustomButton } from '../components/CustomButton';
@@ -136,9 +137,14 @@ export const LoginView: React.FC<LoginViewProps> = ({
             </button>
           )}
           {/* Logo */}
-          <div className="flex justify-center mb-10">
-            <Logo className="w-[140px] h-[140px]" />
-          </div>
+          <motion.div
+            className="flex justify-center mb-10"
+            initial={{ opacity: 0, y: -16, scale: 0.92 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <Logo className="w-[180px] h-[180px]" />
+          </motion.div>
 
           {/* Form */}
           <div className="space-y-6">

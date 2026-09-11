@@ -1,4 +1,5 @@
 ﻿import React, { useState } from 'react';
+import { motion } from 'motion/react';
 import { Check, X } from 'lucide-react';
 import { CustomInput } from '../components/CustomInput';
 import { CustomButton } from '../components/CustomButton';
@@ -276,7 +277,13 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
         <div className="w-full max-w-md mt-auto mb-auto">
           {/* Header */}
           <div className="mb-8 flex flex-col items-center space-y-5">
-            <Logo className="w-[120px] h-[120px]" />
+            <motion.div
+              initial={{ opacity: 0, y: -16, scale: 0.92 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <Logo className="w-[150px] h-[150px]" />
+            </motion.div>
             <h1
               className="text-[#000000] dark:text-[#F5EDE9] text-center"
               style={{
