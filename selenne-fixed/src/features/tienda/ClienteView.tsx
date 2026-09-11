@@ -1167,7 +1167,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
             return (
               <div className="flex flex-col sm:flex-row sm:max-h-[85vh]">
                 {/* LEFT: Image panel */}
-                <div className="relative w-full h-72 sm:w-[48%] sm:min-w-[48%] sm:h-auto sm:self-start sm:aspect-[4/5] flex-shrink-0 overflow-hidden rounded-t-2xl sm:rounded-t-none sm:rounded-l-2xl bg-[#FBF8F5] dark:bg-[#2a2029]">
+                <div className="relative w-full h-72 sm:w-[48%] sm:min-w-[48%] sm:h-auto sm:self-start sm:aspect-square flex-shrink-0 overflow-hidden rounded-t-2xl sm:rounded-t-none sm:rounded-l-2xl bg-[#FBF8F5] dark:bg-[#2a2029]">
                   <ImageCarousel
                     key={`${productoSeleccionado.id}-${colorSeleccionado || 'default'}`}
                     imagenes={imgsForColor}
@@ -1214,15 +1214,15 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                   <div className="flex flex-col gap-2 py-1">
                     <div className="flex items-center gap-2.5">
                       <Package className="w-[15px] h-[15px] text-[#A3395C] flex-shrink-0" />
-                      <span className="text-xs text-[#7d6f77] dark:text-[#b8a3ac]">Envío 3-5 días hábiles</span>
+                      <span className="text-xs font-semibold uppercase tracking-wide text-[#241B22] dark:text-[#F5EDE9]">Envío 3-5 días hábiles</span>
                     </div>
                     <div className="flex items-center gap-2.5">
                       <Globe className="w-[15px] h-[15px] text-[#A3395C] flex-shrink-0" />
-                      <span className="text-xs text-[#7d6f77] dark:text-[#b8a3ac]">Envíos a todo el país</span>
+                      <span className="text-xs font-semibold uppercase tracking-wide text-[#241B22] dark:text-[#F5EDE9]">Envíos a todo el país</span>
                     </div>
                     <div className="flex items-center gap-2.5">
                       <Lock className="w-[15px] h-[15px] text-[#A3395C] flex-shrink-0" />
-                      <span className="text-xs text-[#7d6f77] dark:text-[#b8a3ac]">Pago 100% seguro</span>
+                      <span className="text-xs font-semibold uppercase tracking-wide text-[#241B22] dark:text-[#F5EDE9]">Pago 100% seguro</span>
                     </div>
                   </div>
 
