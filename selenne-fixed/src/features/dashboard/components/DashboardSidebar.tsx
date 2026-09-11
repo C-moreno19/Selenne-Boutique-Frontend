@@ -160,12 +160,27 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
 
   return (
     <aside
-      className={`fixed left-0 top-0 h-screen bg-white dark:bg-[#322631] border-r border-[#E7E0DA] dark:border-[#453840] flex flex-col z-40 transition-all duration-300 ${
+      className={`fixed left-0 top-0 h-screen border-r border-[#E7E0DA] dark:border-[#453840] flex flex-col z-40 transition-all duration-300 ${
         isOpen ? 'w-64' : 'w-0'
       }`}
       style={{ overflow: isOpen ? 'visible' : 'hidden' }}
     >
-      <div className={`${isOpen ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300`}>
+      {/* Fondo degradado: blanco->rosa en claro, satinado oscuro con brillo en oscuro */}
+      <div
+        className="absolute inset-0 pointer-events-none dark:hidden"
+        style={{ background: 'linear-gradient(165deg, #FFFFFF 0%, #FDF7F8 45%, #F6DCE6 100%)' }}
+      />
+      <div
+        className="absolute inset-0 pointer-events-none hidden dark:block"
+        style={{
+          background: [
+            'radial-gradient(ellipse 70% 45% at 15% 0%, rgba(255,255,255,0.07) 0%, transparent 65%)',
+            'linear-gradient(165deg, #2a2029 0%, #322631 45%, #3a2530 100%)',
+          ].join(', '),
+        }}
+      />
+
+      <div className={`relative z-10 ${isOpen ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300`}>
         {/* Logo Header */}
         <div className="p-6 border-b border-[#E7E0DA] dark:border-[#453840]">
           <div
