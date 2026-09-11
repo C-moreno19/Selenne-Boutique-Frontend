@@ -1124,9 +1124,10 @@ export const LandingView: React.FC<LandingViewProps> = ({
           </DialogDescription>
           {productoSeleccionado && (() => {
             const imagenesPorColor = productoSeleccionado.imagenesPorColor || {};
-            const imgsForColor = colorSeleccionado && imagenesPorColor[colorSeleccionado] && imagenesPorColor[colorSeleccionado].length > 0
-              ? imagenesPorColor[colorSeleccionado]
-              : (productoSeleccionado.imagenes && productoSeleccionado.imagenes.length > 0 ? productoSeleccionado.imagenes : [productoSeleccionado.imagen]);
+            const imgsDelColor = colorSeleccionado ? (imagenesPorColor[colorSeleccionado] || []) : [];
+            const imgsGenerales = productoSeleccionado.imagenes && productoSeleccionado.imagenes.length > 0 ? productoSeleccionado.imagenes : [productoSeleccionado.imagen];
+            // Las fotos del color van primero, pero nunca se ocultan las fotos generales/principal del producto
+            const imgsForColor = [...new Set([...imgsDelColor, ...imgsGenerales].filter(Boolean))];
             return (
               <div className="flex flex-col sm:flex-row sm:max-h-[85vh]">
                 {/* LEFT: Image panel */}

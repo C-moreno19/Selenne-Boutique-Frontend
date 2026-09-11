@@ -1056,47 +1056,11 @@ export const ProductosView: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Imágenes adicionales */}
-                  <div className="bg-white dark:bg-[#322631] rounded-xl border border-[#E7E0DA] dark:border-[#453840] shadow-sm overflow-hidden">
-                    <div className="bg-[#FBF8F5] dark:bg-[#2a2029] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#453840]">
-                      <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#241B22] dark:text-[#F5EDE9] text-base flex items-center gap-2"><ImageIcon className="w-4 h-4 text-gray-400 dark:text-[#b8a3ac]" />Imágenes adicionales</h3>
-                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac] mt-1">Fotos extras del producto que se muestran en la galería</p>
-                    </div>
-                    <div className="p-6">
-                      <div className="flex flex-wrap gap-3">
-                        {form.imagenesAdicionales.map(url => (
-                          <div key={url} className="relative group">
-                            <img
-                              src={url.startsWith('http') ? url : `${apiBase}${url}`}
-                              alt="adicional"
-                              className="w-20 h-20 object-cover rounded-lg border border-[#E7E0DA] dark:border-[#453840]"
-                            />
-                            <button
-                              onClick={() => quitarImagenAdicional(url)}
-                              className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center shadow-sm hover:bg-red-600 transition"
-                            >
-                              <X className="w-3 h-3" />
-                            </button>
-                          </div>
-                        ))}
-                        <label className={`w-20 h-20 border-2 border-dashed rounded-lg flex flex-col items-center justify-center cursor-pointer transition ${uploadingAdicional ? 'border-[#E7E0DA] dark:border-[#453840] bg-[#FBF8F5] dark:bg-[#2a2029]' : 'border-gray-300 dark:border-[#453840] hover:border-[#A3395C] hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530]'}`}>
-                          {uploadingAdicional
-                            ? <Loader2 className="w-5 h-5 text-[#A3395C] animate-spin" />
-                            : <><Plus className="w-5 h-5 text-gray-400 dark:text-[#b8a3ac]" /><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac] mt-1">Agregar</span></>
-                          }
-                          <input type="file" accept="image/jpeg,image/jpg,image/png,image/webp" className="hidden"
-                            disabled={uploadingAdicional}
-                            onChange={e => { const f = e.target.files?.[0]; if (f) subirImagenAdicional(f); e.target.value = ''; }} />
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-
                   {/* Imágenes por color */}
                   <div className="bg-white dark:bg-[#322631] rounded-xl border border-[#E7E0DA] dark:border-[#453840] shadow-sm overflow-hidden">
                     <div className="bg-[#FBF8F5] dark:bg-[#2a2029] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#453840]">
                       <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#241B22] dark:text-[#F5EDE9] text-base flex items-center gap-2"><Palette className="w-4 h-4 text-gray-400 dark:text-[#b8a3ac]" />Imágenes por Color</h3>
-                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac] mt-1">Cuando el cliente elija un color, verá solo las fotos de ese color</p>
+                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac] mt-1">Sube aquí todas las fotos de este producto. Cuando el cliente elija un color, verá solo las fotos que subiste para ese color — sube al menos una foto por cada color para que ninguna quede escondida.</p>
                     </div>
                     <div className="p-6">
                       {form.coloresSeleccionados.length === 0 ? (
@@ -1152,6 +1116,53 @@ export const ProductosView: React.FC = () => {
                       )}
                     </div>
                   </div>
+
+                  {/* Galería sin color específico: solo aplica a productos sin colores (ej. accesorios con Talla Única) */}
+                  {form.coloresSeleccionados.length === 0 && (
+                    <div className="bg-white dark:bg-[#322631] rounded-xl border border-[#E7E0DA] dark:border-[#453840] shadow-sm overflow-hidden">
+                      <div className="bg-[#FBF8F5] dark:bg-[#2a2029] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#453840]">
+                        <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#241B22] dark:text-[#F5EDE9] text-base flex items-center gap-2"><ImageIcon className="w-4 h-4 text-gray-400 dark:text-[#b8a3ac]" />Galería de fotos</h3>
+                        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac] mt-1">Este producto no tiene colores, así que estas son todas sus fotos de la galería</p>
+                      </div>
+                      <div className="p-6">
+                        <div className="flex flex-wrap gap-3">
+                          {form.imagenesAdicionales.map(url => (
+                            <div key={url} className="relative group">
+                              <img
+                                src={url.startsWith('http') ? url : `${apiBase}${url}`}
+                                alt="adicional"
+                                className="w-20 h-20 object-cover rounded-lg border border-[#E7E0DA] dark:border-[#453840]"
+                              />
+                              <button
+                                onClick={() => quitarImagenAdicional(url)}
+                                className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center shadow-sm hover:bg-red-600 transition"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </div>
+                          ))}
+                          <label className={`w-20 h-20 border-2 border-dashed rounded-lg flex flex-col items-center justify-center cursor-pointer transition ${uploadingAdicional ? 'border-[#E7E0DA] dark:border-[#453840] bg-[#FBF8F5] dark:bg-[#2a2029]' : 'border-gray-300 dark:border-[#453840] hover:border-[#A3395C] hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530]'}`}>
+                            {uploadingAdicional
+                              ? <Loader2 className="w-5 h-5 text-[#A3395C] animate-spin" />
+                              : <><Plus className="w-5 h-5 text-gray-400 dark:text-[#b8a3ac]" /><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac] mt-1">Agregar</span></>
+                            }
+                            <input type="file" accept="image/jpeg,image/jpg,image/png,image/webp" className="hidden"
+                              disabled={uploadingAdicional}
+                              onChange={e => { const f = e.target.files?.[0]; if (f) subirImagenAdicional(f); e.target.value = ''; }} />
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {form.imagenesAdicionales.length > 0 && form.coloresSeleccionados.length > 0 && (
+                    <div className="flex items-start gap-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/40 rounded-xl p-4">
+                      <ImageIcon className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-amber-800 dark:text-amber-300">
+                        Este producto tiene {form.imagenesAdicionales.length} foto{form.imagenesAdicionales.length !== 1 ? 's' : ''} sin color asignado que no se van a mostrar (porque el producto sí tiene colores). Súbelas de nuevo en <strong>"Imágenes por Color"</strong> arriba, en el color que corresponda.
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
 

@@ -1157,10 +1157,12 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
             const normalizedMap: Record<string, string[]> = {};
             Object.entries(imagenesPorColor).forEach(([k, v]) => { normalizedMap[k.toLowerCase()] = v; });
             const imgsForColor = (() => {
-              if (colorKey && normalizedMap[colorKey]?.length > 0) return normalizedMap[colorKey];
-              if (productoSeleccionado.imagenes && productoSeleccionado.imagenes.length > 0) return productoSeleccionado.imagenes;
-              if (productoSeleccionado.imagen) return [productoSeleccionado.imagen];
-              return [];
+              const imgsDelColor = (colorKey && normalizedMap[colorKey]) || [];
+              const imgsGenerales = productoSeleccionado.imagenes && productoSeleccionado.imagenes.length > 0
+                ? productoSeleccionado.imagenes
+                : (productoSeleccionado.imagen ? [productoSeleccionado.imagen] : []);
+              // Las fotos del color van primero, pero nunca se ocultan las fotos generales/principal del producto
+              return [...new Set([...imgsDelColor, ...imgsGenerales].filter(Boolean))];
             })();
             return (
               <div className="flex flex-col sm:flex-row sm:max-h-[85vh]">
