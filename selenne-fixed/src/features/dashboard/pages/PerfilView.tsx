@@ -1,5 +1,5 @@
 ﻿import React, { useState, useEffect } from 'react';
-import { User, Mail, Phone, MapPin, Edit, Save, X, Shield, Lock, Bell, FileText, Eye, EyeOff, ChevronDown } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Edit, Save, X, Shield, Lock, Bell, FileText, Eye, EyeOff, ChevronDown, ChevronRight, IdCard } from 'lucide-react';
 import { useAuth } from '../../../shared/contexts/AuthContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '../../../components/ui/dialog';
 import { toast } from 'sonner@2.0.3';
@@ -111,53 +111,132 @@ export const PerfilView: React.FC = () => {
       error ? 'border-red-300 dark:border-red-900/50 focus:ring-red-200 dark:focus:ring-red-900/30 bg-red-50 dark:bg-red-950/40' : 'border-[#E7E0DA] dark:border-[#453840] focus:ring-[#A3395C]/30 focus:border-[#A3395C]'
     }`;
 
+  const iniciales = (user?.name || '?')
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((p) => p[0]?.toUpperCase())
+    .join('');
+
   return (
-    <div className="p-8 max-w-lg">
+    <div className="p-8 bg-[#FBF8F5] dark:bg-[#2a2029] min-h-screen">
 
-      {/* Título */}
-      <h1 className="admin-page-title text-sm font-bold text-[#241B22] dark:text-[#F5EDE9] uppercase tracking-widest mb-6">Perfil</h1>
-
-      {/* Card info personal */}
-      <div className="border border-[#E7E0DA] dark:border-[#453840] overflow-hidden mb-6">
-        <div className="px-5 py-4 flex items-center justify-between border-b border-[#E7E0DA] dark:border-[#453840]">
-          <span className="text-sm font-medium text-[#241B22] dark:text-[#F5EDE9]">{user?.name}</span>
-          <button
-            onClick={() => {
-              setFormData({ name: user?.name || '', email: user?.email || '', phone: profileData.phone, address: profileData.address, documento: profileData.documento, ciudad: profileData.ciudad });
-              setErrors({ phone: '', address: '', documento: '', name: '', email: '' });
-              setEditModalOpen(true);
-            }}
-            className="text-gray-400 dark:text-[#b8a3ac] hover:text-gray-600 dark:hover:text-[#F5EDE9] transition p-1"
-          >
-            <Edit className="w-4 h-4" />
-          </button>
-        </div>
-        <div className="divide-y divide-gray-100 dark:divide-[#453840]">
-          {[
-            { label: 'Correo electrónico',      value: user?.email },
-            { label: 'Teléfono',                value: profileData.phone     || '—' },
-            { label: 'Ciudad',                  value: profileData.ciudad    || '—' },
-            { label: 'Dirección',               value: profileData.address   || '—' },
-            { label: 'Documento de identidad',  value: profileData.documento || '—' },
-          ].map(({ label, value }) => (
-            <div key={label} className="px-5 py-3.5">
-              <p className="text-xs text-gray-400 dark:text-[#b8a3ac] mb-0.5">{label}</p>
-              <p className="text-sm text-[#241B22] dark:text-[#F5EDE9]">{value}</p>
-            </div>
-          ))}
-        </div>
+      {/* Breadcrumb */}
+      <div className="flex items-center gap-2 mb-4">
+        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500 dark:text-[#b8a3ac]">Dashboard</span>
+        <ChevronRight className="w-4 h-4 text-gray-400 dark:text-[#b8a3ac]" />
+        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-[#241B22] dark:text-[#F5EDE9]">Perfil</span>
       </div>
 
-      {/* Cambiar contraseña */}
-      <h2 className="text-sm font-bold text-[#241B22] dark:text-[#F5EDE9] uppercase tracking-widest mb-3">Cambiar contraseña</h2>
-      <div className="border border-[#E7E0DA] dark:border-[#453840] overflow-hidden mb-2">
-        <button
-          onClick={() => setPasswordModalOpen(true)}
-          className="w-full px-5 py-4 text-left flex items-center justify-between hover:bg-[#FBF8F5] dark:hover:bg-[#362b34] transition"
-        >
-          <span className="text-sm text-gray-700 dark:text-[#F5EDE9]">Cambiar contraseña</span>
-          <Edit className="w-4 h-4 text-gray-400 dark:text-[#b8a3ac]" />
-        </button>
+      {/* Título */}
+      <div className="mb-6">
+        <h1 className="admin-page-title text-3xl font-bold text-[#241B22] dark:text-[#F5EDE9]">Mi Perfil</h1>
+        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-500 dark:text-[#b8a3ac] text-sm mt-1">Gestiona tu información personal y la seguridad de tu cuenta</p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-5xl">
+
+        {/* Columna izquierda: resumen de cuenta */}
+        <div className="lg:col-span-1">
+          <div className="bg-white dark:bg-[#322631] rounded-xl border border-[#E7E0DA] dark:border-[#453840] overflow-hidden" style={{ boxShadow: '0 2px 12px rgba(214, 83, 145, 0.07)' }}>
+            <div className="bg-gradient-to-br from-[#241B22] via-[#7a3350] to-[#A3395C] px-6 py-8 flex flex-col items-center text-center">
+              <div className="w-20 h-20 rounded-full bg-white/15 border-2 border-white/40 flex items-center justify-center text-white text-2xl font-bold mb-3" style={{ fontFamily: '"Playfair Display", Georgia, serif' }}>
+                {iniciales}
+              </div>
+              <p className="text-white font-semibold text-lg leading-tight" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>{user?.name}</p>
+              <span className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 text-white text-xs font-semibold uppercase tracking-wide" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                <Shield className="w-3 h-3" /> {user?.role || 'Administrador'}
+              </span>
+            </div>
+            <div className="p-5">
+              <button
+                onClick={() => {
+                  setFormData({ name: user?.name || '', email: user?.email || '', phone: profileData.phone, address: profileData.address, documento: profileData.documento, ciudad: profileData.ciudad });
+                  setErrors({ phone: '', address: '', documento: '', name: '', email: '' });
+                  setEditModalOpen(true);
+                }}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                className="w-full px-4 py-2.5 bg-gradient-to-r from-[#241B22] via-[#7a3350] to-[#A3395C] text-white rounded-lg hover:opacity-90 flex items-center justify-center gap-2 transition text-sm font-medium"
+              >
+                <Edit className="w-4 h-4" /> Editar Perfil
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Columna derecha: informacion + seguridad */}
+        <div className="lg:col-span-2 space-y-6">
+
+          {/* Informacion personal */}
+          <div className="bg-white dark:bg-[#322631] rounded-xl border border-[#E7E0DA] dark:border-[#453840] overflow-hidden" style={{ boxShadow: '0 2px 12px rgba(214, 83, 145, 0.07)' }}>
+            <div className="bg-[#FBF8F5] dark:bg-[#2a2029] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#453840]">
+              <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#241B22] dark:text-[#F5EDE9] text-base">Información Personal</h3>
+            </div>
+            <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-5">
+              {[
+                { icon: Mail,    label: 'Correo electrónico',     value: user?.email },
+                { icon: Phone,   label: 'Teléfono',               value: profileData.phone     || '—' },
+                { icon: MapPin,  label: 'Ciudad',                 value: profileData.ciudad    || '—' },
+                { icon: MapPin,  label: 'Dirección',              value: profileData.address   || '—' },
+                { icon: IdCard,  label: 'Documento de identidad', value: profileData.documento || '—' },
+              ].map(({ icon: Icon, label, value }) => (
+                <div key={label} className="flex items-start gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-[#EFD9DF] dark:bg-[#3a2530] flex items-center justify-center flex-shrink-0">
+                    <Icon className="w-4 h-4 text-[#A3395C]" />
+                  </div>
+                  <div className="min-w-0">
+                    <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac] mb-0.5">{label}</p>
+                    <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-[#241B22] dark:text-[#F5EDE9] break-words">{value}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Seguridad */}
+          <div className="bg-white dark:bg-[#322631] rounded-xl border border-[#E7E0DA] dark:border-[#453840] overflow-hidden" style={{ boxShadow: '0 2px 12px rgba(214, 83, 145, 0.07)' }}>
+            <div className="bg-[#FBF8F5] dark:bg-[#2a2029] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#453840]">
+              <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#241B22] dark:text-[#F5EDE9] text-base">Seguridad</h3>
+            </div>
+            <div className="divide-y divide-gray-100 dark:divide-[#453840]">
+              <button
+                onClick={() => setPasswordModalOpen(true)}
+                className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-[#FBF8F5] dark:hover:bg-[#362b34] transition group"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-[#EFD9DF] dark:bg-[#3a2530] flex items-center justify-center flex-shrink-0">
+                    <Lock className="w-4 h-4 text-[#A3395C]" />
+                  </div>
+                  <div>
+                    <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-[#241B22] dark:text-[#F5EDE9]">Cambiar contraseña</p>
+                    <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac] mt-0.5">Actualiza tu contraseña periódicamente</p>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-gray-400 dark:text-[#b8a3ac] group-hover:text-[#A3395C] transition-colors flex-shrink-0" />
+              </button>
+              <div className="px-6 py-4 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-[#EFD9DF] dark:bg-[#3a2530] flex items-center justify-center flex-shrink-0">
+                    <Bell className="w-4 h-4 text-[#A3395C]" />
+                  </div>
+                  <div>
+                    <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-[#241B22] dark:text-[#F5EDE9]">Notificaciones por correo</p>
+                    <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac] mt-0.5">Recibe alertas de pedidos y actividad</p>
+                  </div>
+                </div>
+                <button type="button"
+                  role="switch"
+                  aria-checked={notifications}
+                  aria-label={notifications ? 'Desactivar notificaciones' : 'Activar notificaciones'}
+                  onClick={() => setNotifications(!notifications)}
+                  className={`relative flex-shrink-0 w-11 h-6 rounded-full transition-colors duration-200 focus:outline-none ${notifications ? 'bg-gradient-to-r from-[#241B22] to-[#A3395C]' : 'bg-gray-300 dark:bg-[#453840]'}`}
+                >
+                  <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all duration-200 ${notifications ? 'left-6' : 'left-1'}`} />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* ── Modal Editar Perfil ── */}
