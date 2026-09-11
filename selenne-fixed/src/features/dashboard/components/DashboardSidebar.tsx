@@ -165,19 +165,14 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
       }`}
       style={{ overflow: isOpen ? 'visible' : 'hidden' }}
     >
-      {/* Fondo degradado: blanco->rosa en claro, satinado oscuro con brillo en oscuro */}
+      {/* Fondo degradado: blanco->rosa en claro, negro->vino en oscuro */}
       <div
         className="absolute inset-0 pointer-events-none dark:hidden"
         style={{ background: 'linear-gradient(165deg, #FFFFFF 0%, #FCE9EF 55%, #F3B8CE 100%)' }}
       />
       <div
         className="absolute inset-0 pointer-events-none hidden dark:block"
-        style={{
-          background: [
-            'radial-gradient(ellipse 80% 55% at 10% 0%, rgba(255,255,255,0.22) 0%, transparent 62%)',
-            'linear-gradient(165deg, #1c151a 0%, #322631 45%, #6b2f47 100%)',
-          ].join(', '),
-        }}
+        style={{ background: 'linear-gradient(165deg, #1c151a 0%, #322631 45%, #6b2f47 100%)' }}
       />
 
       <div className={`relative z-10 ${isOpen ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300`}>
