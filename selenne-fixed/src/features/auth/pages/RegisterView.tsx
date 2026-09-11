@@ -243,8 +243,11 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
         <SatinBackground />
         <div className="max-w-[450px] ml-12 relative z-10 space-y-6">
           {/* Título */}
-          <h1
+          <motion.h1
             className="text-white"
+            initial={{ opacity: 0, y: 28 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.1, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
             style={{
               fontFamily: '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif',
               fontSize: '64px',
@@ -254,10 +257,13 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
             }}
           >
             Selenne Boutique
-          </h1>
+          </motion.h1>
 
           {/* Frase inspiradora */}
-          <p
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.1, delay: 0.45, ease: [0.16, 1, 0.3, 1] }}
             style={{
               fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
               fontSize: '17px',
@@ -268,7 +274,7 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
             }}
           >
             "Descubre prendas que realzan tu belleza y te hacen sentir única. Cada pieza está diseñada para acompañarte a brillar en cada momento."
-          </p>
+          </motion.p>
         </div>
       </div>
 
@@ -278,11 +284,11 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
           {/* Header */}
           <div className="mb-8 flex flex-col items-center space-y-5">
             <motion.div
-              initial={{ opacity: 0, y: -16, scale: 0.92 }}
+              initial={{ opacity: 0, y: -28, scale: 0.85 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
             >
-              <Logo className="w-[150px] h-[150px]" />
+              <Logo className="w-[170px] h-[170px]" />
             </motion.div>
             <h1
               className="text-[#000000] dark:text-[#F5EDE9] text-center"
