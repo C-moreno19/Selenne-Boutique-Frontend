@@ -20,6 +20,7 @@ import {
   Package,
   Globe,
   Lock,
+  Eye,
 } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
@@ -1026,6 +1027,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                     loading="lazy"
                     decoding="async"
                   />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
                   {producto.badge && (
                     <Badge
                       className={`absolute top-3 left-3 ${
@@ -1039,36 +1041,43 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                   )}
                   <button
                     onClick={() => abrirDetalleProducto(producto)}
-                    className="absolute top-3 right-3 bg-white/90 hover:bg-white text-gray-900 text-xs font-bold tracking-widest px-3 py-1.5 transition-colors"
+                    className="absolute top-3 right-3 inline-flex items-center gap-1.5 bg-white/95 dark:bg-[#2a2029]/95 hover:bg-white dark:hover:bg-[#2a2029] text-gray-900 dark:text-[#F5EDE9] text-xs font-bold tracking-widest px-3 py-1.5 shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A3395C] focus-visible:ring-offset-1"
                   >
+                    <Eye className="w-3.5 h-3.5" />
                     DETALLE
                   </button>
                   <button
                     onClick={() => toggleFavorito(producto.id)}
-                    className="absolute bottom-3 right-3 p-2 bg-white rounded-full shadow-md hover:bg-gray-100 transition-colors"
+                    title="Añadir a favoritos"
+                    className="absolute bottom-3 right-3 p-2 bg-white/95 dark:bg-[#2a2029]/95 rounded-full shadow-sm hover:shadow-md hover:bg-white dark:hover:bg-[#2a2029] transition-all duration-200 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A3395C] focus-visible:ring-offset-1"
                   >
-                    <Heart className={`w-5 h-5 ${esFavorito(producto.id) ? "fill-[#A3395C] text-[#A3395C]" : "text-gray-600"}`} />
+                    <Heart className={`w-5 h-5 transition-colors ${esFavorito(producto.id) ? "fill-[#A3395C] text-[#A3395C]" : "text-gray-600 dark:text-[#b8a3ac]"}`} />
                   </button>
                   {!producto.agotado && (
                     <button
                       onClick={() => handleAgregarAlCarritoRapido(producto)}
                       title="Agregar al carrito"
-                      className="absolute bottom-3 left-3 p-2 bg-white rounded-full shadow-md hover:bg-gray-100 transition-colors"
+                      className="absolute bottom-3 left-3 p-2 bg-white/95 dark:bg-[#2a2029]/95 rounded-full shadow-sm hover:shadow-md hover:bg-white dark:hover:bg-[#2a2029] transition-all duration-200 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A3395C] focus-visible:ring-offset-1"
                     >
-                      <ShoppingBag className="w-5 h-5 text-gray-700" />
+                      <ShoppingBag className="w-5 h-5 text-gray-700 dark:text-[#F5EDE9]" />
                     </button>
+                  )}
+                  {producto.agotado && (
+                    <div className="absolute inset-0 bg-black/40 dark:bg-black/60 flex items-center justify-center">
+                      <span className="bg-white dark:bg-[#2a2029] text-gray-800 dark:text-[#F5EDE9] text-xs font-bold px-3 py-1 rounded-full shadow">Agotado</span>
+                    </div>
                   )}
                 </div>
                 <div className="pt-3 pb-4 px-1">
                   <h3
-                    className="text-gray-900 dark:text-[#F5EDE9] text-sm font-semibold uppercase tracking-wide mb-1 line-clamp-2"
+                    className="text-gray-900 dark:text-[#F5EDE9] text-sm font-semibold uppercase tracking-wide mb-1 line-clamp-2 transition-colors group-hover:text-[#A3395C] dark:group-hover:text-[#e0879c]"
                   >
                     {producto.nombre}
                   </h3>
                   <div className="flex items-center gap-2">
                     {producto.precioOriginal ? (
                       <>
-                        <span className="text-[#A3395C]">
+                        <span className="text-[#A3395C] font-semibold">
                           {formatPrecio(producto.precio)}
                         </span>
                         <span className="text-sm text-gray-400 dark:text-[#7d6f77] line-through">
