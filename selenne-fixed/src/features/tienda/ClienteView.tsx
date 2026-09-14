@@ -1182,13 +1182,14 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
 
                   {/* Name */}
                   <h1
+                    style={{ fontFamily: '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}
                     className="text-2xl font-bold uppercase tracking-[0.01em] text-[#241B22] dark:text-[#F5EDE9] leading-tight"
                   >
                     {productoSeleccionado.nombre}
                   </h1>
 
                   {/* Price */}
-                  <div className="flex items-baseline gap-3 -mt-2">
+                  <div className="flex items-baseline gap-3 -mt-2" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                     <span className="text-xl font-bold text-[#A3395C]">
                       {formatPrecio(productoSeleccionado.precio)}
                     </span>
@@ -1206,13 +1207,13 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
 
                   {/* Description */}
                   {productoSeleccionado.descripcion && (
-                    <p className="text-sm text-[#7d6f77] dark:text-[#b8a3ac] leading-relaxed -mt-2">
+                    <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-[#7d6f77] dark:text-[#b8a3ac] leading-relaxed -mt-2">
                       {productoSeleccionado.descripcion}
                     </p>
                   )}
 
                   {/* Info envío */}
-                  <div className="flex flex-col gap-2 py-1">
+                  <div className="flex flex-col gap-2 py-1" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                     <div className="flex items-center gap-2.5">
                       <Package className="w-[15px] h-[15px] text-[#A3395C] flex-shrink-0" />
                       <span className="text-xs font-semibold uppercase tracking-wide text-[#241B22] dark:text-[#F5EDE9]">Envío 3-5 días hábiles</span>
@@ -1235,7 +1236,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                     if (coloresProducto.length === 0) return null;
                     return (
                       <div>
-                        <p className="text-sm font-semibold text-[#241B22] dark:text-[#F5EDE9] mb-2">Color</p>
+                        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#241B22] dark:text-[#F5EDE9] mb-2">Color</p>
                         <div className="flex gap-3 flex-wrap">
                           {coloresProducto.map((color) => {
                             const hexColor = getColorHex(color);
@@ -1261,7 +1262,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                   {/* Sizes — solo si el producto tiene tallas definidas */}
                   {productoSeleccionado.tallas.length > 0 && (
                     <div>
-                      <p className="text-sm font-semibold text-[#241B22] dark:text-[#F5EDE9] mb-2">Talla</p>
+                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#241B22] dark:text-[#F5EDE9] mb-2">Talla</p>
                       <div className="flex flex-wrap gap-2">
                         {productoSeleccionado.tallas.map((talla: string) => (
                           <button
@@ -1284,10 +1285,10 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                   {/* Materials */}
                   {productoSeleccionado.materiales && productoSeleccionado.materiales.length > 0 && (
                     <div>
-                      <p className="text-sm font-semibold text-[#241B22] dark:text-[#F5EDE9] mb-2">Material</p>
+                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#241B22] dark:text-[#F5EDE9] mb-2">Material</p>
                       <div className="flex flex-wrap gap-2">
                         {productoSeleccionado.materiales.map((material: string) => (
-                          <span key={material} className="px-3 py-1 bg-[#EFD9DF] dark:bg-[#3a2530] text-xs font-medium text-[#A3395C] rounded-full">
+                          <span key={material} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="px-3 py-1 bg-[#EFD9DF] dark:bg-[#3a2530] text-xs font-medium text-[#A3395C] rounded-full">
                             {material}
                           </span>
                         ))}
@@ -1296,7 +1297,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                   )}
 
                   {/* Quantity + Add to cart + Favorite */}
-                  <div className="flex flex-wrap items-center gap-3 pt-3 mt-1 border-t border-[#E7E0DA] dark:border-[#453840]" style={{ flexShrink: 0 }}>
+                  <div className="flex flex-wrap items-center gap-3 pt-3 mt-1 border-t border-[#E7E0DA] dark:border-[#453840]" style={{ flexShrink: 0, fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                     <div className="flex items-center gap-3">
                       <button
                         onClick={() => setCantidadSeleccionada(Math.max(1, cantidadSeleccionada - 1))}
@@ -1315,6 +1316,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                     <button
                       onClick={handleAgregarAlCarrito}
                       disabled={!tallaSeleccionada}
+                      style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                       className={`flex-1 min-w-[120px] min-h-10 h-auto py-2 px-2 rounded-md border text-xs font-semibold uppercase tracking-wider transition-all ${
                         !tallaSeleccionada
                           ? 'border-[#E7E0DA] dark:border-[#453840] text-[#c3bab3] dark:text-[#5a4d52] cursor-not-allowed'
@@ -1340,7 +1342,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                   <button
                     onClick={handleCompraDirecta}
                     disabled={!tallaSeleccionada}
-                    style={{ flexShrink: 0 }}
+                    style={{ flexShrink: 0, fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                     className={`w-full h-11 rounded-md text-xs font-semibold uppercase tracking-wider text-white transition-all ${
                       !tallaSeleccionada ? 'bg-[#E7E0DA] dark:bg-[#453840] cursor-not-allowed' : 'bg-[#A3395C] hover:bg-[#8a2e4d] shadow-sm hover:shadow-md'
                     }`}
