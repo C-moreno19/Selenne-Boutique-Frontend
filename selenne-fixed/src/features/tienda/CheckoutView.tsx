@@ -422,14 +422,14 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#2a2029]">
       {/* Header */}
-      <div className="sticky top-0 z-40 bg-white border-b border-gray-200">
+      <div className="sticky top-0 z-40 bg-white dark:bg-[#322631] border-b border-gray-200 dark:border-[#453840]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           <button
             type="button"
             onClick={onBack}
-            className="flex items-center gap-1 text-sm text-gray-500 hover:text-[#A3395C] transition-colors"
+            className="flex items-center gap-1 text-sm text-gray-500 dark:text-[#b8a3ac] hover:text-[#A3395C] transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             Volver a la tienda
@@ -443,7 +443,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <h1
           style={{ fontFamily: PLAYFAIR }}
-          className="text-4xl text-gray-900 mb-6"
+          className="text-4xl text-gray-900 dark:text-[#F5EDE9] mb-6"
         >
           Finalizar <span className="text-[#A3395C]">Compra</span>
         </h1>
@@ -463,7 +463,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
               return (
                 <React.Fragment key={s.key}>
                   {i > 0 && (
-                    <div className={`flex-1 h-px ${i <= pasoActualIndex ? 'bg-[#A3395C]' : 'bg-gray-200'}`} />
+                    <div className={`flex-1 h-px ${i <= pasoActualIndex ? 'bg-[#A3395C]' : 'bg-gray-200 dark:bg-[#453840]'}`} />
                   )}
                   <div className="flex items-center gap-2 flex-shrink-0">
                     <div
@@ -472,14 +472,14 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                           ? 'bg-[#A3395C] text-white'
                           : activo
                           ? 'border-2 border-[#A3395C] text-[#A3395C]'
-                          : 'border-2 border-gray-200 text-gray-400'
+                          : 'border-2 border-gray-200 dark:border-[#453840] text-gray-400 dark:text-[#b8a3ac]'
                       }`}
                     >
                       {completado ? '✓' : i + 1}
                     </div>
                     <span
                       style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                      className={`text-xs font-medium ${activo || completado ? 'text-gray-900' : 'text-gray-400'}`}
+                      className={`text-xs font-medium ${activo || completado ? 'text-gray-900 dark:text-[#F5EDE9]' : 'text-gray-400 dark:text-[#b8a3ac]'}`}
                     >
                       {s.label}
                     </span>
@@ -495,14 +495,14 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
           <div className="lg:col-span-2 space-y-6">
             {/* Validación de Documento */}
             {!emailValidado && (
-              <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+              <div className="bg-white dark:bg-[#322631] rounded-lg p-6 shadow-sm border border-gray-200 dark:border-[#453840]">
                 <h2
                   style={{ fontFamily: PLAYFAIR }}
-                  className="text-2xl text-gray-900 mb-6"
+                  className="text-2xl text-gray-900 dark:text-[#F5EDE9] mb-6"
                 >
                   Validar Correo Electrónico
                 </h2>
-                <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-600 mb-6">
+                <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-600 dark:text-[#b8a3ac] mb-6">
                   Ingresa tu correo electrónico para continuar con la compra. Si ya tienes una cuenta, se rellenarán automáticamente tus datos.
                 </p>
                 <div className="space-y-4">
@@ -552,20 +552,20 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
             {emailValidado && paso === 'envio' && (
               <>
                 {/* Resumen de Validación */}
-                <div className={`rounded-lg p-4 mb-6 ${clienteExistente ? 'bg-green-50 border border-green-200' : 'bg-blue-50 border border-blue-200'}`}>
+                <div className={`rounded-lg p-4 mb-6 ${clienteExistente ? 'bg-green-50 dark:bg-emerald-950/30 border border-green-200 dark:border-emerald-900/40' : 'bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/40'}`}>
                   <div className="flex items-start gap-3">
                     <div className="mt-0.5">
                       {clienteExistente ? (
-                        <CheckCircle className="w-6 h-6 text-green-600" />
+                        <CheckCircle className="w-6 h-6 text-green-600 dark:text-emerald-400" />
                       ) : (
-                        <AlertCircle className="w-6 h-6 text-blue-600" />
+                        <AlertCircle className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                       )}
                     </div>
                     <div className="flex-1">
-                      <h3 className={`font-semibold mb-1 ${clienteExistente ? 'text-green-900' : 'text-blue-900'}`}>
+                      <h3 className={`font-semibold mb-1 ${clienteExistente ? 'text-green-900 dark:text-emerald-300' : 'text-blue-900 dark:text-blue-300'}`}>
                         {clienteExistente ? '¡Bienvenido de vuelta!' : 'Nuevo Cliente'}
                       </h3>
-                      <p className={`text-sm ${clienteExistente ? 'text-green-700' : 'text-blue-700'}`}>
+                      <p className={`text-sm ${clienteExistente ? 'text-green-700 dark:text-emerald-400' : 'text-blue-700 dark:text-blue-400'}`}>
                         {clienteExistente 
                           ? 'Encontramos una cuenta con este email. Los datos se han rellenado automáticamente.'
                           : 'Este es tu primer pedido. Por favor, completa todos los datos de envío.'}
@@ -575,13 +575,13 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                 </div>
 
             {/* Información de Envío */}
-            <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+            <div className="bg-white dark:bg-[#322631] rounded-lg p-6 shadow-sm border border-gray-200 dark:border-[#453840]">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center">
                   <MapPin className="w-6 h-6 text-[#A3395C] mr-2" />
                   <h2
                     style={{ fontFamily: PLAYFAIR }}
-                    className="text-2xl text-gray-900"
+                    className="text-2xl text-gray-900 dark:text-[#F5EDE9]"
                   >
                     Información de Envío
                   </h2>
@@ -673,7 +673,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                     <Label htmlFor="email">
                       Correo Electrónico *
                       {clienteExistente && (
-                        <span className="ml-2 text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                        <span className="ml-2 text-xs bg-green-100 dark:bg-emerald-950/40 text-green-800 dark:text-emerald-400 px-2 py-1 rounded">
                           Cliente registrado ✓
                         </span>
                       )}
@@ -699,10 +699,10 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                     onChange={handleInputChange}
                     placeholder="Instrucciones especiales de entrega"
                     maxLength={300}
-                    className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#A3395C] focus:border-transparent"
+                    className="w-full mt-1 px-3 py-2 border border-gray-300 dark:border-[#453840] dark:bg-[#2a2029] dark:text-[#F5EDE9] rounded-md focus:outline-none focus:ring-2 focus:ring-[#A3395C] focus:border-transparent"
                     rows={3}
                   />
-                  <p className="text-xs text-gray-400 text-right mt-1">{datosEnvio.notas.length}/300</p>
+                  <p className="text-xs text-gray-400 dark:text-[#b8a3ac] text-right mt-1">{datosEnvio.notas.length}/300</p>
                 </div>
               </div>
               <Button
@@ -719,13 +719,13 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
             {emailValidado && paso === 'pago' && (
               <>
             {/* Método de Pago */}
-            <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+            <div className="bg-white dark:bg-[#322631] rounded-lg p-6 shadow-sm border border-gray-200 dark:border-[#453840]">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center">
                   <CreditCard className="w-6 h-6 text-[#A3395C] mr-2" />
                   <h2
                     style={{ fontFamily: PLAYFAIR }}
-                    className="text-2xl text-gray-900"
+                    className="text-2xl text-gray-900 dark:text-[#F5EDE9]"
                   >
                     Método de Pago
                   </h2>
@@ -733,7 +733,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                 <button
                   type="button"
                   onClick={() => setPaso('envio')}
-                  className="flex items-center gap-1 text-sm text-gray-500 hover:text-[#A3395C] transition-colors"
+                  className="flex items-center gap-1 text-sm text-gray-500 dark:text-[#b8a3ac] hover:text-[#A3395C] transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   Volver a Envío
@@ -741,21 +741,21 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
               </div>
               <RadioGroup value={metodoPago} onValueChange={setMetodoPago}>
                 <div className="space-y-3">
-                  <div className="flex items-center space-x-3 border border-gray-200 rounded-lg p-4 hover:border-[#A3395C] transition-colors">
+                  <div className="flex items-center space-x-3 border border-gray-200 dark:border-[#453840] rounded-lg p-4 hover:border-[#A3395C] transition-colors">
                     <RadioGroupItem value="contra-entrega" id="contra-entrega" />
                     <Label htmlFor="contra-entrega" className="flex-1 cursor-pointer">
                       <div className="flex items-center">
-                        <Truck className="w-5 h-5 mr-2 text-gray-600" />
-                        <span>Pago Contra Entrega</span>
+                        <Truck className="w-5 h-5 mr-2 text-gray-600 dark:text-[#b8a3ac]" />
+                        <span className="text-gray-900 dark:text-[#F5EDE9]">Pago Contra Entrega</span>
                       </div>
                     </Label>
                   </div>
-                  <div className="flex items-center space-x-3 border border-gray-200 rounded-lg p-4 hover:border-[#A3395C] transition-colors">
+                  <div className="flex items-center space-x-3 border border-gray-200 dark:border-[#453840] rounded-lg p-4 hover:border-[#A3395C] transition-colors">
                     <RadioGroupItem value="transferencia" id="transferencia" />
                     <Label htmlFor="transferencia" className="flex-1 cursor-pointer">
                       <div className="flex items-center">
-                        <CreditCard className="w-5 h-5 mr-2 text-gray-600" />
-                        <span>Transferencia Bancaria</span>
+                        <CreditCard className="w-5 h-5 mr-2 text-gray-600 dark:text-[#b8a3ac]" />
+                        <span className="text-gray-900 dark:text-[#F5EDE9]">Transferencia Bancaria</span>
                       </div>
                     </Label>
                   </div>
@@ -765,35 +765,35 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
               {metodoPago === 'transferencia' && (
                 <div className="mt-6 space-y-6">
                   {/* Información de cuenta y QR */}
-                  <div className="border border-gray-200 rounded-lg p-6 bg-gray-50">
-                    <h3 
+                  <div className="border border-gray-200 dark:border-[#453840] rounded-lg p-6 bg-gray-50 dark:bg-[#2a2029]">
+                    <h3
                       style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                      className="text-lg text-gray-900 mb-4"
+                      className="text-lg text-gray-900 dark:text-[#F5EDE9] mb-4"
                     >
                       Datos para Transferencia
                     </h3>
-                    
+
                     <div className="grid md:grid-cols-2 gap-6">
                       {/* Datos de cuenta */}
                       <div className="space-y-3">
                         <div>
-                          <p className="text-xs text-gray-500">Banco</p>
-                          <p className="text-sm text-gray-900">{datosBanco.banco}</p>
+                          <p className="text-xs text-gray-500 dark:text-[#b8a3ac]">Banco</p>
+                          <p className="text-sm text-gray-900 dark:text-[#F5EDE9]">{datosBanco.banco}</p>
                         </div>
                         <div>
-                          <p className="text-xs text-gray-500">Tipo de Cuenta</p>
-                          <p className="text-sm text-gray-900">{datosBanco.tipoCuenta}</p>
+                          <p className="text-xs text-gray-500 dark:text-[#b8a3ac]">Tipo de Cuenta</p>
+                          <p className="text-sm text-gray-900 dark:text-[#F5EDE9]">{datosBanco.tipoCuenta}</p>
                         </div>
                         <div>
-                          <p className="text-xs text-gray-500">Número de Cuenta</p>
-                          <p className="text-sm text-gray-900">{datosBanco.numeroCuenta}</p>
+                          <p className="text-xs text-gray-500 dark:text-[#b8a3ac]">Número de Cuenta</p>
+                          <p className="text-sm text-gray-900 dark:text-[#F5EDE9]">{datosBanco.numeroCuenta}</p>
                         </div>
                         <div>
-                          <p className="text-xs text-gray-500">Titular</p>
-                          <p className="text-sm text-gray-900">{datosBanco.titular}</p>
+                          <p className="text-xs text-gray-500 dark:text-[#b8a3ac]">Titular</p>
+                          <p className="text-sm text-gray-900 dark:text-[#F5EDE9]">{datosBanco.titular}</p>
                         </div>
                         <div>
-                          <p className="text-xs text-gray-500">Monto a Transferir</p>
+                          <p className="text-xs text-gray-500 dark:text-[#b8a3ac]">Monto a Transferir</p>
                           <p className="text-[#A3395C]">
                             {formatCurrency(getTotalCarrito())}
                           </p>
@@ -801,8 +801,8 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                       </div>
 
                       {/* Código QR */}
-                      <div className="flex flex-col items-center justify-center bg-white p-4 rounded-lg border border-gray-200">
-                        <p className="text-xs text-gray-500 mb-3">Escanea para transferir</p>
+                      <div className="flex flex-col items-center justify-center bg-white dark:bg-[#322631] p-4 rounded-lg border border-gray-200 dark:border-[#453840]">
+                        <p className="text-xs text-gray-500 dark:text-[#b8a3ac] mb-3">Escanea para transferir</p>
                         <img
                           src="/qr-transferencia.png"
                           alt="QR transferencia bancaria"
@@ -815,21 +815,21 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                   {/* Subir comprobante */}
                   <div>
                     <Label htmlFor="comprobante">Comprobante de Pago *</Label>
-                    <p className="text-xs text-gray-500 mb-2">
+                    <p className="text-xs text-gray-500 dark:text-[#b8a3ac] mb-2">
                       Sube una foto o captura de tu comprobante de transferencia
                     </p>
-                    
+
                     {!comprobantePreview ? (
                       <label
                         htmlFor="comprobante"
-                        className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-[#A3395C] transition-colors bg-gray-50"
+                        className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 dark:border-[#453840] rounded-lg cursor-pointer hover:border-[#A3395C] transition-colors bg-gray-50 dark:bg-[#2a2029]"
                       >
                         <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                          <Upload className="w-8 h-8 text-gray-400 mb-2" />
-                          <p className="text-sm text-gray-500">
+                          <Upload className="w-8 h-8 text-gray-400 dark:text-[#b8a3ac] mb-2" />
+                          <p className="text-sm text-gray-500 dark:text-[#b8a3ac]">
                             Click para subir comprobante
                           </p>
-                          <p className="text-xs text-gray-400 mt-1">
+                          <p className="text-xs text-gray-400 dark:text-[#b8a3ac] mt-1">
                             PNG, JPG o PDF (MAX. 5MB)
                           </p>
                         </div>
@@ -842,7 +842,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                         />
                       </label>
                     ) : (
-                      <div className="relative border border-gray-200 rounded-lg p-4 bg-gray-50">
+                      <div className="relative border border-gray-200 dark:border-[#453840] rounded-lg p-4 bg-gray-50 dark:bg-[#2a2029]">
                         <button
                           type="button"
                           title="Eliminar comprobante"
@@ -860,8 +860,8 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                         ) : (
                           <div className="flex items-center justify-center h-48">
                             <div className="text-center">
-                              <CreditCard className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                              <p className="text-sm text-gray-600">{comprobante?.name}</p>
+                              <CreditCard className="w-12 h-12 text-gray-400 dark:text-[#b8a3ac] mx-auto mb-2" />
+                              <p className="text-sm text-gray-600 dark:text-[#b8a3ac]">{comprobante?.name}</p>
                             </div>
                           </div>
                         )}
@@ -869,8 +869,8 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                     )}
                   </div>
 
-                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                    <p className="text-sm text-yellow-800">
+                  <div className="bg-yellow-50 dark:bg-amber-950/30 border border-yellow-200 dark:border-amber-900/40 rounded-lg p-4">
+                    <p className="text-sm text-yellow-800 dark:text-amber-400">
                       <strong>Importante:</strong> Tu pedido quedará en estado "Pendiente" hasta que el administrador confirme tu pago. Recibirás una notificación cuando sea aprobado.
                     </p>
                   </div>
@@ -898,10 +898,10 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
 
           {/* Resumen del Pedido */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200 sticky top-24">
+            <div className="bg-white dark:bg-[#322631] rounded-lg p-6 shadow-sm border border-gray-200 dark:border-[#453840] sticky top-24">
               <h2
                 style={{ fontFamily: PLAYFAIR }}
-                className="text-2xl text-gray-900 mb-6"
+                className="text-2xl text-gray-900 dark:text-[#F5EDE9] mb-6"
               >
                 Resumen del Pedido
               </h2>
@@ -915,8 +915,8 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                       className="w-16 h-16 object-cover rounded"
                     />
                     <div className="flex-1">
-                      <h4 className="text-sm text-gray-900">{item.nombre}</h4>
-                      <p className="text-xs text-gray-500">
+                      <h4 className="text-sm text-gray-900 dark:text-[#F5EDE9]">{item.nombre}</h4>
+                      <p className="text-xs text-gray-500 dark:text-[#b8a3ac]">
                         Talla: {item.tallaSeleccionada} | Cant: {item.cantidad}
                       </p>
                       <p className="text-sm text-[#A3395C] mt-1">
@@ -931,12 +931,12 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
 
               <div className="space-y-2 mb-4">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Subtotal:</span>
-                  <span className="text-gray-900">{formatPrecio(getTotalCarrito())}</span>
+                  <span className="text-gray-600 dark:text-[#b8a3ac]">Subtotal:</span>
+                  <span className="text-gray-900 dark:text-[#F5EDE9]">{formatPrecio(getTotalCarrito())}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Envío:</span>
-                  <span className="text-green-600">Gratis</span>
+                  <span className="text-gray-600 dark:text-[#b8a3ac]">Envío:</span>
+                  <span className="text-green-600 dark:text-emerald-400">Gratis</span>
                 </div>
               </div>
 
@@ -945,7 +945,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
               <div className="flex justify-between mb-6">
                 <span
                   style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                  className="text-xl text-gray-900"
+                  className="text-xl text-gray-900 dark:text-[#F5EDE9]"
                 >
                   Total:
                 </span>
@@ -957,7 +957,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                 </span>
               </div>
 
-              <p className="text-xs text-gray-500 mb-6 text-center">
+              <p className="text-xs text-gray-500 dark:text-[#b8a3ac] mb-6 text-center">
                 *IVA incluido en el precio
               </p>
 
@@ -981,7 +981,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
               )}
 
               {emailValidado && paso === 'pago' && metodoPago === 'transferencia' && (
-                <p className="text-xs text-center text-gray-500 mt-2">
+                <p className="text-xs text-center text-gray-500 dark:text-[#b8a3ac] mt-2">
                   Al enviar, tu pedido quedará pendiente de confirmación
                 </p>
               )}
