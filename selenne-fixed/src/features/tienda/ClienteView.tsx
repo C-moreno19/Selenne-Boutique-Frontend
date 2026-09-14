@@ -1072,16 +1072,17 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                     </div>
                   )}
                 </div>
-                <div className="pt-3 pb-4 px-1">
+                <div className="pt-3.5 pb-4 px-3.5">
                   <h3
-                    className="text-gray-900 dark:text-[#F5EDE9] text-sm font-semibold uppercase tracking-wide mb-1 line-clamp-2 transition-colors group-hover:text-[#A3395C] dark:group-hover:text-[#e0879c]"
+                    style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                    className="text-gray-900 dark:text-[#F5EDE9] text-sm font-semibold uppercase tracking-wide mb-1.5 line-clamp-2 transition-colors group-hover:text-[#A3395C] dark:group-hover:text-[#e0879c]"
                   >
                     {producto.nombre}
                   </h3>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                     {producto.precioOriginal ? (
                       <>
-                        <span className="text-[#A3395C] font-semibold">
+                        <span className="text-[#A3395C] font-bold text-base">
                           {formatPrecio(producto.precio)}
                         </span>
                         <span className="text-sm text-gray-400 dark:text-[#7d6f77] line-through">
@@ -1089,24 +1090,24 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                         </span>
                       </>
                     ) : (
-                      <span className="text-gray-900 dark:text-[#F5EDE9]">
+                      <span className="text-gray-900 dark:text-[#F5EDE9] font-bold text-base">
                         {formatPrecio(producto.precio)}
                       </span>
                     )}
                   </div>
                   {producto.colores && producto.colores.length > 0 && (
-                    <div className="flex items-center gap-1.5 mt-2">
+                    <div className="flex items-center gap-2 mt-2.5">
                       {producto.colores.slice(0, 5).map((color) => (
                         <button
                           key={color}
                           onClick={() => abrirDetalleProducto(producto, color)}
                           title={color}
-                          className="w-4 h-4 rounded-full border border-gray-300 dark:border-[#453840] hover:scale-125 transition-transform"
+                          className="w-[18px] h-[18px] rounded-full border-2 border-white dark:border-[#322631] shadow-[0_0_0_1px_rgba(0,0,0,0.12)] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.15)] hover:scale-125 hover:shadow-[0_0_0_1.5px_#A3395C] transition-all"
                           style={{ backgroundColor: getColorHex(color) }}
                         />
                       ))}
                       {producto.colores.length > 5 && (
-                        <span className="text-[10px] text-gray-400 dark:text-[#b8a3ac]">+{producto.colores.length - 5}</span>
+                        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-[11px] text-gray-400 dark:text-[#b8a3ac] font-medium">+{producto.colores.length - 5}</span>
                       )}
                     </div>
                   )}
