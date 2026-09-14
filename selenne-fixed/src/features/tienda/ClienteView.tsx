@@ -891,7 +891,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                       transition={{ duration: 0.55, delay: indiceDestacado * 0.06, ease: [0.16, 1, 0.3, 1] }}
                       className="text-left flex-shrink-0 w-40 sm:w-auto group"
                     >
-                      <div className="rounded-xl overflow-hidden mb-2 shadow-sm transition-shadow duration-300 group-hover:shadow-lg">
+                      <div className="rounded-xl overflow-hidden mb-2 border border-[#F0C9D9] dark:border-[#5c3049] shadow-sm transition-shadow duration-300 group-hover:shadow-lg">
                         <img
                           src={producto.imagen}
                           alt={producto.nombre}
@@ -1021,7 +1021,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                 initial={{ opacity: 0, y: 20, scale: 0.97 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 transition={{ duration: 0.55, delay: Math.min(indiceProducto, 8) * 0.05, ease: [0.16, 1, 0.3, 1] }}
-                className="bg-white dark:bg-[#322631] rounded-xl overflow-hidden group transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                className="bg-white dark:bg-[#322631] border border-[#F0C9D9] dark:border-[#5c3049] rounded-xl overflow-hidden group transition-all duration-300 shadow-sm hover:shadow-xl hover:-translate-y-1">
                 <div className="relative overflow-hidden">
                   <img
                     src={producto.imagen}
@@ -1044,7 +1044,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                   )}
                   <button
                     onClick={() => abrirDetalleProducto(producto)}
-                    className="absolute top-3 right-3 inline-flex items-center gap-1.5 bg-white/95 dark:bg-[#2a2029]/95 hover:bg-white dark:hover:bg-[#2a2029] text-gray-900 dark:text-[#F5EDE9] text-xs font-bold tracking-widest px-3 py-1.5 rounded-full shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A3395C] focus-visible:ring-offset-1"
+                    className="absolute top-3 right-3 inline-flex items-center gap-1.5 bg-gradient-to-r from-[#241B22] via-[#7a3350] to-[#A3395C] text-white text-xs font-bold tracking-widest px-3.5 py-1.5 rounded-full shadow-md hover:shadow-lg hover:brightness-110 transition-all duration-200 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-1"
                   >
                     <Eye className="w-3.5 h-3.5" />
                     DETALLE
