@@ -1044,7 +1044,8 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                   )}
                   <button
                     onClick={() => abrirDetalleProducto(producto)}
-                    className="absolute top-3 right-3 inline-flex items-center gap-1.5 bg-gradient-to-r from-[#241B22] via-[#7a3350] to-[#A3395C] text-white text-xs font-bold tracking-widest px-3.5 py-1.5 rounded-lg shadow-md hover:shadow-lg hover:brightness-110 transition-all duration-200 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-1"
+                    style={{ clipPath: 'polygon(14px 0, 100% 0, 100% 100%, 0 100%, 0 14px)' }}
+                    className="absolute top-3 right-3 inline-flex items-center gap-1.5 bg-gradient-to-r from-[#241B22] via-[#7a3350] to-[#A3395C] text-white text-xs font-bold tracking-widest pl-4 pr-3.5 py-1.5 shadow-md hover:shadow-lg hover:brightness-110 transition-all duration-200 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-1"
                   >
                     <Eye className="w-3.5 h-3.5" />
                     DETALLE
