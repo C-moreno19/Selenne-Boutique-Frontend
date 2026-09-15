@@ -85,10 +85,10 @@ export const LoginView: React.FC<LoginViewProps> = ({
   };
 
   return (
-    <div className="flex min-h-screen w-full">
+    <div className="flex h-screen w-full overflow-hidden">
       {/* Hero Section - Left (55%) */}
-      <div 
-        className="hidden lg:flex lg:w-[55%] p-12 flex-col justify-center items-start relative overflow-hidden"
+      <div
+        className="hidden lg:flex lg:w-[55%] h-full p-12 flex-col justify-center items-start relative overflow-hidden"
       >
         <SatinBackground />
         <div className="max-w-[450px] ml-12 relative z-10 space-y-6">
@@ -129,7 +129,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
       </div>
 
       {/* Login Panel - Right (45%) */}
-      <div className="flex-1 lg:w-[45%] flex items-center justify-center bg-white dark:bg-[#2a2029] px-16 py-12">
+      <div className="flex-1 lg:w-[45%] h-full overflow-y-auto flex items-center justify-center bg-white dark:bg-[#2a2029] px-16 py-12">
         <div className="w-full max-w-md space-y-8">
           {/* Back arrow */}
           {onBack && (
