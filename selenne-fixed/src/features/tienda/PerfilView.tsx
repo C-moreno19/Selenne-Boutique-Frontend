@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   User, Mail, Phone, MapPin, Edit, Save, X, Lock, Bell,
   ShoppingBag, Heart, Package, Loader2, Eye, EyeOff,
-  ChevronDown, ArrowLeft, LogOut, Truck, CreditCard,
+  ChevronDown, ChevronRight, ArrowLeft, LogOut, Truck, CreditCard,
   CheckCircle2, XCircle, Clock, AlertCircle, Search, RefreshCw, Calendar
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '../../components/ui/dialog';
@@ -255,6 +255,13 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
   useEffect(() => { cargarPedidos(); }, [cargarPedidos]);
   const pedidosAprobados = pedidos.filter(p => ['Aprobado', 'Completado'].includes(p.estado));
 
+  const iniciales = (user?.name || '?')
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((p) => p[0]?.toUpperCase())
+    .join('');
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#2a2029] overflow-x-hidden">
 
@@ -273,94 +280,129 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
         <h1 className="text-sm font-bold text-gray-900 dark:text-[#F5EDE9] uppercase tracking-widest mb-6">Perfil</h1>
 
         {/* Card info personal */}
-        <div className="border border-gray-200 dark:border-[#453840] overflow-hidden mb-6">
-          <div className="px-5 py-4 flex items-center justify-between border-b border-gray-200 dark:border-[#453840]">
-            <span className="text-sm font-medium text-gray-900 dark:text-[#F5EDE9]">{user?.name || 'Mi cuenta'}</span>
+        <div className="rounded-xl border border-gray-200 dark:border-[#453840] overflow-hidden mb-6" style={{ boxShadow: '0 2px 12px rgba(214, 83, 145, 0.07)' }}>
+          <div className="bg-gradient-to-br from-[#241B22] via-[#7a3350] to-[#A3395C] px-6 py-8 flex flex-col items-center text-center">
+            <div className="w-20 h-20 rounded-full bg-white/15 border-2 border-white/40 flex items-center justify-center text-white text-2xl font-bold mb-3"
+              style={{ fontFamily: '"Playfair Display", Georgia, serif' }}>
+              {iniciales}
+            </div>
+            <p className="text-white font-semibold text-lg leading-tight" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>{user?.name || 'Mi cuenta'}</p>
+          </div>
+          <div className="p-5 border-b border-gray-100 dark:border-[#453840] bg-white dark:bg-[#322631]">
             <button type="button"
               onClick={() => { setFormData({ nombre: user?.name || '', ...profileData }); setErrors({ nombre: '', telefono: '', direccion: '', documento: '' }); setEditModalOpen(true); }}
-              className="text-gray-400 dark:text-[#b8a3ac] hover:text-gray-600 dark:hover:text-[#F5EDE9] transition-colors p-1"
+              style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+              className="w-full px-4 py-2.5 bg-gradient-to-r from-[#241B22] via-[#7a3350] to-[#A3395C] text-white rounded-lg hover:opacity-90 flex items-center justify-center gap-2 transition text-sm font-medium"
             >
-              <Edit className="w-4 h-4" />
+              <Edit className="w-4 h-4" /> Editar Perfil
             </button>
           </div>
-          <div className="px-5 py-4 space-y-3">
-            <div>
-              <p className="text-xs text-gray-400 dark:text-[#b8a3ac] mb-0.5">Correo electrónico</p>
-              <p className="text-sm text-gray-900 dark:text-[#F5EDE9]">{user?.email}</p>
-            </div>
+          <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-5 bg-white dark:bg-[#322631]">
             {[
-              { label: 'Teléfono',    value: profileData.telefono  || '—' },
-              { label: 'Documento',   value: profileData.documento || '—' },
-              { label: 'Ciudad',      value: profileData.ciudad    || '—' },
-              { label: 'Dirección',   value: profileData.direccion || '—' },
-            ].map(({ label, value }) => (
-              <div key={label}>
-                <p className="text-xs text-gray-400 dark:text-[#b8a3ac] mb-0.5">{label}</p>
-                <p className="text-sm text-gray-900 dark:text-[#F5EDE9]">{value}</p>
+              { icon: Mail,       label: 'Correo electrónico', value: user?.email },
+              { icon: Phone,      label: 'Teléfono',           value: profileData.telefono  || '—' },
+              { icon: MapPin,     label: 'Ciudad',             value: profileData.ciudad    || '—' },
+              { icon: MapPin,     label: 'Dirección',          value: profileData.direccion || '—' },
+              { icon: CreditCard, label: 'Documento',          value: profileData.documento || '—' },
+            ].map(({ icon: Icon, label, value }) => (
+              <div key={label} className="flex items-start gap-3">
+                <div className="w-9 h-9 rounded-lg bg-[#EFD9DF] dark:bg-[#3a2530] flex items-center justify-center flex-shrink-0">
+                  <Icon className="w-4 h-4 text-[#A3395C]" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs text-gray-400 dark:text-[#b8a3ac] mb-0.5" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>{label}</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-[#F5EDE9] break-words" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>{value}</p>
+                </div>
               </div>
             ))}
           </div>
         </div>
 
         {/* Mis pedidos */}
-        <h2 className="text-sm font-bold text-gray-900 dark:text-[#F5EDE9] uppercase tracking-widest mb-3">Mis pedidos</h2>
-        <div className="border border-gray-200 dark:border-[#453840] overflow-hidden mb-6">
+        <div className="rounded-xl border border-gray-200 dark:border-[#453840] overflow-hidden mb-6" style={{ boxShadow: '0 2px 12px rgba(214, 83, 145, 0.07)' }}>
+          <div className="bg-[#FBF8F5] dark:bg-[#2a2029] px-6 py-4 border-b border-gray-200 dark:border-[#453840]">
+            <h3 className="font-semibold text-gray-900 dark:text-[#F5EDE9] text-base" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Mis Pedidos</h3>
+          </div>
           <button type="button"
             onClick={() => { setPedidosModalOpen(true); cargarPedidos(); }}
-            className="w-full px-5 py-4 text-left flex items-center justify-between hover:bg-gray-50 dark:hover:bg-[#362b34] transition-colors"
+            className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-[#FBF8F5] dark:hover:bg-[#362b34] transition group bg-white dark:bg-[#322631]"
           >
-            <span className="text-sm text-gray-700 dark:text-[#F5EDE9]">Ver mis pedidos</span>
-            <Package className="w-4 h-4 text-gray-400 dark:text-[#b8a3ac]" />
-          </button>
-        </div>
-
-        {/* Cambiar contraseña */}
-        <h2 className="text-sm font-bold text-gray-900 dark:text-[#F5EDE9] uppercase tracking-widest mb-3">Cambiar contraseña</h2>
-        <div className="border border-gray-200 dark:border-[#453840] overflow-hidden mb-6">
-          <button type="button"
-            onClick={() => setPasswordModalOpen(true)}
-            className="w-full px-5 py-4 text-left flex items-center justify-between hover:bg-gray-50 dark:hover:bg-[#362b34] transition-colors"
-          >
-            <span className="text-sm text-gray-700 dark:text-[#F5EDE9]">Cambiar contraseña</span>
-            <Edit className="w-4 h-4 text-gray-400 dark:text-[#b8a3ac]" />
-          </button>
-        </div>
-
-        {/* Notificaciones */}
-        <h2 className="text-sm font-bold text-gray-900 dark:text-[#F5EDE9] uppercase tracking-widest mb-3">Notificaciones</h2>
-        <div className="border border-gray-200 dark:border-[#453840] overflow-hidden mb-8">
-          <div className="px-5 py-4 flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-700 dark:text-[#F5EDE9]">Recibir notificaciones</p>
-              <p className="text-xs text-gray-400 dark:text-[#b8a3ac] mt-0.5">Activa o desactiva las notificaciones de tus pedidos</p>
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-[#EFD9DF] dark:bg-[#3a2530] flex items-center justify-center flex-shrink-0">
+                <Package className="w-4 h-4 text-[#A3395C]" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-900 dark:text-[#F5EDE9]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Ver mis pedidos</p>
+                <p className="text-xs text-gray-400 dark:text-[#b8a3ac] mt-0.5" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Historial y seguimiento de tus compras</p>
+              </div>
             </div>
+            <ChevronRight className="w-4 h-4 text-gray-400 dark:text-[#b8a3ac] group-hover:text-[#A3395C] transition-colors flex-shrink-0" />
+          </button>
+        </div>
+
+        {/* Seguridad */}
+        <div className="rounded-xl border border-gray-200 dark:border-[#453840] overflow-hidden mb-8" style={{ boxShadow: '0 2px 12px rgba(214, 83, 145, 0.07)' }}>
+          <div className="bg-[#FBF8F5] dark:bg-[#2a2029] px-6 py-4 border-b border-gray-200 dark:border-[#453840]">
+            <h3 className="font-semibold text-gray-900 dark:text-[#F5EDE9] text-base" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Seguridad</h3>
+          </div>
+          <div className="divide-y divide-gray-100 dark:divide-[#453840] bg-white dark:bg-[#322631]">
             <button type="button"
-              role="switch"
-              aria-checked={notifications}
-              aria-label={notifications ? 'Desactivar notificaciones' : 'Activar notificaciones'}
-              onClick={() => {
-                const n = !notifications;
-                setNotifications(n);
-                api.fetchWithAuth(`/api/usuarios/${user?.usuarioID}`, {
-                  method: 'PUT',
-                  body: JSON.stringify({ NotificacionesEmail: n })
-                })
-                  .then(() => toast.success(n ? 'Notificaciones activadas' : 'Notificaciones desactivadas'))
-                  .catch(() => toast.error('Error al guardar preferencia'));
-              }}
-              className={`relative flex-shrink-0 w-11 h-6 rounded-full transition-colors duration-200 focus:outline-none ${notifications ? 'bg-gray-900 dark:bg-[#A3395C]' : 'bg-gray-300 dark:bg-[#453840]'}`}
+              onClick={() => setPasswordModalOpen(true)}
+              className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-[#FBF8F5] dark:hover:bg-[#362b34] transition group"
             >
-              <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all duration-200 ${notifications ? 'left-6' : 'left-1'}`} />
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-[#EFD9DF] dark:bg-[#3a2530] flex items-center justify-center flex-shrink-0">
+                  <Lock className="w-4 h-4 text-[#A3395C]" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-900 dark:text-[#F5EDE9]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Cambiar contraseña</p>
+                  <p className="text-xs text-gray-400 dark:text-[#b8a3ac] mt-0.5" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Actualiza tu contraseña periódicamente</p>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-gray-400 dark:text-[#b8a3ac] group-hover:text-[#A3395C] transition-colors flex-shrink-0" />
             </button>
+            <div className="px-6 py-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-[#EFD9DF] dark:bg-[#3a2530] flex items-center justify-center flex-shrink-0">
+                  <Bell className="w-4 h-4 text-[#A3395C]" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-900 dark:text-[#F5EDE9]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Notificaciones por correo</p>
+                  <p className="text-xs text-gray-400 dark:text-[#b8a3ac] mt-0.5" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Activa o desactiva las notificaciones de tus pedidos</p>
+                </div>
+              </div>
+              <button type="button"
+                role="switch"
+                aria-checked={notifications}
+                aria-label={notifications ? 'Desactivar notificaciones' : 'Activar notificaciones'}
+                onClick={() => {
+                  const n = !notifications;
+                  setNotifications(n);
+                  api.fetchWithAuth(`/api/usuarios/${user?.usuarioID}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ NotificacionesEmail: n })
+                  })
+                    .then(() => toast.success(n ? 'Notificaciones activadas' : 'Notificaciones desactivadas'))
+                    .catch(() => toast.error('Error al guardar preferencia'));
+                }}
+                className={`relative flex-shrink-0 w-11 h-6 rounded-full transition-colors duration-200 focus:outline-none ${notifications ? 'bg-gradient-to-r from-[#241B22] to-[#A3395C]' : 'bg-gray-300 dark:bg-[#453840]'}`}
+              >
+                <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all duration-200 ${notifications ? 'left-6' : 'left-1'}`} />
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Cerrar sesión */}
-        <div className="border border-gray-200 dark:border-[#453840] overflow-hidden">
+        <div className="rounded-xl border border-gray-200 dark:border-[#453840] overflow-hidden" style={{ boxShadow: '0 2px 12px rgba(214, 83, 145, 0.07)' }}>
           <button type="button" onClick={onLogout}
-            className="w-full px-5 py-4 text-left flex items-center justify-between hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors group">
-            <span className="text-sm text-red-500 group-hover:text-red-600 dark:text-red-400 dark:group-hover:text-red-300">Cerrar sesión</span>
-            <LogOut className="w-4 h-4 text-red-400 group-hover:text-red-500 dark:text-red-400/70 dark:group-hover:text-red-300" />
+            className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors group bg-white dark:bg-[#322631]">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-red-50 dark:bg-red-950/30 flex items-center justify-center flex-shrink-0">
+                <LogOut className="w-4 h-4 text-red-500" />
+              </div>
+              <span className="text-sm font-medium text-red-500 group-hover:text-red-600 dark:text-red-400 dark:group-hover:text-red-300" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Cerrar sesión</span>
+            </div>
           </button>
         </div>
 
@@ -398,7 +440,7 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
                     if (val && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]*$/.test(val)) { setErrors(p => ({ ...p, nombre: 'Solo se permiten letras' })); return; }
                     setFormData(p => ({ ...p, nombre: val })); setErrors(p => ({ ...p, nombre: '' }));
                   }}
-                  className={`w-full pl-10 pr-3 h-11 text-sm border focus:outline-none focus:border-gray-900 dark:focus:border-[#A3395C] transition-colors bg-white dark:bg-[#2a2029] text-gray-900 dark:text-[#F5EDE9] ${errors.nombre ? 'border-red-300 dark:border-red-500/50 bg-red-50 dark:bg-red-950/30' : 'border-gray-200 dark:border-[#453840]'}`}
+                  className={`w-full pl-10 pr-3 h-11 text-sm border rounded-xl focus:outline-none focus:border-gray-900 dark:focus:border-[#A3395C] transition-colors bg-white dark:bg-[#2a2029] text-gray-900 dark:text-[#F5EDE9] ${errors.nombre ? 'border-red-300 dark:border-red-500/50 bg-red-50 dark:bg-red-950/30' : 'border-gray-200 dark:border-[#453840]'}`}
                   placeholder="Tu nombre completo"
                   style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} />
               </div>
@@ -417,7 +459,7 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
                     if (val && !/^\d*$/.test(val)) { setErrors(p => ({ ...p, telefono: 'Solo se permiten números' })); return; }
                     setFormData(p => ({ ...p, telefono: val })); setErrors(p => ({ ...p, telefono: '' }));
                   }}
-                  className={`w-full pl-10 pr-3 h-11 text-sm border focus:outline-none focus:border-gray-900 dark:focus:border-[#A3395C] transition-colors bg-white dark:bg-[#2a2029] text-gray-900 dark:text-[#F5EDE9] ${errors.telefono ? 'border-red-300 dark:border-red-500/50 bg-red-50 dark:bg-red-950/30' : 'border-gray-200 dark:border-[#453840]'}`}
+                  className={`w-full pl-10 pr-3 h-11 text-sm border rounded-xl focus:outline-none focus:border-gray-900 dark:focus:border-[#A3395C] transition-colors bg-white dark:bg-[#2a2029] text-gray-900 dark:text-[#F5EDE9] ${errors.telefono ? 'border-red-300 dark:border-red-500/50 bg-red-50 dark:bg-red-950/30' : 'border-gray-200 dark:border-[#453840]'}`}
                   placeholder="3001234567"
                   style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} />
               </div>
@@ -436,7 +478,7 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
                     if (val && !/^\d*$/.test(val)) { setErrors(p => ({ ...p, documento: 'Solo se permiten números' })); return; }
                     setFormData(p => ({ ...p, documento: val })); setErrors(p => ({ ...p, documento: '' }));
                   }}
-                  className={`w-full pl-10 pr-3 h-11 text-sm border focus:outline-none focus:border-gray-900 dark:focus:border-[#A3395C] transition-colors bg-white dark:bg-[#2a2029] text-gray-900 dark:text-[#F5EDE9] ${errors.documento ? 'border-red-300 dark:border-red-500/50 bg-red-50 dark:bg-red-950/30' : 'border-gray-200 dark:border-[#453840]'}`}
+                  className={`w-full pl-10 pr-3 h-11 text-sm border rounded-xl focus:outline-none focus:border-gray-900 dark:focus:border-[#A3395C] transition-colors bg-white dark:bg-[#2a2029] text-gray-900 dark:text-[#F5EDE9] ${errors.documento ? 'border-red-300 dark:border-red-500/50 bg-red-50 dark:bg-red-950/30' : 'border-gray-200 dark:border-[#453840]'}`}
                   placeholder="Número de documento"
                   style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} />
               </div>
@@ -458,7 +500,7 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
                 <MapPin className="absolute left-3 top-3 w-4 h-4 text-gray-400 dark:text-[#b8a3ac]" />
                 <textarea value={formData.direccion}
                   onChange={e => { setFormData(p => ({ ...p, direccion: e.target.value })); setErrors(p => ({ ...p, direccion: '' })); }}
-                  className={`w-full pl-10 pr-3 py-2.5 text-sm border focus:outline-none focus:border-gray-900 dark:focus:border-[#A3395C] min-h-[44px] max-h-[80px] resize-none transition-colors bg-white dark:bg-[#2a2029] text-gray-900 dark:text-[#F5EDE9] ${errors.direccion ? 'border-red-300 dark:border-red-500/50 bg-red-50 dark:bg-red-950/30' : 'border-gray-200 dark:border-[#453840]'}`}
+                  className={`w-full pl-10 pr-3 py-2.5 text-sm border rounded-xl focus:outline-none focus:border-gray-900 dark:focus:border-[#A3395C] min-h-[44px] max-h-[80px] resize-none transition-colors bg-white dark:bg-[#2a2029] text-gray-900 dark:text-[#F5EDE9] ${errors.direccion ? 'border-red-300 dark:border-red-500/50 bg-red-50 dark:bg-red-950/30' : 'border-gray-200 dark:border-[#453840]'}`}
                   placeholder="Calle 10 # 43E – 125, Apto 301..."
                   style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} />
               </div>
@@ -469,12 +511,12 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
           {/* Acciones */}
           <div style={{ padding: '16px 32px 28px' }} className="border-t border-gray-100 dark:border-[#453840] flex justify-end gap-3 flex-shrink-0">
             <button type="button" onClick={() => setEditModalOpen(false)}
-              className="h-10 px-5 text-sm text-gray-600 dark:text-[#b8a3ac] border border-gray-200 dark:border-[#453840] hover:bg-gray-50 dark:hover:bg-[#362b34] transition-colors"
+              className="h-10 px-5 text-sm text-gray-600 dark:text-[#b8a3ac] border border-gray-200 dark:border-[#453840] hover:bg-gray-50 dark:hover:bg-[#362b34] transition-colors rounded-xl"
               style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
               Cancelar
             </button>
             <button type="button" onClick={handleSaveProfile} disabled={saving}
-              className="h-10 px-5 text-sm font-semibold text-white bg-gray-900 dark:bg-[#A3395C] hover:bg-gray-700 dark:hover:bg-[#8f2f4e] transition-colors flex items-center gap-2 disabled:opacity-50"
+              className="h-10 px-5 text-sm font-semibold text-white bg-gradient-to-r from-[#241B22] via-[#7a3350] to-[#A3395C] hover:opacity-90 transition-all flex items-center gap-2 disabled:opacity-50 rounded-xl shadow-sm"
               style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
               {saving ? 'Guardando...' : 'Guardar cambios'}
@@ -517,7 +559,7 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
                     value={passwordData[key]}
                     onChange={e => setPasswordData(p => ({ ...p, [key]: e.target.value }))}
                     placeholder={placeholder}
-                    className="w-full pl-10 pr-10 h-11 text-sm border border-gray-200 dark:border-[#453840] focus:outline-none focus:border-gray-900 dark:focus:border-[#A3395C] transition-colors bg-white dark:bg-[#2a2029] text-gray-900 dark:text-[#F5EDE9]"
+                    className="w-full pl-10 pr-10 h-11 text-sm border rounded-xl border-gray-200 dark:border-[#453840] focus:outline-none focus:border-gray-900 dark:focus:border-[#A3395C] transition-colors bg-white dark:bg-[#2a2029] text-gray-900 dark:text-[#F5EDE9]"
                     style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                   />
                   <button type="button" aria-label="Mostrar/Ocultar"
@@ -556,12 +598,12 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
           <div style={{ padding: '16px 32px 28px' }} className="border-t border-gray-100 dark:border-[#453840] flex items-center justify-end gap-3">
             <button type="button"
               onClick={() => { setPasswordModalOpen(false); setPasswordData({ current: '', new: '', confirm: '' }); }}
-              className="h-10 px-5 text-sm text-gray-600 dark:text-[#b8a3ac] border border-gray-200 dark:border-[#453840] hover:bg-gray-50 dark:hover:bg-[#362b34] transition-colors"
+              className="h-10 px-5 text-sm text-gray-600 dark:text-[#b8a3ac] border border-gray-200 dark:border-[#453840] hover:bg-gray-50 dark:hover:bg-[#362b34] transition-colors rounded-xl"
               style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
               Cancelar
             </button>
             <button type="button" onClick={handleChangePassword} disabled={saving}
-              className="h-10 px-5 text-sm font-semibold text-white bg-gray-900 dark:bg-[#A3395C] hover:bg-gray-700 dark:hover:bg-[#8f2f4e] transition-colors flex items-center gap-2 disabled:opacity-50"
+              className="h-10 px-5 text-sm font-semibold text-white bg-gradient-to-r from-[#241B22] via-[#7a3350] to-[#A3395C] hover:opacity-90 transition-all flex items-center gap-2 disabled:opacity-50 rounded-xl shadow-sm"
               style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
               {saving ? 'Guardando...' : 'Actualizar contraseña'}
