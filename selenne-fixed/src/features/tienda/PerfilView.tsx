@@ -677,11 +677,11 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
                       return (
                         <button key={pedido.pedidoID} type="button"
                           onClick={() => setPedidoSelec(pedido)}
-                          className="w-full text-left border border-gray-100 dark:border-[#453840] p-5 hover:border-gray-300 dark:hover:border-[#5a4a54] hover:bg-gray-50 dark:hover:bg-[#362b34] transition-all">
+                          className="w-full text-left rounded-xl border border-gray-100 dark:border-[#453840] p-5 hover:border-gray-300 dark:hover:border-[#5a4a54] hover:bg-gray-50 dark:hover:bg-[#362b34] transition-all">
                           <div className="flex items-start justify-between gap-4 mb-2">
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1 flex-wrap">
-                                <span className={`px-2 py-0.5 text-xs font-medium ${cfg.bg} ${cfg.text}`}>{cfg.label}</span>
+                                <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${cfg.bg} ${cfg.text}`}>{cfg.label}</span>
                               </div>
                               <p className="text-sm text-gray-500 dark:text-[#b8a3ac] flex items-center gap-1.5"
                                 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
@@ -726,9 +726,10 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
                 <div style={{ padding: '24px 32px' }} className="space-y-6">
 
                   {/* Estado + Total */}
-                  <div className="flex items-center justify-between py-4 border-b border-gray-100 dark:border-[#453840]">
-                    <span className={`px-3 py-1 text-xs font-semibold uppercase tracking-wide ${cfg.bg} ${cfg.text}`}>{cfg.label}</span>
-                    <span className="text-2xl font-black text-gray-900 dark:text-[#F5EDE9]"
+                  <div className="flex items-center justify-between rounded-xl px-5 py-4"
+                    style={{ background: 'linear-gradient(90deg, #241B22 0%, #7a3350 55%, #A3395C 100%)' }}>
+                    <span className="px-3 py-1 text-xs font-semibold uppercase tracking-wide rounded-full bg-white/15 text-white">{cfg.label}</span>
+                    <span className="text-2xl font-black text-white"
                       style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                       {fmt(pedidoSelec.total)}
                     </span>
@@ -740,8 +741,8 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
                       style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Productos</p>
                     <div className="space-y-3">
                       {(pedidoSelec.detalles ?? []).map((d, i) => (
-                        <div key={i} className="flex gap-4 border border-gray-100 dark:border-[#453840] p-4">
-                          <div className="w-16 h-16 overflow-hidden bg-gray-100 dark:bg-[#2a2029] flex-shrink-0">
+                        <div key={i} className="flex gap-4 rounded-xl border border-gray-100 dark:border-[#453840] p-4">
+                          <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 dark:bg-[#2a2029] flex-shrink-0">
                             {d.imagenProducto ? (
                               <img src={d.imagenProducto.startsWith('http') ? d.imagenProducto : `${apiBase}${d.imagenProducto}`}
                                 alt={d.productoNombre} className="w-full h-full object-cover" />
@@ -777,7 +778,7 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
                   <div>
                     <p className="text-xs font-semibold text-gray-400 dark:text-[#b8a3ac] uppercase tracking-widest mb-3"
                       style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Resumen</p>
-                    <div className="border border-gray-100 dark:border-[#453840]">
+                    <div className="rounded-xl border border-gray-100 dark:border-[#453840] overflow-hidden">
                       {[
                         { label: 'Subtotal', value: fmt(pedidoSelec.subtotal ?? 0), className: 'text-gray-600 dark:text-[#b8a3ac]' },
                         ...((pedidoSelec.descuento ?? 0) > 0 ? [{ label: 'Descuento', value: `-${fmt(pedidoSelec.descuento ?? 0)}`, className: 'text-green-600 dark:text-green-400' }] : []),
@@ -799,7 +800,7 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
                   <div>
                     <p className="text-xs font-semibold text-gray-400 dark:text-[#b8a3ac] uppercase tracking-widest mb-3"
                       style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Envío</p>
-                    <div className="border border-gray-100 dark:border-[#453840]">
+                    <div className="rounded-xl border border-gray-100 dark:border-[#453840] overflow-hidden">
                       {[
                         { icon: <CreditCard className="w-4 h-4 text-gray-400 dark:text-[#b8a3ac]" />, label: 'Método de pago', value: pedidoSelec.metodoPago },
                         { icon: <MapPin className="w-4 h-4 text-gray-400 dark:text-[#b8a3ac]" />,     label: 'Ciudad',         value: pedidoSelec.ciudad },
@@ -820,7 +821,7 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
                   </div>
 
                   {pedidoSelec.notas && (
-                    <div className="border border-gray-100 dark:border-[#453840] p-4 text-sm text-gray-600 dark:text-[#b8a3ac]"
+                    <div className="rounded-xl border border-gray-100 dark:border-[#453840] p-4 text-sm text-gray-600 dark:text-[#b8a3ac]"
                       style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                       <span className="font-semibold text-gray-900 dark:text-[#F5EDE9]">Notas: </span>{pedidoSelec.notas}
                     </div>
