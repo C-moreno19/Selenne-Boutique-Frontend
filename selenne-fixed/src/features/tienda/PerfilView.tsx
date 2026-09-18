@@ -26,6 +26,21 @@ interface PedidoApi {
   detalles?: PedidoDetalle[];
 }
 
+// Fortaleza basada en la misma política que valida el backend (9-20 caracteres,
+// ≥2 números, ≥1 carácter especial), más mayúscula+minúscula como criterio extra
+// para "Fuerte" — así la barra no puede mentir sobre una contraseña débil.
+const pwdStrength = (pwd: string): { score: number; label: string } => {
+  const criteria = [
+    pwd.length >= 9 && pwd.length <= 20,
+    (pwd.match(/\d/g) ?? []).length >= 2,
+    /[^a-zA-Z0-9\s]/.test(pwd),
+    /[a-z]/.test(pwd) && /[A-Z]/.test(pwd),
+  ];
+  const score = criteria.filter(Boolean).length;
+  const label = score <= 1 ? 'Débil' : score === 2 ? 'Regular' : score === 3 ? 'Buena' : 'Fuerte';
+  return { score, label };
+};
+
 const fmt = (n: number) =>
   new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n);
 
@@ -248,7 +263,10 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
         })),
       }));
       setPedidos(all.sort((a, b) => new Date(b.fechaPedido).getTime() - new Date(a.fechaPedido).getTime()));
-    } catch { setPedidos([]); }
+    } catch {
+      setPedidos([]);
+      toast.error('No se pudieron cargar tus pedidos. Intenta de nuevo.');
+    }
     finally { setLoadingP(false); }
   }, [user?.email]);
 
@@ -568,22 +586,25 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
                     {showPwd[key] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
-                {key === 'new' && passwordData.new.length > 0 && (
+                {key === 'new' && passwordData.new.length > 0 && (() => {
+                  const { score, label } = pwdStrength(passwordData.new);
+                  return (
                   <div className="mt-2 flex items-center gap-2">
                     <div className="flex gap-1 flex-1">
                       {[1,2,3,4].map(i => (
                         <div key={i} className={`h-1 flex-1 transition-colors ${
-                          passwordData.new.length >= i * 3
+                          score >= i
                             ? i <= 1 ? 'bg-red-400' : i <= 2 ? 'bg-yellow-400' : i <= 3 ? 'bg-blue-400' : 'bg-green-500'
                             : 'bg-gray-200 dark:bg-[#453840]'}`} />
                       ))}
                     </div>
                     <span className="text-xs text-gray-400 dark:text-[#b8a3ac] w-12 text-right"
                       style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
-                      {passwordData.new.length < 6 ? 'Débil' : passwordData.new.length < 9 ? 'Regular' : passwordData.new.length < 12 ? 'Buena' : 'Fuerte'}
+                      {label}
                     </span>
                   </div>
-                )}
+                  );
+                })()}
                 {key === 'confirm' && passwordData.confirm && passwordData.new !== passwordData.confirm && (
                   <p className="text-xs text-red-500 dark:text-red-400 mt-1.5"
                     style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
@@ -620,7 +641,7 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
           <div style={{ padding: '28px 32px 20px' }} className="border-b border-gray-100 dark:border-[#453840] flex items-start justify-between flex-shrink-0">
             <div className="flex items-center gap-3">
               {pedidoSelec && (
-                <button type="button" onClick={() => setPedidoSelec(null)}
+                <button type="button" aria-label="Volver a mis pedidos" onClick={() => setPedidoSelec(null)}
                   className="p-1 -ml-1 hover:bg-gray-100 dark:hover:bg-[#362b34] transition-colors rounded">
                   <ArrowLeft className="w-4 h-4 text-gray-500 dark:text-[#b8a3ac]" />
                 </button>
@@ -638,9 +659,9 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
                 </DialogDescription>
               </div>
             </div>
-            <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="flex items-center gap-2 flex-shrink-0 mr-8">
               {!pedidoSelec && (
-                <button type="button" title="Actualizar" onClick={cargarPedidos} disabled={loadingP}
+                <button type="button" title="Actualizar" aria-label="Actualizar pedidos" onClick={cargarPedidos} disabled={loadingP}
                   className="p-1.5 hover:bg-gray-100 dark:hover:bg-[#362b34] transition-colors rounded text-gray-400 dark:text-[#b8a3ac] disabled:opacity-40">
                   <RefreshCw className={`w-4 h-4 ${loadingP ? 'animate-spin' : ''}`} />
                 </button>
