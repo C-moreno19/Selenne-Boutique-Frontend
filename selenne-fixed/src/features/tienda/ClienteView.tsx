@@ -445,6 +445,8 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                 onClick={() =>
                   setMenuMovilAbierto(!menuMovilAbierto)
                 }
+                aria-label={menuMovilAbierto ? 'Cerrar menú' : 'Abrir menú'}
+                aria-expanded={menuMovilAbierto}
               >
                 {menuMovilAbierto ? (
                   <X className="w-6 h-6 text-[#241B22] dark:text-[#F5EDE9]" />
@@ -536,6 +538,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                       onClick={() => setBusquedaModal('')}
                       className="md:hidden p-1.5 sm:p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full transition-colors"
                       title="Buscar"
+                      aria-label="Buscar"
                     >
                       <Search className="w-[18px] h-[18px] sm:w-6 sm:h-6 text-[#241B22] dark:text-[#F5EDE9]" />
                     </button>
@@ -604,12 +607,18 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
               <button
                 onClick={() => setSubVista("perfil")}
                 className="p-1.5 sm:p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full transition-colors"
+                aria-label="Mi cuenta"
+                title="Mi cuenta"
               >
                 <User className="w-[18px] h-[18px] sm:w-6 sm:h-6 text-[#241B22] dark:text-[#F5EDE9]" />
               </button>
               <Sheet open={favoritosOpen} onOpenChange={setFavoritosOpen}>
                 <SheetTrigger asChild>
-                  <button className="p-1.5 sm:p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full transition-colors relative">
+                  <button
+                    className="p-1.5 sm:p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full transition-colors relative"
+                    aria-label="Favoritos"
+                    title="Favoritos"
+                  >
                     <Heart className="w-[18px] h-[18px] sm:w-6 sm:h-6 text-[#241B22] dark:text-[#F5EDE9]" />
                     {favoritos.length > 0 && (
                       <span className="absolute -top-1 -right-1 bg-[#A3395C] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
@@ -665,7 +674,11 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                 onOpenChange={setCarritoAbierto}
               >
                 <SheetTrigger asChild>
-                  <button className="p-1.5 sm:p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full transition-colors relative">
+                  <button
+                    className="p-1.5 sm:p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full transition-colors relative"
+                    aria-label="Carrito"
+                    title="Carrito"
+                  >
                     <ShoppingBag className="w-[18px] h-[18px] sm:w-6 sm:h-6 text-[#241B22] dark:text-[#F5EDE9]" />
                     {carritoItems.length > 0 && (
                       <span className="absolute -top-1 -right-1 bg-[#A3395C] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
@@ -818,7 +831,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
       </header>
 
       {/* Contenedor flexible para todas las vistas */}
-      <div className="flex-1 flex flex-col">
+      <main className="flex-1 flex flex-col">
         {vistaActual === "checkout" ? (
           <CheckoutView onBack={() => setSubVista(null)} />
         ) : vistaActual === "perfil" ? (
@@ -986,7 +999,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
             />
 
       {/* Grid de Productos */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="mb-4 flex justify-between items-center">
           <p
             className="text-gray-600 dark:text-[#b8a3ac]"
@@ -1139,10 +1152,10 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
             </button>
           </div>
         )}
-      </main>
+      </div>
           </>
         )}
-      </div>
+      </main>
 
       {/* Modal de Detalle del Producto - Profesional y Completo */}
       <Dialog
@@ -1182,12 +1195,12 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                 <div className="flex-1 flex flex-col gap-4 sm:gap-[18px] p-5 sm:p-9 sm:overflow-y-auto bg-white dark:bg-[#322631]">
 
                   {/* Name */}
-                  <h1
+                  <h2
                     style={{ fontFamily: '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}
                     className="text-2xl font-bold uppercase tracking-[0.01em] text-[#241B22] dark:text-[#F5EDE9] leading-tight"
                   >
                     {productoSeleccionado.nombre}
-                  </h1>
+                  </h2>
 
                   {/* Price */}
                   <div className="flex items-baseline gap-3 -mt-2" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>

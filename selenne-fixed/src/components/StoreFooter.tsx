@@ -17,15 +17,15 @@ export function StoreFooter({ telefonoContacto, onCategoriaChange }: StoreFooter
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10" style={{ fontFamily: PLAYFAIR }}>
           <div>
-            <h3 style={{ fontFamily: PLAYFAIR, color: '#ffffff' }} className="text-3xl mb-4">
+            <p style={{ fontFamily: PLAYFAIR, color: '#ffffff' }} className="text-3xl mb-4">
               Selenne Boutique
-            </h3>
+            </p>
             <p className="text-gray-300 text-base">
               Elegancia y estilo en cada prenda
             </p>
           </div>
           <div>
-            <h4 className="mb-5 text-lg font-semibold uppercase tracking-wide text-[#EFD9DF]">Compra</h4>
+            <p className="mb-5 text-lg font-semibold uppercase tracking-wide text-[#EFD9DF]">Compra</p>
             <ul className="space-y-3 text-base text-gray-300">
               <li>
                 <button onClick={() => onCategoriaChange("mujer")} className="hover:text-[#EFD9DF] transition-colors">
@@ -45,7 +45,7 @@ export function StoreFooter({ telefonoContacto, onCategoriaChange }: StoreFooter
             </ul>
           </div>
           <div>
-            <h4 className="mb-5 text-lg font-semibold uppercase tracking-wide text-[#EFD9DF]">Ayuda</h4>
+            <p className="mb-5 text-lg font-semibold uppercase tracking-wide text-[#EFD9DF]">Ayuda</p>
             <ul className="space-y-3 text-base text-gray-300">
               <li>
                 <a
@@ -70,7 +70,7 @@ export function StoreFooter({ telefonoContacto, onCategoriaChange }: StoreFooter
             </ul>
           </div>
           <div>
-            <h4 className="mb-5 text-lg font-semibold uppercase tracking-wide text-[#EFD9DF]">Síguenos</h4>
+            <p className="mb-5 text-lg font-semibold uppercase tracking-wide text-[#EFD9DF]">Síguenos</p>
             <ul className="space-y-3 text-base text-gray-300">
               <li>
                 <a href="https://www.instagram.com/selenne_boutique_?igsh=MWJtaXR0Zm85MW13ZQ==" target="_blank" rel="noopener noreferrer" className="hover:text-[#EFD9DF] transition-colors">
