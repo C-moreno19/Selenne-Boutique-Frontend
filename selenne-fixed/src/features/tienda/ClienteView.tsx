@@ -211,10 +211,12 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
     if (filtroTipoProducto && filtroTipoProducto !== 'all') c++;
     if (filtroCategoriaRopa && filtroCategoriaRopa !== 'all') c++;
     if (filtroTalla.length > 0) c++;
+    if (filtroColor) c++;
+    if (filtroMaterial) c++;
     if (filtroPrecioMin !== null) c++;
     if (filtroPrecioMax !== null) c++;
     return c;
-  }, [filtroTipoProducto, filtroCategoriaRopa, filtroTalla, filtroPrecioMin, filtroPrecioMax]);
+  }, [filtroTipoProducto, filtroCategoriaRopa, filtroTalla, filtroColor, filtroMaterial, filtroPrecioMin, filtroPrecioMax]);
 
   const handleAplicarFiltros = (f: FiltrosAplicados) => {
     setFiltroPrecioMin(f.precioMin);
@@ -222,6 +224,8 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
     setFiltroTalla(f.talla);
     setFiltroTipoProducto(f.tipoProducto);
     setFiltroCategoriaRopa(f.categoriaRopa);
+    setFiltroColor(f.color);
+    setFiltroMaterial(f.material);
     setFiltrosAbiertos(false);
   };
 
@@ -989,12 +993,16 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
               tallasDisponibles={tallasDisponibles}
               tiposProductoDisponibles={tiposProductoDisponibles}
               categoriasRopaDisponibles={categoriasRopaDisponibles}
+              coloresDisponibles={coloresDisponibles}
+              materialesDisponibles={materialesDisponibles}
               maxPrecioGlobal={maxPrecioGlobal}
               filtroPrecioMin={filtroPrecioMin}
               filtroPrecioMax={filtroPrecioMax}
               filtroTalla={filtroTalla}
               filtroTipoProducto={filtroTipoProducto}
               filtroCategoriaRopa={filtroCategoriaRopa}
+              filtroColor={filtroColor}
+              filtroMaterial={filtroMaterial}
               onAplicar={handleAplicarFiltros}
             />
 

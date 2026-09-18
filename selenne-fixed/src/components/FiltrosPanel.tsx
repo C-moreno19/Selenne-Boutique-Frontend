@@ -9,6 +9,8 @@ export interface FiltrosAplicados {
   talla: string[];
   tipoProducto: string;
   categoriaRopa: string;
+  color: string;
+  material: string;
 }
 
 interface FiltrosPanelProps {
@@ -17,12 +19,16 @@ interface FiltrosPanelProps {
   tallasDisponibles: string[];
   tiposProductoDisponibles: string[];
   categoriasRopaDisponibles: string[];
+  coloresDisponibles: string[];
+  materialesDisponibles: string[];
   maxPrecioGlobal: number;
   filtroPrecioMin: number | null;
   filtroPrecioMax: number | null;
   filtroTalla: string[];
   filtroTipoProducto: string;
   filtroCategoriaRopa: string;
+  filtroColor: string;
+  filtroMaterial: string;
   onAplicar: (filtros: FiltrosAplicados) => void;
 }
 
@@ -35,15 +41,19 @@ export function FiltrosPanel({
   tallasDisponibles,
   tiposProductoDisponibles,
   categoriasRopaDisponibles,
+  coloresDisponibles,
+  materialesDisponibles,
   maxPrecioGlobal,
   filtroPrecioMin,
   filtroPrecioMax,
   filtroTalla,
   filtroTipoProducto,
   filtroCategoriaRopa,
+  filtroColor,
+  filtroMaterial,
   onAplicar,
 }: FiltrosPanelProps) {
-  const [seccionesAbiertas, setSeccionesAbiertas] = useState({ precio: true, talla: true, tipo: true, categoria: true });
+  const [seccionesAbiertas, setSeccionesAbiertas] = useState({ precio: true, talla: true, tipo: true, categoria: true, color: true, material: true });
   const [precioMinLocal, setPrecioMinLocal] = useState(0);
   const [precioMaxLocal, setPrecioMaxLocal] = useState(0);
   const [activeRangeThumb, setActiveRangeThumb] = useState<'min' | 'max' | null>(null);
@@ -51,6 +61,8 @@ export function FiltrosPanel({
   const [tallaLocal, setTallaLocal] = useState<string[]>([]);
   const [tipoLocal, setTipoLocal] = useState("");
   const [categoriaLocal, setCategoriaLocal] = useState("");
+  const [colorLocal, setColorLocal] = useState("");
+  const [materialLocal, setMaterialLocal] = useState("");
 
   useEffect(() => {
     if (!abierto) return;
@@ -59,6 +71,8 @@ export function FiltrosPanel({
     setTallaLocal([...filtroTalla]);
     setTipoLocal(filtroTipoProducto);
     setCategoriaLocal(filtroCategoriaRopa);
+    setColorLocal(filtroColor);
+    setMaterialLocal(filtroMaterial);
     // Solo al abrir: es la inicializacion del borrador, no debe reaccionar a cambios posteriores.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [abierto]);
@@ -94,6 +108,8 @@ export function FiltrosPanel({
       talla: tallaLocal,
       tipoProducto: tipoLocal,
       categoriaRopa: categoriaLocal,
+      color: colorLocal,
+      material: materialLocal,
     });
   };
 
@@ -103,6 +119,8 @@ export function FiltrosPanel({
     setTallaLocal([]);
     setTipoLocal('');
     setCategoriaLocal('');
+    setColorLocal('');
+    setMaterialLocal('');
   };
 
   return (
@@ -231,8 +249,50 @@ export function FiltrosPanel({
             </div>
           )}
 
+          {/* COLOR */}
+          {coloresDisponibles.length > 0 && (
+            <div className="px-5 py-4 border-b border-gray-100 dark:border-[#453840]">
+              <button onClick={() => setSeccionesAbiertas(s => ({ ...s, color: !s.color }))}
+                className="w-full flex items-center justify-between mb-3">
+                <span className="text-xs font-bold tracking-widest text-gray-900 dark:text-[#F5EDE9]">COLOR</span>
+                <ChevronUp className={`w-4 h-4 text-gray-500 dark:text-[#b8a3ac] transition-transform ${seccionesAbiertas.color ? '' : 'rotate-180'}`} />
+              </button>
+              {seccionesAbiertas.color && (
+                <div className="flex flex-wrap gap-2">
+                  {coloresDisponibles.map(c => (
+                    <button key={c} onClick={() => setColorLocal(colorLocal === c ? '' : c)}
+                      className={`px-3 py-1.5 text-sm border rounded transition-colors ${colorLocal === c ? 'border-black dark:border-[#A3395C] bg-black dark:bg-[#A3395C] text-white' : 'border-gray-300 dark:border-[#453840] text-gray-700 dark:text-[#F5EDE9] hover:border-gray-900 dark:hover:border-[#A3395C]'}`}>
+                      {c}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* MATERIAL */}
+          {materialesDisponibles.length > 0 && (
+            <div className="px-5 py-4 border-b border-gray-100 dark:border-[#453840]">
+              <button onClick={() => setSeccionesAbiertas(s => ({ ...s, material: !s.material }))}
+                className="w-full flex items-center justify-between mb-3">
+                <span className="text-xs font-bold tracking-widest text-gray-900 dark:text-[#F5EDE9]">MATERIAL</span>
+                <ChevronUp className={`w-4 h-4 text-gray-500 dark:text-[#b8a3ac] transition-transform ${seccionesAbiertas.material ? '' : 'rotate-180'}`} />
+              </button>
+              {seccionesAbiertas.material && (
+                <div className="flex flex-wrap gap-2">
+                  {materialesDisponibles.map(m => (
+                    <button key={m} onClick={() => setMaterialLocal(materialLocal === m ? '' : m)}
+                      className={`px-3 py-1.5 text-sm border rounded transition-colors ${materialLocal === m ? 'border-black dark:border-[#A3395C] bg-black dark:bg-[#A3395C] text-white' : 'border-gray-300 dark:border-[#453840] text-gray-700 dark:text-[#F5EDE9] hover:border-gray-900 dark:hover:border-[#A3395C]'}`}>
+                      {m}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Limpiar filtros */}
-          {(tallaLocal.length > 0 || tipoLocal || categoriaLocal || precioMinLocal > 0 || precioMaxLocal < maxPrecioGlobal) && (
+          {(tallaLocal.length > 0 || tipoLocal || categoriaLocal || colorLocal || materialLocal || precioMinLocal > 0 || precioMaxLocal < maxPrecioGlobal) && (
             <button onClick={limpiarFiltros} className="w-full px-5 py-3 text-xs text-gray-500 dark:text-[#b8a3ac] hover:text-gray-900 dark:hover:text-[#F5EDE9] underline transition-colors">
               Limpiar filtros
             </button>

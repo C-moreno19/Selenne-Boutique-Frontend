@@ -118,6 +118,7 @@ export const ProductosView: React.FC = () => {
     if (estadoFiltro === 'publicado') list = list.filter(p => p.activo);
     if (estadoFiltro === 'no_publicado') list = list.filter(p => !p.activo);
     if (estadoFiltro === 'agotado') list = list.filter(p => p.stock === 0);
+    if (estadoFiltro === 'stock_bajo') list = list.filter(p => p.stockBajo);
     return list;
   }, [todosLosProductos, searchQuery, categoriaFiltro, estadoFiltro]);
 
@@ -483,6 +484,7 @@ export const ProductosView: React.FC = () => {
             <SelectItem value="publicado">Publicados</SelectItem>
             <SelectItem value="no_publicado">No publicados</SelectItem>
             <SelectItem value="agotado">Agotados</SelectItem>
+            <SelectItem value="stock_bajo">Stock bajo</SelectItem>
           </SelectContent>
         </Select>
         {(searchQuery || categoriaFiltro !== 'todas' || estadoFiltro !== 'todos') && (
@@ -550,7 +552,7 @@ export const ProductosView: React.FC = () => {
                   {/* Stock */}
                   <td className="px-4 py-3">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-semibold ${stockColor(p.stock)}`}>
-                      {p.stock === 0 ? 'Agotado' : `${p.stock} uds`}
+                      {p.stock === 0 ? 'Agotado' : p.stockBajo ? `${p.stock} uds · Bajo` : `${p.stock} uds`}
                     </span>
                   </td>
                   {/* Tallas / Colores */}

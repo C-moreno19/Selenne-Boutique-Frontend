@@ -53,6 +53,7 @@ export interface Producto {
   imagenes: ImagenProducto[];
   variantes: VarianteStock[];
   agotadoGeneral: boolean;
+  stockBajo: boolean;
   tallas: TallaStock[];
   materiales: string[];
   colores: ColorProducto[];

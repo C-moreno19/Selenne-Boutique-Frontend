@@ -247,10 +247,12 @@ export const LandingView: React.FC<LandingViewProps> = ({
     if (filtroTipoProducto && filtroTipoProducto !== 'all') c++;
     if (filtroCategoriaRopa && filtroCategoriaRopa !== 'all') c++;
     if (filtroTalla.length > 0) c++;
+    if (filtroColor) c++;
+    if (filtroMaterial) c++;
     if (filtroPrecioMin !== null) c++;
     if (filtroPrecioMax !== null) c++;
     return c;
-  }, [filtroTipoProducto, filtroCategoriaRopa, filtroTalla, filtroPrecioMin, filtroPrecioMax]);
+  }, [filtroTipoProducto, filtroCategoriaRopa, filtroTalla, filtroColor, filtroMaterial, filtroPrecioMin, filtroPrecioMax]);
 
   const handleAplicarFiltros = (f: FiltrosAplicados) => {
     setFiltroPrecioMin(f.precioMin);
@@ -258,6 +260,8 @@ export const LandingView: React.FC<LandingViewProps> = ({
     setFiltroTalla(f.talla);
     setFiltroTipoProducto(f.tipoProducto);
     setFiltroCategoriaRopa(f.categoriaRopa);
+    setFiltroColor(f.color);
+    setFiltroMaterial(f.material);
     setFiltrosAbiertos(false);
   };
 
@@ -957,12 +961,16 @@ export const LandingView: React.FC<LandingViewProps> = ({
           tallasDisponibles={tallasDisponibles}
           tiposProductoDisponibles={tiposProductoDisponibles}
           categoriasRopaDisponibles={categoriasRopaDisponibles}
+          coloresDisponibles={coloresDisponibles}
+          materialesDisponibles={materialesDisponibles}
           maxPrecioGlobal={maxPrecioGlobal}
           filtroPrecioMin={filtroPrecioMin}
           filtroPrecioMax={filtroPrecioMax}
           filtroTalla={filtroTalla}
           filtroTipoProducto={filtroTipoProducto}
           filtroCategoriaRopa={filtroCategoriaRopa}
+          filtroColor={filtroColor}
+          filtroMaterial={filtroMaterial}
           onAplicar={handleAplicarFiltros}
         />
 
