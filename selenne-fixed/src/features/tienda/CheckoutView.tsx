@@ -357,9 +357,11 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
 
   const handleFinalizarCompra = async () => {
     if (enviandoPedido) return;
-    setEnviandoPedido(true);
 
-    if (carritoItems.length === 0) { setEnviandoPedido(false); toast.error('Tu carrito está vacío.'); return; }
+    // Validaciones primero: si alguna falla, ni siquiera se marca
+    // enviandoPedido=true, asi el usuario puede corregir y reintentar
+    // sin que el boton quede bloqueado.
+    if (carritoItems.length === 0) { toast.error('Tu carrito está vacío.'); return; }
     if (!datosEnvio.nombre?.trim()) { toast.error('Por favor completa tu nombre completo.'); return; }
     if (!datosEnvio.documento?.trim()) { toast.error('Por favor ingresa tu documento.'); return; }
     if (!datosEnvio.email?.trim()) { toast.error('Por favor ingresa tu correo.'); return; }
@@ -375,6 +377,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
     const total = getTotalCarrito();
     if (total <= 0) { toast.error('El monto debe ser mayor a $0.'); return; }
 
+    setEnviandoPedido(true);
     try {
       // 1. Crear pedido en la API
       const pedidoRes = await postJson('/api/pedidos', {
@@ -401,11 +404,21 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
 
       const pedidoID = pedidoRes?.data?.pedidoId || pedidoRes?.pedidoId;
 
-      // 2. Si hay comprobante, subirlo
+      // 2. Si hay comprobante, subirlo. El pedido ya existe en este punto,
+      // asi que si esto falla NO es un fallo de "crear el pedido" — hay que
+      // avisar distinto para que el usuario no reintente y duplique el pedido.
       if (comprobante && pedidoID) {
-        const formData = new FormData();
-        formData.append('archivo', comprobante);
-        await postForm(`/api/pedidos/${pedidoID}/comprobante`, formData);
+        try {
+          const formData = new FormData();
+          formData.append('archivo', comprobante);
+          await postForm(`/api/pedidos/${pedidoID}/comprobante`, formData);
+        } catch (uploadErr) {
+          console.error('Error subiendo comprobante:', uploadErr);
+          limpiarCarrito();
+          toast.error('Tu pedido #' + pedidoID + ' quedó registrado, pero no se pudo subir el comprobante. Escríbenos por WhatsApp para enviarlo.');
+          setTimeout(() => { onBack(); }, 3000);
+          return;
+        }
       }
 
       // 3. Limpiar carrito y mostrar éxito
