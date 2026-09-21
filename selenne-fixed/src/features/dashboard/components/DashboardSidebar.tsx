@@ -59,7 +59,8 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
         { id: 'marcas', label: 'Marcas' },
         { id: 'categorias', label: 'Categorías' },
         { id: 'tipos-producto', label: 'Tipos de Producto' },
-        { id: 'resenas', label: 'Reseñas' }
+        { id: 'resenas', label: 'Reseñas' },
+        { id: 'cupones', label: 'Cupones' }
       ]
     },
     { 

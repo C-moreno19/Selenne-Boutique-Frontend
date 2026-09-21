@@ -23,6 +23,7 @@ import { MarcasView } from '../pages/MarcasView';
 import { TiposProductoView } from '../pages/TiposProductoView';
 import { NotificacionesAdminView } from '../pages/NotificacionesAdminView';
 import { ResenasView } from '../pages/ResenasView';
+import { CuponesView } from '../pages/CuponesView';
 import { useAuth } from '../../../shared/contexts/AuthContext';
 import { usePermisos } from '../../../shared/contexts/PermisosContext';
 import { useSidebar } from '../../../shared/contexts/SidebarContext';
@@ -38,6 +39,7 @@ export type DashboardSection =
   | 'marcas'
   | 'tipos-producto'
   | 'resenas'
+  | 'cupones'
   | 'roles'
   | 'usuarios'
   | 'ventas'
@@ -139,6 +141,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onLogout }) => {
         return <TiposProductoView />;
       case 'resenas':
         return <ResenasView />;
+      case 'cupones':
+        return <CuponesView />;
       case 'roles':
         return <RolesView />;
       case 'usuarios':

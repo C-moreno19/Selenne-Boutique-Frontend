@@ -89,6 +89,9 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
   });
   const [comprobante, setComprobante] = useState<File | null>(null);
   const [comprobantePreview, setComprobantePreview] = useState<string | null>(null);
+  const [cuponInput, setCuponInput] = useState('');
+  const [cuponAplicado, setCuponAplicado] = useState<{ codigo: string; montoDescuento: number } | null>(null);
+  const [validandoCupon, setValidandoCupon] = useState(false);
   const [errores, setErrores] = useState({
     nombre: '',
     documento: '',
@@ -309,6 +312,26 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
     if (validarPasoEnvio()) setPaso('pago');
   };
 
+  const handleAplicarCupon = async () => {
+    if (!cuponInput.trim()) { toast.error('Ingresa un código de cupón'); return; }
+    setValidandoCupon(true);
+    try {
+      const res: any = await postJson('/api/cupones/validar', { Codigo: cuponInput.trim(), Subtotal: getTotalCarrito() });
+      const data = res?.data || res;
+      setCuponAplicado({ codigo: data.codigo, montoDescuento: data.montoDescuento });
+      toast.success(`Cupón "${data.codigo}" aplicado`);
+    } catch (e: any) {
+      toast.error(e?.data?.message || 'Cupón inválido');
+    } finally {
+      setValidandoCupon(false);
+    }
+  };
+
+  const handleQuitarCupon = () => {
+    setCuponAplicado(null);
+    setCuponInput('');
+  };
+
   const handleFinalizarCompra = async () => {
     if (enviandoPedido) return;
 
@@ -328,7 +351,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
       return;
     }
 
-    const total = getTotalCarrito();
+    const total = getTotalCarrito() - (cuponAplicado?.montoDescuento ?? 0);
     if (total <= 0) { toast.error('El monto debe ser mayor a $0.'); return; }
 
     setEnviandoPedido(true);
@@ -346,6 +369,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
         CodigoPostal: '',
         MetodoPago: metodoPago === 'transferencia' ? 'transferencia' : 'contraentrega',
         Notas: datosEnvio.notas || '',
+        CuponCodigo: cuponAplicado?.codigo || null,
         Items: carritoItems.map(item => ({
           ProductoID: item.id,
           Cantidad: item.cantidad,
@@ -896,11 +920,48 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
 
               <Separator className="my-4" />
 
+              {/* Cupón de descuento */}
+              <div className="mb-4">
+                {cuponAplicado ? (
+                  <div className="flex items-center justify-between bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-900 rounded-lg px-3 py-2">
+                    <span className="text-sm text-green-700 dark:text-green-400 font-medium">
+                      Cupón "{cuponAplicado.codigo}" aplicado
+                    </span>
+                    <button onClick={handleQuitarCupon} className="text-green-700 dark:text-green-400 hover:opacity-70">
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <Input
+                      value={cuponInput}
+                      onChange={(e) => setCuponInput(e.target.value.toUpperCase())}
+                      placeholder="Código de descuento"
+                      className="flex-1 h-9 text-sm"
+                    />
+                    <Button
+                      onClick={handleAplicarCupon}
+                      disabled={validandoCupon || !cuponInput.trim()}
+                      variant="outline"
+                      className="h-9 text-sm px-4 disabled:opacity-50"
+                    >
+                      {validandoCupon ? '...' : 'Aplicar'}
+                    </Button>
+                  </div>
+                )}
+              </div>
+
               <div className="space-y-2 mb-4">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600 dark:text-[#b8a3ac]">Subtotal:</span>
                   <span className="text-gray-900 dark:text-[#F5EDE9]">{formatPrecio(getTotalCarrito())}</span>
                 </div>
+                {cuponAplicado && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600 dark:text-[#b8a3ac]">Descuento:</span>
+                    <span className="text-green-600 dark:text-emerald-400">-{formatPrecio(cuponAplicado.montoDescuento)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600 dark:text-[#b8a3ac]">Envío:</span>
                   <span className="text-green-600 dark:text-emerald-400">Gratis</span>
@@ -920,7 +981,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                   style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                   className="text-xl text-[#A3395C]"
                 >
-                  {formatPrecio(getTotalCarrito())}
+                  {formatPrecio(getTotalCarrito() - (cuponAplicado?.montoDescuento ?? 0))}
                 </span>
               </div>
 
