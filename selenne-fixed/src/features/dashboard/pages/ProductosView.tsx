@@ -300,7 +300,11 @@ export const ProductosView: React.FC = () => {
       setForm(f => ({ ...f, tallasSeleccionadas: f.tallasSeleccionadas.filter(t => t !== nombre), variantes: f.variantes.filter(v => v.tallaNombre !== nombre) }));
     } else {
       setForm(f => {
-        const defaultStock = Math.max(1, Number(f.stock) || 1);
+        // Las variantes NUEVAS arrancan en 0 — el campo "Stock" es el total a
+        // repartir entre combinaciones, no el valor de cada una (si se copiara
+        // el total a cada combinación, el stock se multiplicaría en vez de
+        // repartirse). El admin distribuye manualmente con el contador
+        // "X / Y unidades distribuidas" de más abajo como guía.
         // Talla unica es excluyente con el resto: al elegir una se descarta la otra.
         const tallasSeleccionadas = esTallaUnica(nombre)
           ? [nombre]
@@ -309,11 +313,11 @@ export const ProductosView: React.FC = () => {
         if (f.coloresSeleccionados.length === 0) {
           // Sin colores: variante solo por talla
           if (!newVariantes.find(v => v.tallaNombre === nombre && !v.colorNombre))
-            newVariantes.push({ tallaNombre: nombre, colorNombre: '', stock: defaultStock });
+            newVariantes.push({ tallaNombre: nombre, colorNombre: '', stock: 0 });
         } else {
           f.coloresSeleccionados.forEach(color => {
             if (!newVariantes.find(v => v.tallaNombre === nombre && v.colorNombre === color))
-              newVariantes.push({ tallaNombre: nombre, colorNombre: color, stock: defaultStock });
+              newVariantes.push({ tallaNombre: nombre, colorNombre: color, stock: 0 });
           });
         }
         return { ...f, tallasSeleccionadas, variantes: newVariantes };
@@ -326,21 +330,27 @@ export const ProductosView: React.FC = () => {
       setForm(f => {
         const restantesColores = f.coloresSeleccionados.filter(c => c !== nombre);
         let newVariantes = f.variantes.filter(v => v.colorNombre !== nombre);
-        // Si queda sin colores, recrear variantes sin color para las tallas seleccionadas
+        // Si queda sin colores, recrear variantes sin color para las tallas
+        // seleccionadas conservando lo que ya estaba repartido por talla
+        // (sumando sus colores), en vez de resetear al total del producto.
         if (restantesColores.length === 0) {
-          const defaultStock = Math.max(1, Number(f.stock) || 1);
-          newVariantes = f.tallasSeleccionadas.map(talla => ({ tallaNombre: talla, colorNombre: '', stock: defaultStock }));
+          newVariantes = f.tallasSeleccionadas.map(talla => ({
+            tallaNombre: talla,
+            colorNombre: '',
+            stock: f.variantes.filter(v => v.tallaNombre === talla).reduce((s, v) => s + (Number(v.stock) || 0), 0),
+          }));
         }
         return { ...f, coloresSeleccionados: restantesColores, variantes: newVariantes };
       });
     } else {
       setForm(f => {
-        const defaultStock = Math.max(1, Number(f.stock) || 1);
+        // Ver nota en toggleTalla: las variantes nuevas arrancan en 0, no en
+        // el total del producto, para no multiplicar el stock.
         // Quitar variantes sin color (reemplazadas por las de color específico)
         const newVariantes = f.variantes.filter(v => v.colorNombre !== '');
         f.tallasSeleccionadas.forEach(talla => {
           if (!newVariantes.find(v => v.tallaNombre === talla && v.colorNombre === nombre))
-            newVariantes.push({ tallaNombre: talla, colorNombre: nombre, stock: defaultStock });
+            newVariantes.push({ tallaNombre: talla, colorNombre: nombre, stock: 0 });
         });
         return { ...f, coloresSeleccionados: [...f.coloresSeleccionados, nombre], variantes: newVariantes };
       });
