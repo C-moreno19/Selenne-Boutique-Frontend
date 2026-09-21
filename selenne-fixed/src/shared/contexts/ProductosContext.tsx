@@ -27,6 +27,8 @@ interface RawProducto {
   variantes?: RawVarianteItem[]; Variantes?: RawVarianteItem[];
   agotadoGeneral?: boolean; AgotadoGeneral?: boolean;
   stockBajo?: boolean; StockBajo?: boolean;
+  promedioValoracion?: number | null; PromedioValoracion?: number | null;
+  totalValoraciones?: number; TotalValoraciones?: number;
   colores?: RawNombreItem[]; Colores?: RawNombreItem[];
   materiales?: RawNombreItem[]; Materiales?: RawNombreItem[];
   tipoNombre?: string; TipoNombre?: string; tipoProducto?: string;
@@ -62,6 +64,8 @@ export interface ProductoAdmin {
   agotado: boolean;
   agotadoGeneral: boolean;
   stockBajo: boolean;
+  promedioValoracion: number | null;
+  totalValoraciones: number;
   materiales: string[];
   tipoProducto: string;
   descripcion: string;
@@ -193,6 +197,8 @@ function mapProducto(p: RawProducto): ProductoAdmin {
     })(),
     agotadoGeneral: p.agotadoGeneral ?? p.AgotadoGeneral ?? (p.stock ?? p.Stock ?? 0) <= 0,
     stockBajo: p.stockBajo ?? p.StockBajo ?? false,
+    promedioValoracion: p.promedioValoracion ?? p.PromedioValoracion ?? null,
+    totalValoraciones: p.totalValoraciones ?? p.TotalValoraciones ?? 0,
     colores: (() => {
       const c = p.colores ?? p.Colores ?? [];
       return Array.isArray(c) ? c.map((x) => (typeof x === 'string' ? x : (x.nombre ?? x.Nombre ?? String(x)))).filter(Boolean) : [];

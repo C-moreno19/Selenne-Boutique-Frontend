@@ -97,17 +97,23 @@ export const FavoritosView: React.FC<FavoritosViewProps> = ({
                 </div>
                 <div className="p-4">
                   <div className="flex items-center mb-2">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`w-4 h-4 ${
-                          i < Math.floor(producto.rating ?? 0)
-                            ? 'fill-yellow-400 text-yellow-400'
-                            : 'text-gray-300'
-                        }`}
-                      />
-                    ))}
-                    <span className="text-xs text-gray-500 ml-2">{producto.rating}</span>
+                    {(producto.totalValoraciones ?? 0) > 0 ? (
+                      <>
+                        {[...Array(5)].map((_, i) => (
+                          <Star
+                            key={i}
+                            className={`w-4 h-4 ${
+                              i < Math.round(producto.rating ?? 0)
+                                ? 'fill-yellow-400 text-yellow-400'
+                                : 'text-gray-300'
+                            }`}
+                          />
+                        ))}
+                        <span className="text-xs text-gray-500 ml-2">{(producto.rating ?? 0).toFixed(1)} ({producto.totalValoraciones})</span>
+                      </>
+                    ) : (
+                      <span className="text-xs text-gray-400">Sin reseñas aún</span>
+                    )}
                   </div>
                   <h3 className="text-gray-900 mb-2 h-12 line-clamp-2 font-inter">{producto.nombre}</h3>
                   <div className="flex items-center gap-2 mb-3">

@@ -61,6 +61,19 @@ export interface Producto {
   totalValoraciones: number;
 }
 
+export interface Valoracion {
+  valoracionID: number;
+  productoID: number;
+  productoNombre?: string | null;
+  usuarioID: number;
+  nombreUsuario: string;
+  puntuacion: number;
+  comentario?: string | null;
+  verificadoCompra: boolean;
+  fechaCreacion: string;
+  estado: string;
+}
+
 export type UserRole = 'Administrador' | 'Empleado' | 'Cliente';
 
 export interface Usuario {

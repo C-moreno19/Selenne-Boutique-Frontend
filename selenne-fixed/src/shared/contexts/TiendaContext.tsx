@@ -17,6 +17,7 @@ export interface Producto {
   colores?: string[];
   materiales?: string[];
   rating: number;
+  totalValoraciones?: number;
   badge?: string | null;
   nuevo: boolean;
   descripcion?: string;

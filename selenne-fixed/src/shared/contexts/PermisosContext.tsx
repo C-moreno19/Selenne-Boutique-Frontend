@@ -24,6 +24,7 @@ const sectionToPermiso: { [key: string]: string } = {
   'materiales':        'productos:ver',
   'marcas':            'productos:ver',
   'tipos-producto':    'productos:ver',
+  'resenas':           'productos:ver',
   'ventas':            'ventas:ver',
   'nueva-venta':       'ventas:crear',
   'pedidos':           'pedidos:ver',

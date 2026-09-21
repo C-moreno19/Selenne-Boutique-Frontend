@@ -53,6 +53,7 @@ import { StoreFooter } from "../../components/StoreFooter";
 import { FiltrosPanel, type FiltrosAplicados } from "../../components/FiltrosPanel";
 import { EstadoVacioProductos } from "../../components/EstadoVacioProductos";
 import { ImageCarousel } from "../../components/figma/ImageCarousel";
+import { ResenasProducto } from "../../components/ResenasProducto";
 import { useProductosCombinados } from "../../shared/data/useProductosCombinados";
 import { useProductos } from "../../shared/contexts/ProductosContext";
 import { useTienda } from "../../shared/contexts/TiendaContext";
@@ -1371,6 +1372,14 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                   >
                     Comprar Ahora
                   </button>
+
+                  <Separator />
+                  <ResenasProducto
+                    productoId={productoSeleccionado.id}
+                    promedio={productoSeleccionado.rating ?? 0}
+                    total={productoSeleccionado.totalValoraciones ?? 0}
+                    puedeEscribir={!!user}
+                  />
                 </div>
               </div>
             );
