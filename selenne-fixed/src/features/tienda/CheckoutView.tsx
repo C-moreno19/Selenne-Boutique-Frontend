@@ -198,11 +198,6 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
       return;
     }
 
-    if (!passwordIngresado) {
-      toast.error('Por favor ingresa tu contraseña');
-      return;
-    }
-
     // Validar formato de email básico
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(emailIngresado)) {
@@ -212,74 +207,33 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
 
     setValidandoEmail(true);
 
-    // Primero intentar validar vía API (si existe). Si falla, usar fallback localStorage.
     (async () => {
-     try {
       try {
-        if (loginAsync) {
-          const ok = await loginAsync(emailIngresado, passwordIngresado);
-          if (ok) {
-            toast.success('Sesión iniciada correctamente.');
-            setEmailValidado(true);
-            setPaso('envio');
+        // Si escribió contraseña, intenta iniciar sesión con esa cuenta
+        // existente. Sin contraseña, continúa como invitado con este email
+        // — el backend crea o reutiliza la cuenta mínima al confirmar el pedido.
+        if (passwordIngresado && loginAsync) {
+          let ok = false;
+          try {
+            ok = await loginAsync(emailIngresado, passwordIngresado);
+          } catch (e) {
+            ok = false;
+          }
+          if (!ok) {
+            toast.error('Contraseña incorrecta. Revisa e intenta nuevamente, o deja el campo vacío para continuar como invitado.');
             return;
           }
-        }
-      } catch (e) {
-        // ignore and fallback
-      }
-
-      // Fallback local
-      try {
-        const stored = localStorage.getItem('selenne_clientes');
-        const list = stored ? JSON.parse(stored) : [];
-        const found = list.find((c: any) => c && c.email && c.email.toLowerCase() === emailIngresado.toLowerCase());
-
-        const usersRaw = localStorage.getItem('selenne_users');
-        const users = usersRaw ? JSON.parse(usersRaw) : [];
-        const matchedUser = users.find((u: any) => u && u.email && u.email.toLowerCase() === emailIngresado.toLowerCase());
-
-        if (found) {
-          // Si existe un usuario con credenciales, validar contraseña
-          if (matchedUser) {
-            const passFinal = matchedUser.passwordFinal;
-            const passTemp = matchedUser.passwordTemporal;
-            const ok = (passFinal && passFinal === passwordIngresado) || (passTemp && passTemp === passwordIngresado);
-            if (!ok) {
-              toast.error('Contraseña incorrecta. Revisa e intenta nuevamente.');
-              return;
-            }
-            // Si coincide, guardar la contraseña en el estado de envío si aplica
-            setDatosEnvio(prev => ({ ...prev, password: passFinal || passTemp || prev.password }));
-          }
-
-          setClienteExistente(true);
-          setDatosEnvio(prev => ({
-            ...prev,
-            nombre: found.nombre || prev.nombre,
-            documento: found.documento || prev.documento,
-            email: found.email || prev.email,
-            direccion: found.direccion || prev.direccion,
-            telefono: found.telefono || prev.telefono,
-          }));
-          toast.success('Cliente encontrado. Datos rellenados automáticamente.');
+          toast.success('Sesión iniciada correctamente.');
         } else {
-          // No existe cliente: guardar email y contraseña para crear la cuenta al finalizar
           setClienteExistente(false);
-          setDatosEnvio(prev => ({ ...prev, email: emailIngresado, password: passwordIngresado }));
-          toast.info('Cliente no registrado. Completa todos los datos para finalizar la compra.');
+          setDatosEnvio(prev => ({ ...prev, email: emailIngresado }));
         }
-      } catch (e) {
-        setClienteExistente(false);
-        setDatosEnvio(prev => ({ ...prev, email: emailIngresado, password: passwordIngresado }));
-        toast.info('Cliente no registrado. Completa todos los datos para finalizar la compra.');
-      }
 
-      setEmailValidado(true);
-      setPaso('envio');
-     } finally {
-       setValidandoEmail(false);
-     }
+        setEmailValidado(true);
+        setPaso('envio');
+      } finally {
+        setValidandoEmail(false);
+      }
     })();
   };
 
@@ -516,7 +470,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                   Validar Correo Electrónico
                 </h2>
                 <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-600 dark:text-[#b8a3ac] mb-6">
-                  Ingresa tu correo electrónico para continuar con la compra. Si ya tienes una cuenta, se rellenarán automáticamente tus datos.
+                  Puedes comprar sin crear una cuenta. Si ya tienes una, inicia sesión con tu contraseña para que se rellenen tus datos automáticamente.
                 </p>
                 <div className="space-y-4">
                   <div>
@@ -531,23 +485,23 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="password-validar">Contraseña *</Label>
+                    <Label htmlFor="password-validar">Contraseña (opcional)</Label>
                     <Input
                       id="password-validar"
                       type="password"
                       value={passwordIngresado}
                       onChange={(e) => setPasswordIngresado(e.target.value)}
-                      placeholder="Tu contraseña"
+                      placeholder="Solo si ya tienes una cuenta"
                       className="mt-1"
                     />
                   </div>
                   <Button
                     onClick={handleValidarEmail}
-                    disabled={validandoEmail || !emailIngresado || !passwordIngresado}
+                    disabled={validandoEmail || !emailIngresado}
                     className="w-full text-white border-0 disabled:opacity-50 transition-transform hover:scale-[1.02]"
                     style={{ background: 'linear-gradient(90deg, #241B22 0%, #7a3350 55%, #A3395C 100%)' }}
                   >
-                    {validandoEmail ? 'Validando...' : 'Continuar con mi Email'}
+                    {validandoEmail ? 'Validando...' : 'Continuar'}
                   </Button>
                   {cambiandoEmail && (
                     <Button

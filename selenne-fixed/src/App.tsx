@@ -91,6 +91,7 @@ function MainApp() {
                   onNavigateToLogin={() => navigate('/login')}
                   onNavigateToRegister={() => navigate('/registro')}
                   onNavigateToLoginForCheckout={() => { setPendingCheckout(true); navigate('/login'); }}
+                  onNavigateToCheckout={() => navigate('/checkout')}
                 />
               }
             />
@@ -101,6 +102,7 @@ function MainApp() {
                   onNavigateToLogin={() => navigate('/login')}
                   onNavigateToRegister={() => navigate('/registro')}
                   onNavigateToLoginForCheckout={() => { setPendingCheckout(true); navigate('/login'); }}
+                  onNavigateToCheckout={() => navigate('/checkout')}
                 />
               }
             />

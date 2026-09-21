@@ -109,7 +109,6 @@ export const LandingView: React.FC<LandingViewProps> = ({
   const [filtroCategoriaRopa, setFiltroCategoriaRopa] = useState<string>("");
   const [filtroPrecioMin, setFiltroPrecioMin] = useState<number | null>(null);
   const [filtroPrecioMax, setFiltroPrecioMax] = useState<number | null>(null);
-  const [mostrarModalLoginCarrito, setMostrarModalLoginCarrito] = useState(false);
   const [paginaActual, setPaginaActual] = useState(1);
   const PRODUCTOS_POR_PAGINA = 12;
   const [filtrosAbiertos, setFiltrosAbiertos] = useState(false);
@@ -350,13 +349,12 @@ export const LandingView: React.FC<LandingViewProps> = ({
   const handleAgregarAlCarrito = () => {
     if (!productoSeleccionado || !tallaSeleccionada) return;
     agregarAlCarrito(productoSeleccionado, tallaSeleccionada, colorSeleccionado, cantidadSeleccionada);
-    setMostrarModalLoginCarrito(true);
   };
 
   const handleComprarAhora = () => {
     if (!productoSeleccionado || !tallaSeleccionada) return;
     agregarAlCarrito(productoSeleccionado, tallaSeleccionada, colorSeleccionado, cantidadSeleccionada);
-    setMostrarModalLoginCarrito(true);
+    onNavigateToCheckout?.();
   };
 
   return (
@@ -745,7 +743,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                         <Button
                           onClick={() => {
                             setCarritoAbierto(false);
-                            setMostrarModalLoginCarrito(true);
+                            onNavigateToCheckout?.();
                           }}
                           className="w-full bg-black hover:bg-gray-800 text-white h-11 transition-all duration-200 hover:scale-[1.02]"
                           style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
@@ -1388,43 +1386,6 @@ export const LandingView: React.FC<LandingViewProps> = ({
         </DialogContent>
       </Dialog>
 
-
-      {/* Modal Login para Carrito / Compra */}
-      <Dialog open={mostrarModalLoginCarrito} onOpenChange={setMostrarModalLoginCarrito}>
-        <DialogContent className="max-w-xs w-[90vw] rounded-2xl p-6 text-center">
-          <DialogDescription className="sr-only">Iniciar sesión para continuar con la compra</DialogDescription>
-          <div className="flex justify-center mb-3">
-            <div className="w-12 h-12 rounded-full bg-[#EFD9DF] dark:bg-[#3a2530] flex items-center justify-center">
-              <ShoppingBag className="w-5 h-5 text-[#A3395C]" />
-            </div>
-          </div>
-          <DialogHeader className="mb-1">
-            <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xl text-[#241B22] dark:text-[#F5EDE9]">
-              ¡Un paso más!
-            </DialogTitle>
-          </DialogHeader>
-          <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-[#7d6f77] dark:text-[#b8a3ac] mb-5">
-            Para agregar productos al carrito y realizar compras necesitas iniciar sesión.
-          </p>
-          <div className="space-y-2">
-            <Button
-              onClick={() => { setMostrarModalLoginCarrito(false); (onNavigateToLoginForCheckout ?? onNavigateToLogin)(); }}
-              className="w-full bg-[#A3395C] hover:bg-[#8a2e4d] text-white h-10 text-sm"
-              style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-            >
-              Iniciar Sesión
-            </Button>
-            <Button
-              onClick={() => { setMostrarModalLoginCarrito(false); onNavigateToRegister(); }}
-              variant="outline"
-              className="w-full border-[#E7E0DA] dark:border-[#453840] text-[#241B22] dark:text-[#F5EDE9] hover:bg-[#FBF8F5] dark:hover:bg-[#2a2029] h-10 text-sm"
-              style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-            >
-              Crear cuenta
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
 
       <StoreFooter telefonoContacto={telefonoContacto} onCategoriaChange={irATienda} />
     </div>
