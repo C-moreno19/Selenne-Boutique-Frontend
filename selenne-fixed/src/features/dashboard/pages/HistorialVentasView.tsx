@@ -20,6 +20,7 @@ const estadoColor = (e: string) => {
   if (e === 'Completado' || e === 'Completada') return 'bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-400';
   if (e === 'Enviado') return 'bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400';
   if (e === 'Rechazado' || e === 'Rechazada') return 'bg-orange-100 dark:bg-orange-950/40 text-orange-700 dark:text-orange-400';
+  if (e === 'Devuelto') return 'bg-purple-100 dark:bg-purple-950/40 text-purple-700 dark:text-purple-400';
   return 'bg-red-100 dark:bg-red-950/40 text-red-700 dark:text-red-400';
 };
 const estadoBadgeClass = (e: string) => {
@@ -27,6 +28,7 @@ const estadoBadgeClass = (e: string) => {
   if (e === 'Enviado') return 'bg-[#FBF8F5] dark:bg-[#2a2029] text-[#A3395C] border-pink-200 dark:border-[#3a2530]';
   if (e === 'Aprobado' || e === 'Aprobada') return 'bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-900/50';
   if (e === 'Rechazado' || e === 'Rechazada') return 'bg-orange-50 dark:bg-orange-950/40 text-orange-600 dark:text-orange-400 border-orange-200 dark:border-orange-900/50';
+  if (e === 'Devuelto') return 'bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 border-purple-200 dark:border-purple-900/50';
   return 'bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 border-red-200 dark:border-red-900/50';
 };
 
@@ -43,6 +45,8 @@ export const HistorialVentasView: React.FC<HistorialVentasViewProps> = ({ onBack
   const [selectedPedido, setSelectedPedido] = useState<Pedido | null>(null);
   const [viewOpen, setViewOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [devolucionOpen, setDevolucionOpen] = useState(false);
+  const [motivoDevolucion, setMotivoDevolucion] = useState('');
 
   const loadData = useCallback(async () => {
     try {
@@ -60,7 +64,7 @@ export const HistorialVentasView: React.FC<HistorialVentasViewProps> = ({ onBack
           talla: d.talla ?? '', color: d.color ?? '',
         })),
       }));
-      setPedidos(all.filter((p: Pedido) => ['Completado', 'Completada', 'Enviado', 'Cancelado', 'Cancelada', 'Rechazado', 'Rechazada'].includes(p.estado)));
+      setPedidos(all.filter((p: Pedido) => ['Completado', 'Completada', 'Enviado', 'Cancelado', 'Cancelada', 'Rechazado', 'Rechazada', 'Devuelto'].includes(p.estado)));
     } catch { toast.error('Error cargando historial'); }
     finally { setLoading(false); }
   }, []);
@@ -84,6 +88,21 @@ export const HistorialVentasView: React.FC<HistorialVentasViewProps> = ({ onBack
       setViewOpen(false);
       loadData();
     } catch { toast.error('Error actualizando estado'); }
+    finally { setSaving(false); }
+  };
+
+  const marcarDevuelto = async () => {
+    if (!selectedPedido) return;
+    setSaving(true);
+    try {
+      await api.fetchWithAuth(`/api/pedidos/${selectedPedido.pedidoID}/estado`, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ NuevoEstado: 'Devuelto', Notas: motivoDevolucion || null }),
+      });
+      toast.success('Pedido marcado como devuelto');
+      setDevolucionOpen(false); setViewOpen(false); setMotivoDevolucion('');
+      loadData();
+    } catch (e: any) { toast.error(e?.data?.message || 'Error registrando la devolución'); }
     finally { setSaving(false); }
   };
 
@@ -301,6 +320,13 @@ export const HistorialVentasView: React.FC<HistorialVentasViewProps> = ({ onBack
                 Marcar completado
               </button>
             )}
+            {(selectedPedido?.estado === 'Completado' || selectedPedido?.estado === 'Completada') && (
+              <button type="button" onClick={() => setDevolucionOpen(true)} disabled={saving}
+                className="flex items-center gap-2 px-5 py-2 text-white text-sm font-semibold rounded-full disabled:opacity-50 transition-all hover:opacity-90 shadow-md"
+                style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%)' }}>
+                Marcar como devuelto
+              </button>
+            )}
             <button type="button" onClick={() => setViewOpen(false)}
               className="px-6 py-2 rounded-full border border-[#E7E0DA] dark:border-[#453840] bg-white dark:bg-[#322631] text-gray-500 dark:text-[#b8a3ac] text-sm font-medium hover:bg-[#FBF8F5] dark:hover:bg-[#362b34] transition-all shadow-sm">
               Cerrar
@@ -327,6 +353,37 @@ export const HistorialVentasView: React.FC<HistorialVentasViewProps> = ({ onBack
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Modal Devolución */}
+      <Dialog open={devolucionOpen} onOpenChange={v => { if (!saving) { setDevolucionOpen(v); if (!v) setMotivoDevolucion(''); } }}>
+        <DialogContent className="max-w-md p-0 overflow-hidden gap-0">
+          <div className="px-6 pt-6 pb-4 border-b border-[#E7E0DA] dark:border-[#453840]">
+            <DialogTitle className="text-xl font-semibold text-[#241B22] dark:text-[#F5EDE9]">Marcar como devuelto</DialogTitle>
+            <DialogDescription className="text-sm text-gray-500 dark:text-[#b8a3ac]">
+              Pedido de <strong className="text-gray-700 dark:text-[#F5EDE9]">{selectedPedido?.nombreCliente}</strong>. El stock de los productos se restaurará automáticamente.
+            </DialogDescription>
+          </div>
+          <div className="px-6 py-5 bg-[#FBF8F5] dark:bg-[#2a2029]">
+            <label className="text-sm font-medium text-gray-700 dark:text-[#F5EDE9] mb-1.5 block">Motivo (opcional)</label>
+            <textarea value={motivoDevolucion} onChange={e => setMotivoDevolucion(e.target.value)}
+              placeholder="Ej: Talla incorrecta, producto defectuoso..."
+              rows={3}
+              className="w-full px-3 py-2.5 border border-purple-200 dark:border-purple-900/50 rounded-xl text-sm focus:outline-none focus:border-purple-500 resize-none bg-white dark:bg-[#322631] transition" />
+          </div>
+          <div className="px-6 py-4 border-t border-[#E7E0DA] dark:border-[#453840] bg-[#FBF8F5] dark:bg-[#2a2029] flex gap-2">
+            <button type="button" onClick={() => setDevolucionOpen(false)}
+              className="flex-1 py-2.5 rounded-full border border-[#E7E0DA] dark:border-[#453840] bg-white dark:bg-[#322631] text-gray-500 dark:text-[#b8a3ac] hover:bg-[#FBF8F5] dark:hover:bg-[#362b34] transition-all text-sm font-medium shadow-sm">
+              Cancelar
+            </button>
+            <button type="button" onClick={marcarDevuelto} disabled={saving}
+              className="flex-1 py-2.5 text-white rounded-xl disabled:opacity-50 flex items-center justify-center gap-2 transition hover:opacity-90 text-sm font-semibold"
+              style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%)' }}>
+              {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+              Confirmar devolución
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
