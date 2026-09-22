@@ -94,7 +94,8 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
       icon: <Settings className="w-5 h-5" />,
       requiredPermissions: [],
       subItems: [
-        { id: 'roles', label: 'Gestión de Roles' }
+        { id: 'roles', label: 'Gestión de Roles' },
+        { id: 'newsletter', label: 'Newsletter' }
       ]
     }
   ];
