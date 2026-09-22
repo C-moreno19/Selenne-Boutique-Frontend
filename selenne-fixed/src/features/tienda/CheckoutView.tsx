@@ -101,10 +101,10 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
   
   // Datos para transferencia — se cargan del backend
   const [datosBanco, setDatosBanco] = React.useState({
-    banco: 'Bancolombia',
-    numeroCuenta: '91292106179',
-    titular: 'Selenne Boutique',
-    tipoCuenta: 'Ahorros',
+    banco: 'Nequi',
+    numeroCuenta: '0093334474',
+    titular: 'Cristian Cordoba',
+    tipoCuenta: 'Nequi',
   });
 
   React.useEffect(() => {
