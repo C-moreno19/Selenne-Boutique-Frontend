@@ -12,7 +12,6 @@ import {
   Star,
   Minus,
   Plus,
-  ShoppingCart,
   ChevronLeft,
   ChevronRight,
   Zap,
@@ -20,6 +19,7 @@ import {
   Package,
   Globe,
   Lock,
+  Check,
 } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
@@ -54,6 +54,8 @@ import { EstadoVacioProductos } from "../../components/EstadoVacioProductos";
 import { ImageCarousel } from "../../components/figma/ImageCarousel";
 import { ResenasProducto } from "../../components/ResenasProducto";
 import { Estrellas } from "../../components/Estrellas";
+import { CarritoSheet } from "../../components/CarritoSheet";
+import { FavoritosSheet } from "../../components/FavoritosSheet";
 import { useProductosCombinados } from "../../shared/data/useProductosCombinados";
 import { useProductos } from "../../shared/contexts/ProductosContext";
 import { useTienda } from "../../shared/contexts/TiendaContext";
@@ -617,8 +619,27 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
               >
                 <User className="w-[18px] h-[18px] sm:w-6 sm:h-6 text-[#241B22] dark:text-[#F5EDE9]" />
               </button>
-              <Sheet open={favoritosOpen} onOpenChange={setFavoritosOpen}>
-                <SheetTrigger asChild>
+              <FavoritosSheet
+                open={favoritosOpen}
+                onOpenChange={setFavoritosOpen}
+                favoritos={favoritos}
+                productos={productosData}
+                formatPrecio={formatPrecio}
+                onQuitar={toggleFavorito}
+                onVer={(prod) => {
+                  const colorInicial = prod.colores?.[0] || '';
+                  const primeraDisponible = prod.tallas?.find((t: string) => {
+                    if (!prod.variantes?.length) return true;
+                    const v = prod.variantes.find(x => x.tallaNombre === t && (!colorInicial || x.colorNombre === colorInicial));
+                    return v ? v.stock > 0 : true;
+                  });
+                  setProductoSeleccionado(prod);
+                  setTallaSeleccionada(primeraDisponible || prod.tallas?.[0] || 'Única');
+                  setColorSeleccionado(colorInicial);
+                  setImagenActual(0);
+                  setFavoritosOpen(false);
+                }}
+                trigger={
                   <button
                     className="p-1.5 sm:p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full transition-colors relative"
                     aria-label="Favoritos"
@@ -631,54 +652,27 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                       </span>
                     )}
                   </button>
-                </SheetTrigger>
-                <SheetContent>
-                  <SheetHeader>
-                    <SheetTitle>
-                      Favoritos
-                    </SheetTitle>
-                  </SheetHeader>
-                  <div className="mt-6">
-                    {favoritos.length === 0 ? (
-                      <div className="text-center py-12">
-                        <Heart className="w-16 h-16 text-gray-300 dark:text-[#453840] mx-auto mb-4" />
-                        <p className="text-gray-500 dark:text-[#b8a3ac]">No tienes productos en favoritos</p>
-                      </div>
-                    ) : (
-                      <div className="space-y-4">
-                        {favoritos.map((id) => {
-                          const prod = productosData.find(p => p.id === id);
-                          if (!prod) return null;
-                          return (
-                            <div key={id} className="flex items-center gap-3">
-                              <img src={prod.imagen} alt={prod.nombre} className="w-16 h-16 object-cover rounded" />
-                              <div className="flex-1">
-                                <div className="flex justify-between items-center">
-                                  <span className="text-sm font-medium">{prod.nombre}</span>
-                                  <span className="text-sm text-gray-600 dark:text-[#b8a3ac]">{formatPrecio(prod.precio)}</span>
-                                </div>
-                                <div className="mt-2 flex gap-2">
-                                  <Button size="sm" onClick={() => { setProductoSeleccionado(prod); setTallaSeleccionada(prod.tallas[0]); setColorSeleccionado(prod.colores?.[0] || ''); }}>
-                                    Ver
-                                  </Button>
-                                  <Button size="sm" variant="outline" onClick={() => toggleFavorito(prod.id)}>
-                                    Eliminar
-                                  </Button>
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                </SheetContent>
-              </Sheet>
-              <Sheet
+                }
+              />
+              <CarritoSheet
                 open={carritoAbierto}
                 onOpenChange={setCarritoAbierto}
-              >
-                <SheetTrigger asChild>
+                items={carritoItems}
+                formatPrecio={formatPrecio}
+                total={getTotalCarrito()}
+                onActualizarCantidad={actualizarCantidad}
+                onRemover={removerDelCarrito}
+                onCheckout={() => setSubVista("checkout")}
+                onVerProducto={(item) => {
+                  const fullProduct = productosData.find(p => p.id === item.id);
+                  setProductoSeleccionado(fullProduct || item);
+                  setTallaSeleccionada(item.tallaSeleccionada);
+                  setColorSeleccionado(item.colorSeleccionado || "");
+                  setCantidadSeleccionada(item.cantidad);
+                  setImagenActual(0);
+                  setCarritoAbierto(false);
+                }}
+                trigger={
                   <button
                     className="p-1.5 sm:p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full transition-colors relative"
                     aria-label="Carrito"
@@ -691,109 +685,8 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                       </span>
                     )}
                   </button>
-                </SheetTrigger>
-                <SheetContent className="flex flex-col w-[420px] sm:w-[460px] p-0">
-                  <SheetHeader className="px-6 pt-6 pb-4 border-b border-gray-100 dark:border-[#453840] flex-shrink-0">
-                    <SheetTitle className="text-xl">
-                      Carrito de Compras
-                      {carritoItems.length > 0 && (
-                        <span className="ml-2 text-sm font-normal text-gray-400 dark:text-[#b8a3ac]">({carritoItems.length} {carritoItems.length === 1 ? 'producto' : 'productos'})</span>
-                      )}
-                    </SheetTitle>
-                  </SheetHeader>
-
-                  {carritoItems.length === 0 ? (
-                    <div className="flex-1 flex flex-col items-center justify-center py-12 px-6">
-                      <ShoppingCart className="w-16 h-16 text-gray-200 dark:text-[#453840] mb-4" />
-                      <p className="text-gray-400 dark:text-[#b8a3ac] text-sm">Tu carrito está vacío</p>
-                    </div>
-                  ) : (
-                    <>
-                      {/* Lista de productos — scrollable */}
-                      <div className="flex-1 overflow-y-auto px-6 py-4 space-y-3">
-                        {carritoItems.map((item) => (
-                          <div
-                            key={`${item.carritoID}`}
-                            className="flex gap-4 bg-gray-50 dark:bg-[#362b34] p-3 rounded-xl cursor-pointer hover:bg-gray-100 dark:hover:bg-[#3a2530] transition-colors"
-                            onClick={() => {
-                              const fullProduct = productosData.find(p => p.id === item.id);
-                              setProductoSeleccionado(fullProduct || item);
-                              setTallaSeleccionada(item.tallaSeleccionada);
-                              setColorSeleccionado(item.colorSeleccionado || "");
-                              setCantidadSeleccionada(item.cantidad);
-                              setImagenActual(0);
-                            }}
-                          >
-                            <img src={item.imagen} alt={item.nombre} className="w-20 h-20 object-cover rounded-lg flex-shrink-0" />
-                            <div className="flex-1 min-w-0">
-                              <h4 className="text-sm font-medium text-gray-900 dark:text-[#F5EDE9] truncate">{item.nombre}</h4>
-                              <p className="text-xs text-gray-400 dark:text-[#b8a3ac] mt-0.5">
-                                Talla: {item.tallaSeleccionada}{item.colorSeleccionado && ` · ${item.colorSeleccionado}`}
-                              </p>
-                              <p className="text-sm font-semibold text-[#A3395C] mt-1">
-                                {formatPrecio(item.precio * item.cantidad)}
-                              </p>
-                              <div className="flex items-center gap-2 mt-2">
-                                <button onClick={(e: React.MouseEvent) => { e.stopPropagation(); actualizarCantidad(item.carritoID, item.cantidad - 1); }}
-                                  className="w-6 h-6 flex items-center justify-center bg-white dark:bg-[#322631] border border-gray-200 dark:border-[#453840] rounded-full hover:bg-gray-100 dark:hover:bg-[#3a2530] transition-colors">
-                                  <Minus className="w-3 h-3 text-gray-600 dark:text-[#F5EDE9]" />
-                                </button>
-                                <span className="text-sm font-medium w-5 text-center">{item.cantidad}</span>
-                                <button onClick={(e: React.MouseEvent) => { e.stopPropagation(); actualizarCantidad(item.carritoID, item.cantidad + 1); }}
-                                  className="w-6 h-6 flex items-center justify-center bg-white dark:bg-[#322631] border border-gray-200 dark:border-[#453840] rounded-full hover:bg-gray-100 dark:hover:bg-[#3a2530] transition-colors">
-                                  <Plus className="w-3 h-3 text-gray-600 dark:text-[#F5EDE9]" />
-                                </button>
-                                <button onClick={(e: React.MouseEvent) => { e.stopPropagation(); removerDelCarrito(item.carritoID); }}
-                                  className="ml-auto text-xs text-red-400 hover:text-red-600 transition-colors">
-                                  Eliminar
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* Resumen — fijo en la parte inferior */}
-                      <div className="flex-shrink-0 border-t border-gray-100 dark:border-[#453840] px-6 pt-5 pb-6 bg-white dark:bg-[#322631] space-y-3">
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-gray-500 dark:text-[#b8a3ac]">Subtotal</span>
-                          <span className="text-sm font-medium text-gray-900 dark:text-[#F5EDE9]">{formatPrecio(getTotalCarrito())}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-gray-500 dark:text-[#b8a3ac]">Envío</span>
-                          <span className="text-sm font-medium text-green-600">Gratis</span>
-                        </div>
-                        <Separator />
-                        <div className="flex justify-between items-center">
-                          <span className="text-base font-semibold text-gray-900 dark:text-[#F5EDE9]">Total</span>
-                          <span className="text-base font-bold text-[#A3395C]">{formatPrecio(getTotalCarrito())}</span>
-                        </div>
-                        <p className="text-xs text-gray-400 dark:text-[#b8a3ac] text-center">IVA incluido en el precio</p>
-                        <div className="grid grid-cols-3 gap-1 bg-[#FBF8F5] dark:bg-[#2a2029] rounded-lg py-3 px-2">
-                          <div className="flex flex-col items-center text-center gap-1.5 px-1">
-                            <Package className="w-[18px] h-[18px] text-[#A3395C]" />
-                            <span className="text-[10px] uppercase tracking-wide font-semibold text-[#7d6f77] dark:text-[#b8a3ac] leading-tight">Envío 3-5 días</span>
-                          </div>
-                          <div className="flex flex-col items-center text-center gap-1.5 px-1 border-x border-[#E7E0DA] dark:border-[#453840]">
-                            <Globe className="w-[18px] h-[18px] text-[#A3395C]" />
-                            <span className="text-[10px] uppercase tracking-wide font-semibold text-[#7d6f77] dark:text-[#b8a3ac] leading-tight">A todo el país</span>
-                          </div>
-                          <div className="flex flex-col items-center text-center gap-1.5 px-1">
-                            <Lock className="w-[18px] h-[18px] text-[#A3395C]" />
-                            <span className="text-[10px] uppercase tracking-wide font-semibold text-[#7d6f77] dark:text-[#b8a3ac] leading-tight">Pago seguro</span>
-                          </div>
-                        </div>
-                        <Button
-                          onClick={() => { setCarritoAbierto(false); setSubVista("checkout"); }}
-                          className="w-full bg-black hover:bg-gray-800 text-white h-11 mt-1 transition-all duration-200 hover:scale-[1.02]"
-                        >
-                          Proceder al Pago
-                        </Button>
-                      </div>
-                    </>
-                  )}
-                </SheetContent>
-              </Sheet>
+                }
+              />
             </div>
           </div>
 
@@ -1205,13 +1098,26 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                 {/* RIGHT: Details panel */}
                 <div className="flex-1 flex flex-col gap-4 sm:gap-[18px] p-5 sm:p-9 sm:overflow-y-auto bg-white dark:bg-[#322631]">
 
-                  {/* Name */}
-                  <h2
-                    style={{ fontFamily: '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}
-                    className="text-2xl font-bold uppercase tracking-[0.01em] text-[#241B22] dark:text-[#F5EDE9] leading-tight"
-                  >
-                    {productoSeleccionado.nombre}
-                  </h2>
+                  {/* Name + Favorite */}
+                  <div className="flex items-start justify-between gap-3">
+                    <h2
+                      style={{ fontFamily: '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}
+                      className="text-2xl font-bold uppercase tracking-[0.01em] text-[#241B22] dark:text-[#F5EDE9] leading-tight"
+                    >
+                      {productoSeleccionado.nombre}
+                    </h2>
+                    <button
+                      onClick={() => toggleFavorito(productoSeleccionado.id)}
+                      title={esFavorito(productoSeleccionado.id) ? 'Quitar de favoritos' : 'Agregar a favoritos'}
+                      className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all flex-shrink-0 ${
+                        esFavorito(productoSeleccionado.id)
+                          ? 'border-[#A3395C] bg-[#A3395C] text-white'
+                          : 'border-[#E7E0DA] dark:border-[#453840] text-[#7d6f77] dark:text-[#b8a3ac] hover:border-[#A3395C] hover:text-[#A3395C]'
+                      }`}
+                    >
+                      <Heart className="w-4 h-4" fill={esFavorito(productoSeleccionado.id) ? 'currentColor' : 'none'} />
+                    </button>
+                  </div>
 
                   {/* Price */}
                   <div className="flex items-baseline gap-3 -mt-2" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
@@ -1265,18 +1171,25 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                         <div className="flex gap-3 flex-wrap">
                           {coloresProducto.map((color) => {
                             const hexColor = getColorHex(color);
+                            const seleccionado = colorSeleccionado === color;
                             return (
                               <button
                                 key={color}
                                 onClick={() => setColorSeleccionado(color)}
-                                className={`w-8 h-8 rounded-full border-2 transition-all ${
-                                  colorSeleccionado === color
-                                    ? 'border-[#A3395C] ring-2 ring-[#A3395C] ring-offset-2'
-                                    : 'border-[#E7E0DA] dark:border-[#453840] hover:border-[#A3395C]'
+                                className={`relative w-9 h-9 rounded-full border transition-all ${
+                                  seleccionado
+                                    ? 'border-[#241B22] dark:border-[#F5EDE9] scale-110'
+                                    : 'border-[#E7E0DA] dark:border-[#453840] hover:scale-105'
                                 }`}
                                 style={{ backgroundColor: hexColor }}
                                 title={color}
-                              />
+                              >
+                                {seleccionado && (
+                                  <span className="absolute inset-0 flex items-center justify-center">
+                                    <Check className="w-4 h-4 drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]" style={{ color: '#fff' }} strokeWidth={3} />
+                                  </span>
+                                )}
+                              </button>
                             );
                           })}
                         </div>
@@ -1294,7 +1207,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                             key={talla}
                             type="button"
                             onClick={() => setTallaSeleccionada(talla)}
-                            className={`w-12 h-10 rounded-md border text-sm font-medium transition-all ${
+                            className={`min-w-10 h-10 px-3 rounded-full border text-sm font-medium transition-all ${
                               tallaSeleccionada === talla
                                 ? 'border-[#241B22] bg-[#241B22] text-white'
                                 : 'border-[#E7E0DA] dark:border-[#453840] text-[#241B22] dark:text-[#F5EDE9] hover:border-[#A3395C]'
@@ -1321,59 +1234,50 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
                     </div>
                   )}
 
-                  {/* Quantity + Add to cart + Favorite */}
-                  <div className="flex flex-wrap items-center gap-3 pt-3 mt-1 border-t border-[#E7E0DA] dark:border-[#453840]" style={{ flexShrink: 0, fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
-                    <div className="flex items-center gap-3">
+                  {/* Quantity */}
+                  <div className="flex items-center justify-between pt-3 mt-1 border-t border-[#E7E0DA] dark:border-[#453840]" style={{ flexShrink: 0, fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                    <span className="text-sm font-semibold text-[#241B22] dark:text-[#F5EDE9]">Cantidad</span>
+                    <div className="flex items-center gap-1 bg-[#FBF8F5] dark:bg-[#2a2029] rounded-full border border-[#E7E0DA] dark:border-[#453840] p-1">
                       <button
                         onClick={() => setCantidadSeleccionada(Math.max(1, cantidadSeleccionada - 1))}
-                        className="w-8 h-8 rounded-full border border-[#E7E0DA] dark:border-[#453840] flex items-center justify-center hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] transition-colors text-[#241B22] dark:text-[#F5EDE9]"
+                        className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] transition-colors text-[#241B22] dark:text-[#F5EDE9]"
                       >
                         <Minus className="w-3 h-3" />
                       </button>
-                      <span className="text-sm font-medium w-4 text-center text-[#241B22] dark:text-[#F5EDE9]">{cantidadSeleccionada}</span>
+                      <span className="text-sm font-semibold w-6 text-center text-[#241B22] dark:text-[#F5EDE9]">{cantidadSeleccionada}</span>
                       <button
                         onClick={() => setCantidadSeleccionada(cantidadSeleccionada + 1)}
-                        className="w-8 h-8 rounded-full border border-[#E7E0DA] dark:border-[#453840] flex items-center justify-center hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] transition-colors text-[#241B22] dark:text-[#F5EDE9]"
+                        className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] transition-colors text-[#241B22] dark:text-[#F5EDE9]"
                       >
                         <Plus className="w-3 h-3" />
                       </button>
                     </div>
+                  </div>
+
+                  {/* CTAs */}
+                  <div className="flex flex-col gap-2.5" style={{ flexShrink: 0, fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                    <button
+                      onClick={handleCompraDirecta}
+                      disabled={!tallaSeleccionada}
+                      style={!tallaSeleccionada ? undefined : { background: 'linear-gradient(90deg, #241B22 0%, #7a3350 55%, #A3395C 100%)' }}
+                      className={`w-full h-12 rounded-full text-xs font-semibold uppercase tracking-wider text-white transition-all ${
+                        !tallaSeleccionada ? 'bg-[#E7E0DA] dark:bg-[#453840] cursor-not-allowed' : 'shadow-md hover:shadow-lg hover:scale-[1.01]'
+                      }`}
+                    >
+                      Comprar Ahora
+                    </button>
                     <button
                       onClick={handleAgregarAlCarrito}
                       disabled={!tallaSeleccionada}
-                      style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                      className={`flex-1 min-w-[120px] min-h-10 h-auto py-2 px-2 rounded-md border text-xs font-semibold uppercase tracking-wider transition-all ${
+                      className={`w-full h-12 rounded-full border text-xs font-semibold uppercase tracking-wider transition-all ${
                         !tallaSeleccionada
                           ? 'border-[#E7E0DA] dark:border-[#453840] text-[#c3bab3] dark:text-[#5a4d52] cursor-not-allowed'
-                          : 'border-[#241B22] text-[#241B22] dark:text-[#F5EDE9] hover:bg-[#241B22] hover:text-white'
+                          : 'border-[#241B22] dark:border-[#F5EDE9] text-[#241B22] dark:text-[#F5EDE9] hover:bg-[#241B22] hover:text-white dark:hover:bg-[#F5EDE9] dark:hover:text-[#241B22]'
                       }`}
                     >
                       Agregar al Carrito
                     </button>
-                    <button
-                      onClick={() => toggleFavorito(productoSeleccionado.id)}
-                      title={esFavorito(productoSeleccionado.id) ? 'Quitar de favoritos' : 'Agregar a favoritos'}
-                      className={`w-10 h-10 rounded-md border flex items-center justify-center transition-all flex-shrink-0 ${
-                        esFavorito(productoSeleccionado.id)
-                          ? 'border-[#A3395C] bg-[#A3395C] text-white'
-                          : 'border-[#E7E0DA] dark:border-[#453840] text-[#7d6f77] dark:text-[#b8a3ac] hover:border-[#A3395C] hover:text-[#A3395C]'
-                      }`}
-                    >
-                      <Heart className="w-4 h-4" fill={esFavorito(productoSeleccionado.id) ? 'currentColor' : 'none'} />
-                    </button>
                   </div>
-
-                  {/* Buy Now */}
-                  <button
-                    onClick={handleCompraDirecta}
-                    disabled={!tallaSeleccionada}
-                    style={{ flexShrink: 0, fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                    className={`w-full h-11 rounded-md text-xs font-semibold uppercase tracking-wider text-white transition-all ${
-                      !tallaSeleccionada ? 'bg-[#E7E0DA] dark:bg-[#453840] cursor-not-allowed' : 'bg-[#A3395C] hover:bg-[#8a2e4d] shadow-sm hover:shadow-md'
-                    }`}
-                  >
-                    Comprar Ahora
-                  </button>
 
                   <Separator />
                   <ResenasProducto
