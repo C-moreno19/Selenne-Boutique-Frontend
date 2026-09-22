@@ -20,7 +20,6 @@ import {
   Package,
   Globe,
   Lock,
-  Eye,
 } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
@@ -54,6 +53,7 @@ import { FiltrosPanel, type FiltrosAplicados } from "../../components/FiltrosPan
 import { EstadoVacioProductos } from "../../components/EstadoVacioProductos";
 import { ImageCarousel } from "../../components/figma/ImageCarousel";
 import { ResenasProducto } from "../../components/ResenasProducto";
+import { Estrellas } from "../../components/Estrellas";
 import { useProductosCombinados } from "../../shared/data/useProductosCombinados";
 import { useProductos } from "../../shared/contexts/ProductosContext";
 import { useTienda } from "../../shared/contexts/TiendaContext";
@@ -1040,96 +1040,98 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
             {productosPaginaCliente.map((producto, indiceProducto) => (
               <motion.div
                 key={producto.id}
-                initial={{ opacity: 0, y: 20, scale: 0.97 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{ duration: 0.55, delay: Math.min(indiceProducto, 8) * 0.05, ease: [0.16, 1, 0.3, 1] }}
-                className="bg-white dark:bg-[#322631] border border-[#F0C9D9] dark:border-[#A3395C]/50 rounded-xl overflow-hidden group transition-all duration-300 shadow-sm hover:shadow-xl hover:-translate-y-1">
-                <div className="relative overflow-hidden">
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: Math.min(indiceProducto, 8) * 0.05, ease: [0.16, 1, 0.3, 1] }}
+                className="group">
+                <div
+                  onClick={() => abrirDetalleProducto(producto)}
+                  className="relative aspect-[3/4] overflow-hidden rounded-2xl bg-[#FBF8F5] dark:bg-[#2a2029] cursor-pointer"
+                >
                   <img
                     src={producto.imagen}
                     alt={producto.nombre}
-                    className="w-full h-96 object-cover group-hover:scale-105 transition-transform duration-500 will-change-transform"
+                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.06] will-change-transform"
                     loading="lazy"
                     decoding="async"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
                   {producto.badge && (
                     <Badge
-                      className={`absolute top-3 left-3 ${
-                        producto.badge === "Sale"
-                          ? "bg-red-500 hover:bg-red-600"
-                          : "bg-[#A3395C] hover:bg-[#A3395C]"
+                      className={`absolute top-3.5 left-3.5 border-0 backdrop-blur-sm ${
+                        producto.badge === "Sale" ? "bg-red-500/90 hover:bg-red-500/90" : "bg-[#A3395C]/90 hover:bg-[#A3395C]/90"
                       }`}
                     >
                       {producto.badge}
                     </Badge>
                   )}
                   <button
-                    onClick={() => abrirDetalleProducto(producto)}
-                    style={{ clipPath: 'polygon(14px 0, 100% 0, 100% 100%, 0 100%, 0 14px)' }}
-                    className="absolute top-3 right-3 inline-flex items-center gap-1.5 bg-gradient-to-r from-[#241B22] via-[#7a3350] to-[#A3395C] text-white text-xs font-bold tracking-widest pl-4 pr-3.5 py-1.5 shadow-md hover:shadow-lg hover:brightness-110 transition-all duration-200 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-1"
-                  >
-                    <Eye className="w-3.5 h-3.5" />
-                    DETALLE
-                  </button>
-                  <button
-                    onClick={() => toggleFavorito(producto.id)}
+                    onClick={(e) => { e.stopPropagation(); toggleFavorito(producto.id); }}
                     title="Añadir a favoritos"
-                    className="absolute bottom-3 right-3 p-2 bg-white/95 dark:bg-[#2a2029]/95 rounded-full shadow-sm hover:shadow-md hover:bg-white dark:hover:bg-[#2a2029] transition-all duration-200 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A3395C] focus-visible:ring-offset-1"
+                    className="absolute top-3.5 right-3.5 w-8 h-8 flex items-center justify-center rounded-full bg-white/90 dark:bg-[#241B22]/90 backdrop-blur-sm shadow-sm hover:scale-110 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A3395C] focus-visible:ring-offset-1"
                   >
-                    <Heart className={`w-5 h-5 transition-colors ${esFavorito(producto.id) ? "fill-[#A3395C] text-[#A3395C]" : "text-gray-600 dark:text-[#b8a3ac]"}`} />
+                    <Heart className={`w-4 h-4 transition-colors ${esFavorito(producto.id) ? "fill-[#A3395C] text-[#A3395C]" : "text-gray-500 dark:text-[#b8a3ac]"}`} />
                   </button>
-                  {!producto.agotado && (
-                    <button
-                      onClick={() => handleAgregarAlCarritoRapido(producto)}
-                      title="Agregar al carrito"
-                      className="absolute bottom-3 left-3 p-2 bg-white/95 dark:bg-[#2a2029]/95 rounded-full shadow-sm hover:shadow-md hover:bg-white dark:hover:bg-[#2a2029] transition-all duration-200 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A3395C] focus-visible:ring-offset-1"
-                    >
-                      <ShoppingBag className="w-5 h-5 text-gray-700 dark:text-[#F5EDE9]" />
-                    </button>
-                  )}
-                  {producto.agotado && (
-                    <div className="absolute inset-0 bg-black/40 dark:bg-black/60 flex items-center justify-center">
-                      <span className="bg-white dark:bg-[#2a2029] text-gray-800 dark:text-[#F5EDE9] text-xs font-bold px-3 py-1 rounded-full shadow">Agotado</span>
+                  {producto.agotado ? (
+                    <div className="absolute inset-0 bg-white/70 dark:bg-black/60 backdrop-blur-[1px] flex items-center justify-center">
+                      <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="bg-[#241B22] text-white text-[11px] font-bold uppercase tracking-widest px-4 py-1.5 rounded-full">
+                        Agotado
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleAgregarAlCarritoRapido(producto); }}
+                        style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                        className="w-full flex items-center justify-center gap-2 bg-[#241B22]/95 dark:bg-[#A3395C]/95 backdrop-blur-sm text-white text-[11px] font-bold uppercase tracking-widest py-3 hover:bg-black dark:hover:bg-[#8a2e4d] transition-colors"
+                      >
+                        <ShoppingBag className="w-3.5 h-3.5" />
+                        Agregar al carrito
+                      </button>
                     </div>
                   )}
                 </div>
-                <div className="pt-3.5 pb-4 px-3.5">
+
+                <div onClick={() => abrirDetalleProducto(producto)} className="pt-3.5 cursor-pointer">
                   <h3
                     style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                    className="text-gray-900 dark:text-[#F5EDE9] text-sm font-semibold uppercase tracking-wide mb-1.5 line-clamp-2 transition-colors group-hover:text-[#A3395C] dark:group-hover:text-[#e0879c]"
+                    className="text-gray-900 dark:text-[#F5EDE9] text-[13px] font-medium mb-1 line-clamp-2 transition-colors group-hover:text-[#A3395C] dark:group-hover:text-[#e0879c]"
                   >
                     {producto.nombre}
                   </h3>
+                  {(producto.totalValoraciones ?? 0) > 0 && (
+                    <div className="mb-1.5">
+                      <Estrellas valor={producto.rating ?? 0} size={11} />
+                    </div>
+                  )}
                   <div className="flex items-center gap-2" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                     {producto.precioOriginal ? (
                       <>
-                        <span className="text-[#A3395C] font-bold text-base">
+                        <span className="text-[#A3395C] font-bold text-[15px]">
                           {formatPrecio(producto.precio)}
                         </span>
-                        <span className="text-sm text-gray-400 dark:text-[#7d6f77] line-through">
+                        <span className="text-[13px] text-gray-400 dark:text-[#7d6f77] line-through">
                           {formatPrecio(producto.precioOriginal)}
                         </span>
                       </>
                     ) : (
-                      <span className="text-gray-900 dark:text-[#F5EDE9] font-bold text-base">
+                      <span className="text-gray-900 dark:text-[#F5EDE9] font-bold text-[15px]">
                         {formatPrecio(producto.precio)}
                       </span>
                     )}
                   </div>
                   {producto.colores && producto.colores.length > 0 && (
-                    <div className="flex items-center gap-2 mt-2.5">
+                    <div className="flex items-center gap-1.5 mt-2">
                       {producto.colores.slice(0, 5).map((color) => (
                         <button
                           key={color}
-                          onClick={() => abrirDetalleProducto(producto, color)}
+                          onClick={(e) => { e.stopPropagation(); abrirDetalleProducto(producto, color); }}
                           title={color}
-                          className="w-[18px] h-[18px] rounded-full border-2 border-white dark:border-[#322631] shadow-[0_0_0_1px_rgba(0,0,0,0.12)] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.15)] hover:scale-125 hover:shadow-[0_0_0_1.5px_#A3395C] transition-all"
+                          className="w-[16px] h-[16px] rounded-full border border-black/10 dark:border-white/15 hover:scale-125 hover:ring-2 hover:ring-[#A3395C] hover:ring-offset-1 transition-all"
                           style={{ backgroundColor: getColorHex(color) }}
                         />
                       ))}
                       {producto.colores.length > 5 && (
-                        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-[11px] text-gray-400 dark:text-[#b8a3ac] font-medium">+{producto.colores.length - 5}</span>
+                        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-[10px] text-gray-400 dark:text-[#b8a3ac] font-medium">+{producto.colores.length - 5}</span>
                       )}
                     </div>
                   )}
