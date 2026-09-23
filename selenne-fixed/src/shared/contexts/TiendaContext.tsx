@@ -228,25 +228,6 @@ export const TiendaProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         ColorSeleccionado: color || '',
       });
 
-      const res = await api.getJson('/api/carrito');
-      const items: CarritoItem[] = (res?.data || res || []).map((c: any) => ({
-        carritoID: c.carritoID,
-        id: c.productoID,
-        nombre: c.productoNombre,
-        imagen: c.imagenProducto || '',
-        precio: c.precioUnitario,
-        precioOriginal: null,
-        categoria: 'mujer' as const,
-        tipoProducto: '',
-        tallas: [],
-        rating: 0,
-        nuevo: false,
-        cantidad: c.cantidad,
-        tallaSeleccionada: c.tallaSeleccionada || '',
-        colorSeleccionado: c.colorSeleccionado || '',
-      }));
-      setCarritoItems(items);
-
       const existing = carritoItems.find(
         i => i.id === producto.id && i.tallaSeleccionada === talla && (i.colorSeleccionado || '') === (color || '')
       );
@@ -255,6 +236,27 @@ export const TiendaProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       } else {
         toast.success('Producto agregado', { description: `${producto.nombre} - Talla ${talla} x${cantidad}` });
       }
+
+      // Sincronizar el carrito completo en segundo plano — no bloquea la alerta.
+      api.getJson('/api/carrito').then((res) => {
+        const items: CarritoItem[] = (res?.data || res || []).map((c: any) => ({
+          carritoID: c.carritoID,
+          id: c.productoID,
+          nombre: c.productoNombre,
+          imagen: c.imagenProducto || '',
+          precio: c.precioUnitario,
+          precioOriginal: null,
+          categoria: 'mujer' as const,
+          tipoProducto: '',
+          tallas: [],
+          rating: 0,
+          nuevo: false,
+          cantidad: c.cantidad,
+          tallaSeleccionada: c.tallaSeleccionada || '',
+          colorSeleccionado: c.colorSeleccionado || '',
+        }));
+        setCarritoItems(items);
+      }).catch(() => {});
     } catch (_) {
       toast.error('No se pudo agregar al carrito');
     }

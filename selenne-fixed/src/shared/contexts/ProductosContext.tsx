@@ -356,8 +356,10 @@ export const ProductosProvider: React.FC<{ children: ReactNode }> = ({ children 
     console.log('[Sync] colorIDs a enviar:', colorIDs);
 
     // Siempre sincronizar (incluso array vacío para limpiar)
-    const okTallas = await mutarProducto('POST', `/api/productos/${id}/tallas`, { Tallas: tallaIDs });
-    const okColores = await mutarProducto('POST', `/api/productos/${id}/colores`, { ColorIDs: colorIDs });
+    const [okTallas, okColores] = await Promise.all([
+      mutarProducto('POST', `/api/productos/${id}/tallas`, { Tallas: tallaIDs }),
+      mutarProducto('POST', `/api/productos/${id}/colores`, { ColorIDs: colorIDs }),
+    ]);
     if (!okTallas || !okColores) {
       toast.error('Error guardando tallas/colores. Verifica tu sesión e inténtalo de nuevo.');
     }
@@ -413,11 +415,14 @@ export const ProductosProvider: React.FC<{ children: ReactNode }> = ({ children 
   ): Promise<number | false> => {
     const res = await mutarProductoConId('POST', '/api/productos', payload);
     if (res.ok && res.id) {
-      await sincronizarTallasColores(String(res.id), tallas || [], colores || [], tallasCtx || [], coloresCtx || []);
-      if (imagenes?.length || payload.imagenesPorColor) await sincronizarImagenes(String(res.id), imagenes || [], payload.imagenesPorColor);
-      if (payload.variantes?.length) await sincronizarVariantes(String(res.id), payload.variantes);
-      if (materiales?.length && materialesCtx?.length) await sincronizarMateriales(String(res.id), materiales, materialesCtx);
-      await cargarProductos();
+      const idStr = String(res.id);
+      await Promise.all([
+        sincronizarTallasColores(idStr, tallas || [], colores || [], tallasCtx || [], coloresCtx || []),
+        (imagenes?.length || payload.imagenesPorColor) ? sincronizarImagenes(idStr, imagenes || [], payload.imagenesPorColor) : Promise.resolve(),
+        payload.variantes?.length ? sincronizarVariantes(idStr, payload.variantes) : Promise.resolve(),
+        (materiales?.length && materialesCtx?.length) ? sincronizarMateriales(idStr, materiales, materialesCtx) : Promise.resolve(),
+      ]);
+      cargarProductos(); // refresco del catálogo en segundo plano, no bloquea la alerta
       return res.id;
     }
     return false;
@@ -437,11 +442,13 @@ export const ProductosProvider: React.FC<{ children: ReactNode }> = ({ children 
     const ok = await mutarProducto('PUT', `/api/productos/${id}`, payload);
     if (ok) {
       // Only sync if explicitly provided (undefined means "don't touch")
-      if (tallas !== undefined) await sincronizarTallasColores(id, tallas, colores || [], tallasCtx || [], coloresCtx || []);
-      if (imagenes !== undefined) await sincronizarImagenes(id, imagenes, payload.imagenesPorColor);
-      if (payload.variantes !== undefined) await sincronizarVariantes(id, payload.variantes);
-      if (materiales !== undefined && materialesCtx?.length) await sincronizarMateriales(id, materiales, materialesCtx);
-      await cargarProductos();
+      await Promise.all([
+        tallas !== undefined ? sincronizarTallasColores(id, tallas, colores || [], tallasCtx || [], coloresCtx || []) : Promise.resolve(),
+        imagenes !== undefined ? sincronizarImagenes(id, imagenes, payload.imagenesPorColor) : Promise.resolve(),
+        payload.variantes !== undefined ? sincronizarVariantes(id, payload.variantes) : Promise.resolve(),
+        (materiales !== undefined && materialesCtx?.length) ? sincronizarMateriales(id, materiales, materialesCtx) : Promise.resolve(),
+      ]);
+      cargarProductos(); // refresco del catálogo en segundo plano, no bloquea la alerta
     }
     return ok;
   };
