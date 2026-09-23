@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Plus, Search, Edit, Trash2, ChevronRight, Loader2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '../../../components/ui/dialog';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../../../components/ui/alert-dialog';
+import { ConfirmDialog } from '../../../components/ConfirmDialog';
 import { Input } from '../../../components/ui/input';
 import { Label } from '../../../components/ui/label';
 import { toast } from '@/lib/toast';
@@ -172,23 +172,14 @@ export const MarcasView: React.FC = () => {
       </Dialog>
 
       {/* Modal Eliminar */}
-      <AlertDialog open={deleteOpen} onOpenChange={v => { if (!saving) setDeleteOpen(v); }}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold">¿Eliminar marca?</AlertDialogTitle>
-            <AlertDialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
-              Vas a eliminar <strong>{selected?.nombre}</strong>. Esta acción no se puede deshacer.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={saving} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={eliminar} disabled={saving}
-              className="bg-red-600 hover:bg-red-700 flex items-center gap-2" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
-              {saving && <Loader2 className="w-4 h-4 animate-spin" />} Eliminar
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        title="¿Eliminar marca?"
+        description={<>Vas a eliminar <strong>{selected?.nombre}</strong>. Esta acción no se puede deshacer.</>}
+        onConfirm={eliminar}
+        loading={saving}
+      />
     </div>
   );
 };

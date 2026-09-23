@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Search, Eye, ArrowLeft, ChevronRight, Loader2, RefreshCw, Trash2, User, CreditCard, ShoppingBag, Check, X } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogFooter } from '../../../components/ui/dialog';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../../../components/ui/alert-dialog';
+import { ConfirmDialog } from '../../../components/ConfirmDialog';
 import { toast } from '@/lib/toast';
 import { getJson } from '../../../services/api';
 import api from '../../../services/api';
@@ -336,23 +336,14 @@ export const HistorialVentasView: React.FC<HistorialVentasViewProps> = ({ onBack
       </Dialog>
 
       {/* Modal Eliminar */}
-      <AlertDialog open={deleteOpen} onOpenChange={v => { if (!saving) setDeleteOpen(v); }}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>¿Eliminar registro?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Vas a eliminar el registro de <strong>{selectedPedido?.nombreCliente}</strong>. Esta acción no se puede deshacer.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={saving}>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={eliminar} disabled={saving}
-              className="bg-red-600 hover:bg-red-700 flex items-center gap-2">
-              {saving && <Loader2 className="w-4 h-4 animate-spin" />} Eliminar
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        title="¿Eliminar registro?"
+        description={<>Vas a eliminar el registro de <strong>{selectedPedido?.nombreCliente}</strong>. Esta acción no se puede deshacer.</>}
+        onConfirm={eliminar}
+        loading={saving}
+      />
 
       {/* Modal Devolución */}
       <Dialog open={devolucionOpen} onOpenChange={v => { if (!saving) { setDevolucionOpen(v); if (!v) setMotivoDevolucion(''); } }}>

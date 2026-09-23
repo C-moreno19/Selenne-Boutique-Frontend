@@ -8,7 +8,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { useAuth } from '../../../shared/contexts/AuthContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '../../../components/ui/dialog';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../../../components/ui/alert-dialog';
+import { ConfirmDialog } from '../../../components/ConfirmDialog';
 import { Input } from '../../../components/ui/input';
 import { Label } from '../../../components/ui/label';
 import { toast } from '@/lib/toast';
@@ -700,22 +700,15 @@ export const UsuariosView: React.FC = () => {
       </Dialog>
 
       {/* Eliminar */}
-      <AlertDialog open={deleteOpen} onOpenChange={v => { if (!saving) setDeleteOpen(v); }}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>¿Eliminar usuario?</AlertDialogTitle>
-            <AlertDialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
-              Vas a eliminar permanentemente a <strong>{selectedUser?.nombreCompleto}</strong> ({selectedUser?.email}). Esta acción <strong>no se puede deshacer</strong> y el usuario será removido de la base de datos.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={saving} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} disabled={saving} className="bg-red-600 hover:bg-red-700 flex items-center gap-2" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
-              {saving && <Loader2 className="w-4 h-4 animate-spin" />} Eliminar permanentemente
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        title="¿Eliminar usuario?"
+        description={<>Vas a eliminar a <strong>{selectedUser?.nombreCompleto}</strong> ({selectedUser?.email}). Esta acción <strong>no se puede deshacer</strong> desde aquí.</>}
+        confirmLabel="Eliminar"
+        onConfirm={confirmDelete}
+        loading={saving}
+      />
 
       {/* Permisos */}
       <Dialog open={permisosOpen} onOpenChange={setPermisosOpen}>

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   User, Mail, Phone, MapPin, Edit, Save, X, Lock, Bell,
   ShoppingBag, Heart, Package, Loader2, Eye, EyeOff,
-  ChevronDown, ChevronRight, ArrowLeft, LogOut, Truck, CreditCard,
+  ChevronDown, ChevronRight, ArrowLeft, LogOut, Truck, CreditCard, FileText,
   CheckCircle2, XCircle, Clock, AlertCircle, Search, RefreshCw, Calendar
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '../../components/ui/dialog';
@@ -429,117 +429,121 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
 
       {/* ══ Modal Editar Perfil ══ */}
       <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
-        <DialogContent className="max-w-md p-0 overflow-hidden gap-0 max-h-[90vh] flex flex-col dark:bg-[#322631]">
-          {/* Título */}
-          <div style={{ padding: '28px 32px 20px' }} className="border-b border-gray-100 dark:border-[#453840] flex-shrink-0">
+        <DialogContent className="max-w-2xl h-auto flex flex-col p-0 gap-0 dark:bg-[#322631]">
+          <DialogHeader className="px-8 pt-6 pb-4 border-b border-gray-100 dark:border-[#453840] flex-shrink-0">
             <DialogTitle style={{ fontFamily: '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}
               className="text-2xl text-gray-900 dark:text-[#F5EDE9] leading-tight">
-              Editar perfil
+              Editar Perfil
             </DialogTitle>
-            <DialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="text-sm text-gray-500 dark:text-[#b8a3ac] mt-1">
+            <DialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
               {user?.email}
             </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex-1 overflow-y-auto">
+            <div className="space-y-6 py-6 px-8">
+              {/* Datos de cuenta */}
+              <div className="bg-white dark:bg-[#322631] rounded-xl border border-gray-100 dark:border-[#453840] shadow-sm overflow-hidden">
+                <div className="bg-[#FBF8F5] dark:bg-[#2a2029] px-6 py-4 border-b border-gray-100 dark:border-[#453840]">
+                  <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-gray-900 dark:text-[#F5EDE9] text-base">Datos de Cuenta</h3>
+                </div>
+                <div className="p-6 flex flex-col gap-5">
+                  <div>
+                    <label className="text-xs text-gray-600 dark:text-[#b8a3ac] block mb-1.5" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                      Nombre completo <span className="text-[#A3395C]">*</span>
+                    </label>
+                    <div className="relative">
+                      <User className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${errors.nombre ? 'text-red-400' : 'text-[#A3395C]'}`} />
+                      <input type="text" value={formData.nombre}
+                        onChange={e => {
+                          const val = e.target.value;
+                          if (val && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]*$/.test(val)) { setErrors(p => ({ ...p, nombre: 'Solo se permiten letras' })); return; }
+                          setFormData(p => ({ ...p, nombre: val })); setErrors(p => ({ ...p, nombre: '' }));
+                        }}
+                        className={`w-full pl-10 pr-3 h-[42px] text-sm border rounded-xl focus:outline-none focus:ring-2 transition-all ${errors.nombre ? 'border-red-300 dark:border-red-900/50 focus:ring-red-200 dark:focus:ring-red-900/30 bg-red-50 dark:bg-red-950/40' : 'border-[#E7E0DA] dark:border-[#453840] focus:ring-[#A3395C]/30 focus:border-[#A3395C]'}`}
+                        placeholder="Tu nombre completo"
+                        style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} />
+                    </div>
+                    {errors.nombre && <p className="text-xs text-red-500 dark:text-red-400 mt-1">{errors.nombre}</p>}
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-5">
+                    <div>
+                      <label className="text-xs text-gray-600 dark:text-[#b8a3ac] block mb-1.5" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Documento</label>
+                      <div className="relative">
+                        <FileText className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${errors.documento ? 'text-red-400' : 'text-[#A3395C]'}`} />
+                        <input type="text" value={formData.documento}
+                          onChange={e => {
+                            const val = e.target.value;
+                            if (val && !/^\d*$/.test(val)) { setErrors(p => ({ ...p, documento: 'Solo se permiten números' })); return; }
+                            setFormData(p => ({ ...p, documento: val })); setErrors(p => ({ ...p, documento: '' }));
+                          }}
+                          className={`w-full pl-10 pr-3 h-[42px] text-sm border rounded-xl focus:outline-none focus:ring-2 transition-all ${errors.documento ? 'border-red-300 dark:border-red-900/50 focus:ring-red-200 dark:focus:ring-red-900/30 bg-red-50 dark:bg-red-950/40' : 'border-[#E7E0DA] dark:border-[#453840] focus:ring-[#A3395C]/30 focus:border-[#A3395C]'}`}
+                          placeholder="Número de documento"
+                          style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} />
+                      </div>
+                      {errors.documento && <p className="text-xs text-red-500 dark:text-red-400 mt-1">{errors.documento}</p>}
+                    </div>
+
+                    <div>
+                      <label className="text-xs text-gray-600 dark:text-[#b8a3ac] block mb-1.5" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Teléfono</label>
+                      <div className="relative">
+                        <Phone className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${errors.telefono ? 'text-red-400' : 'text-[#A3395C]'}`} />
+                        <input type="tel" value={formData.telefono}
+                          onChange={e => {
+                            const val = e.target.value;
+                            if (val && !/^\d*$/.test(val)) { setErrors(p => ({ ...p, telefono: 'Solo se permiten números' })); return; }
+                            setFormData(p => ({ ...p, telefono: val })); setErrors(p => ({ ...p, telefono: '' }));
+                          }}
+                          className={`w-full pl-10 pr-3 h-[42px] text-sm border rounded-xl focus:outline-none focus:ring-2 transition-all ${errors.telefono ? 'border-red-300 dark:border-red-900/50 focus:ring-red-200 dark:focus:ring-red-900/30 bg-red-50 dark:bg-red-950/40' : 'border-[#E7E0DA] dark:border-[#453840] focus:ring-[#A3395C]/30 focus:border-[#A3395C]'}`}
+                          placeholder="3001234567"
+                          style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} />
+                      </div>
+                      {errors.telefono && <p className="text-xs text-red-500 dark:text-red-400 mt-1">{errors.telefono}</p>}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Ubicación */}
+              <div className="bg-white dark:bg-[#322631] rounded-xl border border-gray-100 dark:border-[#453840] shadow-sm overflow-hidden">
+                <div className="bg-[#FBF8F5] dark:bg-[#2a2029] px-6 py-4 border-b border-gray-100 dark:border-[#453840]">
+                  <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-gray-900 dark:text-[#F5EDE9] text-base">Ubicación</h3>
+                </div>
+                <div className="p-6 flex flex-col gap-5">
+                  <div>
+                    <label className="text-xs text-gray-600 dark:text-[#b8a3ac] block mb-1.5" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Ciudad</label>
+                    <CitySelect value={formData.ciudad} onChange={v => setFormData(p => ({ ...p, ciudad: v }))} />
+                  </div>
+
+                  <div>
+                    <label className="text-xs text-gray-600 dark:text-[#b8a3ac] block mb-1.5" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Dirección</label>
+                    <div className="relative">
+                      <MapPin className={`absolute left-3 top-3 w-4 h-4 ${errors.direccion ? 'text-red-400' : 'text-[#A3395C]'}`} />
+                      <textarea value={formData.direccion}
+                        onChange={e => { setFormData(p => ({ ...p, direccion: e.target.value })); setErrors(p => ({ ...p, direccion: '' })); }}
+                        className={`w-full pl-10 pr-3 py-2.5 text-sm border rounded-xl focus:outline-none focus:ring-2 min-h-[42px] max-h-[80px] resize-none transition-all ${errors.direccion ? 'border-red-300 dark:border-red-900/50 focus:ring-red-200 dark:focus:ring-red-900/30 bg-red-50 dark:bg-red-950/40' : 'border-[#E7E0DA] dark:border-[#453840] focus:ring-[#A3395C]/30 focus:border-[#A3395C]'}`}
+                        placeholder="Calle 10 # 43E – 125, Apto 301..."
+                        style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} />
+                    </div>
+                    {errors.direccion && <p className="text-xs text-red-500 dark:text-red-400 mt-1">{errors.direccion}</p>}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Campos */}
-          <div style={{ padding: '24px 32px' }} className="space-y-5 overflow-y-auto flex-1">
-            {/* Nombre */}
-            <div>
-              <label className="text-xs font-semibold text-gray-500 dark:text-[#b8a3ac] uppercase tracking-wide block mb-2"
-                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
-                Nombre completo <span className="text-red-400 normal-case tracking-normal">*</span>
-              </label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-[#b8a3ac]" />
-                <input type="text" value={formData.nombre}
-                  onChange={e => {
-                    const val = e.target.value;
-                    if (val && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]*$/.test(val)) { setErrors(p => ({ ...p, nombre: 'Solo se permiten letras' })); return; }
-                    setFormData(p => ({ ...p, nombre: val })); setErrors(p => ({ ...p, nombre: '' }));
-                  }}
-                  className={`w-full pl-10 pr-3 h-11 text-sm border rounded-xl focus:outline-none focus:border-gray-900 dark:focus:border-[#A3395C] transition-colors bg-white dark:bg-[#2a2029] text-gray-900 dark:text-[#F5EDE9] ${errors.nombre ? 'border-red-300 dark:border-red-500/50 bg-red-50 dark:bg-red-950/30' : 'border-gray-200 dark:border-[#453840]'}`}
-                  placeholder="Tu nombre completo"
-                  style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} />
-              </div>
-              {errors.nombre && <p className="text-xs text-red-500 dark:text-red-400 mt-1">{errors.nombre}</p>}
-            </div>
-
-            {/* Teléfono */}
-            <div>
-              <label className="text-xs font-semibold text-gray-500 dark:text-[#b8a3ac] uppercase tracking-wide block mb-2"
-                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Teléfono</label>
-              <div className="relative">
-                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-[#b8a3ac]" />
-                <input type="tel" value={formData.telefono}
-                  onChange={e => {
-                    const val = e.target.value;
-                    if (val && !/^\d*$/.test(val)) { setErrors(p => ({ ...p, telefono: 'Solo se permiten números' })); return; }
-                    setFormData(p => ({ ...p, telefono: val })); setErrors(p => ({ ...p, telefono: '' }));
-                  }}
-                  className={`w-full pl-10 pr-3 h-11 text-sm border rounded-xl focus:outline-none focus:border-gray-900 dark:focus:border-[#A3395C] transition-colors bg-white dark:bg-[#2a2029] text-gray-900 dark:text-[#F5EDE9] ${errors.telefono ? 'border-red-300 dark:border-red-500/50 bg-red-50 dark:bg-red-950/30' : 'border-gray-200 dark:border-[#453840]'}`}
-                  placeholder="3001234567"
-                  style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} />
-              </div>
-              {errors.telefono && <p className="text-xs text-red-500 dark:text-red-400 mt-1">{errors.telefono}</p>}
-            </div>
-
-            {/* Documento */}
-            <div>
-              <label className="text-xs font-semibold text-gray-500 dark:text-[#b8a3ac] uppercase tracking-wide block mb-2"
-                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Documento</label>
-              <div className="relative">
-                <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-[#b8a3ac]" />
-                <input type="text" value={formData.documento}
-                  onChange={e => {
-                    const val = e.target.value;
-                    if (val && !/^\d*$/.test(val)) { setErrors(p => ({ ...p, documento: 'Solo se permiten números' })); return; }
-                    setFormData(p => ({ ...p, documento: val })); setErrors(p => ({ ...p, documento: '' }));
-                  }}
-                  className={`w-full pl-10 pr-3 h-11 text-sm border rounded-xl focus:outline-none focus:border-gray-900 dark:focus:border-[#A3395C] transition-colors bg-white dark:bg-[#2a2029] text-gray-900 dark:text-[#F5EDE9] ${errors.documento ? 'border-red-300 dark:border-red-500/50 bg-red-50 dark:bg-red-950/30' : 'border-gray-200 dark:border-[#453840]'}`}
-                  placeholder="Número de documento"
-                  style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} />
-              </div>
-              {errors.documento && <p className="text-xs text-red-500 dark:text-red-400 mt-1">{errors.documento}</p>}
-            </div>
-
-            {/* Ciudad */}
-            <div>
-              <label className="text-xs font-semibold text-gray-500 dark:text-[#b8a3ac] uppercase tracking-wide block mb-2"
-                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Ciudad</label>
-              <CitySelect value={formData.ciudad} onChange={v => setFormData(p => ({ ...p, ciudad: v }))} />
-            </div>
-
-            {/* Dirección */}
-            <div>
-              <label className="text-xs font-semibold text-gray-500 dark:text-[#b8a3ac] uppercase tracking-wide block mb-2"
-                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Dirección</label>
-              <div className="relative">
-                <MapPin className="absolute left-3 top-3 w-4 h-4 text-gray-400 dark:text-[#b8a3ac]" />
-                <textarea value={formData.direccion}
-                  onChange={e => { setFormData(p => ({ ...p, direccion: e.target.value })); setErrors(p => ({ ...p, direccion: '' })); }}
-                  className={`w-full pl-10 pr-3 py-2.5 text-sm border rounded-xl focus:outline-none focus:border-gray-900 dark:focus:border-[#A3395C] min-h-[44px] max-h-[80px] resize-none transition-colors bg-white dark:bg-[#2a2029] text-gray-900 dark:text-[#F5EDE9] ${errors.direccion ? 'border-red-300 dark:border-red-500/50 bg-red-50 dark:bg-red-950/30' : 'border-gray-200 dark:border-[#453840]'}`}
-                  placeholder="Calle 10 # 43E – 125, Apto 301..."
-                  style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} />
-              </div>
-              {errors.direccion && <p className="text-xs text-red-500 dark:text-red-400 mt-1">{errors.direccion}</p>}
-            </div>
-          </div>
-
-          {/* Acciones */}
-          <div style={{ padding: '16px 32px 28px' }} className="border-t border-gray-100 dark:border-[#453840] flex justify-end gap-3 flex-shrink-0">
-            <button type="button" onClick={() => setEditModalOpen(false)}
-              className="h-10 px-5 text-sm text-gray-600 dark:text-[#b8a3ac] border border-gray-200 dark:border-[#453840] hover:bg-gray-50 dark:hover:bg-[#362b34] transition-colors rounded-xl"
-              style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+          <DialogFooter className="gap-2 px-8 py-5 border-t border-gray-100 dark:border-[#453840] flex-shrink-0">
+            <button type="button" onClick={() => setEditModalOpen(false)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+              className="px-6 py-2 bg-gray-100 dark:bg-[#362b34] text-gray-700 dark:text-[#F5EDE9] rounded-lg hover:bg-gray-200 dark:hover:bg-[#3a2530] transition">
               Cancelar
             </button>
-            <button type="button" onClick={handleSaveProfile} disabled={saving}
-              className="h-10 px-5 text-sm font-semibold text-white bg-gradient-to-r from-[#241B22] via-[#7a3350] to-[#A3395C] hover:opacity-90 transition-all flex items-center gap-2 disabled:opacity-50 rounded-xl shadow-sm"
-              style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
-              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-              {saving ? 'Guardando...' : 'Guardar cambios'}
+            <button type="button" onClick={handleSaveProfile} disabled={saving} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+              className="px-6 py-2 bg-gradient-to-r from-[#241B22] via-[#7a3350] to-[#A3395C] text-white rounded-lg hover:opacity-90 disabled:opacity-50 flex items-center gap-2 transition">
+              {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+              {saving ? 'Guardando...' : 'Guardar Cambios'}
             </button>
-          </div>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 

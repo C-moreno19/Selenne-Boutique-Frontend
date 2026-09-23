@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { ChevronRight, Loader2, Mail, Send, Trash2, Users } from 'lucide-react';
 import { Input } from '../../../components/ui/input';
 import { Label } from '../../../components/ui/label';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../../../components/ui/alert-dialog';
+import { ConfirmDialog } from '../../../components/ConfirmDialog';
 import { toast } from '@/lib/toast';
 import { useAuth } from '../../../shared/contexts/AuthContext';
 import { getJson, postJson, deleteJson } from '../../../services/api';
@@ -160,40 +160,26 @@ export const NewsletterView: React.FC = () => {
       </div>
 
       {/* Confirmar envío */}
-      <AlertDialog open={confirmarEnvioOpen} onOpenChange={v => { if (!enviando) setConfirmarEnvioOpen(v); }}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>¿Enviar promoción?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Se enviará "<strong>{asunto}</strong>" a <strong>{activos.length}</strong> suscriptores activos. Esta acción no se puede deshacer.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={enviando}>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={enviarCampana} disabled={enviando}
-              className="bg-[#A3395C] hover:bg-[#8a2e4d] flex items-center gap-2">
-              {enviando && <Loader2 className="w-4 h-4 animate-spin" />} Enviar
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDialog
+        open={confirmarEnvioOpen}
+        onOpenChange={setConfirmarEnvioOpen}
+        variant="warning"
+        title="¿Enviar promoción?"
+        description={<>Se enviará "<strong>{asunto}</strong>" a <strong>{activos.length}</strong> suscriptores activos. Esta acción no se puede deshacer.</>}
+        confirmLabel="Enviar"
+        onConfirm={enviarCampana}
+        loading={enviando}
+      />
 
       {/* Confirmar eliminar */}
-      <AlertDialog open={eliminarId != null} onOpenChange={v => { if (!eliminando && !v) setEliminarId(null); }}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>¿Eliminar suscriptor?</AlertDialogTitle>
-            <AlertDialogDescription>Esta acción no se puede deshacer.</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={eliminando}>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={eliminar} disabled={eliminando}
-              className="bg-red-600 hover:bg-red-700 flex items-center gap-2">
-              {eliminando && <Loader2 className="w-4 h-4 animate-spin" />} Eliminar
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDialog
+        open={eliminarId != null}
+        onOpenChange={(v) => { if (!v) setEliminarId(null); }}
+        title="¿Eliminar suscriptor?"
+        description="Esta acción no se puede deshacer."
+        onConfirm={eliminar}
+        loading={eliminando}
+      />
     </div>
   );
 };
