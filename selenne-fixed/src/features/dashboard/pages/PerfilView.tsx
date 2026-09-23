@@ -18,11 +18,17 @@ const CIUDADES_COLOMBIA = [
 export const PerfilView: React.FC = () => {
   const { user, refreshUser } = useAuth();
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const [notifications, setNotifications] = useState(() => localStorage.getItem('selenne_notif_email') !== 'false');
+  const [notifications, setNotifications] = useState(true);
 
   useEffect(() => {
-    localStorage.setItem('selenne_notif_email', String(notifications));
-  }, [notifications]);
+    if (!user?.usuarioID) return;
+    api.getJson(`/api/usuarios/${user.usuarioID}`)
+      .then((res: any) => {
+        const d = res?.data || res;
+        if (typeof d?.notificacionesEmail === 'boolean') setNotifications(d.notificacionesEmail);
+      })
+      .catch(() => {});
+  }, [user?.usuarioID]);
   const [passwordModalOpen, setPasswordModalOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [showPasswords, setShowPasswords] = useState({ current: false, new: false, confirm: false });
@@ -221,14 +227,20 @@ export const PerfilView: React.FC = () => {
                   </div>
                   <div>
                     <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-[#241B22] dark:text-[#F5EDE9]">Notificaciones por correo</p>
-                    <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac] mt-0.5">Recibe alertas de pedidos y actividad</p>
+                    <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac] mt-0.5">Recibe el aviso por correo cuando entra un pedido nuevo</p>
                   </div>
                 </div>
                 <button type="button"
                   role="switch"
                   aria-checked={notifications}
                   aria-label={notifications ? 'Desactivar notificaciones' : 'Activar notificaciones'}
-                  onClick={() => setNotifications(!notifications)}
+                  onClick={() => {
+                    const n = !notifications;
+                    setNotifications(n);
+                    api.putJson(`/api/usuarios/${user?.usuarioID}`, { NotificacionesEmail: n })
+                      .then(() => toast.success(n ? 'Notificaciones activadas' : 'Notificaciones desactivadas'))
+                      .catch(() => { setNotifications(!n); toast.error('Error al guardar preferencia'); });
+                  }}
                   className={`relative flex-shrink-0 w-11 h-6 rounded-full transition-colors duration-200 focus:outline-none ${notifications ? 'bg-gradient-to-r from-[#241B22] to-[#A3395C]' : 'bg-gray-300 dark:bg-[#453840]'}`}
                 >
                   <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all duration-200 ${notifications ? 'left-6' : 'left-1'}`} />
