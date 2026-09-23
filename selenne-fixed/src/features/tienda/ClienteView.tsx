@@ -1089,7 +1089,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
             return (
               <div className="flex flex-col sm:flex-row sm:max-h-[85vh]">
                 {/* LEFT: Image panel */}
-                <div className="relative w-full h-72 sm:w-[54%] sm:min-w-[54%] sm:h-auto sm:self-start sm:aspect-[4/5] flex-shrink-0 overflow-hidden rounded-t-2xl sm:rounded-t-none sm:rounded-l-2xl bg-[#FBF8F5] dark:bg-[#2a2029] p-2 sm:p-3">
+                <div className="relative w-full h-72 sm:w-[54%] sm:min-w-[54%] sm:h-auto flex-shrink-0 overflow-hidden rounded-t-2xl sm:rounded-t-none sm:rounded-l-2xl bg-[#FBF8F5] dark:bg-[#2a2029]">
                   <ImageCarousel
                     key={`${productoSeleccionado.id}-${colorSeleccionado || 'default'}`}
                     imagenes={imgsForColor}
