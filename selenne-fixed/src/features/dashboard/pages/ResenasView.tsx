@@ -3,6 +3,7 @@ import { Check, X, Trash2, ShieldCheck, Loader2, Star as StarIcon } from 'lucide
 import { getJson, putJson, deleteJson } from '../../../services/api';
 import { useAuth } from '../../../shared/contexts/AuthContext';
 import { toast } from '@/lib/toast';
+import { ConfirmDialog } from '../../../components/ConfirmDialog';
 import type { Valoracion } from '../../../types/models';
 
 const TABS: { value: string; label: string }[] = [
@@ -19,6 +20,7 @@ export const ResenasView: React.FC = () => {
   const [resenas, setResenas] = useState<Valoracion[]>([]);
   const [loading, setLoading] = useState(true);
   const [procesando, setProcesando] = useState<number | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Valoracion | null>(null);
 
   const cargar = useCallback(async () => {
     setLoading(true);
@@ -48,13 +50,15 @@ export const ResenasView: React.FC = () => {
     }
   };
 
-  const eliminar = async (id: number) => {
-    if (!confirm('¿Eliminar esta reseña permanentemente?')) return;
+  const eliminar = async () => {
+    if (!deleteTarget) return;
+    const id = deleteTarget.valoracionID;
     setProcesando(id);
     try {
       await deleteJson(`/api/admin/valoraciones/${id}`);
       toast.success('Reseña eliminada');
       setResenas(prev => prev.filter(r => r.valoracionID !== id));
+      setDeleteTarget(null);
     } catch {
       toast.error('No se pudo eliminar la reseña');
     } finally {
@@ -133,7 +137,7 @@ export const ResenasView: React.FC = () => {
                       <X className="w-3.5 h-3.5" /> Rechazar
                     </button>
                   )}
-                  <button onClick={() => eliminar(r.valoracionID)} disabled={procesando === r.valoracionID}
+                  <button onClick={() => setDeleteTarget(r)} disabled={procesando === r.valoracionID}
                     className="h-9 px-3 text-xs font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 rounded-lg flex items-center gap-1.5 hover:opacity-80 disabled:opacity-50">
                     <Trash2 className="w-3.5 h-3.5" /> Eliminar
                   </button>
@@ -143,6 +147,15 @@ export const ResenasView: React.FC = () => {
           ))}
         </div>
       )}
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onOpenChange={(v) => { if (!v) setDeleteTarget(null); }}
+        title="¿Eliminar reseña?"
+        description={<>Vas a eliminar la reseña de <strong>{deleteTarget?.nombreUsuario}</strong> sobre <strong>{deleteTarget?.productoNombre ?? `Producto #${deleteTarget?.productoID}`}</strong>. Esta acción no se puede deshacer.</>}
+        onConfirm={eliminar}
+        loading={procesando === deleteTarget?.valoracionID}
+      />
     </div>
   );
 };
