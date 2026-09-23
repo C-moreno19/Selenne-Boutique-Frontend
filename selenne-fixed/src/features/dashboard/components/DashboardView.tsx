@@ -21,7 +21,6 @@ import { ColoresView } from '../pages/ColoresView';
 import { MaterialesView } from '../pages/MaterialesView';
 import { MarcasView } from '../pages/MarcasView';
 import { TiposProductoView } from '../pages/TiposProductoView';
-import { NotificacionesAdminView } from '../pages/NotificacionesAdminView';
 import { ResenasView } from '../pages/ResenasView';
 import { CuponesView } from '../pages/CuponesView';
 import { NewsletterView } from '../pages/NewsletterView';
@@ -54,8 +53,7 @@ export type DashboardSection =
   | 'compras'
   | 'historial-compras'
   | 'perfil'
-  | 'mi-cuenta'
-  | 'notificaciones';
+  | 'mi-cuenta';
 
 interface DashboardViewProps {
   onLogout: () => void;
@@ -172,8 +170,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onLogout }) => {
       case 'perfil':
       case 'mi-cuenta':
         return <PerfilView />;
-      case 'notificaciones':
-        return <NotificacionesAdminView />;
       default:
         return <div>Sección no encontrada</div>;
     }

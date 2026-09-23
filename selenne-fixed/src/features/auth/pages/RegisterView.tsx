@@ -5,7 +5,6 @@ import { CustomInput } from '../components/CustomInput';
 import { CustomButton } from '../components/CustomButton';
 import { SatinBackground } from '../components/SatinBackground';
 import api from '../../../services/api';
-import { useMensajes } from '../../../shared/contexts/MensajesContext';
 import { Logo } from '../../../components/Logo';
 
 interface RegisterViewProps {
@@ -38,7 +37,6 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
   });
 
   const [loading, setLoading] = useState(false);
-  const { crearMensaje } = useMensajes();
 
   const passwordRules = {
     minLength: formData.password.length >= 9,
@@ -179,16 +177,6 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
 
         console.log('✅ Respuesta exitosa del servidor:', response);
         setLoading(false);
-
-        // Notificar al admin
-        crearMensaje({
-          idVenta: '',
-          emailCliente: formData.email.toLowerCase().trim(),
-          remitente: 'cliente',
-          contenido: `Nueva cuenta registrada: ${formData.fullName} (${formData.email.toLowerCase().trim()})`,
-          tipo: 'nuevo-cliente',
-          destinatarios: ['admin'],
-        });
 
         // Éxito - mostrar mensaje
         onShowAlert('success', '✅ Cuenta creada exitosamente. Revisa tu correo para confirmar.');

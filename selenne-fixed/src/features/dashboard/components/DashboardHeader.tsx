@@ -1,30 +1,31 @@
 import React, { useState } from 'react';
 import {
   Search,
-  MessageCircle,
+  Bell,
   ChevronDown,
   LogOut,
   User,
-  ShoppingBag,
-  UserPlus,
-  Mail,
+  CheckCheck,
+  Loader2,
   Menu
 } from 'lucide-react';
 import { useAuth } from '../../../shared/contexts/AuthContext';
 import { useSidebar } from '../../../shared/contexts/SidebarContext';
-import { useMensajes } from '../../../shared/contexts/MensajesContext';
+import { useNotificaciones } from '../../../shared/hooks/useNotificaciones';
+import { NotificacionCard } from '../../../components/NotificacionCard';
 import { DashboardSection } from './DashboardView';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogFooter, 
-  DialogDescription 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription
 } from '../../../components/ui/dialog';
-import { toast } from '@/lib/toast';
 import { ThemeToggle } from '../../../components/ThemeToggle';
 import { Logo } from '../../../components/Logo';
+
+const FONT_SANS = '"Helvetica Neue", Helvetica, Arial, sans-serif';
 
 interface DashboardHeaderProps {
   currentSection: DashboardSection;
@@ -44,37 +45,13 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 
   const [messagesOpen, setMessagesOpen] = useState(false);
 
-  const { obtenerMensajesAdmin, marcarComoLeido } = useMensajes();
+  const { notificaciones, loading, noLeidas, marcarLeida, marcarTodas, cargar } = useNotificaciones();
 
-  const adminMsgs = obtenerMensajesAdmin();
-  const unreadMessages = adminMsgs.filter(m => !m.leido).length;
-
-  const getMsgIcon = (tipo: string) => {
-    switch (tipo) {
-      case 'aprobacion': return <ShoppingBag className="w-4 h-4 text-green-600" />;
-      case 'rechazo': return <ShoppingBag className="w-4 h-4 text-red-500" />;
-      case 'pago-incompleto': return <ShoppingBag className="w-4 h-4 text-orange-500" />;
-      case 'nuevo-cliente': return <UserPlus className="w-4 h-4 text-blue-500" />;
-      case 'respuesta-cliente': return <Mail className="w-4 h-4 text-[#A3395C]" />;
-      default: return <Mail className="w-4 h-4 text-gray-500" />;
-    }
-  };
-
-  const getMsgLabel = (tipo: string) => {
-    switch (tipo) {
-      case 'aprobacion': return 'Nuevo pedido aprobado';
-      case 'rechazo': return 'Pedido rechazado';
-      case 'pago-incompleto': return 'Pago incompleto';
-      case 'nuevo-cliente': return 'Nuevo usuario registrado';
-      case 'respuesta-cliente': return 'Respuesta de cliente';
-      case 'consulta': return 'Consulta recibida';
-      default: return 'Notificación';
-    }
-  };
-
-  const getNavSection = (tipo: string): string | null => {
-    if (['aprobacion','rechazo','pago-incompleto','notificacion'].includes(tipo)) return 'pedidos';
-    if (tipo === 'nuevo-cliente') return 'usuarios';
+  const getNavSection = (referencia?: string): DashboardSection | null => {
+    if (!referencia) return null;
+    if (referencia.startsWith('pedido-') || referencia.startsWith('pedido:')) return 'pedidos';
+    if (referencia.startsWith('usuario-')) return 'usuarios';
+    if (referencia.startsWith('producto-')) return 'productos';
     return null;
   };
 
@@ -131,10 +108,10 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
               className="relative p-2.5 text-gray-600 dark:text-[#b8a3ac] hover:bg-[#FBF8F5] dark:hover:bg-[#2a2029] rounded-lg transition"
               title="Mensajes y notificaciones"
             >
-              <MessageCircle className="w-5 h-5" />
-              {unreadMessages > 0 && (
+              <Bell className="w-5 h-5" />
+              {noLeidas > 0 && (
                 <span className="absolute top-1 right-1 w-5 h-5 bg-[#A3395C] text-white text-xs rounded-full flex items-center justify-center">
-                  {unreadMessages > 9 ? '9+' : unreadMessages}
+                  {noLeidas > 9 ? '9+' : noLeidas}
                 </span>
               )}
             </button>
@@ -199,103 +176,72 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
         </div>
       </header>
 
-      {/* Modal unificado de Mensajes y Notificaciones */}
-      <Dialog open={messagesOpen} onOpenChange={setMessagesOpen}>
-        <DialogContent className="max-w-2xl h-auto flex flex-col p-0 gap-0">
+      {/* Modal de Mensajes / Actividad reciente */}
+      <Dialog open={messagesOpen} onOpenChange={(v) => { setMessagesOpen(v); if (v) cargar(); }}>
+        <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col p-0 gap-0">
           <DialogHeader className="px-8 pt-6 pb-4 border-b border-[#E7E0DA] dark:border-[#453840] flex-shrink-0">
-            <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-2xl">
-              Mensajes
-            </DialogTitle>
-            <DialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
-              Pedidos nuevos, usuarios registrados y respuestas de correo
+            <div className="flex items-center gap-2">
+              <DialogTitle style={{ fontFamily: FONT_SANS }} className="text-2xl">
+                Actividad reciente
+              </DialogTitle>
+              <button onClick={cargar} className="p-1.5 hover:bg-[#FBF8F5] dark:hover:bg-[#3a2530] rounded-lg transition" title="Actualizar">
+                <Loader2 className={`w-4 h-4 text-gray-400 dark:text-[#b8a3ac] ${loading ? 'animate-spin' : ''}`} />
+              </button>
+            </div>
+            <DialogDescription style={{ fontFamily: FONT_SANS }}>
+              Pedidos nuevos, usuarios registrados y alertas de stock
             </DialogDescription>
           </DialogHeader>
 
           <div className="flex-1 overflow-y-auto">
-            <div className="space-y-6 py-6 px-8">
-              <div className="bg-white dark:bg-[#322631] rounded-xl border border-[#E7E0DA] dark:border-[#453840] shadow-sm overflow-hidden">
-                <div className="bg-[#FBF8F5] dark:bg-[#2a2029] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#453840] flex items-center justify-between">
-                  <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#241B22] dark:text-[#F5EDE9] text-base">💬 Actividad reciente</h3>
-                  {unreadMessages > 0 && (
-                    <span className="px-2 py-0.5 bg-[#A3395C] text-white text-xs rounded-full" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
-                      {unreadMessages} sin leer
-                    </span>
-                  )}
+            <div className="space-y-3 py-6 px-8">
+              {loading && notificaciones.length === 0 ? (
+                <div className="flex flex-col items-center py-16 gap-3">
+                  <Loader2 className="w-7 h-7 animate-spin text-[#A3395C]" />
+                  <p style={{ fontFamily: FONT_SANS }} className="text-sm text-gray-400 dark:text-[#b8a3ac]">Cargando actividad...</p>
                 </div>
-                <div className="divide-y divide-gray-100 dark:divide-[#453840]">
-                  {adminMsgs.length === 0 ? (
-                    <div className="text-center py-12">
-                      <MessageCircle className="w-10 h-10 mx-auto text-gray-200 dark:text-[#453840] mb-3" />
-                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-400 dark:text-[#b8a3ac]">
-                        No hay mensajes por el momento
-                      </p>
-                    </div>
-                  ) : (
-                    adminMsgs.map(msg => {
-                      const navSection = getNavSection(msg.tipo) as any;
-                      return (
-                        <div
-                          key={msg.id}
-                          onClick={() => {
-                            marcarComoLeido(msg.id);
-                            if (navSection) {
-                              onSectionChange(navSection);
-                              setMessagesOpen(false);
-                            }
-                          }}
-                          className={`flex items-start gap-4 px-6 py-4 transition cursor-pointer ${
-                            msg.leido ? 'opacity-60' : 'hover:bg-pink-50 dark:hover:bg-[#3a2530]'
-                          }`}
-                        >
-                          <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${msg.leido ? 'bg-gray-100 dark:bg-[#362b34]' : 'bg-pink-100 dark:bg-[#3a2530]'}`}>
-                            {getMsgIcon(msg.tipo)}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between gap-2">
-                              <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs font-semibold text-[#A3395C] uppercase tracking-wide">
-                                {getMsgLabel(msg.tipo)}
-                              </p>
-                              <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac] whitespace-nowrap flex-shrink-0">
-                                {new Date(msg.fecha).toLocaleDateString('es-CO')}
-                              </span>
-                            </div>
-                            <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-700 dark:text-[#F5EDE9] mt-0.5 truncate">
-                              {msg.contenido}
-                            </p>
-                            {navSection && !msg.leido && (
-                              <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-[#A3395C] mt-1">
-                                Clic para ir a {navSection === 'pedidos' ? 'Pedidos' : 'Usuarios'} →
-                              </p>
-                            )}
-                          </div>
-                          {!msg.leido && (
-                            <div className="w-2 h-2 bg-[#A3395C] rounded-full flex-shrink-0 mt-2" />
-                          )}
-                        </div>
-                      );
-                    })
-                  )}
+              ) : notificaciones.length === 0 ? (
+                <div className="text-center py-16">
+                  <div className="w-16 h-16 bg-[#fdf2f8] dark:bg-[#3a2530] rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Bell className="w-7 h-7 text-[#A3395C]" />
+                  </div>
+                  <p style={{ fontFamily: FONT_SANS }} className="text-sm text-gray-400 dark:text-[#b8a3ac]">
+                    No hay actividad por el momento
+                  </p>
                 </div>
-              </div>
+              ) : (
+                notificaciones.map(n => {
+                  const navSection = getNavSection(n.referencia);
+                  return (
+                    <NotificacionCard
+                      key={n.notificacionID}
+                      notif={n}
+                      referenciaLabel={navSection === 'usuarios' ? 'Ver usuarios' : navSection === 'productos' ? 'Ver producto' : 'Ver pedido'}
+                      onVerReferencia={navSection ? () => { onSectionChange(navSection); setMessagesOpen(false); } : undefined}
+                      onClick={() => {
+                        if (!n.leida) marcarLeida(n.notificacionID);
+                        if (navSection) { onSectionChange(navSection); setMessagesOpen(false); }
+                      }}
+                    />
+                  );
+                })
+              )}
             </div>
           </div>
 
           <DialogFooter className="gap-2 px-8 py-5 border-t border-[#E7E0DA] dark:border-[#453840] flex-shrink-0">
-            {adminMsgs.some(m => !m.leido) && (
+            {noLeidas > 0 && (
               <button
-                onClick={() => {
-                  adminMsgs.filter(m => !m.leido).forEach(m => marcarComoLeido(m.id));
-                  toast.success('Todos los mensajes marcados como leídos');
-                }}
-                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                className="px-6 py-2 bg-gray-100 dark:bg-[#362b34] text-gray-700 dark:text-[#F5EDE9] rounded-lg hover:bg-gray-200 dark:hover:bg-[#3a2530] transition"
+                onClick={marcarTodas}
+                style={{ fontFamily: FONT_SANS }}
+                className="flex items-center gap-2 px-6 py-2 bg-gray-100 dark:bg-[#362b34] text-gray-700 dark:text-[#F5EDE9] rounded-lg hover:bg-gray-200 dark:hover:bg-[#3a2530] transition"
               >
-                Marcar todos como leídos
+                <CheckCheck className="w-4 h-4" /> Marcar todo leído
               </button>
             )}
             <button
               onClick={() => setMessagesOpen(false)}
-              style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+              style={{ fontFamily: FONT_SANS }}
               className="px-6 py-2 bg-gradient-to-r from-[#241B22] via-[#7a3350] to-[#A3395C] text-white rounded-lg hover:opacity-90 transition"
             >
               Cerrar

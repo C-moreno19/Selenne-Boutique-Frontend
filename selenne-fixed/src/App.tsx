@@ -21,7 +21,6 @@ import { SubcategoriasProvider } from './shared/contexts/SubcategoriasContext';
 import { SidebarProvider } from './shared/contexts/SidebarContext';
 import { ComprasAdminProvider } from './shared/contexts/ComprasAdminContext';
 import { PedidosAdminProvider } from './shared/contexts/PedidosAdminContext';
-import { MensajesProvider } from './shared/contexts/MensajesContext';
 
 interface Alert {
   type: 'success' | 'error' | 'info';
@@ -160,9 +159,7 @@ export default function App() {
                 <SidebarProvider>
                   <ComprasAdminProvider>
                     <PedidosAdminProvider>
-                      <MensajesProvider>
-                        <MainApp />
-                      </MensajesProvider>
+                      <MainApp />
                     </PedidosAdminProvider>
                   </ComprasAdminProvider>
                 </SidebarProvider>

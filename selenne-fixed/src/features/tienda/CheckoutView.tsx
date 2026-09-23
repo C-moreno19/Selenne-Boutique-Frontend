@@ -16,7 +16,6 @@ import { useTienda } from '../../shared/contexts/TiendaContext';
 import { usePedidosAdmin } from '../../shared/contexts/PedidosAdminContext';
 import { postJson, postForm, getJson } from '../../services/api';
 import { useAuth } from '../../shared/contexts/AuthContext';
-import { useMensajes } from '../../shared/contexts/MensajesContext';
 import { generarContraseñaTemporal } from '../../shared/utils/credentialGenerator';
 import { formatCurrency } from '../../shared/utils';
 import { toast } from '@/lib/toast';
@@ -66,7 +65,6 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
   const { carritoItems, getTotalCarrito, limpiarCarrito, agregarPedido } = useTienda();
   const { crearPedido } = usePedidosAdmin();
   const { user, loginAsync } = useAuth();
-  const { crearMensaje } = useMensajes();
   const [metodoPago, setMetodoPago] = useState('contra-entrega');
   const [paso, setPaso] = useState<'envio' | 'pago'>('envio');
   const [emailIngresado, setEmailIngresado] = useState('');

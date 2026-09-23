@@ -681,28 +681,25 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
                   </div>
                 ) : pedidos.length === 0 ? (
                   <div className="text-center py-16">
-                    <div className="relative inline-flex mb-5">
-                      <div className="w-16 h-16 rounded-full bg-pink-50 dark:bg-[#3a2530] flex items-center justify-center">
-                        <Package className="w-7 h-7 text-[#A3395C]" />
-                      </div>
-                      <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-pink-200 dark:bg-[#4d2f3e]" />
-                      <span className="absolute -bottom-1 -left-1 w-2 h-2 rounded-full bg-pink-100 dark:bg-[#3a2530]" />
+                    <div className="w-20 h-20 rounded-full bg-[#FBF0F4] dark:bg-[#3a2530] flex items-center justify-center mx-auto mb-5">
+                      <Package className="w-9 h-9 text-[#A3395C]" strokeWidth={1.5} />
                     </div>
-                    <p className="text-base font-semibold text-gray-800 dark:text-[#F5EDE9]">Sin pedidos aún</p>
-                    <p className="text-sm text-gray-400 dark:text-[#b8a3ac] mt-1">Tus pedidos aparecerán aquí cuando realices una compra</p>
+                    <p style={{ fontFamily: '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}
+                      className="text-lg font-semibold text-gray-800 dark:text-[#F5EDE9]">Sin pedidos aún</p>
+                    <p className="text-sm text-gray-400 dark:text-[#b8a3ac] mt-1.5">Tus pedidos aparecerán aquí cuando realices una compra</p>
                   </div>
                 ) : (
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     {pedidos.map(pedido => {
                       const cfg = estadoConfig[pedido.estado] || estadoConfig.Pendiente;
                       return (
                         <button key={pedido.pedidoID} type="button"
                           onClick={() => setPedidoSelec(pedido)}
-                          className="w-full text-left rounded-xl border border-gray-100 dark:border-[#453840] p-5 hover:border-gray-300 dark:hover:border-[#5a4a54] hover:bg-gray-50 dark:hover:bg-[#362b34] transition-all">
+                          className="group w-full text-left rounded-2xl border border-gray-100 dark:border-[#453840] bg-white dark:bg-[#2a2029] p-5 hover:border-[#EFD9DF] dark:hover:border-[#5a3a48] hover:shadow-md transition-all">
                           <div className="flex items-start justify-between gap-4 mb-2">
                             <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-1 flex-wrap">
-                                <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${cfg.bg} ${cfg.text}`}>{cfg.label}</span>
+                              <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                                <span className={`px-2.5 py-0.5 text-xs font-semibold rounded-full ${cfg.bg} ${cfg.text}`}>{cfg.label}</span>
                               </div>
                               <p className="text-sm text-gray-500 dark:text-[#b8a3ac] flex items-center gap-1.5"
                                 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
@@ -710,7 +707,7 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
                                 {new Date(pedido.fechaPedido).toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' })}
                               </p>
                             </div>
-                            <p className="text-base font-bold text-gray-900 dark:text-[#F5EDE9] flex-shrink-0"
+                            <p className="text-lg font-bold text-[#A3395C] flex-shrink-0"
                               style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                               {fmt(pedido.total)}
                             </p>
@@ -731,6 +728,7 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
                                 <Truck className="w-3 h-3" />Guía: {pedido.numeroGuia}
                               </span>
                             )}
+                            <ChevronRight className="w-4 h-4 text-gray-300 dark:text-[#5a4a54] group-hover:text-[#A3395C] group-hover:translate-x-0.5 transition-all ml-auto" />
                           </div>
                         </button>
                       );
