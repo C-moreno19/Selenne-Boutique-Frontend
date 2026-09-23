@@ -146,7 +146,7 @@ export function FiltrosPanel({
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-[#453840]">
           <span className="text-xs font-bold tracking-widest text-gray-900 dark:text-[#F5EDE9]">APLICAR FILTROS</span>
           <button onClick={onClose} className="flex items-center gap-1 text-xs font-bold tracking-widest text-gray-900 dark:text-[#F5EDE9] hover:text-gray-600 dark:hover:text-[#b8a3ac]">
-            CERCA <X className="w-4 h-4" />
+            CERRAR <X className="w-4 h-4" />
           </button>
         </div>
 

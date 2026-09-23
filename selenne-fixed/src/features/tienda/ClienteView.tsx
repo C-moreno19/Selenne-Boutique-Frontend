@@ -443,12 +443,12 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
     <div className="min-h-screen bg-white dark:bg-[#2a2029] flex flex-col">
       {/* Header - Siempre Visible */}
       <header className="sticky top-0 z-50 bg-[#FBF8F5] dark:bg-[#2a2029] border-b border-[#E7E0DA] dark:border-[#453840] shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2">
               <button
-                className="lg:hidden mr-2 p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full"
+                className="lg:hidden mr-1 sm:mr-2 p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full"
                 onClick={() =>
                   setMenuMovilAbierto(!menuMovilAbierto)
                 }

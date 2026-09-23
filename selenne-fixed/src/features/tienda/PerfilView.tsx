@@ -430,9 +430,9 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
       {/* ══ Modal Editar Perfil ══ */}
       <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
         <DialogContent className="max-w-2xl h-auto flex flex-col p-0 gap-0 dark:bg-[#322631]">
-          <DialogHeader className="px-8 pt-6 pb-4 border-b border-gray-100 dark:border-[#453840] flex-shrink-0">
+          <DialogHeader className="px-5 sm:px-8 pt-5 sm:pt-6 pb-3 sm:pb-4 border-b border-gray-100 dark:border-[#453840] flex-shrink-0">
             <DialogTitle style={{ fontFamily: '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}
-              className="text-2xl text-gray-900 dark:text-[#F5EDE9] leading-tight">
+              className="text-xl sm:text-2xl text-gray-900 dark:text-[#F5EDE9] leading-tight">
               Editar Perfil
             </DialogTitle>
             <DialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
@@ -441,13 +441,13 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
           </DialogHeader>
 
           <div className="flex-1 overflow-y-auto">
-            <div className="space-y-6 py-6 px-8">
+            <div className="space-y-4 sm:space-y-6 py-4 sm:py-6 px-5 sm:px-8">
               {/* Datos de cuenta */}
               <div className="bg-white dark:bg-[#322631] rounded-xl border border-gray-100 dark:border-[#453840] shadow-sm overflow-hidden">
-                <div className="bg-[#FBF8F5] dark:bg-[#2a2029] px-6 py-4 border-b border-gray-100 dark:border-[#453840]">
+                <div className="bg-[#FBF8F5] dark:bg-[#2a2029] px-5 sm:px-6 py-3 sm:py-4 border-b border-gray-100 dark:border-[#453840]">
                   <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-gray-900 dark:text-[#F5EDE9] text-base">Datos de Cuenta</h3>
                 </div>
-                <div className="p-6 flex flex-col gap-5">
+                <div className="p-5 sm:p-6 flex flex-col gap-4 sm:gap-5">
                   <div>
                     <label className="text-xs text-gray-600 dark:text-[#b8a3ac] block mb-1.5" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                       Nombre completo <span className="text-[#A3395C]">*</span>
@@ -467,7 +467,7 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
                     {errors.nombre && <p className="text-xs text-red-500 dark:text-red-400 mt-1">{errors.nombre}</p>}
                   </div>
 
-                  <div className="grid grid-cols-2 gap-5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                     <div>
                       <label className="text-xs text-gray-600 dark:text-[#b8a3ac] block mb-1.5" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Documento</label>
                       <div className="relative">
@@ -507,10 +507,10 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
 
               {/* Ubicación */}
               <div className="bg-white dark:bg-[#322631] rounded-xl border border-gray-100 dark:border-[#453840] shadow-sm overflow-hidden">
-                <div className="bg-[#FBF8F5] dark:bg-[#2a2029] px-6 py-4 border-b border-gray-100 dark:border-[#453840]">
+                <div className="bg-[#FBF8F5] dark:bg-[#2a2029] px-5 sm:px-6 py-3 sm:py-4 border-b border-gray-100 dark:border-[#453840]">
                   <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-gray-900 dark:text-[#F5EDE9] text-base">Ubicación</h3>
                 </div>
-                <div className="p-6 flex flex-col gap-5">
+                <div className="p-5 sm:p-6 flex flex-col gap-4 sm:gap-5">
                   <div>
                     <label className="text-xs text-gray-600 dark:text-[#b8a3ac] block mb-1.5" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Ciudad</label>
                     <CitySelect value={formData.ciudad} onChange={v => setFormData(p => ({ ...p, ciudad: v }))} />
@@ -533,7 +533,7 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
             </div>
           </div>
 
-          <DialogFooter className="gap-2 px-8 py-5 border-t border-gray-100 dark:border-[#453840] flex-shrink-0">
+          <DialogFooter className="gap-2 px-5 sm:px-8 py-3 sm:py-5 border-t border-gray-100 dark:border-[#453840] flex-shrink-0">
             <button type="button" onClick={() => setEditModalOpen(false)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
               className="px-6 py-2 bg-gray-100 dark:bg-[#362b34] text-gray-700 dark:text-[#F5EDE9] rounded-lg hover:bg-gray-200 dark:hover:bg-[#3a2530] transition">
               Cancelar
