@@ -44,14 +44,9 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
 
   return (
     <div className={`relative w-full h-full bg-[#fafafa] dark:bg-[#2a2029] overflow-hidden ${className}`}>
-      {/* Fondo desenfocado: llena el marco completo sin importar la proporción de la foto */}
-      <div
-        key={`bg-${imagenesValidas[imagenActual]}`}
-        className="absolute inset-0 bg-center bg-cover scale-110 blur-2xl opacity-50"
-        style={{ backgroundImage: `url(${imagenesValidas[imagenActual]})` }}
-        aria-hidden="true"
-      />
-      {/* Imagen principal: siempre completa, nunca recortada */}
+      {/* Imagen principal: siempre completa, nunca recortada. El espacio sobrante
+          queda en el mismo fondo neutro del marco (arriba), en vez de un blur de
+          la propia foto que puede verse manchado si la imagen tiene sombra/viñeta. */}
       <img
         key={imagenesValidas[imagenActual]}
         src={imagenesValidas[imagenActual]}
