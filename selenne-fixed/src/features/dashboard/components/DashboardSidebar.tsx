@@ -1,8 +1,9 @@
-﻿import React, { useState } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import {
   LayoutDashboard,
   Users,
   Package,
+  Truck,
   ShoppingCart,
   ChevronRight,
   Settings
@@ -19,7 +20,7 @@ interface DashboardSidebarProps {
 }
 
 interface SubMenuItem {
-  id: DashboardSection;
+  id?: DashboardSection;
   label: string;
   subItems?: SubMenuItem[];
 }
@@ -47,25 +48,40 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
       label: 'Dashboard', 
       icon: <LayoutDashboard className="w-5 h-5" /> 
     },
-    { 
-      label: 'Gestión de Productos', 
+    {
+      label: 'Gestión de Productos',
       icon: <Package className="w-5 h-5" />,
       requiredPermissions: ['productos'],
       subItems: [
-        { id: 'productos', label: 'Lista de Productos' },
-        { id: 'colores', label: 'Colores' },
-        { id: 'tallas', label: 'Tallas' },
-        { id: 'materiales', label: 'Materiales' },
-        { id: 'marcas', label: 'Marcas' },
-        { id: 'categorias', label: 'Categorías' },
-        { id: 'tipos-producto', label: 'Tipos de Producto' },
-        { id: 'resenas', label: 'Reseñas' },
-        { id: 'cupones', label: 'Cupones' }
+        {
+          label: 'Catálogo',
+          subItems: [
+            { id: 'productos', label: 'Lista de Productos' },
+            { id: 'categorias', label: 'Categorías' },
+            { id: 'tipos-producto', label: 'Tipos de Producto' },
+            { id: 'marcas', label: 'Marcas' },
+          ]
+        },
+        {
+          label: 'Variantes',
+          subItems: [
+            { id: 'colores', label: 'Colores' },
+            { id: 'tallas', label: 'Tallas' },
+            { id: 'materiales', label: 'Materiales' },
+          ]
+        },
+        {
+          label: 'Interacción',
+          subItems: [
+            { id: 'resenas', label: 'Reseñas' },
+            { id: 'cupones', label: 'Cupones' },
+          ]
+        }
       ]
     },
-    { 
-      label: 'Compras', 
-      icon: <Package className="w-5 h-5" />,
+    {
+      label: 'Compras',
+      icon: <Truck className="w-5 h-5" />,
       requiredPermissions: ['compras'],
       subItems: [
         { id: 'compras', label: 'Gestión de Compras' },
@@ -100,7 +116,38 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
     }
   ];
 
+  // Al entrar directo a una sección anidada (recarga de página, link externo),
+  // abre la cadena de grupos que la contiene para que no quede escondida.
+  useEffect(() => {
+    for (const item of menuItems) {
+      if (!item.subItems) continue;
+      const direct = item.subItems.find(sub => sub.id === currentSection);
+      if (direct) {
+        setExpandedMenus({ [item.label]: true });
+        return;
+      }
+      const group = item.subItems.find(sub => sub.subItems?.some(leaf => leaf.id === currentSection));
+      if (group) {
+        setExpandedMenus({ [item.label]: true, [`${item.label}-${group.label}`]: true });
+        return;
+      }
+    }
+  }, [currentSection]);
+
   const isAdmin = (user?.role || '').toLowerCase().includes('admin');
+
+  // Un subItem es accesible si tiene un id visible, o (siendo un grupo sin id
+  // propio) si al menos uno de sus hijos lo es — recorre cualquier profundidad.
+  const isSubItemAccessible = (subItem: SubMenuItem): boolean => {
+    if (subItem.subItems) return subItem.subItems.some(isSubItemAccessible);
+    return subItem.id ? canAccessSection(subItem.id) : false;
+  };
+
+  // Filtra recursivamente: quita hojas sin permiso y grupos que se quedaron vacíos.
+  const filterSubItems = (items: SubMenuItem[]): SubMenuItem[] =>
+    items
+      .map(si => si.subItems ? { ...si, subItems: filterSubItems(si.subItems) } : si)
+      .filter(si => si.subItems ? si.subItems.length > 0 : isSubItemAccessible(si));
 
   const visibleMenuItems = menuItems.filter(item => {
     // Admin ve todo
@@ -109,22 +156,15 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
     if (item.id && !item.subItems) {
       return canAccessSection(item.id);
     }
-    // Item con subitems: visible si al menos uno es accesible
+    // Item con subitems: visible si al menos uno es accesible (a cualquier profundidad)
     if (item.subItems) {
-      return item.subItems.some(subItem =>
-        subItem.id ? canAccessSection(subItem.id) : false
-      );
+      return item.subItems.some(isSubItemAccessible);
     }
     return false;
   }).map(item => {
     // Filtrar subitems también
     if (isAdmin || !item.subItems) return item;
-    return {
-      ...item,
-      subItems: item.subItems.filter(subItem =>
-        !subItem.id || canAccessSection(subItem.id)
-      )
-    };
+    return { ...item, subItems: filterSubItems(item.subItems) };
   });
 
   // expandExclusive removed — la apertura exclusiva ahora ocurre solo al hacer click (gestión en `toggleMenu`).

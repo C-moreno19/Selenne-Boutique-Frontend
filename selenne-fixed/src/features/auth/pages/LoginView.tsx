@@ -129,8 +129,8 @@ export const LoginView: React.FC<LoginViewProps> = ({
       </div>
 
       {/* Login Panel - Right (45%) */}
-      <div className="flex-1 lg:w-[45%] h-full overflow-y-auto flex items-center justify-center bg-white dark:bg-[#2a2029] px-16 py-12">
-        <div className="w-full max-w-md space-y-8">
+      <div className="flex-1 lg:w-[45%] h-full overflow-y-auto flex items-center justify-center bg-white dark:bg-[#2a2029] px-16 py-8">
+        <div className="w-full max-w-md space-y-5">
           {/* Back arrow */}
           {onBack && (
             <button
@@ -144,16 +144,16 @@ export const LoginView: React.FC<LoginViewProps> = ({
           )}
           {/* Logo */}
           <motion.div
-            className="flex justify-center mb-10"
+            className="flex justify-center mb-4"
             initial={{ opacity: 0, y: -28, scale: 0.85 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
           >
-            <Logo className="w-[220px] h-[220px]" />
+            <Logo className="w-[130px] h-[130px]" />
           </motion.div>
 
           {/* Form */}
-          <div className="space-y-6">
+          <div className="space-y-5">
             <CustomInput
               type="email"
               label="Email *"
