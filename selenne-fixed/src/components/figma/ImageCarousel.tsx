@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface ImageCarouselProps {
@@ -30,6 +30,8 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
     );
   }
 
+  const hayVarias = imagenesValidas.length > 1;
+
   const irAnterior = () => {
     setImagenActual((prev) =>
       prev === 0 ? imagenesValidas.length - 1 : prev - 1
@@ -42,98 +44,94 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
     );
   };
 
+  const onThumbError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/80x80?text=No+Img';
+  };
+
   return (
-    <div className={`relative w-full h-full bg-[#fafafa] dark:bg-[#2a2029] overflow-hidden ${className}`}>
-      {/* Imagen principal: siempre completa, nunca recortada. El espacio sobrante
-          queda en el mismo fondo neutro del marco (arriba), en vez de un blur de
-          la propia foto que puede verse manchado si la imagen tiene sombra/viñeta. */}
-      <img
-        key={imagenesValidas[imagenActual]}
-        src={imagenesValidas[imagenActual]}
-        alt={`${nombre} - Imagen ${imagenActual + 1}`}
-        className="relative w-full h-full object-contain"
-        loading="eager"
-        decoding="async"
-        onError={(e) => {
-          console.warn(`Error cargando imagen: ${imagenesValidas[imagenActual]}`);
-          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/400x400?text=Imagen+No+Disponible';
-        }}
-      />
+    <div className={`flex flex-col sm:flex-row gap-2 sm:gap-3 ${className}`}>
+      {/* Riel de miniaturas — vertical en desktop */}
+      {hayVarias && (
+        <div className="hidden sm:flex flex-col gap-2 w-[68px] flex-shrink-0 overflow-y-auto">
+          {imagenesValidas.map((img, idx) => (
+            <button
+              type="button"
+              key={idx}
+              onClick={() => setImagenActual(idx)}
+              className={`w-[68px] h-[68px] rounded-lg overflow-hidden border-2 flex-shrink-0 transition-all ${
+                idx === imagenActual ? 'border-[#A3395C]' : 'border-transparent opacity-60 hover:opacity-100'
+              }`}
+              aria-label={`Ver imagen ${idx + 1}`}
+              title={`Imagen ${idx + 1}`}
+            >
+              <img src={img} alt="" className="w-full h-full object-cover" onError={onThumbError} />
+            </button>
+          ))}
+        </div>
+      )}
 
-      {/* Botones de navegación - Siempre visibles si hay múltiples imágenes */}
-      {imagenesValidas.length > 1 && (
-        <>
-          <button type="button"
-            onClick={irAnterior}
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 bg-white text-black p-2 rounded-full hover:bg-gray-200 transition-colors z-20 shadow-lg"
-            aria-label="Imagen anterior"
-            title="Anterior"
-          >
-            <ChevronLeft className="w-6 h-6" />
-          </button>
+      {/* Imagen principal */}
+      <div className="relative flex-1 min-w-0 bg-[#fafafa] dark:bg-[#2a2029] rounded-xl overflow-hidden">
+        <img
+          key={imagenesValidas[imagenActual]}
+          src={imagenesValidas[imagenActual]}
+          alt={`${nombre} - Imagen ${imagenActual + 1}`}
+          className="w-full h-full object-contain"
+          loading="eager"
+          decoding="async"
+          onError={(e) => {
+            console.warn(`Error cargando imagen: ${imagenesValidas[imagenActual]}`);
+            (e.target as HTMLImageElement).src = 'https://via.placeholder.com/400x400?text=Imagen+No+Disponible';
+          }}
+        />
 
-          <button type="button"
-            onClick={irSiguiente}
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-white text-black p-2 rounded-full hover:bg-gray-200 transition-colors z-20 shadow-lg"
-            aria-label="Imagen siguiente"
-            title="Siguiente"
-          >
-            <ChevronRight className="w-6 h-6" />
-          </button>
+        {hayVarias && (
+          <>
+            <button type="button"
+              onClick={irAnterior}
+              className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/90 dark:bg-[#322631]/90 text-[#241B22] dark:text-[#F5EDE9] p-1.5 rounded-full hover:bg-white dark:hover:bg-[#322631] transition-colors shadow-md"
+              aria-label="Imagen anterior"
+              title="Anterior"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
 
-          {/* Indicadores de imagen - Puntos */}
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2 z-20">
-            {imagenesValidas.map((_, idx) => (
-              <button
-                type="button"
-                key={idx}
-                onClick={() => setImagenActual(idx)}
-                className={`rounded-full transition-all ${
-                  idx === imagenActual
-                    ? 'bg-white w-3 h-3'
-                    : 'bg-white/60 w-2 h-2 hover:bg-white/85'
-                }`}
-                aria-label={`Ver imagen ${idx + 1}`}
-                title={`Imagen ${idx + 1}`}
-              />
-            ))}
-          </div>
+            <button type="button"
+              onClick={irSiguiente}
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/90 dark:bg-[#322631]/90 text-[#241B22] dark:text-[#F5EDE9] p-1.5 rounded-full hover:bg-white dark:hover:bg-[#322631] transition-colors shadow-md"
+              aria-label="Imagen siguiente"
+              title="Siguiente"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
 
-          {/* Contador de imágenes */}
-          <div className="absolute top-3 right-3 bg-[#A3395C] text-white px-3 py-1.5 rounded-full text-xs font-bold z-20 shadow-md tracking-wide">
-            {imagenActual + 1} / {imagenesValidas.length}
-          </div>
+            <div className="absolute top-2.5 right-2.5 bg-[#241B22]/70 text-white px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide">
+              {imagenActual + 1} / {imagenesValidas.length}
+            </div>
+          </>
+        )}
+      </div>
 
-          {/* Thumbnails debajo (opcional) */}
-          <div className="absolute -bottom-20 left-0 right-0 flex gap-2 justify-center px-2">
-            {imagenesValidas.slice(0, 5).map((img, idx) => (
-              <button
-                type="button"
-                key={idx}
-                onClick={() => setImagenActual(idx)}
-                className={`w-12 h-12 rounded border-2 overflow-hidden transition-all ${
-                  idx === imagenActual
-                    ? 'border-[#A3395C] scale-105'
-                    : 'border-gray-300 dark:border-[#453840] hover:border-gray-400 dark:hover:border-[#A3395C] opacity-70 hover:opacity-100'
-                }`}
-                title={`Ir a imagen ${idx + 1}`}
-              >
-                <img
-                  src={img}
-                  alt={`Thumb ${idx + 1}`}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/50x50?text=No+Img';
-                  }}
-                />
-              </button>
-            ))}
-          </div>
-        </>
+      {/* Miniaturas — fila horizontal en mobile */}
+      {hayVarias && (
+        <div className="flex sm:hidden gap-2 overflow-x-auto px-0.5 pb-0.5">
+          {imagenesValidas.map((img, idx) => (
+            <button
+              type="button"
+              key={idx}
+              onClick={() => setImagenActual(idx)}
+              className={`w-14 h-14 rounded-lg overflow-hidden border-2 flex-shrink-0 transition-all ${
+                idx === imagenActual ? 'border-[#A3395C]' : 'border-transparent opacity-60'
+              }`}
+              aria-label={`Ver imagen ${idx + 1}`}
+            >
+              <img src={img} alt="" className="w-full h-full object-cover" onError={onThumbError} />
+            </button>
+          ))}
+        </div>
       )}
     </div>
   );
 };
 
 export default ImageCarousel;
-

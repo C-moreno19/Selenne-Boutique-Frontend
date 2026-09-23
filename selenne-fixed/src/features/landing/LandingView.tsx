@@ -1011,7 +1011,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
             return (
               <div className="flex flex-col sm:flex-row sm:max-h-[85vh]">
                 {/* LEFT: Image panel */}
-                <div className="relative w-full h-72 sm:w-[48%] sm:min-w-[48%] sm:h-auto sm:self-start sm:aspect-square flex-shrink-0 overflow-hidden rounded-t-2xl sm:rounded-t-none sm:rounded-l-2xl bg-[#FBF8F5] dark:bg-[#2a2029]">
+                <div className="relative w-full h-72 sm:w-[54%] sm:min-w-[54%] sm:h-auto sm:self-start sm:aspect-[4/5] flex-shrink-0 overflow-hidden rounded-t-2xl sm:rounded-t-none sm:rounded-l-2xl bg-[#FBF8F5] dark:bg-[#2a2029] p-2 sm:p-3">
                   <ImageCarousel
                     key={`${productoSeleccionado.id}-${colorSeleccionado || 'default'}`}
                     imagenes={imgsForColor}
@@ -1021,7 +1021,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                 </div>
 
                 {/* RIGHT: Details panel */}
-                <div className="flex-1 flex flex-col gap-4 sm:gap-[18px] p-5 sm:p-9 sm:overflow-y-auto bg-white dark:bg-[#322631]">
+                <div className="flex-1 flex flex-col gap-4 p-5 sm:p-8 sm:overflow-y-auto bg-white dark:bg-[#322631]">
 
                   {/* Name + Favorite */}
                   <div className="flex items-start justify-between gap-3">
@@ -1044,45 +1044,48 @@ export const LandingView: React.FC<LandingViewProps> = ({
                     </button>
                   </div>
 
-                  {/* Price */}
-                  <div className="flex items-baseline gap-3 -mt-2" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
-                    <span className="text-xl font-bold text-[#A3395C]">
-                      {formatPrecio(productoSeleccionado.precio)}
-                    </span>
-                    {productoSeleccionado.precioOriginal && (
-                      <>
-                        <span className="text-sm text-[#7d6f77] dark:text-[#b8a3ac] line-through">
-                          {formatPrecio(productoSeleccionado.precioOriginal)}
-                        </span>
-                        <span className="text-xs font-semibold text-red-500">
-                          -{calcularDescuento(productoSeleccionado.precio, productoSeleccionado.precioOriginal)}%
-                        </span>
-                      </>
-                    )}
+                  {/* Price + Rating */}
+                  <div className="flex items-center justify-between -mt-2" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                    <div className="flex items-baseline gap-3">
+                      <span className="text-xl font-bold text-[#A3395C]">
+                        {formatPrecio(productoSeleccionado.precio)}
+                      </span>
+                      {productoSeleccionado.precioOriginal && (
+                        <>
+                          <span className="text-sm text-[#7d6f77] dark:text-[#b8a3ac] line-through">
+                            {formatPrecio(productoSeleccionado.precioOriginal)}
+                          </span>
+                          <span className="text-xs font-semibold text-red-500">
+                            -{calcularDescuento(productoSeleccionado.precio, productoSeleccionado.precioOriginal)}%
+                          </span>
+                        </>
+                      )}
+                    </div>
+                    <Estrellas valor={productoSeleccionado.rating ?? 0} total={productoSeleccionado.totalValoraciones ?? 0} size={13} />
+                  </div>
+
+                  {/* Trust row compacta */}
+                  <div className="grid grid-cols-3 gap-1 bg-[#FBF8F5] dark:bg-[#2a2029] rounded-xl py-3 px-2">
+                    <div className="flex flex-col items-center text-center gap-1.5 px-1">
+                      <Package className="w-[16px] h-[16px] text-[#A3395C]" strokeWidth={1.75} />
+                      <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-[9.5px] uppercase tracking-wide font-semibold text-[#7d6f77] dark:text-[#b8a3ac] leading-tight">3-5 días</span>
+                    </div>
+                    <div className="flex flex-col items-center text-center gap-1.5 px-1 border-x border-[#E7E0DA] dark:border-[#453840]">
+                      <Globe className="w-[16px] h-[16px] text-[#A3395C]" strokeWidth={1.75} />
+                      <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-[9.5px] uppercase tracking-wide font-semibold text-[#7d6f77] dark:text-[#b8a3ac] leading-tight">Todo el país</span>
+                    </div>
+                    <div className="flex flex-col items-center text-center gap-1.5 px-1">
+                      <Lock className="w-[16px] h-[16px] text-[#A3395C]" strokeWidth={1.75} />
+                      <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-[9.5px] uppercase tracking-wide font-semibold text-[#7d6f77] dark:text-[#b8a3ac] leading-tight">Pago seguro</span>
+                    </div>
                   </div>
 
                   {/* Description */}
                   {productoSeleccionado.descripcion && (
-                    <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-[#7d6f77] dark:text-[#b8a3ac] leading-relaxed -mt-2">
+                    <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-[#7d6f77] dark:text-[#b8a3ac] leading-relaxed">
                       {productoSeleccionado.descripcion}
                     </p>
                   )}
-
-                  {/* Info envío */}
-                  <div className="flex flex-col gap-2 py-1" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
-                    <div className="flex items-center gap-2.5">
-                      <Package className="w-[15px] h-[15px] text-[#A3395C] flex-shrink-0" />
-                      <span className="text-xs font-semibold uppercase tracking-wide text-[#241B22] dark:text-[#F5EDE9]">Envío 3-5 días hábiles</span>
-                    </div>
-                    <div className="flex items-center gap-2.5">
-                      <Globe className="w-[15px] h-[15px] text-[#A3395C] flex-shrink-0" />
-                      <span className="text-xs font-semibold uppercase tracking-wide text-[#241B22] dark:text-[#F5EDE9]">Envíos a todo el país</span>
-                    </div>
-                    <div className="flex items-center gap-2.5">
-                      <Lock className="w-[15px] h-[15px] text-[#A3395C] flex-shrink-0" />
-                      <span className="text-xs font-semibold uppercase tracking-wide text-[#241B22] dark:text-[#F5EDE9]">Pago 100% seguro</span>
-                    </div>
-                  </div>
 
                   <Separator />
 
@@ -1200,10 +1203,9 @@ export const LandingView: React.FC<LandingViewProps> = ({
                     </div>
                   )}
 
-                  {/* Quantity */}
-                  <div className="flex items-center justify-between pt-3 mt-1 border-t border-[#E7E0DA] dark:border-[#453840]" style={{ flexShrink: 0, fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
-                    <span className="text-sm font-semibold text-[#241B22] dark:text-[#F5EDE9]">Cantidad</span>
-                    <div className="flex items-center gap-1 bg-[#FBF8F5] dark:bg-[#2a2029] rounded-full border border-[#E7E0DA] dark:border-[#453840] p-1">
+                  {/* Cantidad + Agregar al carrito */}
+                  <div className="flex items-center gap-3 pt-3 mt-1 border-t border-[#E7E0DA] dark:border-[#453840]" style={{ flexShrink: 0, fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                    <div className="flex items-center gap-1 bg-[#FBF8F5] dark:bg-[#2a2029] rounded-full border border-[#E7E0DA] dark:border-[#453840] p-1 flex-shrink-0">
                       <button
                         onClick={() => setCantidadSeleccionada(Math.max(1, cantidadSeleccionada - 1))}
                         className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] transition-colors text-[#241B22] dark:text-[#F5EDE9]"
@@ -1218,24 +1220,10 @@ export const LandingView: React.FC<LandingViewProps> = ({
                         <Plus className="w-3 h-3" />
                       </button>
                     </div>
-                  </div>
-
-                  {/* CTAs */}
-                  <div className="flex flex-col gap-2.5" style={{ flexShrink: 0, fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
-                    <button
-                      disabled={productoSeleccionado.agotado}
-                      onClick={handleComprarAhora}
-                      style={productoSeleccionado.agotado ? undefined : { background: 'linear-gradient(90deg, #241B22 0%, #7a3350 55%, #A3395C 100%)' }}
-                      className={`w-full h-12 rounded-full text-xs font-semibold uppercase tracking-wider text-white transition-all ${
-                        productoSeleccionado.agotado ? 'bg-[#E7E0DA] dark:bg-[#453840] cursor-not-allowed' : 'shadow-md hover:shadow-lg hover:scale-[1.01]'
-                      }`}
-                    >
-                      {productoSeleccionado.agotado ? 'Agotado' : 'Comprar Ahora'}
-                    </button>
                     <button
                       disabled={productoSeleccionado.agotado}
                       onClick={handleAgregarAlCarrito}
-                      className={`w-full h-12 rounded-full border text-xs font-semibold uppercase tracking-wider transition-all ${
+                      className={`flex-1 h-11 rounded-full border text-xs font-semibold uppercase tracking-wider transition-all ${
                         productoSeleccionado.agotado
                           ? 'border-[#E7E0DA] dark:border-[#453840] text-[#c3bab3] dark:text-[#5a4d52] cursor-not-allowed'
                           : 'border-[#241B22] dark:border-[#F5EDE9] text-[#241B22] dark:text-[#F5EDE9] hover:bg-[#241B22] hover:text-white dark:hover:bg-[#F5EDE9] dark:hover:text-[#241B22]'
@@ -1244,6 +1232,18 @@ export const LandingView: React.FC<LandingViewProps> = ({
                       {productoSeleccionado.agotado ? 'Agotado' : 'Agregar al Carrito'}
                     </button>
                   </div>
+
+                  {/* Comprar ahora — CTA principal */}
+                  <button
+                    disabled={productoSeleccionado.agotado}
+                    onClick={handleComprarAhora}
+                    style={productoSeleccionado.agotado ? { flexShrink: 0, fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' } : { flexShrink: 0, fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', background: 'linear-gradient(90deg, #241B22 0%, #7a3350 55%, #A3395C 100%)' }}
+                    className={`w-full h-12 rounded-full text-xs font-semibold uppercase tracking-wider text-white transition-all ${
+                      productoSeleccionado.agotado ? 'bg-[#E7E0DA] dark:bg-[#453840] cursor-not-allowed' : 'shadow-md hover:shadow-lg hover:scale-[1.01]'
+                    }`}
+                  >
+                    {productoSeleccionado.agotado ? 'Agotado' : 'Comprar Ahora'}
+                  </button>
 
                   <Separator />
                   <ResenasProducto
