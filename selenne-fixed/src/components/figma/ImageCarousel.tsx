@@ -1,4 +1,4 @@
-﻿import React, { useState, useRef } from 'react';
+﻿import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface ImageCarouselProps {
@@ -13,21 +13,6 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
   className = '',
 }) => {
   const [imagenActual, setImagenActual] = useState(0);
-  const [fitMode, setFitMode] = useState<'cover' | 'contain'>('cover');
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  // Preferimos que la foto llene el marco (cover) para que se vea completa y profesional.
-  // Solo caemos a "contain" cuando la proporcion es TAN distinta que recortar cortaria
-  // partes importantes del producto (ej. una foto muy panoramica en un marco vertical).
-  const handleImgLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    const img = e.currentTarget;
-    const container = containerRef.current;
-    if (!container || !img.naturalWidth || !img.naturalHeight || !container.clientHeight) return;
-    const ratioContenedor = container.clientWidth / container.clientHeight;
-    const ratioImagen = img.naturalWidth / img.naturalHeight;
-    const diferencia = Math.abs(ratioContenedor - ratioImagen) / ratioContenedor;
-    setFitMode(diferencia > 0.4 ? 'contain' : 'cover');
-  };
 
   // Filtrar imágenes vacías
   const imagenesValidas = (imagenes || []).filter(img => img && img.trim() !== '');
@@ -58,16 +43,22 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
   };
 
   return (
-    <div ref={containerRef} className={`relative w-full h-full bg-[#fafafa] dark:bg-[#2a2029] ${className}`}>
-      {/* Imagen principal */}
+    <div className={`relative w-full h-full bg-[#fafafa] dark:bg-[#2a2029] overflow-hidden ${className}`}>
+      {/* Fondo desenfocado: llena el marco completo sin importar la proporción de la foto */}
+      <div
+        key={`bg-${imagenesValidas[imagenActual]}`}
+        className="absolute inset-0 bg-center bg-cover scale-110 blur-2xl opacity-50"
+        style={{ backgroundImage: `url(${imagenesValidas[imagenActual]})` }}
+        aria-hidden="true"
+      />
+      {/* Imagen principal: siempre completa, nunca recortada */}
       <img
         key={imagenesValidas[imagenActual]}
         src={imagenesValidas[imagenActual]}
         alt={`${nombre} - Imagen ${imagenActual + 1}`}
-        className={`w-full h-full ${fitMode === 'cover' ? 'object-cover object-top scale-[1.2]' : 'object-contain'}`}
+        className="relative w-full h-full object-contain"
         loading="eager"
         decoding="async"
-        onLoad={handleImgLoad}
         onError={(e) => {
           console.warn(`Error cargando imagen: ${imagenesValidas[imagenActual]}`);
           (e.target as HTMLImageElement).src = 'https://via.placeholder.com/400x400?text=Imagen+No+Disponible';
