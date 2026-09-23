@@ -1077,11 +1077,14 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
             Object.entries(imagenesPorColor).forEach(([k, v]) => { normalizedMap[k.toLowerCase()] = v; });
             const imgsForColor = (() => {
               const imgsDelColor = (colorKey && normalizedMap[colorKey]) || [];
+              // Si el color elegido tiene su propio set de fotos, usar SOLO esas —
+              // nunca mezclar con la foto principal ni con fotos de otros colores.
+              if (imgsDelColor.length > 0) return [...new Set(imgsDelColor)];
+              // Sin fotos específicas para ese color: usar las generales del producto.
               const imgsGenerales = productoSeleccionado.imagenes && productoSeleccionado.imagenes.length > 0
                 ? productoSeleccionado.imagenes
                 : (productoSeleccionado.imagen ? [productoSeleccionado.imagen] : []);
-              // La foto principal (la de la tarjeta) va siempre primero; luego las del color, luego el resto
-              return [...new Set([productoSeleccionado.imagen, ...imgsDelColor, ...imgsGenerales].filter(Boolean))];
+              return [...new Set([productoSeleccionado.imagen, ...imgsGenerales].filter(Boolean))];
             })();
             return (
               <div className="flex flex-col sm:flex-row sm:max-h-[85vh]">

@@ -1005,9 +1005,12 @@ export const LandingView: React.FC<LandingViewProps> = ({
           {productoSeleccionado && (() => {
             const imagenesPorColor = productoSeleccionado.imagenesPorColor || {};
             const imgsDelColor = colorSeleccionado ? (imagenesPorColor[colorSeleccionado] || []) : [];
+            // Si el color elegido tiene su propio set de fotos, usar SOLO esas —
+            // nunca mezclar con la foto principal ni con fotos de otros colores.
             const imgsGenerales = productoSeleccionado.imagenes && productoSeleccionado.imagenes.length > 0 ? productoSeleccionado.imagenes : [productoSeleccionado.imagen];
-            // La foto principal (la de la tarjeta) va siempre primero; luego las del color, luego el resto
-            const imgsForColor = [...new Set([productoSeleccionado.imagen, ...imgsDelColor, ...imgsGenerales].filter(Boolean))];
+            const imgsForColor = imgsDelColor.length > 0
+              ? [...new Set(imgsDelColor)]
+              : [...new Set([productoSeleccionado.imagen, ...imgsGenerales].filter(Boolean))];
             return (
               <div className="flex flex-col sm:flex-row sm:max-h-[85vh]">
                 {/* LEFT: Image panel */}
