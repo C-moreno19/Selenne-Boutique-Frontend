@@ -1,2 +1,4 @@
 User-agent: *
 Allow: /
+
+Sitemap: https://selenne-boutique.vercel.app/sitemap.xml

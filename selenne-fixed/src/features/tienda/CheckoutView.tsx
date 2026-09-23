@@ -776,8 +776,11 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                           <p className="text-sm text-gray-900 dark:text-[#F5EDE9]">{datosBanco.tipoCuenta}</p>
                         </div>
                         <div>
-                          <p className="text-xs text-gray-500 dark:text-[#b8a3ac]">Número de Cuenta</p>
-                          <p className="text-sm text-gray-900 dark:text-[#F5EDE9]">{datosBanco.numeroCuenta}</p>
+                          <p className="text-xs text-gray-500 dark:text-[#b8a3ac]">Llave Bre-B (Nequi)</p>
+                          <p className="text-sm text-gray-900 dark:text-[#F5EDE9] font-semibold">{datosBanco.numeroCuenta}</p>
+                          <p className="text-xs text-gray-400 dark:text-[#8a7a82] mt-0.5">
+                            No es un número de celular: pégala en la opción "Bre-B" / "Llave" de tu app bancaria (Nequi, Bancolombia, etc.) para transferir.
+                          </p>
                         </div>
                         <div>
                           <p className="text-xs text-gray-500 dark:text-[#b8a3ac]">Titular</p>
