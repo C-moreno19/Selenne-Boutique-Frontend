@@ -251,10 +251,10 @@ export const ProductoDetalleView: React.FC = () => {
         </button>
       </div>
 
-      <div className="max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
-        <div className="flex flex-col sm:flex-row sm:gap-10 lg:gap-14">
-          {/* LEFT: Image panel — grande, sin marco, tipo editorial */}
-          <div className="relative w-full h-[440px] sm:h-auto sm:w-[60%] sm:self-start sm:aspect-[4/5] lg:self-stretch lg:aspect-auto lg:max-h-[760px] flex-shrink-0 overflow-hidden rounded-xl bg-[#FBF8F5] dark:bg-[#2a2029]">
+      <div className="max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-3 sm:py-6">
+        <div className="flex flex-col sm:flex-row sm:gap-8 lg:gap-10">
+          {/* LEFT: Image panel — sin marco, tipo editorial */}
+          <div className="relative w-full h-[380px] sm:h-auto sm:w-[52%] sm:self-start sm:aspect-[4/5] lg:self-stretch lg:aspect-auto lg:max-h-[600px] flex-shrink-0 overflow-hidden rounded-xl bg-[#FBF8F5] dark:bg-[#2a2029]">
             <ImageCarousel
               key={`${producto.id}-${colorSeleccionado || "default"}`}
               imagenes={imgsForColor}
@@ -264,7 +264,7 @@ export const ProductoDetalleView: React.FC = () => {
           </div>
 
           {/* RIGHT: Details panel */}
-          <div className="flex-1 flex flex-col gap-5 pt-6 sm:pt-1">
+          <div className="flex-1 flex flex-col gap-4 pt-5 sm:pt-0">
             <div>
               <p style={{ fontFamily: FONT_SANS }} className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#A3395C] mb-2">
                 {[producto.tipoProducto, producto.subcategoria].filter(Boolean).join(" · ") || "Selenne Boutique"}
@@ -272,7 +272,7 @@ export const ProductoDetalleView: React.FC = () => {
               <div className="flex items-start justify-between gap-3">
                 <h1
                   style={{ fontFamily: FONT_SERIF }}
-                  className="text-3xl sm:text-4xl lg:text-[2.75rem] font-bold uppercase tracking-[0.01em] text-[#241B22] dark:text-[#F5EDE9] leading-[1.05]"
+                  className="text-2xl sm:text-3xl font-bold uppercase tracking-[0.01em] text-[#241B22] dark:text-[#F5EDE9] leading-[1.1]"
                 >
                   {producto.nombre}
                 </h1>
@@ -292,7 +292,7 @@ export const ProductoDetalleView: React.FC = () => {
 
             <div className="flex items-center justify-between" style={{ fontFamily: FONT_SANS }}>
               <div className="flex items-baseline gap-3">
-                <span className="text-2xl font-bold text-[#A3395C]">{formatPrecio(producto.precio)}</span>
+                <span className="text-xl font-bold text-[#A3395C]">{formatPrecio(producto.precio)}</span>
                 {producto.precioOriginal && (
                   <>
                     <span className="text-sm text-[#7d6f77] dark:text-[#b8a3ac] line-through">
@@ -485,10 +485,10 @@ export const ProductoDetalleView: React.FC = () => {
           .slice(0, 4);
         if (relacionados.length === 0) return null;
         return (
-          <div className="max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-10 sm:py-14 border-t border-[#E7E0DA] dark:border-[#453840]">
+          <div className="max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-8 sm:py-10 border-t border-[#E7E0DA] dark:border-[#453840]">
             <h2
               style={{ fontFamily: FONT_SERIF }}
-              className="text-xl sm:text-2xl font-bold uppercase tracking-[0.01em] text-[#241B22] dark:text-[#F5EDE9] mb-6"
+              className="text-lg sm:text-xl font-bold uppercase tracking-[0.01em] text-[#241B22] dark:text-[#F5EDE9] mb-5"
             >
               También te podría gustar
             </h2>
