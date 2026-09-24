@@ -16,6 +16,7 @@ import {
 import { Separator } from "../../components/ui/separator";
 import { ThemeToggle } from "../../components/ThemeToggle";
 import { StoreFooter } from "../../components/StoreFooter";
+import { CuponBanner } from "../../components/CuponBanner";
 import { ImageCarousel } from "../../components/figma/ImageCarousel";
 import { ResenasProducto } from "../../components/ResenasProducto";
 import { Estrellas } from "../../components/Estrellas";
@@ -240,6 +241,8 @@ export const ProductoDetalleView: React.FC = () => {
           </div>
         </div>
       </header>
+
+      <CuponBanner />
 
       <div className="max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-8 pt-4">
         <button

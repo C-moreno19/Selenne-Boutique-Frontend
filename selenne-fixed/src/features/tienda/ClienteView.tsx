@@ -34,6 +34,7 @@ import {
 } from "../../components/ui/select";
 import { SizeSelector } from "../../components/ui/size-selector";
 import { StoreFooter } from "../../components/StoreFooter";
+import { CuponBanner } from "../../components/CuponBanner";
 import { FiltrosPanel, type FiltrosAplicados } from "../../components/FiltrosPanel";
 import { EstadoVacioProductos } from "../../components/EstadoVacioProductos";
 import { Estrellas } from "../../components/Estrellas";
@@ -593,6 +594,8 @@ export const ClienteView: React.FC<ClienteViewProps> = ({
           )}
         </div>
       </header>
+
+      <CuponBanner />
 
       {/* Contenedor flexible para todas las vistas */}
       <main className="flex-1 flex flex-col">

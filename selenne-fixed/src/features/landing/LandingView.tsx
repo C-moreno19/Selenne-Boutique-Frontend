@@ -34,6 +34,7 @@ import {
 } from "../../components/ui/select";
 import { Separator } from "../../components/ui/separator";
 import { StoreFooter } from "../../components/StoreFooter";
+import { CuponBanner } from "../../components/CuponBanner";
 import { FiltrosPanel, type FiltrosAplicados } from "../../components/FiltrosPanel";
 import { EstadoVacioProductos } from "../../components/EstadoVacioProductos";
 import { Estrellas } from "../../components/Estrellas";
@@ -569,6 +570,8 @@ export const LandingView: React.FC<LandingViewProps> = ({
           )}
         </div>
       </header>
+
+      <CuponBanner />
 
       <main className="flex-1 flex flex-col">
         {vista === "home" && (
