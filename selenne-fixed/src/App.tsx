@@ -12,6 +12,7 @@ const RegisterView = lazy(() => import('./features/auth/pages/RegisterView').the
 const DashboardView = lazy(() => import('./features/dashboard/components/DashboardView').then(m => ({ default: m.DashboardView })));
 const ClienteView = lazy(() => import('./features/tienda/ClienteView').then(m => ({ default: m.ClienteView })));
 const CheckoutView = lazy(() => import('./features/tienda/CheckoutView').then(m => ({ default: m.CheckoutView })));
+const ProductoDetalleView = lazy(() => import('./features/tienda/ProductoDetalleView').then(m => ({ default: m.ProductoDetalleView })));
 import { AuthProvider, useAuth } from './shared/contexts/AuthContext';
 import { ThemeProvider } from './shared/contexts/ThemeContext';
 import { PermisosProvider } from './shared/contexts/PermisosContext';
@@ -106,6 +107,7 @@ function MainApp() {
               }
             />
             <Route path="/checkout" element={<CheckoutView onBack={() => navigate('/')} />} />
+            <Route path="/producto/:id" element={<ProductoDetalleView />} />
             <Route
               path="/login"
               element={
