@@ -52,7 +52,7 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
     <div className={`flex flex-col sm:flex-row gap-2 sm:gap-3 ${className}`}>
       {/* Riel de miniaturas — vertical en desktop */}
       {hayVarias && (
-        <div className="hidden sm:flex flex-col gap-2 w-[68px] flex-shrink-0 overflow-y-auto sm:pl-4 sm:pt-4 sm:pb-4">
+        <div className="hidden sm:flex flex-col gap-2 w-[68px] flex-shrink-0 overflow-y-auto">
           {imagenesValidas.map((img, idx) => (
             <button
               type="button"
