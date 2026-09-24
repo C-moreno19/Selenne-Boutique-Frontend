@@ -117,8 +117,12 @@ const AnimatedNumber: React.FC<{ value: number; format: (n: number) => string; d
   return <span className="tabular-nums">{format(Math.round(display))}</span>;
 };
 
+const FONT_SERIF = '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif';
+const FONT_SANS = '"Helvetica Neue", Helvetica, Arial, sans-serif';
+const GRADIENT = 'linear-gradient(120deg, #241B22 0%, #7a3350 55%, #A3395C 100%)';
+
 export const DashboardHome: React.FC = () => {
-  const { hasPermission } = useAuth();
+  const { hasPermission, user } = useAuth();
   const puedeEditarVentas = hasPermission('pedidos:editar');
   const { resolvedTheme } = useTheme();
   // Recharts no lee clases dark:, asi que los colores del grafico se
@@ -419,79 +423,92 @@ export const DashboardHome: React.FC = () => {
     XLSX.writeFile(wb, `${filename}.xlsx`);
   };
 
-  const cardShadow = { boxShadow: '0 2px 12px rgba(163, 57, 92, 0.07)' };
-  const cardShadowHover = { boxShadow: '0 6px 24px rgba(163, 57, 92, 0.13)' };
-
   return (
-    <div className="p-8 bg-[#FBF8F5] dark:bg-[#2a2029] min-h-screen">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="admin-page-title text-3xl font-medium tracking-[0.01em] text-[#241B22] dark:text-[#F5EDE9] mb-1">Dashboard</h1>
-        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-400 dark:text-[#b8a3ac]">
-          {loading ? 'Cargando datos...' : 'Resumen general del sistema'}
-        </p>
-      </div>
-
-      {/* 4 Tarjetas de Métricas */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {[
-          { label: 'Ventas del Período', rawValue: ventasPeriodoActual, format: formatCurrency, sub: dateRangeLabel, trend: tendenciaVentas?.texto ?? null, up: tendenciaVentas?.up ?? true, icon: <TrendingUp className="w-5 h-5 text-[#A3395C]" />, iconBg: 'bg-[#EFD9DF] dark:bg-[#3a2530]' },
-          { label: 'Pedidos del Período', rawValue: filteredPedidos.length, format: (n: number) => n.toLocaleString('es-CO'), sub: dateRangeLabel, trend: tendenciaPedidos?.texto ?? null, up: tendenciaPedidos?.up ?? true, icon: <ShoppingCart className="w-5 h-5 text-[#A3395C]" />, iconBg: 'bg-[#EFD9DF] dark:bg-[#3a2530]' },
-          { label: 'Clientes Activos', rawValue: totals.clientesActivos, format: (n: number) => n.toLocaleString('es-CO'), sub: 'Usuarios registrados (total)', trend: null, up: true, icon: <Users className="w-5 h-5 text-[#A3395C]" />, iconBg: 'bg-[#EFD9DF] dark:bg-[#3a2530]' },
-          { label: 'Productos Activos', rawValue: totals.productosStock, format: (n: number) => n.toLocaleString('es-CO'), sub: 'Productos en catálogo (total)', trend: null, up: true, icon: <Package className="w-5 h-5 text-[#A3395C]" />, iconBg: 'bg-[#EFD9DF] dark:bg-[#3a2530]' },
-        ].map((card, i) => (
-          <div key={card.label}
-            className="animate-fade-slide-in bg-white dark:bg-[#322631] rounded-xl p-6 border border-[#E7E0DA] dark:border-[#453840] transition-all duration-300 cursor-default hover:-translate-y-1"
-            style={{ ...cardShadow, animationDelay: `${i * 80}ms` }}
-            onMouseEnter={e => Object.assign((e.currentTarget as HTMLElement).style, cardShadowHover)}
-            onMouseLeave={e => Object.assign((e.currentTarget as HTMLElement).style, cardShadow)}>
-            <div className="flex items-center justify-between mb-5">
-              <div className={`w-10 h-10 ${card.iconBg} rounded-xl flex items-center justify-center`}>
-                {card.icon}
-              </div>
-              {card.trend && (
-                <span className={`text-xs font-semibold flex items-center gap-0.5 ${card.up ? 'text-emerald-600' : 'text-red-400'}`}>
-                  {card.up ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-                  {card.trend}
-                </span>
-              )}
-            </div>
-            <p className="text-xs text-gray-400 dark:text-[#b8a3ac] mb-1 uppercase tracking-wide">{card.label}</p>
-            <p className="text-3xl font-bold text-[#241B22] dark:text-[#F5EDE9] mb-1">
-              <AnimatedNumber value={card.rawValue} format={card.format} />
-            </p>
-            <p className="text-xs text-gray-400 dark:text-[#b8a3ac]">{card.sub}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* Selector de fechas */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-        <h2 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-lg font-semibold text-[#241B22] dark:text-[#F5EDE9]">Análisis de Ventas</h2>
-        <div className="flex items-center gap-2 bg-white dark:bg-[#322631] border border-[#E7E0DA] dark:border-[#453840] rounded-xl px-4 py-2.5" style={cardShadow}>
-          <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac] whitespace-nowrap">Desde</span>
+    <div className="p-6 sm:p-8 bg-[#FBF8F5] dark:bg-[#2a2029] min-h-screen">
+      {/* Header: saludo + selector de fechas */}
+      <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5 mb-8">
+        <div>
+          <p style={{ fontFamily: FONT_SANS }} className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#A3395C] mb-1.5">Panel de control</p>
+          <h1 style={{ fontFamily: FONT_SERIF }} className="text-3xl sm:text-4xl font-bold text-[#241B22] dark:text-[#F5EDE9] leading-tight">
+            Hola{user?.name ? `, ${user.name.split(' ')[0]}` : ''}
+          </h1>
+          <p style={{ fontFamily: FONT_SANS }} className="text-sm text-gray-400 dark:text-[#b8a3ac] mt-1">
+            {loading ? 'Cargando datos…' : `Esto es lo que pasó ${dateRangeLabel}`}
+          </p>
+        </div>
+        <div className="flex items-center gap-2 bg-white dark:bg-[#322631] border border-[#E7E0DA] dark:border-[#453840] rounded-xl px-4 py-2.5 shadow-sm flex-shrink-0">
+          <span style={{ fontFamily: FONT_SANS }} className="text-xs text-gray-400 dark:text-[#b8a3ac] whitespace-nowrap">Desde</span>
           <input type="date" value={toInputValue(dateRange.from)} max={toInputValue(dateRange.to)}
             onChange={(e) => { const val = e.target.value; if (val) setDateRange((prev) => ({ ...prev, from: new Date(val + 'T00:00:00') })); }}
-            className="text-sm text-gray-600 dark:text-[#F5EDE9] border-none outline-none bg-transparent cursor-pointer" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} />
+            className="text-sm text-gray-600 dark:text-[#F5EDE9] border-none outline-none bg-transparent cursor-pointer" style={{ fontFamily: FONT_SANS }} />
           <span className="text-gray-300 dark:text-[#5a4d52]">—</span>
-          <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac] whitespace-nowrap">Hasta</span>
+          <span style={{ fontFamily: FONT_SANS }} className="text-xs text-gray-400 dark:text-[#b8a3ac] whitespace-nowrap">Hasta</span>
           <input type="date" value={toInputValue(dateRange.to)} min={toInputValue(dateRange.from)} max={toInputValue(new Date())}
             onChange={(e) => { const val = e.target.value; if (val) setDateRange((prev) => ({ ...prev, to: new Date(val + 'T00:00:00') })); }}
-            className="text-sm text-gray-600 dark:text-[#F5EDE9] border-none outline-none bg-transparent cursor-pointer" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} />
+            className="text-sm text-gray-600 dark:text-[#F5EDE9] border-none outline-none bg-transparent cursor-pointer" style={{ fontFamily: FONT_SANS }} />
           <button onClick={() => setDateRange(defaultDateRange())}
-            className="ml-1 text-xs text-[#A3395C] hover:text-[#8a2e4d] whitespace-nowrap transition" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+            className="ml-1 text-xs text-[#A3395C] hover:text-[#8a2e4d] whitespace-nowrap transition" style={{ fontFamily: FONT_SANS }}>
             Resetear
           </button>
         </div>
       </div>
 
+      {/* Hero: Ventas del período + 3 métricas secundarias */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-6">
+        <div className="lg:col-span-2 relative overflow-hidden rounded-2xl p-7 sm:p-8 text-white animate-fade-slide-in" style={{ background: GRADIENT }}>
+          <div className="absolute -right-10 -top-14 w-56 h-56 rounded-full bg-white/5 pointer-events-none" />
+          <div className="absolute right-10 -bottom-16 w-32 h-32 rounded-full bg-white/5 pointer-events-none" />
+          <div className="relative flex flex-col sm:flex-row sm:items-end sm:justify-between gap-5">
+            <div>
+              <p style={{ fontFamily: FONT_SANS }} className="text-xs uppercase tracking-[0.18em] text-white/70 mb-3">Ventas del período</p>
+              <p style={{ fontFamily: FONT_SERIF }} className="text-4xl sm:text-5xl font-bold leading-none">
+                <AnimatedNumber value={ventasPeriodoActual} format={formatCurrency} />
+              </p>
+              <p style={{ fontFamily: FONT_SANS }} className="text-sm text-white/70 mt-3">{dateRangeLabel}</p>
+            </div>
+            {tendenciaVentas && (
+              <span style={{ fontFamily: FONT_SANS }} className={`inline-flex items-center gap-1.5 text-sm font-semibold px-3 py-1.5 rounded-full flex-shrink-0 ${tendenciaVentas.up ? 'bg-emerald-400/20 text-emerald-100' : 'bg-red-400/20 text-red-100'}`}>
+                {tendenciaVentas.up ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
+                {tendenciaVentas.texto} vs. período anterior
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-4 sm:gap-6">
+          {[
+            { label: 'Pedidos', rawValue: filteredPedidos.length, format: (n: number) => n.toLocaleString('es-CO'), trend: tendenciaPedidos, icon: <ShoppingCart className="w-4 h-4 text-[#A3395C]" /> },
+            { label: 'Clientes', rawValue: totals.clientesActivos, format: (n: number) => n.toLocaleString('es-CO'), trend: null, icon: <Users className="w-4 h-4 text-[#A3395C]" /> },
+            { label: 'Productos', rawValue: totals.productosStock, format: (n: number) => n.toLocaleString('es-CO'), trend: null, icon: <Package className="w-4 h-4 text-[#A3395C]" /> },
+          ].map((card, i) => (
+            <div key={card.label}
+              className="animate-fade-slide-in bg-white dark:bg-[#322631] rounded-2xl p-5 border border-[#E7E0DA] dark:border-[#453840] shadow-sm flex items-center gap-4"
+              style={{ animationDelay: `${i * 80}ms` }}>
+              <div className="w-10 h-10 bg-[#FBF8F5] dark:bg-[#2a2029] rounded-xl flex items-center justify-center flex-shrink-0">
+                {card.icon}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p style={{ fontFamily: FONT_SANS }} className="text-xs text-gray-400 dark:text-[#b8a3ac] uppercase tracking-wide">{card.label}</p>
+                <p className="text-xl font-bold text-[#241B22] dark:text-[#F5EDE9] tabular-nums"><AnimatedNumber value={card.rawValue} format={card.format} /></p>
+              </div>
+              {card.trend && (
+                <span className={`text-xs font-semibold flex items-center gap-0.5 flex-shrink-0 ${card.trend.up ? 'text-emerald-600' : 'text-red-400'}`}>
+                  {card.trend.up ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                  {card.trend.texto}
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Gráficos */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <div className="animate-fade-slide-in bg-white dark:bg-[#322631] rounded-xl p-6 border border-[#E7E0DA] dark:border-[#453840]" style={{ ...cardShadow, animationDelay: '160ms' }}>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6">
+        <div className="animate-fade-slide-in bg-white dark:bg-[#322631] rounded-2xl p-6 border border-[#E7E0DA] dark:border-[#453840] shadow-sm" style={{ animationDelay: '160ms' }}>
           <div className="flex items-start justify-between mb-5">
             <div>
-              <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#241B22] dark:text-[#F5EDE9] mb-0.5">Ventas por Período</h3>
-              <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac]">{dateRangeLabel}</p>
+              <h3 style={{ fontFamily: FONT_SERIF }} className="text-base font-bold text-[#241B22] dark:text-[#F5EDE9] mb-0.5">Ventas por Período</h3>
+              <p style={{ fontFamily: FONT_SANS }} className="text-xs text-gray-400 dark:text-[#b8a3ac]">{dateRangeLabel}</p>
             </div>
             <button onClick={() => handleExport('Ventas Mensuales')} className="p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-lg transition-all hover:scale-110 active:scale-95" title="Exportar">
               <Download className="w-4 h-4 text-[#A3395C]" />
@@ -500,19 +517,19 @@ export const DashboardHome: React.FC = () => {
           <ResponsiveContainer width="100%" height={250}>
             <LineChart data={salesData}>
               <CartesianGrid strokeDasharray="3 3" stroke={chartGrid} />
-              <XAxis dataKey="name" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: '11px' }} stroke={chartAxis} tick={{ fill: chartTick }} />
-              <YAxis style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: '11px' }} stroke={chartAxis} tick={{ fill: chartTick }} />
+              <XAxis dataKey="name" style={{ fontFamily: FONT_SANS, fontSize: '11px' }} stroke={chartAxis} tick={{ fill: chartTick }} />
+              <YAxis style={{ fontFamily: FONT_SANS, fontSize: '11px' }} stroke={chartAxis} tick={{ fill: chartTick }} />
               <Tooltip contentStyle={tooltipStyle} />
               <Line type="monotone" dataKey="value" name="Ventas" stroke="#A3395C" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: '#A3395C', stroke: '#fff', strokeWidth: 2 }} />
             </LineChart>
           </ResponsiveContainer>
         </div>
 
-        <div className="animate-fade-slide-in bg-white dark:bg-[#322631] rounded-xl p-6 border border-[#E7E0DA] dark:border-[#453840]" style={{ ...cardShadow, animationDelay: '220ms' }}>
+        <div className="animate-fade-slide-in bg-white dark:bg-[#322631] rounded-2xl p-6 border border-[#E7E0DA] dark:border-[#453840] shadow-sm" style={{ animationDelay: '220ms' }}>
           <div className="flex items-start justify-between mb-5">
             <div>
-              <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#241B22] dark:text-[#F5EDE9] mb-0.5">Productos Más Vendidos</h3>
-              <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac]">{dateRangeLabel}</p>
+              <h3 style={{ fontFamily: FONT_SERIF }} className="text-base font-bold text-[#241B22] dark:text-[#F5EDE9] mb-0.5">Productos Más Vendidos</h3>
+              <p style={{ fontFamily: FONT_SANS }} className="text-xs text-gray-400 dark:text-[#b8a3ac]">{dateRangeLabel}</p>
             </div>
             <button onClick={() => handleExport('Productos Más Vendidos')} className="p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-lg transition-all hover:scale-110 active:scale-95" title="Exportar">
               <Download className="w-4 h-4 text-[#A3395C]" />
@@ -521,8 +538,8 @@ export const DashboardHome: React.FC = () => {
           <ResponsiveContainer width="100%" height={250}>
             <BarChart data={topProductsData}>
               <CartesianGrid strokeDasharray="3 3" stroke={chartGrid} />
-              <XAxis dataKey="name" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: '11px' }} stroke={chartAxis} tick={{ fill: chartTick }} />
-              <YAxis style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: '11px' }} stroke={chartAxis} tick={{ fill: chartTick }} />
+              <XAxis dataKey="name" style={{ fontFamily: FONT_SANS, fontSize: '11px' }} stroke={chartAxis} tick={{ fill: chartTick }} />
+              <YAxis style={{ fontFamily: FONT_SANS, fontSize: '11px' }} stroke={chartAxis} tick={{ fill: chartTick }} />
               <Tooltip contentStyle={tooltipStyle} />
               <Bar dataKey="value" fill="#A3395C" radius={[6, 6, 0, 0]} opacity={0.85} />
             </BarChart>
@@ -530,13 +547,13 @@ export const DashboardHome: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6">
         {/* Pedidos Pendientes */}
-        <div className="animate-fade-slide-in bg-white dark:bg-[#322631] rounded-xl p-6 border border-[#E7E0DA] dark:border-[#453840] flex flex-col" style={{ ...cardShadow, animationDelay: '280ms' }}>
+        <div className="animate-fade-slide-in bg-white dark:bg-[#322631] rounded-2xl p-6 border border-[#E7E0DA] dark:border-[#453840] shadow-sm flex flex-col" style={{ animationDelay: '280ms' }}>
           <div className="flex items-start justify-between mb-5">
             <div>
-              <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#241B22] dark:text-[#F5EDE9] mb-0.5">Pedidos Pendientes</h3>
-              <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac]">
+              <h3 style={{ fontFamily: FONT_SERIF }} className="text-base font-bold text-[#241B22] dark:text-[#F5EDE9] mb-0.5">Pedidos Pendientes</h3>
+              <p style={{ fontFamily: FONT_SANS }} className="text-xs text-gray-400 dark:text-[#b8a3ac]">
                 {pendingOrders.length === 0 ? 'Sin pedidos por revisar' : `${pendingOrders.length} pedido${pendingOrders.length !== 1 ? 's' : ''} por revisar`}
               </p>
             </div>
@@ -589,14 +606,14 @@ export const DashboardHome: React.FC = () => {
         </div>
 
         {/* Últimas Ventas */}
-        <div className="animate-fade-slide-in bg-white dark:bg-[#322631] rounded-xl p-6 border border-[#E7E0DA] dark:border-[#453840]" style={{ ...cardShadow, animationDelay: '340ms' }}>
+        <div className="animate-fade-slide-in bg-white dark:bg-[#322631] rounded-2xl p-6 border border-[#E7E0DA] dark:border-[#453840] shadow-sm" style={{ animationDelay: '340ms' }}>
           <div className="flex items-center justify-between mb-5">
             <div>
-              <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#241B22] dark:text-[#F5EDE9] mb-0.5">Últimas Ventas</h3>
-              <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac]">{dateRangeLabel}</p>
+              <h3 style={{ fontFamily: FONT_SERIF }} className="text-base font-bold text-[#241B22] dark:text-[#F5EDE9] mb-0.5">Últimas Ventas</h3>
+              <p style={{ fontFamily: FONT_SANS }} className="text-xs text-gray-400 dark:text-[#b8a3ac]">{dateRangeLabel}</p>
             </div>
             <button onClick={() => setSalesDetailOpen(true)}
-              className="group text-xs text-[#A3395C] hover:text-[#8a2e4d] transition flex items-center gap-1" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+              className="group text-xs text-[#A3395C] hover:text-[#8a2e4d] transition flex items-center gap-1" style={{ fontFamily: FONT_SANS }}>
               Ver todo <ChevronRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5" />
             </button>
           </div>
@@ -632,7 +649,7 @@ export const DashboardHome: React.FC = () => {
                 <Download className="w-4 h-4 text-[#A3395C]" />
               </div>
               <div>
-                <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-base font-semibold text-[#241B22] dark:text-[#F5EDE9]">Generar Reporte</DialogTitle>
+                <DialogTitle style={{ fontFamily: FONT_SERIF }} className="text-base font-bold text-[#241B22] dark:text-[#F5EDE9]">Generar Reporte</DialogTitle>
                 <DialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac] mt-0.5">Período: {dateRangeLabel}</DialogDescription>
               </div>
             </div>
@@ -698,7 +715,7 @@ export const DashboardHome: React.FC = () => {
       <Dialog open={salesDetailOpen} onOpenChange={setSalesDetailOpen}>
         <DialogContent className="max-w-2xl p-0 gap-0">
           <DialogHeader className="px-8 pt-6 pb-4 border-b border-[#E7E0DA] dark:border-[#453840]">
-            <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-base font-semibold text-[#241B22] dark:text-[#F5EDE9]">Ventas del Período</DialogTitle>
+            <DialogTitle style={{ fontFamily: FONT_SERIF }} className="text-base font-bold text-[#241B22] dark:text-[#F5EDE9]">Ventas del Período</DialogTitle>
             <DialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac]">
               {dateRangeLabel} · {recentSales.length} venta{recentSales.length !== 1 ? 's' : ''}
             </DialogDescription>

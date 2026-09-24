@@ -39,8 +39,15 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
 }) => {
   const { user } = useAuth();
   const { canAccessSection } = usePermisos();
-  const { isOpen } = useSidebar();
+  const { isOpen, closeSidebar } = useSidebar();
   const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>({});
+
+  // Navega y, en pantallas angostas, cierra el sidebar (ahi es un panel
+  // superpuesto, no una columna fija, asi que debe quitarse del camino).
+  const navegarA = (section: DashboardSection) => {
+    onSectionChange(section);
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) closeSidebar();
+  };
 
   const menuItems: MenuItem[] = [
     { 
@@ -223,7 +230,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
         <div className="p-6 border-b border-[#E7E0DA] dark:border-[#453840]">
           <div
             className="flex items-center gap-3 cursor-pointer group"
-            onClick={() => onSectionChange('home')}
+            onClick={() => navegarA('home')}
           >
             <Logo className="h-8 w-8 flex-shrink-0 transition-transform duration-300 group-hover:scale-105" />
             <span className="text-[18px] text-[#241B22] dark:text-[#F5EDE9] transition group-hover:text-[#A3395C]">
@@ -254,7 +261,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                     if (item.subItems) {
                       toggleMenu(menuKey);
                     } else if (item.id) {
-                      onSectionChange(item.id);
+                      navegarA(item.id);
                     }
                   }}
                   className={`group relative w-full flex items-center gap-3 pl-4 pr-3 py-2.5 rounded-lg transition-all duration-200 ${
@@ -301,7 +308,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                                   if (subItem.subItems) {
                                     toggleMenu(subMenuKey);
                                   } else if (subItem.id) {
-                                    onSectionChange(subItem.id);
+                                    navegarA(subItem.id);
                                   }
                                 }}
                                 className={`group w-full flex items-center gap-2 pl-3 pr-3 py-2 rounded-lg transition-all duration-200 text-left ${
@@ -333,7 +340,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                                           key={nestedIdx}
                                           onClick={() => {
                                             if (nestedItem.id) {
-                                              onSectionChange(nestedItem.id);
+                                              navegarA(nestedItem.id);
                                             }
                                           }}
                                           className={`w-full flex items-center gap-2 pl-3 pr-3 py-1.5 rounded-lg transition-all duration-200 text-left ${

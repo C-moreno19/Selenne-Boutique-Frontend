@@ -68,7 +68,7 @@ const REDIRECT_PRIORITY: DashboardSection[] = [
 export const DashboardView: React.FC<DashboardViewProps> = ({ onLogout }) => {
   const { user, refreshPermisos } = useAuth();
   const { canAccessSection } = usePermisos();
-  const { isOpen } = useSidebar();
+  const { isOpen, closeSidebar } = useSidebar();
 
   const [currentSection, setCurrentSectionState] = useState<DashboardSection>(() => {
     const saved = localStorage.getItem('currentSection') as DashboardSection;
@@ -183,6 +183,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onLogout }) => {
         onSectionChange={setCurrentSection}
       />
 
+      {/* Fondo oscuro que cierra el sidebar al tocarlo — solo en pantallas
+          angostas, donde el sidebar flota encima del contenido en vez de
+          empujarlo. */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 z-30 lg:hidden"
+          onClick={closeSidebar}
+          aria-hidden="true"
+        />
+      )}
+
       {/* Header Superior */}
       <DashboardHeader
         currentSection={currentSection}
@@ -191,9 +202,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onLogout }) => {
       />
 
       {/* Contenido Principal */}
-      <main 
+      <main
         className={`pt-20 min-h-screen transition-all duration-300 ${
-          isOpen ? 'ml-64' : 'ml-0'
+          isOpen ? 'lg:ml-64' : 'ml-0'
         }`}
       >
         {renderContent()}

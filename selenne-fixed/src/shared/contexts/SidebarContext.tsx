@@ -9,8 +9,12 @@ interface SidebarContextType {
 
 const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
 
+// En pantallas angostas (celular/tablet chico) el sidebar arranca cerrado
+// para no comerse todo el ancho disponible; en desktop arranca abierto.
+const isDesktopInicial = () => typeof window !== 'undefined' && window.innerWidth >= 1024;
+
 export const SidebarProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(isDesktopInicial);
 
   const toggleSidebar = () => setIsOpen(!isOpen);
   const closeSidebar = () => setIsOpen(false);
