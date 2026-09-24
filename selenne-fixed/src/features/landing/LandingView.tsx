@@ -624,7 +624,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                 Ver todo →
               </button>
             </div>
-            <div className="flex gap-4 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-4 sm:overflow-visible">
+            <div className={`flex gap-4 sm:gap-6 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap sm:overflow-visible ${destacados.length < 4 ? 'sm:justify-center' : ''}`}>
               {destacados.map((producto, indiceDestacado) => (
                 <motion.button
                   key={producto.id}
@@ -632,9 +632,9 @@ export const LandingView: React.FC<LandingViewProps> = ({
                   initial={{ opacity: 0, y: 20, scale: 0.97 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   transition={{ duration: 0.55, delay: indiceDestacado * 0.06, ease: [0.16, 1, 0.3, 1] }}
-                  className="text-left flex-shrink-0 w-40 sm:w-auto group"
+                  className="text-left flex-shrink-0 w-40 sm:w-56 group"
                 >
-                  <div className="rounded-xl overflow-hidden mb-2 border border-[#F0C9D9] dark:border-[#A3395C]/50 shadow-sm transition-shadow duration-300 group-hover:shadow-lg">
+                  <div className="rounded-xl overflow-hidden mb-2 border border-[#E7E0DA] dark:border-[#453840] shadow-sm transition-shadow duration-300 group-hover:shadow-lg">
                     <img
                       src={producto.imagen}
                       alt={producto.nombre}

@@ -216,7 +216,7 @@ export const TiendaProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         saveGuestCart(updated);
         return updated;
       });
-      toast.success('Producto agregado', { description: `${producto.nombre} - Talla ${talla} x${cantidad}` });
+      toast.success('Producto agregado', { id: 'carrito', description: `${producto.nombre} - Talla ${talla} x${cantidad}` });
       return;
     }
 
@@ -232,9 +232,9 @@ export const TiendaProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         i => i.id === producto.id && i.tallaSeleccionada === talla && (i.colorSeleccionado || '') === (color || '')
       );
       if (existing) {
-        toast.success('Cantidad actualizada', { description: `${producto.nombre} - Talla ${talla} (+${cantidad})` });
+        toast.success('Cantidad actualizada', { id: 'carrito', description: `${producto.nombre} - Talla ${talla} (+${cantidad})` });
       } else {
-        toast.success('Producto agregado', { description: `${producto.nombre} - Talla ${talla} x${cantidad}` });
+        toast.success('Producto agregado', { id: 'carrito', description: `${producto.nombre} - Talla ${talla} x${cantidad}` });
       }
 
       // Sincronizar el carrito completo en segundo plano — no bloquea la alerta.
@@ -258,7 +258,7 @@ export const TiendaProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         setCarritoItems(items);
       }).catch(() => {});
     } catch (_) {
-      toast.error('No se pudo agregar al carrito');
+      toast.error('No se pudo agregar al carrito', { id: 'carrito' });
     }
   };
 
@@ -269,15 +269,16 @@ export const TiendaProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         saveGuestCart(updated);
         return updated;
       });
-      toast.success('Producto eliminado del carrito');
+      toast.success('Producto eliminado del carrito', { id: 'carrito' });
       return;
     }
+    // Optimista: quita del carrito y avisa de inmediato, sin esperar al servidor.
+    setCarritoItems(items => items.filter(item => item.carritoID !== carritoID));
+    toast.success('Producto eliminado del carrito', { id: 'carrito' });
     try {
       await api.deleteJson(`/api/carrito/items/${carritoID}`);
-      setCarritoItems(items => items.filter(item => item.carritoID !== carritoID));
-      toast.success('Producto eliminado del carrito');
     } catch (_) {
-      toast.error('No se pudo eliminar del carrito');
+      toast.error('No se pudo eliminar del carrito', { id: 'carrito' });
     }
   };
 
@@ -292,13 +293,14 @@ export const TiendaProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       });
       return;
     }
+    // Optimista: refleja la cantidad de inmediato, sin esperar al servidor.
+    setCarritoItems(items =>
+      items.map(item => item.carritoID === carritoID ? { ...item, cantidad } : item)
+    );
     try {
       await api.putJson(`/api/carrito/items/${carritoID}`, { Cantidad: cantidad });
-      setCarritoItems(items =>
-        items.map(item => item.carritoID === carritoID ? { ...item, cantidad } : item)
-      );
     } catch (_) {
-      toast.error('No se pudo actualizar la cantidad');
+      toast.error('No se pudo actualizar la cantidad', { id: 'carrito' });
     }
   };
 
