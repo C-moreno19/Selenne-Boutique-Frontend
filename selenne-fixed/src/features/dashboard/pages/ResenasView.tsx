@@ -6,10 +6,13 @@ import { toast } from '@/lib/toast';
 import { ConfirmDialog } from '../../../components/ConfirmDialog';
 import type { Valoracion } from '../../../types/models';
 
+// La columna Estado en la base de datos tiene un CHECK constraint que solo
+// acepta 'pendiente' | 'aprobada' | 'rechazada' (concuerda en genero con
+// "reseña"), no las formas en masculino.
 const TABS: { value: string; label: string }[] = [
   { value: 'pendiente', label: 'Pendientes' },
-  { value: 'aprobado', label: 'Aprobadas' },
-  { value: 'rechazado', label: 'Rechazadas' },
+  { value: 'aprobada', label: 'Aprobadas' },
+  { value: 'rechazada', label: 'Rechazadas' },
 ];
 
 export const ResenasView: React.FC = () => {
@@ -37,11 +40,11 @@ export const ResenasView: React.FC = () => {
 
   useEffect(() => { cargar(); }, [cargar]);
 
-  const moderar = async (id: number, nuevoEstado: 'aprobado' | 'rechazado') => {
+  const moderar = async (id: number, nuevoEstado: 'aprobada' | 'rechazada') => {
     setProcesando(id);
     try {
       await putJson(`/api/admin/valoraciones/${id}/estado`, { NuevoEstado: nuevoEstado });
-      toast.success(nuevoEstado === 'aprobado' ? 'Reseña aprobada' : 'Reseña rechazada');
+      toast.success(nuevoEstado === 'aprobada' ? 'Reseña aprobada' : 'Reseña rechazada');
       setResenas(prev => prev.filter(r => r.valoracionID !== id));
     } catch {
       toast.error('No se pudo actualizar la reseña');
@@ -93,7 +96,7 @@ export const ResenasView: React.FC = () => {
         <div className="flex justify-center py-16"><Loader2 className="w-6 h-6 animate-spin text-gray-400" /></div>
       ) : resenas.length === 0 ? (
         <div className="text-center py-16 text-gray-400 dark:text-[#b8a3ac] text-sm" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
-          No hay reseñas {tab === 'pendiente' ? 'pendientes' : tab === 'aprobado' ? 'aprobadas' : 'rechazadas'}.
+          No hay reseñas {tab === 'pendiente' ? 'pendientes' : tab === 'aprobada' ? 'aprobadas' : 'rechazadas'}.
         </div>
       ) : (
         <div className="space-y-3">
@@ -125,14 +128,14 @@ export const ResenasView: React.FC = () => {
 
               {puedeModerar && (
                 <div className="flex sm:flex-col gap-2 flex-shrink-0">
-                  {tab !== 'aprobado' && (
-                    <button onClick={() => moderar(r.valoracionID, 'aprobado')} disabled={procesando === r.valoracionID}
+                  {tab !== 'aprobada' && (
+                    <button onClick={() => moderar(r.valoracionID, 'aprobada')} disabled={procesando === r.valoracionID}
                       className="h-9 px-3 text-xs font-semibold text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-950/40 rounded-lg flex items-center gap-1.5 hover:opacity-80 disabled:opacity-50">
                       <Check className="w-3.5 h-3.5" /> Aprobar
                     </button>
                   )}
-                  {tab !== 'rechazado' && (
-                    <button onClick={() => moderar(r.valoracionID, 'rechazado')} disabled={procesando === r.valoracionID}
+                  {tab !== 'rechazada' && (
+                    <button onClick={() => moderar(r.valoracionID, 'rechazada')} disabled={procesando === r.valoracionID}
                       className="h-9 px-3 text-xs font-semibold text-orange-700 dark:text-orange-400 bg-orange-50 dark:bg-orange-950/40 rounded-lg flex items-center gap-1.5 hover:opacity-80 disabled:opacity-50">
                       <X className="w-3.5 h-3.5" /> Rechazar
                     </button>
