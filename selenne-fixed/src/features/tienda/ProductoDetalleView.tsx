@@ -251,10 +251,10 @@ export const ProductoDetalleView: React.FC = () => {
         </button>
       </div>
 
-      <div className="max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-4 sm:py-8 flex-1">
-        <div className="flex flex-col sm:flex-row rounded-2xl border border-[#E7E0DA] dark:border-[#453840] overflow-hidden">
-          {/* LEFT: Image panel */}
-          <div className="relative w-full h-[420px] sm:w-[54%] sm:min-w-[54%] sm:h-auto flex-shrink-0 overflow-hidden bg-[#FBF8F5] dark:bg-[#2a2029]">
+      <div className="max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
+        <div className="flex flex-col sm:flex-row sm:gap-10 lg:gap-14">
+          {/* LEFT: Image panel — grande, sin marco, tipo editorial */}
+          <div className="relative w-full h-[440px] sm:h-auto sm:w-[60%] sm:min-h-[600px] sm:max-h-[760px] flex-shrink-0 overflow-hidden rounded-xl bg-[#FBF8F5] dark:bg-[#2a2029]">
             <ImageCarousel
               key={`${producto.id}-${colorSeleccionado || "default"}`}
               imagenes={imgsForColor}
@@ -264,30 +264,35 @@ export const ProductoDetalleView: React.FC = () => {
           </div>
 
           {/* RIGHT: Details panel */}
-          <div className="flex-1 flex flex-col gap-4 p-5 sm:p-8 bg-white dark:bg-[#322631]">
-            <div className="flex items-start justify-between gap-3">
-              <h1
-                style={{ fontFamily: FONT_SERIF }}
-                className="text-2xl sm:text-3xl font-bold uppercase tracking-[0.01em] text-[#241B22] dark:text-[#F5EDE9] leading-tight"
-              >
-                {producto.nombre}
-              </h1>
-              <button
-                onClick={() => toggleFavorito(producto.id)}
-                title={esFavorito(producto.id) ? "Quitar de favoritos" : "Agregar a favoritos"}
-                className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all flex-shrink-0 ${
-                  esFavorito(producto.id)
-                    ? "border-[#A3395C] bg-[#A3395C] text-white"
-                    : "border-[#E7E0DA] dark:border-[#453840] text-[#7d6f77] dark:text-[#b8a3ac] hover:border-[#A3395C] hover:text-[#A3395C]"
-                }`}
-              >
-                <Heart className="w-4 h-4" fill={esFavorito(producto.id) ? "currentColor" : "none"} />
-              </button>
+          <div className="flex-1 flex flex-col gap-5 pt-6 sm:pt-1">
+            <div>
+              <p style={{ fontFamily: FONT_SANS }} className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#A3395C] mb-2">
+                {[producto.tipoProducto, producto.subcategoria].filter(Boolean).join(" · ") || "Selenne Boutique"}
+              </p>
+              <div className="flex items-start justify-between gap-3">
+                <h1
+                  style={{ fontFamily: FONT_SERIF }}
+                  className="text-3xl sm:text-4xl lg:text-[2.75rem] font-bold uppercase tracking-[0.01em] text-[#241B22] dark:text-[#F5EDE9] leading-[1.05]"
+                >
+                  {producto.nombre}
+                </h1>
+                <button
+                  onClick={() => toggleFavorito(producto.id)}
+                  title={esFavorito(producto.id) ? "Quitar de favoritos" : "Agregar a favoritos"}
+                  className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all flex-shrink-0 ${
+                    esFavorito(producto.id)
+                      ? "border-[#A3395C] bg-[#A3395C] text-white"
+                      : "border-[#E7E0DA] dark:border-[#453840] text-[#7d6f77] dark:text-[#b8a3ac] hover:border-[#A3395C] hover:text-[#A3395C]"
+                  }`}
+                >
+                  <Heart className="w-4 h-4" fill={esFavorito(producto.id) ? "currentColor" : "none"} />
+                </button>
+              </div>
             </div>
 
-            <div className="flex items-center justify-between -mt-2" style={{ fontFamily: FONT_SANS }}>
+            <div className="flex items-center justify-between" style={{ fontFamily: FONT_SANS }}>
               <div className="flex items-baseline gap-3">
-                <span className="text-xl font-bold text-[#A3395C]">{formatPrecio(producto.precio)}</span>
+                <span className="text-2xl font-bold text-[#A3395C]">{formatPrecio(producto.precio)}</span>
                 {producto.precioOriginal && (
                   <>
                     <span className="text-sm text-[#7d6f77] dark:text-[#b8a3ac] line-through">
@@ -300,21 +305,6 @@ export const ProductoDetalleView: React.FC = () => {
                 )}
               </div>
               <Estrellas valor={producto.rating ?? 0} total={producto.totalValoraciones ?? 0} size={13} />
-            </div>
-
-            <div className="grid grid-cols-3 gap-1 bg-[#FBF8F5] dark:bg-[#2a2029] rounded-xl py-3 px-2">
-              <div className="flex flex-col items-center text-center gap-1.5 px-1">
-                <Package className="w-[16px] h-[16px] text-[#A3395C]" strokeWidth={1.75} />
-                <span style={{ fontFamily: FONT_SANS }} className="text-[9.5px] uppercase tracking-wide font-semibold text-[#7d6f77] dark:text-[#b8a3ac] leading-tight">3-5 días</span>
-              </div>
-              <div className="flex flex-col items-center text-center gap-1.5 px-1 border-x border-[#E7E0DA] dark:border-[#453840]">
-                <Globe className="w-[16px] h-[16px] text-[#A3395C]" strokeWidth={1.75} />
-                <span style={{ fontFamily: FONT_SANS }} className="text-[9.5px] uppercase tracking-wide font-semibold text-[#7d6f77] dark:text-[#b8a3ac] leading-tight">Todo el país</span>
-              </div>
-              <div className="flex flex-col items-center text-center gap-1.5 px-1">
-                <Lock className="w-[16px] h-[16px] text-[#A3395C]" strokeWidth={1.75} />
-                <span style={{ fontFamily: FONT_SANS }} className="text-[9.5px] uppercase tracking-wide font-semibold text-[#7d6f77] dark:text-[#b8a3ac] leading-tight">Pago seguro</span>
-              </div>
             </div>
 
             {producto.descripcion && (
@@ -463,6 +453,21 @@ export const ProductoDetalleView: React.FC = () => {
               {producto.agotado ? "Agotado" : "Comprar Ahora"}
             </button>
 
+            <div className="flex flex-col gap-2.5 pt-1" style={{ fontFamily: FONT_SANS }}>
+              <div className="flex items-center gap-2.5 text-xs text-[#7d6f77] dark:text-[#b8a3ac]">
+                <Package className="w-4 h-4 text-[#A3395C] flex-shrink-0" strokeWidth={1.75} />
+                <span>Entrega en 3-5 días hábiles</span>
+              </div>
+              <div className="flex items-center gap-2.5 text-xs text-[#7d6f77] dark:text-[#b8a3ac]">
+                <Globe className="w-4 h-4 text-[#A3395C] flex-shrink-0" strokeWidth={1.75} />
+                <span>Envíos a todo el país</span>
+              </div>
+              <div className="flex items-center gap-2.5 text-xs text-[#7d6f77] dark:text-[#b8a3ac]">
+                <Lock className="w-4 h-4 text-[#A3395C] flex-shrink-0" strokeWidth={1.75} />
+                <span>Pago 100% seguro</span>
+              </div>
+            </div>
+
             <Separator />
             <ResenasProducto
               productoId={producto.id}
@@ -473,6 +478,46 @@ export const ProductoDetalleView: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {(() => {
+        const relacionados = productosData
+          .filter((p) => p.id !== producto.id && p.categoria === producto.categoria)
+          .slice(0, 4);
+        if (relacionados.length === 0) return null;
+        return (
+          <div className="max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-10 sm:py-14 border-t border-[#E7E0DA] dark:border-[#453840]">
+            <h2
+              style={{ fontFamily: FONT_SERIF }}
+              className="text-xl sm:text-2xl font-bold uppercase tracking-[0.01em] text-[#241B22] dark:text-[#F5EDE9] mb-6"
+            >
+              También te podría gustar
+            </h2>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
+              {relacionados.map((p) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => navigate(`/producto/${p.id}`)}
+                  className="text-left group"
+                >
+                  <div className="aspect-[4/5] rounded-xl overflow-hidden bg-[#FBF8F5] dark:bg-[#2a2029] mb-3">
+                    <img
+                      src={p.imagen}
+                      alt={p.nombre}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      loading="lazy"
+                    />
+                  </div>
+                  <p style={{ fontFamily: FONT_SANS }} className="text-sm font-medium text-[#241B22] dark:text-[#F5EDE9] truncate">
+                    {p.nombre}
+                  </p>
+                  <p className="text-sm font-bold text-[#A3395C]">{formatPrecio(p.precio)}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
 
       <StoreFooter telefonoContacto={telefonoContacto} onCategoriaChange={irATienda} />
     </div>
