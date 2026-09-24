@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Search, Eye, Edit, Trash2, ChevronRight, Package, X, Loader2, Plus, Upload, Image as ImageIcon, ClipboardList, FileText, Tag, Ruler, Palette, Layers } from 'lucide-react';
+import { Search, Eye, Edit, Trash2, ChevronRight, Package, X, Loader2, Plus, Upload, Image as ImageIcon, ClipboardList, FileText, Tag, Ruler, Palette, Layers, ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '../../../components/ui/dialog';
 import { ConfirmDialog } from '../../../components/ConfirmDialog';
 import { Input } from '../../../components/ui/input';
@@ -87,6 +87,17 @@ export const ProductosView: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [categoriaFiltro, setCategoriaFiltro] = useState('todas');
   const [estadoFiltro, setEstadoFiltro] = useState('todos');
+  const [sortBy, setSortBy] = useState<'nombre' | 'precio' | 'stock' | null>(null);
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
+
+  const toggleSort = (campo: 'nombre' | 'precio' | 'stock') => {
+    if (sortBy === campo) {
+      setSortDir(d => d === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(campo);
+      setSortDir('asc');
+    }
+  };
   const [selectedProduct, setSelectedProduct] = useState<ProductoAdmin | null>(null);
   const [viewOpen, setViewOpen] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
@@ -119,8 +130,16 @@ export const ProductosView: React.FC = () => {
     if (estadoFiltro === 'no_publicado') list = list.filter(p => !p.activo);
     if (estadoFiltro === 'agotado') list = list.filter(p => p.stock === 0);
     if (estadoFiltro === 'stock_bajo') list = list.filter(p => p.stockBajo);
+    if (sortBy) {
+      const dir = sortDir === 'asc' ? 1 : -1;
+      list = [...list].sort((a, b) => {
+        if (sortBy === 'nombre') return a.nombre.localeCompare(b.nombre) * dir;
+        if (sortBy === 'precio') return ((a.precio ?? 0) - (b.precio ?? 0)) * dir;
+        return ((a.stock ?? 0) - (b.stock ?? 0)) * dir;
+      });
+    }
     return list;
-  }, [todosLosProductos, searchQuery, categoriaFiltro, estadoFiltro]);
+  }, [todosLosProductos, searchQuery, categoriaFiltro, estadoFiltro, sortBy, sortDir]);
 
   const toggleEstado = async (p: ProductoAdmin) => {
     if (!puedeEditar) return;
@@ -515,23 +534,46 @@ export const ProductosView: React.FC = () => {
             <thead className="bg-[#FBF8F5] dark:bg-[#2a2029] border-b border-[#E7E0DA] dark:border-[#453840]">
               <tr>
                 <th className="px-4 py-3 w-14"></th>
-                {['PRODUCTO', 'MARCA / CATEGORÍA', 'COSTO', 'VENTA', 'OFERTA', 'STOCK', 'TALLAS', 'PUBLICADO', ''].map(h => (
-                  <th key={h} className="px-4 py-3 text-left">
-                    <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-[#b8a3ac]">{h}</span>
+                {([
+                  { label: 'PRODUCTO', campo: 'nombre' as const },
+                  { label: 'MARCA / CATEGORÍA', campo: null },
+                  { label: 'COSTO', campo: null },
+                  { label: 'PRECIO', campo: 'precio' as const },
+                  { label: 'STOCK', campo: 'stock' as const },
+                  { label: 'TALLAS', campo: null },
+                  { label: 'PUBLICADO', campo: null },
+                  { label: '', campo: null },
+                ]).map(({ label, campo }) => (
+                  <th key={label || 'acciones'} className="px-4 py-3 text-left">
+                    {campo ? (
+                      <button
+                        onClick={() => toggleSort(campo)}
+                        style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                        className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-[#b8a3ac] hover:text-[#A3395C] dark:hover:text-[#A3395C] transition-colors"
+                      >
+                        {label}
+                        {sortBy === campo
+                          ? (sortDir === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />)
+                          : <ArrowUpDown className="w-3 h-3 opacity-40" />}
+                      </button>
+                    ) : (
+                      <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-[#b8a3ac]">{label}</span>
+                    )}
                   </th>
                 ))}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50 dark:divide-[#453840]">
               {filtered.map(p => (
-                <tr key={p.id} className="hover:bg-[#FBF8F5] dark:hover:bg-[#2a2029]/70 transition">
+                <tr key={p.id} className="group relative hover:bg-[#FBF8F5] dark:hover:bg-[#2a2029]/70 transition">
                   {/* Imagen */}
                   <td className="px-4 py-3">
+                    <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-[#A3395C] scale-y-0 group-hover:scale-y-100 transition-transform origin-center" />
                     {p.imagen ? (
-                      <img src={p.imagen} alt={p.nombre} className="w-11 h-11 object-cover rounded-lg border border-[#E7E0DA] dark:border-[#453840]" />
+                      <img src={p.imagen} alt={p.nombre} className="w-14 h-14 object-cover rounded-xl border border-[#E7E0DA] dark:border-[#453840] shadow-sm" />
                     ) : (
-                      <div className="w-11 h-11 bg-gray-100 dark:bg-[#362b34] rounded-lg flex items-center justify-center">
-                        <Package className="w-4 h-4 text-gray-300 dark:text-[#5a4d52]" />
+                      <div className="w-14 h-14 bg-gray-100 dark:bg-[#362b34] rounded-xl flex items-center justify-center">
+                        <Package className="w-5 h-5 text-gray-300 dark:text-[#5a4d52]" />
                       </div>
                     )}
                   </td>
@@ -549,15 +591,23 @@ export const ProductosView: React.FC = () => {
                   <td className="px-4 py-3">
                     <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500 dark:text-[#b8a3ac]">{fmt(p.precioCompra)}</span>
                   </td>
-                  {/* Venta */}
+                  {/* Precio (venta + oferta combinados) */}
                   <td className="px-4 py-3">
-                    <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#241B22] dark:text-[#F5EDE9]">{fmt(p.precio)}</span>
-                  </td>
-                  {/* Oferta */}
-                  <td className="px-4 py-3">
-                    {p.precioOferta
-                      ? <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#A3395C]">{fmt(p.precioOferta)}</span>
-                      : <span className="text-gray-300 dark:text-[#5a4d52] text-sm">—</span>}
+                    {p.precioOferta ? (
+                      <div className="flex flex-col gap-0.5">
+                        <div className="flex items-center gap-1.5">
+                          <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#A3395C]">{fmt(p.precioOferta)}</span>
+                          {p.precio > 0 && (
+                            <span className="px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400">
+                              -{Math.round((1 - p.precioOferta / p.precio) * 100)}%
+                            </span>
+                          )}
+                        </div>
+                        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac] line-through">{fmt(p.precio)}</span>
+                      </div>
+                    ) : (
+                      <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#241B22] dark:text-[#F5EDE9]">{fmt(p.precio)}</span>
+                    )}
                   </td>
                   {/* Stock */}
                   <td className="px-4 py-3">

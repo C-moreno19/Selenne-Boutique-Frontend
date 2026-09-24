@@ -13,8 +13,8 @@ interface ResenasProductoProps {
 }
 
 // Lista de reseñas aprobadas de un producto, con formulario para escribir una
-// nueva (solo si el usuario esta logueado — el backend valida ademas que haya
-// comprado el producto). Se usa tanto en ClienteView como en LandingView.
+// nueva (solo si el usuario esta logueado, sin exigir compra previa — el
+// backend igual marca "Compra verificada" si aplica). Se usa en toda la tienda.
 export function ResenasProducto({ productoId, promedio, total, puedeEscribir }: ResenasProductoProps) {
   const [resenas, setResenas] = useState<Valoracion[]>([]);
   const [cargando, setCargando] = useState(true);
