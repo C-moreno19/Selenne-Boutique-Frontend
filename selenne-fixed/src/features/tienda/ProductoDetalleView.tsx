@@ -254,7 +254,7 @@ export const ProductoDetalleView: React.FC = () => {
       <div className="max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
         <div className="flex flex-col sm:flex-row sm:gap-10 lg:gap-14">
           {/* LEFT: Image panel — grande, sin marco, tipo editorial */}
-          <div className="relative w-full h-[440px] sm:h-auto sm:w-[60%] sm:min-h-[600px] sm:max-h-[760px] flex-shrink-0 overflow-hidden rounded-xl bg-[#FBF8F5] dark:bg-[#2a2029]">
+          <div className="relative w-full h-[440px] sm:h-auto sm:w-[60%] sm:self-start sm:aspect-[4/5] lg:self-stretch lg:aspect-auto lg:max-h-[760px] flex-shrink-0 overflow-hidden rounded-xl bg-[#FBF8F5] dark:bg-[#2a2029]">
             <ImageCarousel
               key={`${producto.id}-${colorSeleccionado || "default"}`}
               imagenes={imgsForColor}
