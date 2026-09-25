@@ -43,6 +43,7 @@ import { FavoritosSheet } from "../../components/FavoritosSheet";
 import { useProductosCombinados } from "../../shared/data/useProductosCombinados";
 import { useProductos } from "../../shared/contexts/ProductosContext";
 import { useTienda } from "../../shared/contexts/TiendaContext";
+import { useAuth } from "../../shared/contexts/AuthContext";
 import { useSubcategorias } from "../../shared/contexts/SubcategoriasContext";
 import { getJson } from "../../services/api";
 import { formatCurrency } from "../../shared/utils";
@@ -67,6 +68,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
   const [mostrarTelefono, setMostrarTelefono] = useState(false);
   const [telefonoContacto, setTelefonoContacto] = useState('+57 304 292 8493');
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { categoria: categoriaUrl } = useParams<{ categoria?: string }>();
   // La categoria y la vista viven en la URL (/, /tienda/:categoria), no en
   // estado local: asi son compartibles y el back/forward del navegador funciona.
@@ -433,35 +435,48 @@ export const LandingView: React.FC<LandingViewProps> = ({
                   </div>
                 </SheetContent>
               </Sheet>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onNavigateToLogin}
-                className="hidden md:flex items-center gap-1 text-[#241B22] dark:text-[#F5EDE9] hover:text-[#A3395C] hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530]"
-                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              >
-                <LogIn className="w-4 h-4" />
-                Iniciar Sesión
-              </Button>
-              <Button
-                size="sm"
-                onClick={onNavigateToRegister}
-                className="hidden md:flex text-white border-0 transition-transform hover:scale-105"
-                style={{
-                  fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
-                  background: 'linear-gradient(90deg, #241B22 0%, #7a3350 55%, #A3395C 100%)',
-                }}
-              >
-                Registrarse
-              </Button>
-              <button
-                onClick={() => onNavigateToLogin()}
-                className="md:hidden p-1.5 sm:p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full transition-colors"
-                aria-label="Iniciar sesión"
-                title="Iniciar sesión"
-              >
-                <User className="w-[18px] h-[18px] sm:w-6 sm:h-6 text-[#241B22] dark:text-[#F5EDE9]" />
-              </button>
+              {user ? (
+                <button
+                  onClick={() => navigate('/dashboard')}
+                  className="p-1.5 sm:p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full transition-colors"
+                  aria-label="Mi cuenta"
+                  title={`Mi cuenta (${user.name || user.email})`}
+                >
+                  <User className="w-[18px] h-[18px] sm:w-6 sm:h-6 text-[#241B22] dark:text-[#F5EDE9]" />
+                </button>
+              ) : (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={onNavigateToLogin}
+                    className="hidden md:flex items-center gap-1 text-[#241B22] dark:text-[#F5EDE9] hover:text-[#A3395C] hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530]"
+                    style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                  >
+                    <LogIn className="w-4 h-4" />
+                    Iniciar Sesión
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={onNavigateToRegister}
+                    className="hidden md:flex text-white border-0 transition-transform hover:scale-105"
+                    style={{
+                      fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+                      background: 'linear-gradient(90deg, #241B22 0%, #7a3350 55%, #A3395C 100%)',
+                    }}
+                  >
+                    Registrarse
+                  </Button>
+                  <button
+                    onClick={() => onNavigateToLogin()}
+                    className="md:hidden p-1.5 sm:p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full transition-colors"
+                    aria-label="Iniciar sesión"
+                    title="Iniciar sesión"
+                  >
+                    <User className="w-[18px] h-[18px] sm:w-6 sm:h-6 text-[#241B22] dark:text-[#F5EDE9]" />
+                  </button>
+                </>
+              )}
               <FavoritosSheet
                 open={favoritosOpen}
                 onOpenChange={setFavoritosOpen}
@@ -550,22 +565,36 @@ export const LandingView: React.FC<LandingViewProps> = ({
                 Sale
               </button>
               <Separator className="my-4" />
-              <Button
-                variant="default"
-                className="w-full text-white border-0"
-                style={{ background: 'linear-gradient(90deg, #241B22 0%, #7a3350 55%, #A3395C 100%)' }}
-                onClick={onNavigateToLogin}
-              >
-                <LogIn className="w-4 h-4 mr-2" />
-                Iniciar Sesión
-              </Button>
-              <Button
-                variant="outline"
-                className="w-full border-[#A3395C] text-[#A3395C] hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530]"
-                onClick={onNavigateToRegister}
-              >
-                Registrarse
-              </Button>
+              {user ? (
+                <Button
+                  variant="default"
+                  className="w-full text-white border-0"
+                  style={{ background: 'linear-gradient(90deg, #241B22 0%, #7a3350 55%, #A3395C 100%)' }}
+                  onClick={() => { setMenuMovilAbierto(false); navigate('/dashboard'); }}
+                >
+                  <User className="w-4 h-4 mr-2" />
+                  Mi cuenta
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    variant="default"
+                    className="w-full text-white border-0"
+                    style={{ background: 'linear-gradient(90deg, #241B22 0%, #7a3350 55%, #A3395C 100%)' }}
+                    onClick={onNavigateToLogin}
+                  >
+                    <LogIn className="w-4 h-4 mr-2" />
+                    Iniciar Sesión
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full border-[#A3395C] text-[#A3395C] hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530]"
+                    onClick={onNavigateToRegister}
+                  >
+                    Registrarse
+                  </Button>
+                </>
+              )}
             </nav>
           )}
         </div>
