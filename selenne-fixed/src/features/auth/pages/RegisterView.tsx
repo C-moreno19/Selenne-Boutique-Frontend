@@ -279,12 +279,8 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
               <Logo className="w-[170px] h-[170px]" />
             </motion.div>
             <h1
-              className="text-[#000000] dark:text-[#F5EDE9] text-center"
-              style={{
-                fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
-                fontSize: '36px',
-                fontWeight: 'bold',
-              }}
+              className="text-[#241B22] dark:text-[#F5EDE9] text-center text-4xl font-bold"
+              style={{ fontFamily: '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}
             >
               Crear cuenta
             </h1>
