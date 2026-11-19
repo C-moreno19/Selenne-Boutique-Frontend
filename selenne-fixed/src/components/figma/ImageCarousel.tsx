@@ -52,14 +52,14 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
     <div className={`flex flex-col sm:flex-row gap-2 sm:gap-3 ${className}`}>
       {/* Riel de miniaturas — vertical en desktop */}
       {hayVarias && (
-        <div className="hidden sm:flex flex-col gap-2 w-[68px] flex-shrink-0 overflow-y-auto">
+        <div className="hidden sm:flex flex-col gap-2.5 w-[68px] flex-shrink-0 overflow-y-auto">
           {imagenesValidas.map((img, idx) => (
             <button
               type="button"
               key={idx}
               onClick={() => setImagenActual(idx)}
-              className={`w-[68px] h-[68px] rounded-lg overflow-hidden border-2 flex-shrink-0 transition-all ${
-                idx === imagenActual ? 'border-[#A3395C]' : 'border-transparent opacity-60 hover:opacity-100'
+              className={`w-[68px] h-[68px] overflow-hidden border flex-shrink-0 transition-all bg-[#FBF8F5] dark:bg-[#2a2029] ${
+                idx === imagenActual ? 'border-[#241B22] dark:border-[#F5EDE9]' : 'border-[#E7E0DA] dark:border-[#453840] opacity-60 hover:opacity-100'
               }`}
               aria-label={`Ver imagen ${idx + 1}`}
               title={`Imagen ${idx + 1}`}
@@ -105,7 +105,7 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
               <ChevronRight className="w-4 h-4" />
             </button>
 
-            <div className="absolute top-2.5 right-2.5 bg-[#241B22]/70 text-white px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide">
+            <div className="absolute top-2.5 right-2.5 bg-[#241B22]/80 text-white px-2.5 py-1 text-[10px] font-bold tracking-widest">
               {imagenActual + 1} / {imagenesValidas.length}
             </div>
           </>
@@ -120,8 +120,8 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
               type="button"
               key={idx}
               onClick={() => setImagenActual(idx)}
-              className={`w-14 h-14 rounded-lg overflow-hidden border-2 flex-shrink-0 transition-all ${
-                idx === imagenActual ? 'border-[#A3395C]' : 'border-transparent opacity-60'
+              className={`w-14 h-14 overflow-hidden border flex-shrink-0 transition-all bg-[#FBF8F5] dark:bg-[#2a2029] ${
+                idx === imagenActual ? 'border-[#241B22] dark:border-[#F5EDE9]' : 'border-[#E7E0DA] dark:border-[#453840] opacity-60'
               }`}
               aria-label={`Ver imagen ${idx + 1}`}
             >
