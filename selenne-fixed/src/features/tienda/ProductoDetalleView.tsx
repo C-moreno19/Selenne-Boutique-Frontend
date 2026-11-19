@@ -256,7 +256,7 @@ export const ProductoDetalleView: React.FC = () => {
       <div className="max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-3 sm:py-6">
         <div className="flex flex-col sm:flex-row sm:gap-8 lg:gap-10">
           {/* LEFT: Image panel — sin marco, tipo editorial */}
-          <div className="relative w-full h-[380px] sm:h-auto sm:w-[52%] sm:self-start sm:aspect-[4/5] lg:self-stretch lg:aspect-auto lg:max-h-[600px] flex-shrink-0 overflow-hidden rounded-xl bg-[#FBF8F5] dark:bg-[#2a2029]">
+          <div className="relative w-full h-[380px] sm:h-auto sm:w-[52%] sm:self-start sm:aspect-[4/5] lg:self-stretch lg:aspect-auto lg:max-h-[600px] flex-shrink-0 overflow-hidden bg-[#FBF8F5] dark:bg-[#2a2029]">
             <ImageCarousel
               key={`${producto.id}-${colorSeleccionado || "default"}`}
               imagenes={imgsForColor}
@@ -274,14 +274,14 @@ export const ProductoDetalleView: React.FC = () => {
               <div className="flex items-start justify-between gap-3">
                 <h1
                   style={{ fontFamily: FONT_SERIF }}
-                  className="text-2xl sm:text-3xl font-bold uppercase tracking-[0.01em] text-[#241B22] dark:text-[#F5EDE9] leading-[1.1]"
+                  className="text-3xl sm:text-5xl text-[#241B22] dark:text-[#F5EDE9] leading-[1.05]"
                 >
                   {producto.nombre}
                 </h1>
                 <button
                   onClick={() => toggleFavorito(producto.id)}
                   title={esFavorito(producto.id) ? "Quitar de favoritos" : "Agregar a favoritos"}
-                  className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all flex-shrink-0 ${
+                  className={`w-10 h-10 border flex items-center justify-center transition-all flex-shrink-0 ${
                     esFavorito(producto.id)
                       ? "border-[#A3395C] bg-[#A3395C] text-white"
                       : "border-[#E7E0DA] dark:border-[#453840] text-[#7d6f77] dark:text-[#b8a3ac] hover:border-[#A3395C] hover:text-[#A3395C]"
@@ -294,7 +294,7 @@ export const ProductoDetalleView: React.FC = () => {
 
             <div className="flex items-center justify-between" style={{ fontFamily: FONT_SANS }}>
               <div className="flex items-baseline gap-3">
-                <span className="text-xl font-bold text-[#A3395C]">{formatPrecio(producto.precio)}</span>
+                <span className="text-2xl font-bold text-[#241B22] dark:text-[#F5EDE9]">{formatPrecio(producto.precio)}</span>
                 {producto.precioOriginal && (
                   <>
                     <span className="text-sm text-[#7d6f77] dark:text-[#b8a3ac] line-through">
@@ -319,7 +319,7 @@ export const ProductoDetalleView: React.FC = () => {
 
             {producto.colores && producto.colores.length > 0 && (
               <div>
-                <p style={{ fontFamily: FONT_SANS }} className="text-sm font-semibold text-[#241B22] dark:text-[#F5EDE9] mb-2">Color</p>
+                <p style={{ fontFamily: FONT_SANS }} className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#241B22] dark:text-[#F5EDE9] mb-3">Color</p>
                 <div className="flex gap-3 flex-wrap">
                   {producto.colores.map((color) => {
                     const hexColor = getColorHex(color);
@@ -356,7 +356,7 @@ export const ProductoDetalleView: React.FC = () => {
               const todosVariantesCero = variantes.length > 0 && variantes.every((x) => (x.stock ?? 0) <= 0);
               return (
                 <div>
-                  <p style={{ fontFamily: FONT_SANS }} className="text-sm font-semibold text-[#241B22] dark:text-[#F5EDE9] mb-2">Talla</p>
+                  <p style={{ fontFamily: FONT_SANS }} className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#241B22] dark:text-[#F5EDE9] mb-3">Talla</p>
                   <div className="flex flex-wrap gap-2">
                     {tallasProducto.map((talla) => {
                       let sinStock = false;
@@ -384,7 +384,8 @@ export const ProductoDetalleView: React.FC = () => {
                           type="button"
                           disabled={sinStock}
                           onClick={() => !sinStock && setTallaSeleccionada(talla)}
-                          className={`min-w-10 h-10 px-3 rounded-full border text-sm font-medium transition-all ${
+                          style={{ fontFamily: FONT_SANS }}
+                          className={`min-w-11 h-11 px-3 border text-xs font-semibold uppercase tracking-wide transition-all ${
                             sinStock
                               ? "border-[#E7E0DA] dark:border-[#453840] text-[#c3bab3] dark:text-[#5a4d52] bg-[#FBF8F5] dark:bg-[#2a2029] cursor-not-allowed line-through"
                               : seleccionada
@@ -404,10 +405,10 @@ export const ProductoDetalleView: React.FC = () => {
 
             {producto.materiales && producto.materiales.length > 0 && (
               <div>
-                <p style={{ fontFamily: FONT_SANS }} className="text-sm font-semibold text-[#241B22] dark:text-[#F5EDE9] mb-2">Material</p>
+                <p style={{ fontFamily: FONT_SANS }} className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#241B22] dark:text-[#F5EDE9] mb-3">Material</p>
                 <div className="flex flex-wrap gap-2">
                   {producto.materiales.map((material: string) => (
-                    <span key={material} style={{ fontFamily: FONT_SANS }} className="px-3 py-1 bg-[#EFD9DF] dark:bg-[#3a2530] text-xs font-medium text-[#A3395C] rounded-full">
+                    <span key={material} style={{ fontFamily: FONT_SANS }} className="px-3 py-1.5 border border-[#E7E0DA] dark:border-[#453840] text-xs font-medium text-[#241B22] dark:text-[#F5EDE9]">
                       {material}
                     </span>
                   ))}
@@ -416,17 +417,17 @@ export const ProductoDetalleView: React.FC = () => {
             )}
 
             <div className="flex items-center gap-3 pt-3 mt-1 border-t border-[#E7E0DA] dark:border-[#453840]" style={{ flexShrink: 0, fontFamily: FONT_SANS }}>
-              <div className="flex items-center gap-1 bg-[#FBF8F5] dark:bg-[#2a2029] rounded-full border border-[#E7E0DA] dark:border-[#453840] p-1 flex-shrink-0">
+              <div className="flex items-center gap-1 border border-[#E7E0DA] dark:border-[#453840] flex-shrink-0">
                 <button
                   onClick={() => setCantidadSeleccionada(Math.max(1, cantidadSeleccionada - 1))}
-                  className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] transition-colors text-[#241B22] dark:text-[#F5EDE9]"
+                  className="w-10 h-11 flex items-center justify-center hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] transition-colors text-[#241B22] dark:text-[#F5EDE9]"
                 >
                   <Minus className="w-3 h-3" />
                 </button>
                 <span className="text-sm font-semibold w-6 text-center text-[#241B22] dark:text-[#F5EDE9]">{cantidadSeleccionada}</span>
                 <button
                   onClick={() => setCantidadSeleccionada(cantidadSeleccionada + 1)}
-                  className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] transition-colors text-[#241B22] dark:text-[#F5EDE9]"
+                  className="w-10 h-11 flex items-center justify-center hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] transition-colors text-[#241B22] dark:text-[#F5EDE9]"
                 >
                   <Plus className="w-3 h-3" />
                 </button>
@@ -434,7 +435,7 @@ export const ProductoDetalleView: React.FC = () => {
               <button
                 onClick={handleAgregarAlCarrito}
                 disabled={!tallaSeleccionada || producto.agotado}
-                className={`flex-1 h-11 rounded-full border text-xs font-semibold uppercase tracking-wider transition-all ${
+                className={`flex-1 h-11 border text-xs font-bold uppercase tracking-widest transition-all ${
                   !tallaSeleccionada || producto.agotado
                     ? "border-[#E7E0DA] dark:border-[#453840] text-[#c3bab3] dark:text-[#5a4d52] cursor-not-allowed"
                     : "border-[#241B22] dark:border-[#F5EDE9] text-[#241B22] dark:text-[#F5EDE9] hover:bg-[#241B22] hover:text-white dark:hover:bg-[#F5EDE9] dark:hover:text-[#241B22]"
@@ -448,8 +449,8 @@ export const ProductoDetalleView: React.FC = () => {
               onClick={handleCompraDirecta}
               disabled={!tallaSeleccionada || producto.agotado}
               style={!tallaSeleccionada || producto.agotado ? { flexShrink: 0, fontFamily: FONT_SANS } : { flexShrink: 0, fontFamily: FONT_SANS, background: GRADIENT }}
-              className={`w-full h-12 rounded-full text-xs font-semibold uppercase tracking-wider text-white transition-all ${
-                !tallaSeleccionada || producto.agotado ? "bg-[#E7E0DA] dark:bg-[#453840] cursor-not-allowed" : "shadow-md hover:shadow-lg hover:scale-[1.01]"
+              className={`w-full h-12 text-xs font-bold uppercase tracking-widest text-white transition-all ${
+                !tallaSeleccionada || producto.agotado ? "bg-[#E7E0DA] dark:bg-[#453840] cursor-not-allowed" : "hover:opacity-90"
               }`}
             >
               {producto.agotado ? "Agotado" : "Comprar Ahora"}
@@ -490,7 +491,7 @@ export const ProductoDetalleView: React.FC = () => {
           <div className="max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-8 sm:py-10 border-t border-[#E7E0DA] dark:border-[#453840]">
             <h2
               style={{ fontFamily: FONT_SERIF }}
-              className="text-lg sm:text-xl font-bold uppercase tracking-[0.01em] text-[#241B22] dark:text-[#F5EDE9] mb-5"
+              className="text-2xl sm:text-3xl text-[#241B22] dark:text-[#F5EDE9] mb-6"
             >
               También te podría gustar
             </h2>
@@ -502,7 +503,7 @@ export const ProductoDetalleView: React.FC = () => {
                   onClick={() => navigate(`/producto/${p.id}`)}
                   className="text-left group"
                 >
-                  <div className="aspect-[4/5] rounded-xl overflow-hidden bg-[#FBF8F5] dark:bg-[#2a2029] mb-3">
+                  <div className="aspect-[4/5] overflow-hidden bg-[#FBF8F5] dark:bg-[#2a2029] mb-3">
                     <img
                       src={p.imagen}
                       alt={p.nombre}
@@ -510,10 +511,10 @@ export const ProductoDetalleView: React.FC = () => {
                       loading="lazy"
                     />
                   </div>
-                  <p style={{ fontFamily: FONT_SANS }} className="text-sm font-medium text-[#241B22] dark:text-[#F5EDE9] truncate">
+                  <p style={{ fontFamily: FONT_SANS }} className="text-[11px] tracking-wide uppercase text-[#241B22] dark:text-[#F5EDE9] truncate">
                     {p.nombre}
                   </p>
-                  <p className="text-sm font-bold text-[#A3395C]">{formatPrecio(p.precio)}</p>
+                  <p style={{ fontFamily: FONT_SANS }} className="text-[13px] font-bold text-[#241B22] dark:text-[#F5EDE9] mt-0.5">{formatPrecio(p.precio)}</p>
                 </button>
               ))}
             </div>
