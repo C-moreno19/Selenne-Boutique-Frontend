@@ -57,7 +57,6 @@ export const ProductoDetalleView: React.FC = () => {
   const [cantidadSeleccionada, setCantidadSeleccionada] = useState(1);
   const [carritoAbierto, setCarritoAbierto] = useState(false);
   const [favoritosOpen, setFavoritosOpen] = useState(false);
-  const [telefonoContacto] = useState("+57 304 292 8493");
 
   // Preseleccionar la primera talla/color disponibles cuando cambia el producto.
   useEffect(() => {
@@ -522,7 +521,7 @@ export const ProductoDetalleView: React.FC = () => {
         );
       })()}
 
-      <StoreFooter telefonoContacto={telefonoContacto} onCategoriaChange={irATienda} />
+      <StoreFooter onCategoriaChange={irATienda} />
     </div>
   );
 };

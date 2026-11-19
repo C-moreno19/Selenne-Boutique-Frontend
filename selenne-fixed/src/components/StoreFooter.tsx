@@ -1,21 +1,30 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Mail } from "lucide-react";
 import { Separator } from "./ui/separator";
 import { LegalDialog, type LegalDoc } from "./LegalDialog";
-import { postJson } from "../services/api";
+import { postJson, getJson } from "../services/api";
 import { toast } from "@/lib/toast";
 
 const PLAYFAIR = '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif';
 
 interface StoreFooterProps {
-  telefonoContacto: string;
   onCategoriaChange: (categoria: "mujer" | "accesorios" | "sale") => void;
 }
 
-export function StoreFooter({ telefonoContacto, onCategoriaChange }: StoreFooterProps) {
+export function StoreFooter({ onCategoriaChange }: StoreFooterProps) {
   const [legalAbierto, setLegalAbierto] = useState<LegalDoc>(null);
   const [emailNewsletter, setEmailNewsletter] = useState('');
   const [enviandoNewsletter, setEnviandoNewsletter] = useState(false);
+  const [telefonoContacto, setTelefonoContacto] = useState('+57 304 292 8493');
+
+  useEffect(() => {
+    getJson('/api/config/banco').then((d: { data?: { whatsapp?: string } }) => {
+      if (d?.data?.whatsapp) {
+        const n = d.data.whatsapp.replace(/\D/g, '');
+        setTelefonoContacto(`+${n.slice(0, 2)} ${n.slice(2, 5)} ${n.slice(5, 8)} ${n.slice(8)}`);
+      }
+    }).catch(() => {});
+  }, []);
 
   const suscribirse = async () => {
     const email = emailNewsletter.trim();
