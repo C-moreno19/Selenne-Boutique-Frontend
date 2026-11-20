@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ShoppingBag, Heart, Search, Menu, X } from "lucide-react";
-import { ThemeToggle } from "./ThemeToggle";
 import {
   Sheet,
   SheetContent,
@@ -132,8 +131,6 @@ export const TiendaHeader: React.FC<TiendaHeaderProps> = ({
 
           {/* Acciones */}
           <div className="flex items-center space-x-0.5 sm:space-x-2">
-            <ThemeToggle buttonClassName="p-1.5 sm:p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full transition-colors" iconClassName="w-[18px] h-[18px] sm:w-5 sm:h-5 text-[#241B22] dark:text-[#F5EDE9]" />
-
             {searchAreaOverride ?? (
               <Sheet open={busquedaModalAbierta} onOpenChange={v => { setBusquedaModalAbierta(v); if (!v) setBusquedaModal(''); }}>
                 <SheetTrigger asChild>

@@ -14,7 +14,6 @@ import {
   User as UserIcon,
 } from "lucide-react";
 import { Separator } from "../../components/ui/separator";
-import { ThemeToggle } from "../../components/ThemeToggle";
 import { StoreFooter } from "../../components/StoreFooter";
 import { CuponBanner } from "../../components/CuponBanner";
 import { ImageCarousel } from "../../components/figma/ImageCarousel";
@@ -171,7 +170,6 @@ export const ProductoDetalleView: React.FC = () => {
             </nav>
 
             <div className="flex items-center space-x-0.5 sm:space-x-4">
-              <ThemeToggle buttonClassName="p-1.5 sm:p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full transition-colors" iconClassName="w-[18px] h-[18px] sm:w-5 sm:h-5 text-[#241B22] dark:text-[#F5EDE9]" />
               <button
                 onClick={() => navigate("/")}
                 className="hidden md:flex p-1.5 sm:p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full transition-colors"

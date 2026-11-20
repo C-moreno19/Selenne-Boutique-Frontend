@@ -22,7 +22,6 @@ import {
   DialogFooter,
   DialogDescription
 } from '../../../components/ui/dialog';
-import { ThemeToggle } from '../../../components/ThemeToggle';
 import { Logo } from '../../../components/Logo';
 
 const FONT_SANS = '"Helvetica Neue", Helvetica, Arial, sans-serif';
@@ -99,9 +98,6 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 
           {/* Iconos de Acción */}
           <div className="flex items-center gap-2">
-            {/* Selector de tema */}
-            <ThemeToggle buttonClassName="p-2.5 text-gray-600 dark:text-[#b8a3ac] hover:bg-[#FBF8F5] dark:hover:bg-[#2a2029] rounded-lg transition" iconClassName="w-5 h-5" />
-
             {/* Mensajes / Notificaciones unificado */}
             <button
               onClick={() => setMessagesOpen(true)}
