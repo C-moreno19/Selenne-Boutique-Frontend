@@ -29,7 +29,7 @@ interface Alert {
 }
 
 function MainApp() {
-  const { user, authLoading } = useAuth();
+  const { user, authLoading, logout } = useAuth();
   const navigate = useNavigate();
   const [isRecoverModalOpen, setIsRecoverModalOpen] = useState(false);
   const [alert, setAlert] = useState<Alert | null>(null);
@@ -52,6 +52,7 @@ function MainApp() {
   };
 
   const handleLogout = () => {
+    logout();
     navigate('/', { replace: true });
     showAlert('info', 'Sesión cerrada exitosamente');
   };

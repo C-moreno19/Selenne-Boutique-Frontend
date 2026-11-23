@@ -10,15 +10,15 @@ export interface GeneratedCredentials {
 
 /**
  * Genera una contraseña temporal segura
- * Formato: SelenneBQ + 4 dígitos + !
- * Ejemplo: SelenneBQ2026!
+ * Formato: DistrictDS + 4 dígitos + !
+ * Ejemplo: DistrictDS2026!
  */
 export const generarContraseñaTemporal = (): string => {
   const year = new Date().getFullYear().toString().slice(-2);
   const random = Math.floor(Math.random() * 10000)
     .toString()
     .padStart(4, '0');
-  return `SelenneBQ${year}${random}!`;
+  return `DistrictDS${year}${random}!`;
 };
 
 /**
