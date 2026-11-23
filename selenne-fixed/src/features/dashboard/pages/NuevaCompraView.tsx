@@ -149,32 +149,32 @@ export const NuevaCompraView: React.FC<NuevaCompraViewProps> = ({ onBack, onSucc
   };
 
   return (
-    <div className="p-8 bg-[#FBF8F5] dark:bg-[#2a2029] min-h-screen">
+    <div className="p-8 bg-[#F7F5FC] dark:bg-[#17101f] min-h-screen">
       {/* Header */}
       <div className="flex items-center gap-4 mb-6">
         <button
           onClick={onBack}
-          className="p-2 hover:bg-gray-200 dark:hover:bg-[#362b34] rounded-lg transition"
+          className="p-2 hover:bg-gray-200 dark:hover:bg-[#221830] rounded-lg transition"
           title="Volver"
         >
-          <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-[#b8a3ac]" />
+          <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-[#b9aedd]" />
         </button>
         <div className="flex items-center gap-2 flex-1">
-          <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500 dark:text-[#b8a3ac]">
+          <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500 dark:text-[#b9aedd]">
             Gestión de Compras
           </span>
-          <ChevronRight className="w-4 h-4 text-gray-400 dark:text-[#b8a3ac]" />
-          <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-[#241B22] dark:text-[#F5EDE9]">
+          <ChevronRight className="w-4 h-4 text-gray-400 dark:text-[#b9aedd]" />
+          <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-[#0A0A0A] dark:text-[#F5F3FA]">
             Nueva Compra
           </span>
         </div>
       </div>
 
       <div className="mb-8">
-        <h1 className="admin-page-title text-[36px] text-[#241B22] dark:text-[#F5EDE9] mb-2">
+        <h1 className="admin-page-title text-[36px] text-[#0A0A0A] dark:text-[#F5F3FA] mb-2">
           Crear Nueva Compra
         </h1>
-        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-600 dark:text-[#b8a3ac]">
+        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-600 dark:text-[#b9aedd]">
           Registra una nueva compra a tu proveedor
         </p>
       </div>
@@ -183,14 +183,14 @@ export const NuevaCompraView: React.FC<NuevaCompraViewProps> = ({ onBack, onSucc
         {/* Formulario */}
         <div className="lg:col-span-2 space-y-6">
           {/* Información Básica */}
-          <div className="bg-white dark:bg-[#322631] rounded-xl p-6 shadow-sm border border-[#E7E0DA] dark:border-[#453840]">
-            <h2 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-2xl text-[#241B22] dark:text-[#F5EDE9] mb-6">
+          <div className="bg-white dark:bg-[#1e1530] rounded-xl p-6 shadow-sm border border-[#E7E0DA] dark:border-[#3A2E4D]">
+            <h2 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-2xl text-[#0A0A0A] dark:text-[#F5F3FA] mb-6">
               Información de la Compra
             </h2>
 
             <div className="space-y-4">
               <div>
-                <Label htmlFor="proveedor" className="text-sm text-gray-700 dark:text-[#F5EDE9] block mb-2">
+                <Label htmlFor="proveedor" className="text-sm text-gray-700 dark:text-[#F5F3FA] block mb-2">
                   Proveedor *
                 </Label>
                 <div className="flex gap-2">
@@ -209,26 +209,26 @@ export const NuevaCompraView: React.FC<NuevaCompraViewProps> = ({ onBack, onSucc
                   <button
                     onClick={() => setShowModalProveedor(true)}
                     style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                    className="px-4 py-2 bg-[#A3395C] text-white rounded-lg hover:bg-[#8a2e4d] transition flex items-center gap-2 whitespace-nowrap"
+                    className="px-4 py-2 bg-[#5C2A52] text-white rounded-lg hover:bg-[#3B0A45] transition flex items-center gap-2 whitespace-nowrap"
                   >
                     <Plus className="w-4 h-4" />
                     Crear Proveedor
                   </button>
                 </div>
                 {proveedorSeleccionado && (
-                  <div className="mt-2 px-3 py-2 bg-[#FBF8F5] dark:bg-[#2a2029] border border-[#E7E0DA] dark:border-[#453840] rounded-lg flex items-center gap-2">
-                    <span className="text-xs text-gray-500 dark:text-[#b8a3ac] font-medium">NIT / Documento:</span>
-                    <span className="text-sm text-[#241B22] dark:text-[#F5EDE9] font-semibold">
+                  <div className="mt-2 px-3 py-2 bg-[#F7F5FC] dark:bg-[#17101f] border border-[#E7E0DA] dark:border-[#3A2E4D] rounded-lg flex items-center gap-2">
+                    <span className="text-xs text-gray-500 dark:text-[#b9aedd] font-medium">NIT / Documento:</span>
+                    <span className="text-sm text-[#0A0A0A] dark:text-[#F5F3FA] font-semibold">
                       {proveedorSeleccionado.documento
                         ? proveedorSeleccionado.documento
-                        : <span className="text-gray-400 dark:text-[#b8a3ac] font-normal italic">No registrado</span>}
+                        : <span className="text-gray-400 dark:text-[#b9aedd] font-normal italic">No registrado</span>}
                     </span>
                   </div>
                 )}
               </div>
 
               <div>
-                <Label htmlFor="fecha" className="text-sm text-gray-700 dark:text-[#F5EDE9] block mb-2">
+                <Label htmlFor="fecha" className="text-sm text-gray-700 dark:text-[#F5F3FA] block mb-2">
                   Fecha de Compra *
                 </Label>
                 <Input
@@ -243,15 +243,15 @@ export const NuevaCompraView: React.FC<NuevaCompraViewProps> = ({ onBack, onSucc
           </div>
 
           {/* Productos */}
-          <div className="bg-white dark:bg-[#322631] rounded-xl p-6 shadow-sm border border-[#E7E0DA] dark:border-[#453840]">
+          <div className="bg-white dark:bg-[#1e1530] rounded-xl p-6 shadow-sm border border-[#E7E0DA] dark:border-[#3A2E4D]">
             <div className="flex items-center justify-between mb-6">
-              <h2 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-2xl text-[#241B22] dark:text-[#F5EDE9]">
+              <h2 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-2xl text-[#0A0A0A] dark:text-[#F5F3FA]">
                 Productos
               </h2>
               <button
                 onClick={handleAgregarProducto}
                 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                className="px-4 py-2 bg-gradient-to-r from-[#241B22] via-[#7a3350] to-[#A3395C] text-white rounded-lg hover:opacity-90 transition flex items-center gap-2"
+                className="px-4 py-2 bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] text-white rounded-lg hover:opacity-90 transition flex items-center gap-2"
               >
                 <Plus className="w-4 h-4" />
                 Agregar Producto
@@ -260,19 +260,19 @@ export const NuevaCompraView: React.FC<NuevaCompraViewProps> = ({ onBack, onSucc
 
             {productosCompra.length === 0 ? (
               <div className="text-center py-12">
-                <Package className="w-12 h-12 text-gray-300 dark:text-[#453840] mx-auto mb-3" />
-                <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-500 dark:text-[#b8a3ac]">
+                <Package className="w-12 h-12 text-gray-300 dark:text-[#3A2E4D] mx-auto mb-3" />
+                <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-500 dark:text-[#b9aedd]">
                   No hay productos agregados. Haz clic en "Agregar Producto" para comenzar.
                 </p>
               </div>
             ) : (
               <div className="space-y-4">
                 {productosCompra.map((producto, idx) => (
-                  <div key={producto.id} className="bg-[#FBF8F5] dark:bg-[#2a2029] rounded-lg p-4 border border-[#E7E0DA] dark:border-[#453840]">
+                  <div key={producto.id} className="bg-[#F7F5FC] dark:bg-[#17101f] rounded-lg p-4 border border-[#E7E0DA] dark:border-[#3A2E4D]">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1 space-y-3">
                         <div>
-                          <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-600 dark:text-[#b8a3ac] mb-1">
+                          <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-600 dark:text-[#b9aedd] mb-1">
                             Producto
                           </p>
                           <Select value={producto.nombre} onValueChange={(val) => handleActualizarProducto(idx, 'nombre', val)}>
@@ -291,7 +291,7 @@ export const NuevaCompraView: React.FC<NuevaCompraViewProps> = ({ onBack, onSucc
 
                         <div className="grid grid-cols-3 gap-3">
                           <div>
-                            <Label className="text-xs text-gray-600 dark:text-[#b8a3ac]">Cantidad</Label>
+                            <Label className="text-xs text-gray-600 dark:text-[#b9aedd]">Cantidad</Label>
                             <Input
                               type="number"
                               min="1"
@@ -301,7 +301,7 @@ export const NuevaCompraView: React.FC<NuevaCompraViewProps> = ({ onBack, onSucc
                             />
                           </div>
                           <div>
-                            <Label className="text-xs text-gray-600 dark:text-[#b8a3ac]">Precio Unit.</Label>
+                            <Label className="text-xs text-gray-600 dark:text-[#b9aedd]">Precio Unit.</Label>
                             <Input
                               type="number"
                               min="0"
@@ -311,9 +311,9 @@ export const NuevaCompraView: React.FC<NuevaCompraViewProps> = ({ onBack, onSucc
                             />
                           </div>
                           <div>
-                            <Label className="text-xs text-gray-600 dark:text-[#b8a3ac]">Total</Label>
-                            <div className="mt-1 px-3 py-2 bg-white dark:bg-[#322631] border border-[#E7E0DA] dark:border-[#453840] rounded-lg">
-                              <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-[#241B22] dark:text-[#F5EDE9]">
+                            <Label className="text-xs text-gray-600 dark:text-[#b9aedd]">Total</Label>
+                            <div className="mt-1 px-3 py-2 bg-white dark:bg-[#1e1530] border border-[#E7E0DA] dark:border-[#3A2E4D] rounded-lg">
+                              <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-[#0A0A0A] dark:text-[#F5F3FA]">
                                 {formatCurrency(producto.total)}
                               </p>
                             </div>
@@ -338,18 +338,18 @@ export const NuevaCompraView: React.FC<NuevaCompraViewProps> = ({ onBack, onSucc
 
         {/* Resumen */}
         <div className="lg:col-span-1">
-          <div className="bg-white dark:bg-[#322631] rounded-xl p-6 shadow-sm border border-[#E7E0DA] dark:border-[#453840] sticky top-24">
-            <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xl text-[#241B22] dark:text-[#F5EDE9] mb-6">
+          <div className="bg-white dark:bg-[#1e1530] rounded-xl p-6 shadow-sm border border-[#E7E0DA] dark:border-[#3A2E4D] sticky top-24">
+            <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xl text-[#0A0A0A] dark:text-[#F5F3FA] mb-6">
               Resumen de Compra
             </h3>
 
             <div className="space-y-4 mb-6">
               {productosCompra.map((prod, idx) => (
                 <div key={prod.id} className="flex justify-between text-sm">
-                  <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-600 dark:text-[#b8a3ac]">
+                  <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-600 dark:text-[#b9aedd]">
                     {prod.nombre} × {prod.cantidad}
                   </span>
-                  <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-[#241B22] dark:text-[#F5EDE9]">
+                  <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-[#0A0A0A] dark:text-[#F5F3FA]">
                     {formatCurrency(prod.total)}
                   </span>
                 </div>
@@ -358,12 +358,12 @@ export const NuevaCompraView: React.FC<NuevaCompraViewProps> = ({ onBack, onSucc
 
             {productosCompra.length > 0 && (
               <>
-                <div className="border-t border-[#E7E0DA] dark:border-[#453840] pt-4 mb-6">
+                <div className="border-t border-[#E7E0DA] dark:border-[#3A2E4D] pt-4 mb-6">
                   <div className="flex justify-between items-center">
-                    <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-600 dark:text-[#b8a3ac]">
+                    <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-600 dark:text-[#b9aedd]">
                       Total
                     </span>
-                    <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-2xl text-[#A3395C]">
+                    <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-2xl text-[#5C2A52]">
                       {formatCurrency(totalCompra)}
                     </span>
                   </div>
@@ -372,7 +372,7 @@ export const NuevaCompraView: React.FC<NuevaCompraViewProps> = ({ onBack, onSucc
                 <button
                   onClick={handleGuardarCompra}
                   style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                  className="w-full px-6 py-3 bg-[#A3395C] text-white rounded-lg hover:bg-[#8a2e4d] transition font-medium"
+                  className="w-full px-6 py-3 bg-[#5C2A52] text-white rounded-lg hover:bg-[#3B0A45] transition font-medium"
                 >
                   Guardar Compra
                 </button>
@@ -396,7 +396,7 @@ export const NuevaCompraView: React.FC<NuevaCompraViewProps> = ({ onBack, onSucc
 
           <div className="space-y-4">
             <div>
-              <Label htmlFor="prov-nombre" className="text-sm text-gray-700 dark:text-[#F5EDE9] block mb-2">
+              <Label htmlFor="prov-nombre" className="text-sm text-gray-700 dark:text-[#F5F3FA] block mb-2">
                 Nombre del Proveedor *
               </Label>
               <Input
@@ -410,7 +410,7 @@ export const NuevaCompraView: React.FC<NuevaCompraViewProps> = ({ onBack, onSucc
             </div>
 
             <div>
-              <Label htmlFor="prov-contacto" className="text-sm text-gray-700 dark:text-[#F5EDE9] block mb-2">
+              <Label htmlFor="prov-contacto" className="text-sm text-gray-700 dark:text-[#F5F3FA] block mb-2">
                 Contacto *
               </Label>
               <Input
@@ -424,7 +424,7 @@ export const NuevaCompraView: React.FC<NuevaCompraViewProps> = ({ onBack, onSucc
             </div>
 
             <div>
-              <Label htmlFor="prov-email" className="text-sm text-gray-700 dark:text-[#F5EDE9] block mb-2">
+              <Label htmlFor="prov-email" className="text-sm text-gray-700 dark:text-[#F5F3FA] block mb-2">
                 Email *
               </Label>
               <Input
@@ -439,7 +439,7 @@ export const NuevaCompraView: React.FC<NuevaCompraViewProps> = ({ onBack, onSucc
             </div>
 
             <div>
-              <Label htmlFor="prov-telefono" className="text-sm text-gray-700 dark:text-[#F5EDE9] block mb-2">
+              <Label htmlFor="prov-telefono" className="text-sm text-gray-700 dark:text-[#F5F3FA] block mb-2">
                 Teléfono *
               </Label>
               <Input
@@ -453,7 +453,7 @@ export const NuevaCompraView: React.FC<NuevaCompraViewProps> = ({ onBack, onSucc
             </div>
 
             <div>
-              <Label htmlFor="prov-documento" className="text-sm text-gray-700 dark:text-[#F5EDE9] block mb-2">
+              <Label htmlFor="prov-documento" className="text-sm text-gray-700 dark:text-[#F5F3FA] block mb-2">
                 NIT / Documento
               </Label>
               <Input
@@ -475,7 +475,7 @@ export const NuevaCompraView: React.FC<NuevaCompraViewProps> = ({ onBack, onSucc
                 setProveedorErrors({ nombre: '', contacto: '', email: '', telefono: '', documento: '' });
               }}
               style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="px-6 py-2 bg-gray-100 dark:bg-[#362b34] text-gray-700 dark:text-[#F5EDE9] rounded-lg hover:bg-gray-200 dark:hover:bg-[#3a2530] transition"
+              className="px-6 py-2 bg-gray-100 dark:bg-[#221830] text-gray-700 dark:text-[#F5F3FA] rounded-lg hover:bg-gray-200 dark:hover:bg-[#241935] transition"
             >
               Cancelar
             </button>
@@ -510,7 +510,7 @@ export const NuevaCompraView: React.FC<NuevaCompraViewProps> = ({ onBack, onSucc
                 setProveedorErrors({ nombre: '', contacto: '', email: '', telefono: '', documento: '' });
               }}
               style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="px-6 py-2 bg-[#A3395C] text-white rounded-lg hover:bg-[#8a2e4d] transition"
+              className="px-6 py-2 bg-[#5C2A52] text-white rounded-lg hover:bg-[#3B0A45] transition"
             >
               Crear Proveedor
             </button>

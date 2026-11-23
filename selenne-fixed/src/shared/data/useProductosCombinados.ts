@@ -13,9 +13,10 @@ export const useProductosCombinados = (): Producto[] => {
     return productosAdmin
       .filter(p => p.activo)
       .map((p) => {
-        let categoria: 'mujer' | 'accesorios' | 'sale' = 'mujer';
+        let categoria: 'mujer' | 'hombre' | 'accesorios' | 'sale' = 'mujer';
         const cat = (p.categoriaMain ?? '').toLowerCase();
         if (cat === 'accesorios') categoria = 'accesorios';
+        else if (cat === 'hombre') categoria = 'hombre';
         else if (cat === 'sale') categoria = 'sale';
         if (p.isSale || (p.precioOriginal && p.precioOriginal > p.precio)) categoria = 'sale';
 

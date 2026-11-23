@@ -133,68 +133,68 @@ export const CuponesView: React.FC = () => {
   };
 
   return (
-    <div className="p-8 bg-[#FBF8F5] dark:bg-[#2a2029] min-h-screen">
+    <div className="p-8 bg-[#F7F5FC] dark:bg-[#17101f] min-h-screen">
       <div className="flex items-center gap-2 mb-4">
-        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500 dark:text-[#b8a3ac]">Dashboard</span>
-        <ChevronRight className="w-4 h-4 text-gray-400 dark:text-[#b8a3ac]" />
-        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-[#241B22] dark:text-[#F5EDE9]">Cupones</span>
+        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500 dark:text-[#b9aedd]">Dashboard</span>
+        <ChevronRight className="w-4 h-4 text-gray-400 dark:text-[#b9aedd]" />
+        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-[#0A0A0A] dark:text-[#F5F3FA]">Cupones</span>
       </div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="admin-page-title text-3xl font-bold text-[#241B22] dark:text-[#F5EDE9]">Cupones</h1>
-          <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-500 dark:text-[#b8a3ac] text-sm mt-1">{filtered.length} cupones registrados</p>
+          <h1 className="admin-page-title text-3xl font-bold text-[#0A0A0A] dark:text-[#F5F3FA]">Cupones</h1>
+          <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-500 dark:text-[#b9aedd] text-sm mt-1">{filtered.length} cupones registrados</p>
         </div>
         {puedeEditar && (
           <button onClick={openCreate} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-            className="px-6 py-3 bg-gradient-to-r from-[#241B22] via-[#7a3350] to-[#A3395C] text-white rounded-lg hover:opacity-90 flex items-center gap-2 transition">
+            className="px-6 py-3 bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] text-white rounded-lg hover:opacity-90 flex items-center gap-2 transition">
             <Plus className="w-5 h-5" /> Nuevo Cupón
           </button>
         )}
       </div>
 
-      <div className="bg-white dark:bg-[#322631] rounded-xl p-6 border border-[#E7E0DA] dark:border-[#453840] mb-6" style={{ boxShadow: '0 2px 12px rgba(214, 83, 145, 0.07)' }}>
+      <div className="bg-white dark:bg-[#1e1530] rounded-xl p-6 border border-[#E7E0DA] dark:border-[#3A2E4D] mb-6" style={{ boxShadow: '0 2px 12px rgba(214, 83, 145, 0.07)' }}>
         <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-[#b8a3ac]" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-[#b9aedd]" />
           <input type="text" placeholder="Buscar por código..." value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-            className="w-full pl-12 pr-4 py-3 bg-[#FBF8F5] dark:bg-[#2a2029] border border-[#E7E0DA] dark:border-[#453840] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A3395C]" />
+            className="w-full pl-12 pr-4 py-3 bg-[#F7F5FC] dark:bg-[#17101f] border border-[#E7E0DA] dark:border-[#3A2E4D] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C2A52]" />
         </div>
       </div>
 
-      <div className="bg-white dark:bg-[#322631] rounded-xl border border-[#E7E0DA] dark:border-[#453840] overflow-hidden" style={{ boxShadow: '0 2px 12px rgba(214, 83, 145, 0.07)' }}>
+      <div className="bg-white dark:bg-[#1e1530] rounded-xl border border-[#E7E0DA] dark:border-[#3A2E4D] overflow-hidden" style={{ boxShadow: '0 2px 12px rgba(214, 83, 145, 0.07)' }}>
         {loading ? (
           <div className="flex justify-center py-16"><Loader2 className="w-6 h-6 animate-spin text-gray-400" /></div>
         ) : (
         <table className="w-full">
-          <thead className="bg-[#FBF8F5] dark:bg-[#2a2029] border-b border-[#E7E0DA] dark:border-[#453840]">
+          <thead className="bg-[#F7F5FC] dark:bg-[#17101f] border-b border-[#E7E0DA] dark:border-[#3A2E4D]">
             <tr>
               {['CÓDIGO', 'DESCUENTO', 'MÍNIMO', 'USOS', 'EXPIRA', 'ESTADO', ''].map(h => (
-                <th key={h} className="px-6 py-4 text-left"><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-[#b8a3ac]">{h}</span></th>
+                <th key={h} className="px-6 py-4 text-left"><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-[#b9aedd]">{h}</span></th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100 dark:divide-[#453840]">
+          <tbody className="divide-y divide-gray-100 dark:divide-[#3A2E4D]">
             {filtered.map(c => (
-              <tr key={c.cuponID} className="hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] transition">
+              <tr key={c.cuponID} className="hover:bg-[#C9A8C3] dark:hover:bg-[#241935] transition">
                 <td className="px-6 py-4">
-                  <span className="inline-flex items-center gap-1.5 font-mono font-semibold text-[#241B22] dark:text-[#F5EDE9]">
-                    <Tag className="w-3.5 h-3.5 text-[#A3395C]" />{c.codigo}
+                  <span className="inline-flex items-center gap-1.5 font-mono font-semibold text-[#0A0A0A] dark:text-[#F5F3FA]">
+                    <Tag className="w-3.5 h-3.5 text-[#5C2A52]" />{c.codigo}
                   </span>
                 </td>
                 <td className="px-6 py-4" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                   {c.tipoDescuento === 'porcentaje' ? `${c.valorDescuento}%` : fmt(c.valorDescuento)}
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-500 dark:text-[#b8a3ac]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                <td className="px-6 py-4 text-sm text-gray-500 dark:text-[#b9aedd]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                   {c.montoMinimo ? fmt(c.montoMinimo) : '—'}
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-500 dark:text-[#b8a3ac]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                <td className="px-6 py-4 text-sm text-gray-500 dark:text-[#b9aedd]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                   {c.usosActuales}{c.usosMaximos ? ` / ${c.usosMaximos}` : ''}
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-500 dark:text-[#b8a3ac]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                <td className="px-6 py-4 text-sm text-gray-500 dark:text-[#b9aedd]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                   {c.fechaExpiracion ? new Date(c.fechaExpiracion).toLocaleDateString('es-CO') : 'Sin límite'}
                 </td>
                 <td className="px-6 py-4">
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${c.activo ? 'bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-400' : 'bg-gray-100 dark:bg-[#362b34] text-gray-500 dark:text-[#b8a3ac]'}`}>
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${c.activo ? 'bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-400' : 'bg-gray-100 dark:bg-[#221830] text-gray-500 dark:text-[#b9aedd]'}`}>
                     {c.activo ? 'Activo' : 'Inactivo'}
                   </span>
                 </td>
@@ -203,15 +203,15 @@ export const CuponesView: React.FC = () => {
                     {puedeEditar && (
                       <>
                         <button onClick={() => toggleActivo(c)}
-                          className="p-2 text-gray-500 dark:text-[#b8a3ac] hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] hover:text-[#A3395C] rounded-lg transition" title={c.activo ? 'Desactivar' : 'Activar'}>
+                          className="p-2 text-gray-500 dark:text-[#b9aedd] hover:bg-[#C9A8C3] dark:hover:bg-[#241935] hover:text-[#5C2A52] rounded-lg transition" title={c.activo ? 'Desactivar' : 'Activar'}>
                           <Power className="w-5 h-5" />
                         </button>
                         <button onClick={() => openEdit(c)}
-                          className="p-2 text-gray-500 dark:text-[#b8a3ac] hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] hover:text-[#A3395C] rounded-lg transition" title="Editar">
+                          className="p-2 text-gray-500 dark:text-[#b9aedd] hover:bg-[#C9A8C3] dark:hover:bg-[#241935] hover:text-[#5C2A52] rounded-lg transition" title="Editar">
                           <Edit className="w-5 h-5" />
                         </button>
                         <button onClick={() => { setSelected(c); setDeleteOpen(true); }}
-                          className="p-2 text-gray-500 dark:text-[#b8a3ac] hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-600 dark:hover:text-red-400 rounded-lg transition" title="Eliminar">
+                          className="p-2 text-gray-500 dark:text-[#b9aedd] hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-600 dark:hover:text-red-400 rounded-lg transition" title="Eliminar">
                           <Trash2 className="w-5 h-5" />
                         </button>
                       </>
@@ -221,7 +221,7 @@ export const CuponesView: React.FC = () => {
               </tr>
             ))}
             {filtered.length === 0 && (
-              <tr><td colSpan={7} className="px-6 py-12 text-center text-gray-400 dark:text-[#b8a3ac]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>No hay cupones registrados</td></tr>
+              <tr><td colSpan={7} className="px-6 py-12 text-center text-gray-400 dark:text-[#b9aedd]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>No hay cupones registrados</td></tr>
             )}
           </tbody>
         </table>
@@ -231,7 +231,7 @@ export const CuponesView: React.FC = () => {
       {/* Modal Crear / Editar */}
       <Dialog open={formOpen} onOpenChange={setFormOpen}>
         <DialogContent className="max-w-2xl h-auto flex flex-col p-0 gap-0">
-          <DialogHeader className="px-8 pt-6 pb-4 border-b border-[#E7E0DA] dark:border-[#453840] flex-shrink-0">
+          <DialogHeader className="px-8 pt-6 pb-4 border-b border-[#E7E0DA] dark:border-[#3A2E4D] flex-shrink-0">
             <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xl font-semibold">
               {isEditing ? 'Editar Cupón' : 'Nuevo Cupón'}
             </DialogTitle>
@@ -242,17 +242,17 @@ export const CuponesView: React.FC = () => {
           <div className="flex-1 overflow-y-auto">
             <div className="space-y-5 py-6 px-8">
               <div className="flex flex-col gap-2">
-                <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 dark:text-[#F5EDE9]">Código <span className="text-red-500">*</span></Label>
+                <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 dark:text-[#F5F3FA]">Código <span className="text-red-500">*</span></Label>
                 <Input value={form.codigo} disabled={isEditing}
                   onChange={e => setForm(f => ({ ...f, codigo: e.target.value.toUpperCase() }))}
-                  placeholder="Ej: BIENVENIDA10" className="h-10 border-gray-300 dark:border-[#453840] font-mono disabled:opacity-60" />
+                  placeholder="Ej: BIENVENIDA10" className="h-10 border-gray-300 dark:border-[#3A2E4D] font-mono disabled:opacity-60" />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex flex-col gap-2">
-                  <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 dark:text-[#F5EDE9]">Tipo</Label>
+                  <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 dark:text-[#F5F3FA]">Tipo</Label>
                   <Select value={form.tipoDescuento} disabled={isEditing} onValueChange={(v: 'porcentaje' | 'monto') => setForm(f => ({ ...f, tipoDescuento: v }))}>
-                    <SelectTrigger className="h-10 border-gray-300 dark:border-[#453840] disabled:opacity-60"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="h-10 border-gray-300 dark:border-[#3A2E4D] disabled:opacity-60"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="porcentaje">Porcentaje (%)</SelectItem>
                       <SelectItem value="monto">Monto fijo ($)</SelectItem>
@@ -260,43 +260,43 @@ export const CuponesView: React.FC = () => {
                   </Select>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 dark:text-[#F5EDE9]">
+                  <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 dark:text-[#F5F3FA]">
                     Valor <span className="text-red-500">*</span>
                   </Label>
                   <Input type="number" value={form.valorDescuento}
                     onChange={e => setForm(f => ({ ...f, valorDescuento: e.target.value }))}
-                    placeholder={form.tipoDescuento === 'porcentaje' ? '10' : '20000'} className="h-10 border-gray-300 dark:border-[#453840]" />
+                    placeholder={form.tipoDescuento === 'porcentaje' ? '10' : '20000'} className="h-10 border-gray-300 dark:border-[#3A2E4D]" />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex flex-col gap-2">
-                  <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 dark:text-[#F5EDE9]">Compra mínima</Label>
+                  <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 dark:text-[#F5F3FA]">Compra mínima</Label>
                   <Input type="number" value={form.montoMinimo}
                     onChange={e => setForm(f => ({ ...f, montoMinimo: e.target.value }))}
-                    placeholder="Opcional" className="h-10 border-gray-300 dark:border-[#453840]" />
+                    placeholder="Opcional" className="h-10 border-gray-300 dark:border-[#3A2E4D]" />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 dark:text-[#F5EDE9]">Usos máximos</Label>
+                  <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 dark:text-[#F5F3FA]">Usos máximos</Label>
                   <Input type="number" value={form.usosMaximos}
                     onChange={e => setForm(f => ({ ...f, usosMaximos: e.target.value }))}
-                    placeholder="Ilimitado" className="h-10 border-gray-300 dark:border-[#453840]" />
+                    placeholder="Ilimitado" className="h-10 border-gray-300 dark:border-[#3A2E4D]" />
                 </div>
               </div>
 
               <div className="flex flex-col gap-2">
-                <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 dark:text-[#F5EDE9]">Fecha de expiración</Label>
+                <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 dark:text-[#F5F3FA]">Fecha de expiración</Label>
                 <Input type="date" value={form.fechaExpiracion}
                   onChange={e => setForm(f => ({ ...f, fechaExpiracion: e.target.value }))}
-                  className="h-10 border-gray-300 dark:border-[#453840]" />
+                  className="h-10 border-gray-300 dark:border-[#3A2E4D]" />
               </div>
             </div>
           </div>
-          <DialogFooter className="gap-2 px-8 py-5 border-t border-[#E7E0DA] dark:border-[#453840] flex-shrink-0">
+          <DialogFooter className="gap-2 px-8 py-5 border-t border-[#E7E0DA] dark:border-[#3A2E4D] flex-shrink-0">
             <button onClick={() => setFormOpen(false)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="px-6 py-2 bg-gray-100 dark:bg-[#362b34] text-gray-700 dark:text-[#F5EDE9] rounded-lg hover:bg-gray-200 dark:hover:bg-[#3a2530] transition">Cancelar</button>
+              className="px-6 py-2 bg-gray-100 dark:bg-[#221830] text-gray-700 dark:text-[#F5F3FA] rounded-lg hover:bg-gray-200 dark:hover:bg-[#241935] transition">Cancelar</button>
             <button onClick={guardar} disabled={saving} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="px-6 py-2 bg-gradient-to-r from-[#241B22] via-[#7a3350] to-[#A3395C] text-white rounded-lg hover:opacity-90 disabled:opacity-50 flex items-center gap-2 transition">
+              className="px-6 py-2 bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] text-white rounded-lg hover:opacity-90 disabled:opacity-50 flex items-center gap-2 transition">
               {saving && <Loader2 className="w-4 h-4 animate-spin" />}
               {isEditing ? 'Guardar Cambios' : 'Crear Cupón'}
             </button>

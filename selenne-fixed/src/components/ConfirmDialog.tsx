@@ -46,10 +46,10 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         <div className="p-6 pb-5">
           <div
             className={`w-12 h-12 rounded-full flex items-center justify-center mb-4 ${
-              isDanger ? 'bg-red-50 dark:bg-red-950/30' : 'bg-[#fdf2f8] dark:bg-[#3a2530]'
+              isDanger ? 'bg-red-50 dark:bg-red-950/30' : 'bg-[#fdf2f8] dark:bg-[#241935]'
             }`}
           >
-            <Icon className={`w-6 h-6 ${isDanger ? 'text-red-500' : 'text-[#A3395C]'}`} />
+            <Icon className={`w-6 h-6 ${isDanger ? 'text-red-500' : 'text-[#5C2A52]'}`} />
           </div>
           <AlertDialogHeader className="gap-1.5 text-left">
             <AlertDialogTitle style={{ fontFamily: FONT_SANS }} className="text-lg">
@@ -60,7 +60,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
             </AlertDialogDescription>
           </AlertDialogHeader>
         </div>
-        <AlertDialogFooter className="gap-2 px-6 py-4 bg-[#FBF8F5] dark:bg-[#2a2029] border-t border-[#E7E0DA] dark:border-[#453840]">
+        <AlertDialogFooter className="gap-2 px-6 py-4 bg-[#F7F5FC] dark:bg-[#17101f] border-t border-[#E7E0DA] dark:border-[#3A2E4D]">
           <AlertDialogCancel disabled={loading} style={{ fontFamily: FONT_SANS }}>
             {cancelLabel}
           </AlertDialogCancel>

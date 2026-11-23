@@ -244,7 +244,7 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
               letterSpacing: '0.01em',
             }}
           >
-            Selenne Boutique
+            District Store
           </motion.h1>
 
           {/* Frase inspiradora */}
@@ -258,16 +258,16 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
               lineHeight: '1.7',
               fontWeight: '400',
               fontStyle: 'italic',
-              color: '#EFD9DF',
+              color: '#C9A8C3',
             }}
           >
-            "Descubre prendas que realzan tu belleza y te hacen sentir única. Cada pieza está diseñada para acompañarte a brillar en cada momento."
+            "Streetwear y esenciales para hombre y mujer. Piezas con actitud, hechas para la calle."
           </motion.p>
         </div>
       </div>
 
       {/* Register Panel - Right (45%) — solo esta parte scrollea */}
-      <div className="flex-1 lg:w-[45%] h-full overflow-y-auto bg-white dark:bg-[#2a2029] px-16 py-12 flex flex-col items-center justify-start">
+      <div className="flex-1 lg:w-[45%] h-full overflow-y-auto bg-white dark:bg-[#17101f] px-16 py-12 flex flex-col items-center justify-start">
         <div className="w-full max-w-md mt-auto mb-auto">
           {/* Header */}
           <div className="mb-8 flex flex-col items-center space-y-5">
@@ -279,7 +279,7 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
               <Logo className="w-[170px] h-[170px]" />
             </motion.div>
             <h1
-              className="text-[#241B22] dark:text-[#F5EDE9] text-center text-4xl font-bold"
+              className="text-[#0A0A0A] dark:text-[#F5F3FA] text-center text-4xl font-bold"
               style={{ fontFamily: '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}
             >
               Crear cuenta
@@ -287,7 +287,7 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
           </div>
 
           {/* Form */}
-          <div className="space-y-5">
+          <div className="space-y-5 border border-[#E7E0DA] dark:border-[#3A2E4D] p-6 sm:p-8">
             <CustomInput
               label="Nombre completo *"
               value={formData.fullName}
@@ -379,7 +379,7 @@ export const RegisterView: React.FC<RegisterViewProps> = ({
             <div className="text-center pt-2">
               <button
                 onClick={onBackToLogin}
-                className="text-[#1a1a1a] dark:text-[#F5EDE9] hover:text-[#A3395C] transition-all"
+                className="text-[#1a1a1a] dark:text-[#F5F3FA] hover:text-[#5C2A52] transition-all"
                 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: '14px' }}
               >
                 ¿Ya tienes una cuenta? <span className="underline">Inicia sesión</span>

@@ -40,7 +40,7 @@ input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus {
   -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
-  -webkit-text-fill-color: #241B22 !important;
+  -webkit-text-fill-color: #0A0A0A !important;
   transition: background-color 9999s ease-in-out 0s;
 }
 

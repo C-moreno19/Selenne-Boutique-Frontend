@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { Separator } from "../../components/ui/separator";
 import { StoreFooter } from "../../components/StoreFooter";
+import { Logo } from "../../components/Logo";
 import { CuponBanner } from "../../components/CuponBanner";
 import { ImageCarousel } from "../../components/figma/ImageCarousel";
 import { ResenasProducto } from "../../components/ResenasProducto";
@@ -22,6 +23,7 @@ import { Estrellas } from "../../components/Estrellas";
 import { CarritoSheet } from "../../components/CarritoSheet";
 import { FavoritosSheet } from "../../components/FavoritosSheet";
 import { useProductosCombinados } from "../../shared/data/useProductosCombinados";
+import { PRODUCTOS_EJEMPLO } from "../../shared/data/productosEjemplo";
 import { useTienda } from "../../shared/contexts/TiendaContext";
 import { useSubcategorias } from "../../shared/contexts/SubcategoriasContext";
 import { useAuth } from "../../shared/contexts/AuthContext";
@@ -29,7 +31,7 @@ import { formatCurrency } from "../../shared/utils";
 
 const FONT_SERIF = '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif';
 const FONT_SANS = '"Helvetica Neue", Helvetica, Arial, sans-serif';
-const GRADIENT = "linear-gradient(90deg, #241B22 0%, #7a3350 55%, #A3395C 100%)";
+const GRADIENT = "linear-gradient(90deg, #0A0A0A 0%, #3B0A45 55%, #5C2A52 100%)";
 
 export const ProductoDetalleView: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -49,7 +51,8 @@ export const ProductoDetalleView: React.FC = () => {
     getTotalCarrito,
   } = useTienda();
 
-  const producto = productosData.find((p) => p.id === Number(id));
+  const producto = productosData.find((p) => p.id === Number(id))
+    ?? PRODUCTOS_EJEMPLO.find((p) => p.id === Number(id));
 
   const [tallaSeleccionada, setTallaSeleccionada] = useState("");
   const [colorSeleccionado, setColorSeleccionado] = useState("");
@@ -78,8 +81,8 @@ export const ProductoDetalleView: React.FC = () => {
   }, [producto?.id]);
 
   useEffect(() => {
-    if (producto) document.title = `${producto.nombre} — Selenne Boutique`;
-    return () => { document.title = "Selenne Boutique"; };
+    if (producto) document.title = `${producto.nombre} — District Store`;
+    return () => { document.title = "District Store"; };
   }, [producto?.nombre]);
 
   const formatPrecio = (precio: number) => formatCurrency(precio);
@@ -94,7 +97,7 @@ export const ProductoDetalleView: React.FC = () => {
     return Math.round(descuento);
   };
 
-  const irATienda = (categoria: "mujer" | "accesorios" | "sale") => {
+  const irATienda = (categoria: "hombre" | "mujer" | "accesorios" | "sale") => {
     navigate(`/tienda/${categoria}`);
   };
 
@@ -103,21 +106,15 @@ export const ProductoDetalleView: React.FC = () => {
     agregarAlCarrito(producto, tallaSeleccionada, colorSeleccionado, cantidadSeleccionada);
   };
 
-  const handleCompraDirecta = () => {
-    if (!producto || !tallaSeleccionada) return;
-    agregarAlCarrito(producto, tallaSeleccionada, colorSeleccionado, cantidadSeleccionada);
-    navigate("/checkout");
-  };
-
   if (!producto) {
     return (
-      <div className="min-h-screen bg-white dark:bg-[#2a2029] flex flex-col items-center justify-center gap-4 px-4 text-center">
-        <p style={{ fontFamily: FONT_SERIF }} className="text-2xl text-[#241B22] dark:text-[#F5EDE9]">
+      <div className="min-h-screen bg-white dark:bg-[#17101f] flex flex-col items-center justify-center gap-4 px-4 text-center">
+        <p style={{ fontFamily: FONT_SERIF }} className="text-2xl text-[#0A0A0A] dark:text-[#F5F3FA]">
           Producto no encontrado
         </p>
         <Link
           to="/"
-          className="text-sm font-semibold uppercase tracking-wider text-white px-6 py-3 rounded-full"
+          className="text-sm font-semibold uppercase tracking-wider text-white px-6 py-3 rounded-none"
           style={{ background: GRADIENT, fontFamily: FONT_SANS }}
         >
           Volver a la tienda
@@ -140,31 +137,32 @@ export const ProductoDetalleView: React.FC = () => {
   })();
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#2a2029] flex flex-col">
-      <header className="sticky top-0 z-50 bg-[#FBF8F5] dark:bg-[#2a2029] border-b border-[#E7E0DA] dark:border-[#453840] shadow-sm">
+    <div className="min-h-screen bg-white dark:bg-[#17101f] flex flex-col">
+      <header className="sticky top-0 z-50 bg-[#F7F5FC] dark:bg-[#17101f] border-b border-[#E7E0DA] dark:border-[#3A2E4D] shadow-sm">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             <Link
               to="/"
-              className="flex items-center justify-center hover:opacity-75 transition-opacity"
-              title="Selenne Boutique — Inicio"
+              className="flex items-center gap-2 hover:opacity-75 transition-opacity"
+              title="District Store — Inicio"
             >
+              <Logo className="h-8 w-8 sm:h-10 sm:w-10 flex-shrink-0" />
               <span
                 style={{ fontFamily: FONT_SERIF }}
-                className="text-lg sm:text-2xl font-medium tracking-[0.04em] text-[#241B22] dark:text-[#F5EDE9] whitespace-nowrap"
+                className="text-lg sm:text-2xl font-black uppercase tracking-[0.02em] text-[#0A0A0A] dark:text-[#F5F3FA] whitespace-nowrap"
               >
-                Selenne Boutique
+                District Store
               </span>
             </Link>
 
             <nav className="hidden lg:flex items-center space-x-10">
-              {(["mujer", "accesorios", "sale"] as const).map((cat) => (
+              {(["hombre", "mujer", "accesorios", "sale"] as const).map((cat) => (
                 <button
                   key={cat}
                   onClick={() => irATienda(cat)}
-                  className="py-2 text-[12px] tracking-[0.12em] uppercase font-semibold text-[#241B22] dark:text-[#F5EDE9] opacity-70 hover:opacity-100 transition-opacity"
+                  className="py-2 text-[12px] tracking-[0.12em] uppercase font-semibold text-[#0A0A0A] dark:text-[#F5F3FA] opacity-70 hover:opacity-100 transition-opacity"
                 >
-                  {cat === "mujer" ? "Mujer" : cat === "accesorios" ? "Accesorios" : "Sale"}
+                  {cat === "hombre" ? "Hombre" : cat === "mujer" ? "Mujer" : cat === "accesorios" ? "Accesorios" : "Sale"}
                 </button>
               ))}
             </nav>
@@ -172,11 +170,11 @@ export const ProductoDetalleView: React.FC = () => {
             <div className="flex items-center space-x-0.5 sm:space-x-4">
               <button
                 onClick={() => navigate("/")}
-                className="hidden md:flex p-1.5 sm:p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full transition-colors"
+                className="hidden md:flex p-1.5 sm:p-2 hover:bg-[#C9A8C3] dark:hover:bg-[#241935] rounded-none transition-colors"
                 title="Buscar"
                 aria-label="Buscar"
               >
-                <Search className="w-[18px] h-[18px] sm:w-5 sm:h-5 text-[#241B22] dark:text-[#F5EDE9]" />
+                <Search className="w-[18px] h-[18px] sm:w-5 sm:h-5 text-[#0A0A0A] dark:text-[#F5F3FA]" />
               </button>
               <FavoritosSheet
                 open={favoritosOpen}
@@ -188,13 +186,13 @@ export const ProductoDetalleView: React.FC = () => {
                 onVer={(p) => navigate(`/producto/${p.id}`)}
                 trigger={
                   <button
-                    className="p-1.5 sm:p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full transition-colors relative"
+                    className="p-1.5 sm:p-2 hover:bg-[#C9A8C3] dark:hover:bg-[#241935] rounded-none transition-colors relative"
                     aria-label="Favoritos"
                     title="Favoritos"
                   >
-                    <Heart className="w-[18px] h-[18px] sm:w-6 sm:h-6 text-[#241B22] dark:text-[#F5EDE9]" />
+                    <Heart className="w-[18px] h-[18px] sm:w-6 sm:h-6 text-[#0A0A0A] dark:text-[#F5F3FA]" />
                     {favoritos.length > 0 && (
-                      <span className="absolute -top-1 -right-1 bg-[#A3395C] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                      <span className="absolute -top-1 -right-1 bg-[#5C2A52] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                         {favoritos.length}
                       </span>
                     )}
@@ -213,13 +211,13 @@ export const ProductoDetalleView: React.FC = () => {
                 onVerProducto={(item) => navigate(`/producto/${item.id}`)}
                 trigger={
                   <button
-                    className="p-1.5 sm:p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full transition-colors relative"
+                    className="p-1.5 sm:p-2 hover:bg-[#C9A8C3] dark:hover:bg-[#241935] rounded-none transition-colors relative"
                     aria-label="Carrito"
                     title="Carrito"
                   >
-                    <ShoppingBag className="w-[18px] h-[18px] sm:w-6 sm:h-6 text-[#241B22] dark:text-[#F5EDE9]" />
+                    <ShoppingBag className="w-[18px] h-[18px] sm:w-6 sm:h-6 text-[#0A0A0A] dark:text-[#F5F3FA]" />
                     {carritoItems.length > 0 && (
-                      <span className="absolute -top-1 -right-1 bg-[#A3395C] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                      <span className="absolute -top-1 -right-1 bg-[#5C2A52] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                         {carritoItems.length}
                       </span>
                     )}
@@ -228,11 +226,11 @@ export const ProductoDetalleView: React.FC = () => {
               />
               <button
                 onClick={() => navigate(user ? "/dashboard" : "/login")}
-                className="p-1.5 sm:p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full transition-colors"
+                className="p-1.5 sm:p-2 hover:bg-[#C9A8C3] dark:hover:bg-[#241935] rounded-none transition-colors"
                 aria-label="Mi cuenta"
                 title={user ? "Mi cuenta" : "Iniciar sesión"}
               >
-                <UserIcon className="w-[18px] h-[18px] sm:w-6 sm:h-6 text-[#241B22] dark:text-[#F5EDE9]" />
+                <UserIcon className="w-[18px] h-[18px] sm:w-6 sm:h-6 text-[#0A0A0A] dark:text-[#F5F3FA]" />
               </button>
             </div>
           </div>
@@ -244,7 +242,7 @@ export const ProductoDetalleView: React.FC = () => {
       <div className="max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-8 pt-4">
         <button
           onClick={() => navigate(-1)}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#7d6f77] dark:text-[#b8a3ac] hover:text-[#A3395C] dark:hover:text-[#A3395C] transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#7d6f77] dark:text-[#b9aedd] hover:text-[#5C2A52] dark:hover:text-[#5C2A52] transition-colors"
         >
           <ChevronLeft className="w-4 h-4" />
           Volver
@@ -252,9 +250,9 @@ export const ProductoDetalleView: React.FC = () => {
       </div>
 
       <div className="max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-3 sm:py-6">
-        <div className="flex flex-col sm:flex-row sm:gap-8 lg:gap-10">
-          {/* LEFT: Image panel — sin marco, tipo editorial */}
-          <div className="relative w-full h-[380px] sm:h-auto sm:w-[52%] sm:self-start sm:aspect-[4/5] lg:self-stretch lg:aspect-auto lg:max-h-[600px] flex-shrink-0 overflow-hidden bg-[#FBF8F5] dark:bg-[#2a2029]">
+        <div className="flex flex-col sm:flex-row sm:gap-8 lg:gap-10 border border-[#E7E0DA] dark:border-[#3A2E4D] p-4 sm:p-6 lg:p-8">
+          {/* LEFT: Image panel — sticky para que no quede flotando en vacío */}
+          <div className="relative w-full h-[380px] sm:h-auto sm:w-[52%] sm:self-start sm:sticky sm:top-24 sm:aspect-[4/5] flex-shrink-0 overflow-hidden bg-[#F7F5FC] dark:bg-[#17101f] border border-[#E7E0DA] dark:border-[#3A2E4D]">
             <ImageCarousel
               key={`${producto.id}-${colorSeleccionado || "default"}`}
               imagenes={imgsForColor}
@@ -266,13 +264,13 @@ export const ProductoDetalleView: React.FC = () => {
           {/* RIGHT: Details panel */}
           <div className="flex-1 flex flex-col gap-4 pt-5 sm:pt-0">
             <div>
-              <p style={{ fontFamily: FONT_SANS }} className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#A3395C] mb-2">
-                {[producto.tipoProducto, producto.subcategoria].filter(Boolean).join(" · ") || "Selenne Boutique"}
+              <p style={{ fontFamily: FONT_SANS }} className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#5C2A52] mb-2">
+                {[producto.tipoProducto, producto.subcategoria].filter(Boolean).join(" · ") || "District Store"}
               </p>
               <div className="flex items-start justify-between gap-3">
                 <h1
                   style={{ fontFamily: FONT_SERIF }}
-                  className="text-3xl sm:text-5xl text-[#241B22] dark:text-[#F5EDE9] leading-[1.05]"
+                  className="text-3xl sm:text-5xl text-[#0A0A0A] dark:text-[#F5F3FA] leading-[1.05]"
                 >
                   {producto.nombre}
                 </h1>
@@ -281,8 +279,8 @@ export const ProductoDetalleView: React.FC = () => {
                   title={esFavorito(producto.id) ? "Quitar de favoritos" : "Agregar a favoritos"}
                   className={`w-10 h-10 border flex items-center justify-center transition-all flex-shrink-0 ${
                     esFavorito(producto.id)
-                      ? "border-[#A3395C] bg-[#A3395C] text-white"
-                      : "border-[#E7E0DA] dark:border-[#453840] text-[#7d6f77] dark:text-[#b8a3ac] hover:border-[#A3395C] hover:text-[#A3395C]"
+                      ? "border-[#5C2A52] bg-[#5C2A52] text-white"
+                      : "border-[#E7E0DA] dark:border-[#3A2E4D] text-[#7d6f77] dark:text-[#b9aedd] hover:border-[#5C2A52] hover:text-[#5C2A52]"
                   }`}
                 >
                   <Heart className="w-4 h-4" fill={esFavorito(producto.id) ? "currentColor" : "none"} />
@@ -292,10 +290,10 @@ export const ProductoDetalleView: React.FC = () => {
 
             <div className="flex items-center justify-between" style={{ fontFamily: FONT_SANS }}>
               <div className="flex items-baseline gap-3">
-                <span className="text-2xl font-bold text-[#241B22] dark:text-[#F5EDE9]">{formatPrecio(producto.precio)}</span>
+                <span className="text-2xl font-bold text-[#0A0A0A] dark:text-[#F5F3FA]">{formatPrecio(producto.precio)}</span>
                 {producto.precioOriginal && (
                   <>
-                    <span className="text-sm text-[#7d6f77] dark:text-[#b8a3ac] line-through">
+                    <span className="text-sm text-[#7d6f77] dark:text-[#b9aedd] line-through">
                       {formatPrecio(producto.precioOriginal)}
                     </span>
                     <span className="text-xs font-semibold text-red-500">
@@ -308,7 +306,7 @@ export const ProductoDetalleView: React.FC = () => {
             </div>
 
             {producto.descripcion && (
-              <p style={{ fontFamily: FONT_SANS }} className="text-sm text-[#7d6f77] dark:text-[#b8a3ac] leading-relaxed">
+              <p style={{ fontFamily: FONT_SANS }} className="text-sm text-[#7d6f77] dark:text-[#b9aedd] leading-relaxed">
                 {producto.descripcion}
               </p>
             )}
@@ -317,7 +315,7 @@ export const ProductoDetalleView: React.FC = () => {
 
             {producto.colores && producto.colores.length > 0 && (
               <div>
-                <p style={{ fontFamily: FONT_SANS }} className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#241B22] dark:text-[#F5EDE9] mb-3">Color</p>
+                <p style={{ fontFamily: FONT_SANS }} className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#0A0A0A] dark:text-[#F5F3FA] mb-3">Color</p>
                 <div className="flex gap-3 flex-wrap">
                   {producto.colores.map((color) => {
                     const hexColor = getColorHex(color);
@@ -328,8 +326,8 @@ export const ProductoDetalleView: React.FC = () => {
                         onClick={() => setColorSeleccionado(color)}
                         className={`relative w-9 h-9 rounded-full border transition-all ${
                           seleccionado
-                            ? "border-[#241B22] dark:border-[#F5EDE9] scale-110"
-                            : "border-[#E7E0DA] dark:border-[#453840] hover:scale-105"
+                            ? "border-[#0A0A0A] dark:border-[#F5F3FA] scale-110"
+                            : "border-[#E7E0DA] dark:border-[#3A2E4D] hover:scale-105"
                         }`}
                         style={{ backgroundColor: hexColor }}
                         title={color}
@@ -354,7 +352,7 @@ export const ProductoDetalleView: React.FC = () => {
               const todosVariantesCero = variantes.length > 0 && variantes.every((x) => (x.stock ?? 0) <= 0);
               return (
                 <div>
-                  <p style={{ fontFamily: FONT_SANS }} className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#241B22] dark:text-[#F5EDE9] mb-3">Talla</p>
+                  <p style={{ fontFamily: FONT_SANS }} className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#0A0A0A] dark:text-[#F5F3FA] mb-3">Talla</p>
                   <div className="flex flex-wrap gap-2">
                     {tallasProducto.map((talla) => {
                       let sinStock = false;
@@ -385,10 +383,10 @@ export const ProductoDetalleView: React.FC = () => {
                           style={{ fontFamily: FONT_SANS }}
                           className={`min-w-11 h-11 px-3 border text-xs font-semibold uppercase tracking-wide transition-all ${
                             sinStock
-                              ? "border-[#E7E0DA] dark:border-[#453840] text-[#c3bab3] dark:text-[#5a4d52] bg-[#FBF8F5] dark:bg-[#2a2029] cursor-not-allowed line-through"
+                              ? "border-[#E7E0DA] dark:border-[#3A2E4D] text-[#c3bab3] dark:text-[#5a4d52] bg-[#F7F5FC] dark:bg-[#17101f] cursor-not-allowed line-through"
                               : seleccionada
-                                ? "border-[#241B22] bg-[#241B22] text-white"
-                                : "border-[#E7E0DA] dark:border-[#453840] text-[#241B22] dark:text-[#F5EDE9] hover:border-[#A3395C]"
+                                ? "border-[#0A0A0A] bg-[#0A0A0A] text-white"
+                                : "border-[#E7E0DA] dark:border-[#3A2E4D] text-[#0A0A0A] dark:text-[#F5F3FA] hover:border-[#5C2A52]"
                           }`}
                           title={sinStock ? "Agotado" : `${talla} — ${stockDisponible} disponibles`}
                         >
@@ -403,10 +401,10 @@ export const ProductoDetalleView: React.FC = () => {
 
             {producto.materiales && producto.materiales.length > 0 && (
               <div>
-                <p style={{ fontFamily: FONT_SANS }} className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#241B22] dark:text-[#F5EDE9] mb-3">Material</p>
+                <p style={{ fontFamily: FONT_SANS }} className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#0A0A0A] dark:text-[#F5F3FA] mb-3">Material</p>
                 <div className="flex flex-wrap gap-2">
                   {producto.materiales.map((material: string) => (
-                    <span key={material} style={{ fontFamily: FONT_SANS }} className="px-3 py-1.5 border border-[#E7E0DA] dark:border-[#453840] text-xs font-medium text-[#241B22] dark:text-[#F5EDE9]">
+                    <span key={material} style={{ fontFamily: FONT_SANS }} className="px-3 py-1.5 border border-[#E7E0DA] dark:border-[#3A2E4D] text-xs font-medium text-[#0A0A0A] dark:text-[#F5F3FA]">
                       {material}
                     </span>
                   ))}
@@ -414,18 +412,18 @@ export const ProductoDetalleView: React.FC = () => {
               </div>
             )}
 
-            <div className="flex items-center gap-3 pt-3 mt-1 border-t border-[#E7E0DA] dark:border-[#453840]" style={{ flexShrink: 0, fontFamily: FONT_SANS }}>
-              <div className="flex items-center gap-1 border border-[#E7E0DA] dark:border-[#453840] flex-shrink-0">
+            <div className="flex items-center gap-3 pt-3 mt-1 border-t border-[#E7E0DA] dark:border-[#3A2E4D]" style={{ flexShrink: 0, fontFamily: FONT_SANS }}>
+              <div className="flex items-center gap-1 border border-[#E7E0DA] dark:border-[#3A2E4D] flex-shrink-0">
                 <button
                   onClick={() => setCantidadSeleccionada(Math.max(1, cantidadSeleccionada - 1))}
-                  className="w-10 h-11 flex items-center justify-center hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] transition-colors text-[#241B22] dark:text-[#F5EDE9]"
+                  className="w-10 h-11 flex items-center justify-center hover:bg-[#C9A8C3] dark:hover:bg-[#241935] transition-colors text-[#0A0A0A] dark:text-[#F5F3FA]"
                 >
                   <Minus className="w-3 h-3" />
                 </button>
-                <span className="text-sm font-semibold w-6 text-center text-[#241B22] dark:text-[#F5EDE9]">{cantidadSeleccionada}</span>
+                <span className="text-sm font-semibold w-6 text-center text-[#0A0A0A] dark:text-[#F5F3FA]">{cantidadSeleccionada}</span>
                 <button
                   onClick={() => setCantidadSeleccionada(cantidadSeleccionada + 1)}
-                  className="w-10 h-11 flex items-center justify-center hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] transition-colors text-[#241B22] dark:text-[#F5EDE9]"
+                  className="w-10 h-11 flex items-center justify-center hover:bg-[#C9A8C3] dark:hover:bg-[#241935] transition-colors text-[#0A0A0A] dark:text-[#F5F3FA]"
                 >
                   <Plus className="w-3 h-3" />
                 </button>
@@ -433,39 +431,29 @@ export const ProductoDetalleView: React.FC = () => {
               <button
                 onClick={handleAgregarAlCarrito}
                 disabled={!tallaSeleccionada || producto.agotado}
-                className={`flex-1 h-11 border text-xs font-bold uppercase tracking-widest transition-all ${
+                style={!tallaSeleccionada || producto.agotado ? undefined : { background: GRADIENT }}
+                className={`flex-1 h-11 text-xs font-bold uppercase tracking-widest text-white transition-all ${
                   !tallaSeleccionada || producto.agotado
-                    ? "border-[#E7E0DA] dark:border-[#453840] text-[#c3bab3] dark:text-[#5a4d52] cursor-not-allowed"
-                    : "border-[#241B22] dark:border-[#F5EDE9] text-[#241B22] dark:text-[#F5EDE9] hover:bg-[#241B22] hover:text-white dark:hover:bg-[#F5EDE9] dark:hover:text-[#241B22]"
+                    ? "bg-[#E7E0DA] dark:bg-[#3A2E4D] text-[#c3bab3] dark:text-[#5a4d52] cursor-not-allowed"
+                    : "hover:opacity-90"
                 }`}
               >
                 {producto.agotado ? "Agotado" : "Agregar al Carrito"}
               </button>
             </div>
 
-            <button
-              onClick={handleCompraDirecta}
-              disabled={!tallaSeleccionada || producto.agotado}
-              style={!tallaSeleccionada || producto.agotado ? { flexShrink: 0, fontFamily: FONT_SANS } : { flexShrink: 0, fontFamily: FONT_SANS, background: GRADIENT }}
-              className={`w-full h-12 text-xs font-bold uppercase tracking-widest text-white transition-all ${
-                !tallaSeleccionada || producto.agotado ? "bg-[#E7E0DA] dark:bg-[#453840] cursor-not-allowed" : "hover:opacity-90"
-              }`}
-            >
-              {producto.agotado ? "Agotado" : "Comprar Ahora"}
-            </button>
-
-            <div className="flex flex-col gap-2.5 pt-1" style={{ fontFamily: FONT_SANS }}>
-              <div className="flex items-center gap-2.5 text-xs text-[#7d6f77] dark:text-[#b8a3ac]">
-                <Package className="w-4 h-4 text-[#A3395C] flex-shrink-0" strokeWidth={1.75} />
-                <span>Entrega en 3-5 días hábiles</span>
+            <div className="grid grid-cols-3 gap-1 bg-[#F7F5FC] dark:bg-[#17101f] border border-[#E7E0DA] dark:border-[#3A2E4D] py-3 px-2" style={{ fontFamily: FONT_SANS }}>
+              <div className="flex flex-col items-center text-center gap-1.5 px-1">
+                <Package className="w-[18px] h-[18px] text-[#5C2A52]" strokeWidth={1.75} />
+                <span className="text-[10px] uppercase tracking-wide font-semibold text-[#7d6f77] dark:text-[#b9aedd] leading-tight">Entrega 3-5 días</span>
               </div>
-              <div className="flex items-center gap-2.5 text-xs text-[#7d6f77] dark:text-[#b8a3ac]">
-                <Globe className="w-4 h-4 text-[#A3395C] flex-shrink-0" strokeWidth={1.75} />
-                <span>Envíos a todo el país</span>
+              <div className="flex flex-col items-center text-center gap-1.5 px-1 border-x border-[#E7E0DA] dark:border-[#3A2E4D]">
+                <Globe className="w-[18px] h-[18px] text-[#5C2A52]" strokeWidth={1.75} />
+                <span className="text-[10px] uppercase tracking-wide font-semibold text-[#7d6f77] dark:text-[#b9aedd] leading-tight">A todo el país</span>
               </div>
-              <div className="flex items-center gap-2.5 text-xs text-[#7d6f77] dark:text-[#b8a3ac]">
-                <Lock className="w-4 h-4 text-[#A3395C] flex-shrink-0" strokeWidth={1.75} />
-                <span>Pago 100% seguro</span>
+              <div className="flex flex-col items-center text-center gap-1.5 px-1">
+                <Lock className="w-[18px] h-[18px] text-[#5C2A52]" strokeWidth={1.75} />
+                <span className="text-[10px] uppercase tracking-wide font-semibold text-[#7d6f77] dark:text-[#b9aedd] leading-tight">Pago seguro</span>
               </div>
             </div>
 
@@ -486,10 +474,10 @@ export const ProductoDetalleView: React.FC = () => {
           .slice(0, 4);
         if (relacionados.length === 0) return null;
         return (
-          <div className="max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-8 sm:py-10 border-t border-[#E7E0DA] dark:border-[#453840]">
+          <div className="max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-8 sm:py-10 border-t border-[#E7E0DA] dark:border-[#3A2E4D]">
             <h2
               style={{ fontFamily: FONT_SERIF }}
-              className="text-2xl sm:text-3xl text-[#241B22] dark:text-[#F5EDE9] mb-6"
+              className="text-2xl sm:text-3xl text-[#0A0A0A] dark:text-[#F5F3FA] mb-6"
             >
               También te podría gustar
             </h2>
@@ -501,7 +489,7 @@ export const ProductoDetalleView: React.FC = () => {
                   onClick={() => navigate(`/producto/${p.id}`)}
                   className="text-left group"
                 >
-                  <div className="aspect-[4/5] overflow-hidden bg-[#FBF8F5] dark:bg-[#2a2029] mb-3">
+                  <div className="aspect-[4/5] overflow-hidden bg-[#F7F5FC] dark:bg-[#17101f] mb-3">
                     <img
                       src={p.imagen}
                       alt={p.nombre}
@@ -509,10 +497,10 @@ export const ProductoDetalleView: React.FC = () => {
                       loading="lazy"
                     />
                   </div>
-                  <p style={{ fontFamily: FONT_SANS }} className="text-[11px] tracking-wide uppercase text-[#241B22] dark:text-[#F5EDE9] truncate">
+                  <p style={{ fontFamily: FONT_SANS }} className="text-[11px] tracking-wide uppercase text-[#0A0A0A] dark:text-[#F5F3FA] truncate">
                     {p.nombre}
                   </p>
-                  <p style={{ fontFamily: FONT_SANS }} className="text-[13px] font-bold text-[#241B22] dark:text-[#F5EDE9] mt-0.5">{formatPrecio(p.precio)}</p>
+                  <p style={{ fontFamily: FONT_SANS }} className="text-[13px] font-bold text-[#0A0A0A] dark:text-[#F5F3FA] mt-0.5">{formatPrecio(p.precio)}</p>
                 </button>
               ))}
             </div>

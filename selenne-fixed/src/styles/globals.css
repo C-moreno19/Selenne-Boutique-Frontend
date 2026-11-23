@@ -43,27 +43,27 @@
 }
 
 .dark {
-  --background: #2a2029;
-  --foreground: #F5EDE9;
-  --card: #322631;
-  --card-foreground: #F5EDE9;
-  --popover: #322631;
-  --popover-foreground: #F5EDE9;
-  --primary: #A3395C;
+  --background: #17101f;
+  --foreground: #F5F3FA;
+  --card: #1e1530;
+  --card-foreground: #F5F3FA;
+  --popover: #1e1530;
+  --popover-foreground: #F5F3FA;
+  --primary: #5C2A52;
   --primary-foreground: #ffffff;
-  --secondary: #3a2530;
-  --secondary-foreground: #F5EDE9;
-  --muted: #362b34;
-  --muted-foreground: #b8a3ac;
-  --accent: #3a2530;
-  --accent-foreground: #F5EDE9;
+  --secondary: #241935;
+  --secondary-foreground: #F5F3FA;
+  --muted: #221830;
+  --muted-foreground: #b9aedd;
+  --accent: #241935;
+  --accent-foreground: #F5F3FA;
   --destructive: #dc2626;
   --destructive-foreground: #ffffff;
-  --border: #453840;
-  --input: #453840;
-  --input-background: #322631;
-  --switch-background: #453840;
-  --ring: #A3395C;
+  --border: #3A2E4D;
+  --input: #3A2E4D;
+  --input-background: #1e1530;
+  --switch-background: #3A2E4D;
+  --ring: #5C2A52;
   --font-weight-medium: 500;
   --font-weight-normal: 400;
   --chart-1: oklch(0.488 0.243 264.376);

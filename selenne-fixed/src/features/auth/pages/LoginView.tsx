@@ -106,7 +106,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
               letterSpacing: '0.01em',
             }}
           >
-            Selenne Boutique
+            District Store
           </motion.h1>
 
           {/* Frase inspiradora */}
@@ -120,23 +120,23 @@ export const LoginView: React.FC<LoginViewProps> = ({
               lineHeight: '1.7',
               fontWeight: '400',
               fontStyle: 'italic',
-              color: '#EFD9DF',
+              color: '#C9A8C3',
             }}
           >
-            "Descubre prendas que realzan tu belleza y te hacen sentir única. Cada pieza está diseñada para acompañarte a brillar en cada momento."
+            "Streetwear y esenciales para hombre y mujer. Piezas con actitud, hechas para la calle."
           </motion.p>
         </div>
       </div>
 
       {/* Login Panel - Right (45%) */}
-      <div className="flex-1 lg:w-[45%] h-full overflow-y-auto flex items-center justify-center bg-white dark:bg-[#2a2029] px-16 py-8">
+      <div className="flex-1 lg:w-[45%] h-full overflow-y-auto flex items-center justify-center bg-white dark:bg-[#17101f] px-16 py-8">
         <div className="w-full max-w-md space-y-5">
           {/* Back arrow */}
           {onBack && (
             <button
               type="button"
               onClick={onBack}
-              className="flex items-center gap-1 text-gray-500 dark:text-[#b8a3ac] hover:text-[#A3395C] transition-colors text-sm"
+              className="flex items-center gap-1 text-gray-500 dark:text-[#b9aedd] hover:text-[#5C2A52] transition-colors text-sm"
             >
               <ArrowLeft size={16} />
               Volver a la tienda
@@ -153,7 +153,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
           </motion.div>
 
           {/* Form */}
-          <div className="space-y-5">
+          <div className="space-y-5 border border-[#E7E0DA] dark:border-[#3A2E4D] p-6 sm:p-8">
             <CustomInput
               type="email"
               label="Email *"
@@ -181,7 +181,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
               <div className="flex justify-end mt-2">
                 <button
                   onClick={onForgotPassword}
-                  className="text-[#A3395C] hover:underline transition-all"
+                  className="text-[#5C2A52] hover:underline transition-all"
                   style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: '14px' }}
                 >
                   Recuperar contraseña
@@ -196,7 +196,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
             <div className="text-center pt-4">
               <button
                 onClick={onRegister}
-                className="text-[#1a1a1a] dark:text-[#F5EDE9] hover:text-[#A3395C] transition-all"
+                className="text-[#1a1a1a] dark:text-[#F5F3FA] hover:text-[#5C2A52] transition-all"
                 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: '14px' }}
               >
                 ¿No tienes cuenta? <span className="underline">Registrarse</span>

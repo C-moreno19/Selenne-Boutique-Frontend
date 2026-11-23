@@ -26,11 +26,11 @@ export const CustomAlert: React.FC<CustomAlertProps> = ({
 
   const config = {
     success: {
-      accent: '#A3395C',
+      accent: '#5C2A52',
       iconBg: 'bg-[#fce7f3]',
-      iconColor: 'text-[#A3395C]',
+      iconColor: 'text-[#5C2A52]',
       icon: <CheckCircle2 size={17} />,
-      progressColor: '#A3395C',
+      progressColor: '#5C2A52',
     },
     error: {
       accent: '#dc2626',
@@ -40,11 +40,11 @@ export const CustomAlert: React.FC<CustomAlertProps> = ({
       progressColor: '#dc2626',
     },
     info: {
-      accent: '#A3395C',
+      accent: '#5C2A52',
       iconBg: 'bg-[#fce7f3]',
-      iconColor: 'text-[#A3395C]',
+      iconColor: 'text-[#5C2A52]',
       icon: <Info size={17} />,
-      progressColor: '#A3395C',
+      progressColor: '#5C2A52',
     },
   };
 

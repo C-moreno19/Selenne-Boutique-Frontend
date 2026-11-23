@@ -31,7 +31,7 @@ describe('truncateText', () => {
   });
 
   it('corta y agrega elipsis cuando excede el limite', () => {
-    expect(truncateText('Selenne Boutique', 7)).toBe('Selenne...');
+    expect(truncateText('District Store', 7)).toBe('Selenne...');
   });
 
   it('respeta el limite exacto sin truncar', () => {

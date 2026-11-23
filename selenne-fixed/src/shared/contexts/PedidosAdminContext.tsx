@@ -230,7 +230,7 @@ export const PedidosAdminProvider: React.FC<{ children: React.ReactNode }> = ({ 
       // Send approval email (simulated via mailto)
       try {
         if (updated?.email) {
-          const subject = encodeURIComponent('✅ Pago Aprobado - Selenne Boutique');
+          const subject = encodeURIComponent('✅ Pago Aprobado - District Store');
           const body = encodeURIComponent(
             `¡Excelente! Tu pago ha sido aprobado.
 
@@ -250,7 +250,7 @@ Próximos pasos:
 ¿Dudas sobre tu compra? Contacta a admin@seleneboutique.com
 
 Gracias por tu confianza,
-Selenne Boutique 👗✨`
+District Store 👗✨`
           );
           window.open(`mailto:${updated.email}?subject=${subject}&body=${body}`);
         }
@@ -269,7 +269,7 @@ Selenne Boutique 👗✨`
       } catch (e) {}
       try {
         if (updated?.email) {
-          const subject = encodeURIComponent('❌ Pago Rechazado - Selenne Boutique');
+          const subject = encodeURIComponent('❌ Pago Rechazado - District Store');
           const body = encodeURIComponent(
             `Hola ${updated.cliente},
 
@@ -291,7 +291,7 @@ Necesitamos tu pago completo para procesar tu pedido.
 Contacta a admin@seleneboutique.com para enviar otro comprobante.
 
 Estamos aquí para ayudarte,
-Selenne Boutique 👗✨`
+District Store 👗✨`
           );
           window.open(`mailto:${updated.email}?subject=${subject}&body=${body}`);
         }

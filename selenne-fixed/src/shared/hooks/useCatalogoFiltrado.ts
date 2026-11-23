@@ -2,23 +2,28 @@ import { useEffect, useMemo, useState } from "react";
 import { useProductosCombinados } from "../data/useProductosCombinados";
 import { useProductos } from "../contexts/ProductosContext";
 import { useSubcategorias } from "../contexts/SubcategoriasContext";
+import { getCategoriaMenu, coincideSubcategoria } from "../data/megaMenu";
 import type { FiltrosAplicados } from "../../components/FiltrosPanel";
 
-export type Categoria = "mujer" | "accesorios" | "sale";
+export type Categoria = "hombre" | "mujer" | "accesorios" | "sale";
 
 const PRODUCTOS_POR_PAGINA = 12;
 
 /**
  * Catálogo filtrado + paginado, compartido entre LandingView y ClienteView
  * (antes duplicado casi byte a byte en los dos archivos).
+ *
+ * `subInicial` es la subcategoría del mega menú (p.ej. "camisetas") con la
+ * que se debe abrir el catálogo al navegar desde el menú.
  */
-export function useCatalogoFiltrado(categoriaActiva: Categoria) {
+export function useCatalogoFiltrado(categoriaActiva: Categoria, subInicial?: string) {
   const productosData = useProductosCombinados();
   const { loading: productosLoading } = useProductos();
   const { colores, tallas } = useSubcategorias();
 
   const [busqueda, setBusqueda] = useState("");
   const [ordenar, setOrdenar] = useState("destacados");
+  const [filtroSubcategoria, setFiltroSubcategoria] = useState<string>(subInicial || "");
   const [filtroTalla, setFiltroTalla] = useState<string[]>([]);
   const [filtroColor, setFiltroColor] = useState<string>("");
   const [filtroMaterial, setFiltroMaterial] = useState<string>("");
@@ -28,6 +33,13 @@ export function useCatalogoFiltrado(categoriaActiva: Categoria) {
   const [filtroPrecioMax, setFiltroPrecioMax] = useState<number | null>(null);
   const [paginaActual, setPaginaActual] = useState(1);
   const [filtrosAbiertos, setFiltrosAbiertos] = useState(false);
+
+  // Si se navega desde el mega menú con una subcategoría distinta, se adopta.
+  useEffect(() => {
+    setFiltroSubcategoria(subInicial || "");
+  }, [categoriaActiva, subInicial]);
+
+  const categoriaMenu = useMemo(() => getCategoriaMenu(categoriaActiva), [categoriaActiva]);
 
   const getColorHex = (colorNombre: string): string => {
     const color = colores.find((c) => c.nombre.toLowerCase() === colorNombre.toLowerCase());
@@ -90,6 +102,13 @@ export function useCatalogoFiltrado(categoriaActiva: Categoria) {
       productos = productos.filter((p) => (p.tipoProducto || "").toLowerCase() === filtroLower);
     }
 
+    if (filtroSubcategoria && categoriaMenu) {
+      const sub = categoriaMenu.subcategorias.find((s) => s.clave === filtroSubcategoria);
+      if (sub) {
+        productos = productos.filter((p) => coincideSubcategoria(sub, p.tipoProducto, categoriaMenu));
+      }
+    }
+
     if (filtroCategoriaRopa && filtroCategoriaRopa !== "all") {
       const filtroCatLower = filtroCategoriaRopa.toLowerCase();
       productos = productos.filter((p) => (p.subcategoria || "").toLowerCase() === filtroCatLower);
@@ -123,7 +142,7 @@ export function useCatalogoFiltrado(categoriaActiva: Categoria) {
     }
 
     return productos;
-  }, [categoriaActiva, busqueda, ordenar, filtroTipoProducto, filtroCategoriaRopa, filtroTalla, filtroColor, filtroMaterial, filtroPrecioMin, filtroPrecioMax, productosData]);
+  }, [categoriaActiva, busqueda, ordenar, filtroTipoProducto, filtroCategoriaRopa, filtroSubcategoria, categoriaMenu, filtroTalla, filtroColor, filtroMaterial, filtroPrecioMin, filtroPrecioMax, productosData]);
 
   const maxPrecioGlobal = useMemo(() => {
     const precios = productosData.map((p) => p.precio);
@@ -143,8 +162,9 @@ export function useCatalogoFiltrado(categoriaActiva: Categoria) {
     if (filtroMaterial) c++;
     if (filtroPrecioMin !== null) c++;
     if (filtroPrecioMax !== null) c++;
+    if (filtroSubcategoria) c++;
     return c;
-  }, [filtroTipoProducto, filtroCategoriaRopa, filtroTalla, filtroColor, filtroMaterial, filtroPrecioMin, filtroPrecioMax]);
+  }, [filtroTipoProducto, filtroCategoriaRopa, filtroSubcategoria, filtroTalla, filtroColor, filtroMaterial, filtroPrecioMin, filtroPrecioMax]);
 
   const handleAplicarFiltros = (f: FiltrosAplicados) => {
     setFiltroPrecioMin(f.precioMin);
@@ -164,6 +184,7 @@ export function useCatalogoFiltrado(categoriaActiva: Categoria) {
     setFiltroMaterial("");
     setFiltroTipoProducto("");
     setFiltroCategoriaRopa("");
+    setFiltroSubcategoria("");
     setFiltroPrecioMin(null);
     setFiltroPrecioMax(null);
   };
@@ -171,7 +192,7 @@ export function useCatalogoFiltrado(categoriaActiva: Categoria) {
   // Resetear página al cambiar filtros o categoría
   useEffect(() => {
     setPaginaActual(1);
-  }, [categoriaActiva, busqueda, ordenar, filtroTipoProducto, filtroCategoriaRopa, filtroTalla, filtroColor, filtroMaterial, filtroPrecioMin, filtroPrecioMax]);
+  }, [categoriaActiva, busqueda, ordenar, filtroTipoProducto, filtroCategoriaRopa, filtroSubcategoria, filtroTalla, filtroColor, filtroMaterial, filtroPrecioMin, filtroPrecioMax]);
 
   const totalPaginas = Math.ceil(productosFiltrados.length / PRODUCTOS_POR_PAGINA);
   const productosPagina = productosFiltrados.slice(
@@ -193,6 +214,9 @@ export function useCatalogoFiltrado(categoriaActiva: Categoria) {
     filtroMaterial,
     filtroTipoProducto,
     filtroCategoriaRopa,
+    filtroSubcategoria,
+    setFiltroSubcategoria,
+    categoriaMenu,
     filtroPrecioMin,
     filtroPrecioMax,
     tallasDisponibles,

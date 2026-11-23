@@ -57,7 +57,7 @@ const DialogContent = React.forwardRef<
         ref={ref}
         data-slot="dialog-content"
         className={cn(
-          "bg-white text-[#241B22] dark:bg-[#322631] dark:text-[#F5EDE9] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=open]:slide-in-from-bottom-2 fixed top-[50%] left-[50%] z-50 w-full translate-x-[-50%] translate-y-[-50%] rounded-2xl border border-[#E7E0DA] dark:border-[#453840] shadow-lg data-[state=open]:duration-300 data-[state=closed]:duration-200 overflow-y-auto max-h-[90vh]",
+          "bg-white text-[#0A0A0A] dark:bg-[#1e1530] dark:text-[#F5F3FA] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=open]:slide-in-from-bottom-2 fixed top-[50%] left-[50%] z-50 w-full translate-x-[-50%] translate-y-[-50%] rounded-2xl border border-[#E7E0DA] dark:border-[#3A2E4D] shadow-lg data-[state=open]:duration-300 data-[state=closed]:duration-200 overflow-y-auto max-h-[90vh]",
           className,
         )}
         style={{ display: 'flex', flexDirection: 'column', ...props.style }}
@@ -65,7 +65,7 @@ const DialogContent = React.forwardRef<
       >
         {children}
         {!hideCloseButton && (
-          <DialogPrimitive.Close className="ring-offset-white focus:ring-[#A3395C] text-[#241B22] dark:text-[#F5EDE9] hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] hover:text-[#A3395C] absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center opacity-80 transition-colors hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4">
+          <DialogPrimitive.Close className="ring-offset-white focus:ring-[#5C2A52] text-[#0A0A0A] dark:text-[#F5F3FA] hover:bg-[#C9A8C3] dark:hover:bg-[#241935] hover:text-[#5C2A52] absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center opacity-80 transition-colors hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4">
             <XIcon />
             <span className="sr-only">Close</span>
           </DialogPrimitive.Close>

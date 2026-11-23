@@ -21,7 +21,7 @@ const CONTENIDO: Record<Exclude<LegalDoc, null>, { titulo: string; secciones: { 
       {
         h: "1. Sobre estos términos",
         p: [
-          "Al comprar en Selenne Boutique aceptás las condiciones descritas acá. Si tenés dudas antes de confirmar tu pedido, escribinos por WhatsApp desde el botón de Contacto.",
+          "Al comprar en District Store aceptás las condiciones descritas acá. Si tenés dudas antes de confirmar tu pedido, escribinos por WhatsApp desde el botón de Contacto.",
         ],
       },
       {
@@ -83,7 +83,7 @@ export function LegalDialog({ doc, onClose }: LegalDialogProps) {
     <Dialog open={!!doc} onOpenChange={(open) => { if (!open) onClose(); }}>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle style={{ fontFamily: PLAYFAIR }} className="text-2xl text-[#241B22] dark:text-[#F5EDE9]">
+          <DialogTitle style={{ fontFamily: PLAYFAIR }} className="text-2xl text-[#0A0A0A] dark:text-[#F5F3FA]">
             {titulo}
           </DialogTitle>
           <DialogDescription className="sr-only">{titulo}</DialogDescription>
@@ -91,9 +91,9 @@ export function LegalDialog({ doc, onClose }: LegalDialogProps) {
         <div className="space-y-6 mt-2" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
           {secciones.map((s) => (
             <div key={s.h}>
-              <h3 className="text-sm font-bold tracking-wide text-[#A3395C] mb-2">{s.h}</h3>
+              <h3 className="text-sm font-bold tracking-wide text-[#5C2A52] mb-2">{s.h}</h3>
               {s.p.map((linea, i) => (
-                <p key={i} className="text-sm text-gray-600 dark:text-[#b8a3ac] leading-relaxed">{linea}</p>
+                <p key={i} className="text-sm text-gray-600 dark:text-[#b9aedd] leading-relaxed">{linea}</p>
               ))}
             </div>
           ))}

@@ -11,7 +11,7 @@ interface CuponPublico {
 }
 
 const FONT_SANS = '"Helvetica Neue", Helvetica, Arial, sans-serif';
-const GRADIENT = 'linear-gradient(90deg, #241B22 0%, #7a3350 55%, #A3395C 100%)';
+const GRADIENT = 'linear-gradient(90deg, #0A0A0A 0%, #3B0A45 55%, #5C2A52 100%)';
 
 const formatDescuento = (c: CuponPublico) =>
   c.tipoDescuento === 'porcentaje'

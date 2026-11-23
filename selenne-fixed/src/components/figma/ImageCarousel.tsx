@@ -19,13 +19,13 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
 
   if (!imagenesValidas || imagenesValidas.length === 0) {
     return (
-      <div className={`bg-[#fdf2f8] dark:bg-[#362b34] flex flex-col items-center justify-center gap-3 ${className}`}>
-        <div className="w-20 h-20 rounded-full bg-pink-100 dark:bg-[#3a2530] flex items-center justify-center">
-          <svg xmlns="http://www.w3.org/2000/svg" className="w-10 h-10 text-[#A3395C] opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.2}>
+      <div className={`bg-[#fdf2f8] dark:bg-[#221830] flex flex-col items-center justify-center gap-3 ${className}`}>
+        <div className="w-20 h-20 rounded-full bg-pink-100 dark:bg-[#241935] flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-10 h-10 text-[#5C2A52] opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
         </div>
-        <p className="text-sm text-pink-300 dark:text-[#b8a3ac] font-medium tracking-wide">Imagen no disponible</p>
+        <p className="text-sm text-pink-300 dark:text-[#b9aedd] font-medium tracking-wide">Imagen no disponible</p>
       </div>
     );
   }
@@ -58,8 +58,8 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
               type="button"
               key={idx}
               onClick={() => setImagenActual(idx)}
-              className={`w-[68px] h-[68px] overflow-hidden border flex-shrink-0 transition-all bg-[#FBF8F5] dark:bg-[#2a2029] ${
-                idx === imagenActual ? 'border-[#241B22] dark:border-[#F5EDE9]' : 'border-[#E7E0DA] dark:border-[#453840] opacity-60 hover:opacity-100'
+              className={`w-[68px] h-[68px] overflow-hidden border flex-shrink-0 transition-all bg-[#F7F5FC] dark:bg-[#17101f] ${
+                idx === imagenActual ? 'border-[#0A0A0A] dark:border-[#F5F3FA]' : 'border-[#E7E0DA] dark:border-[#3A2E4D] opacity-60 hover:opacity-100'
               }`}
               aria-label={`Ver imagen ${idx + 1}`}
               title={`Imagen ${idx + 1}`}
@@ -71,7 +71,7 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
       )}
 
       {/* Imagen principal */}
-      <div className="relative flex-1 min-w-0 bg-[#fafafa] dark:bg-[#2a2029] overflow-hidden">
+      <div className="relative flex-1 min-w-0 bg-[#fafafa] dark:bg-[#17101f] overflow-hidden">
         <img
           key={imagenesValidas[imagenActual]}
           src={imagenesValidas[imagenActual]}
@@ -89,7 +89,7 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
           <>
             <button type="button"
               onClick={irAnterior}
-              className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/90 dark:bg-[#322631]/90 text-[#241B22] dark:text-[#F5EDE9] p-1.5 rounded-full hover:bg-white dark:hover:bg-[#322631] transition-colors shadow-md"
+              className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/90 dark:bg-[#1e1530]/90 text-[#0A0A0A] dark:text-[#F5F3FA] p-1.5 rounded-full hover:bg-white dark:hover:bg-[#1e1530] transition-colors shadow-md"
               aria-label="Imagen anterior"
               title="Anterior"
             >
@@ -98,14 +98,14 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
 
             <button type="button"
               onClick={irSiguiente}
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/90 dark:bg-[#322631]/90 text-[#241B22] dark:text-[#F5EDE9] p-1.5 rounded-full hover:bg-white dark:hover:bg-[#322631] transition-colors shadow-md"
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/90 dark:bg-[#1e1530]/90 text-[#0A0A0A] dark:text-[#F5F3FA] p-1.5 rounded-full hover:bg-white dark:hover:bg-[#1e1530] transition-colors shadow-md"
               aria-label="Imagen siguiente"
               title="Siguiente"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
 
-            <div className="absolute top-2.5 right-2.5 bg-[#241B22]/80 text-white px-2.5 py-1 text-[10px] font-bold tracking-widest">
+            <div className="absolute top-2.5 right-2.5 bg-[#0A0A0A]/80 text-white px-2.5 py-1 text-[10px] font-bold tracking-widest">
               {imagenActual + 1} / {imagenesValidas.length}
             </div>
           </>
@@ -120,8 +120,8 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
               type="button"
               key={idx}
               onClick={() => setImagenActual(idx)}
-              className={`w-14 h-14 overflow-hidden border flex-shrink-0 transition-all bg-[#FBF8F5] dark:bg-[#2a2029] ${
-                idx === imagenActual ? 'border-[#241B22] dark:border-[#F5EDE9]' : 'border-[#E7E0DA] dark:border-[#453840] opacity-60'
+              className={`w-14 h-14 overflow-hidden border flex-shrink-0 transition-all bg-[#F7F5FC] dark:bg-[#17101f] ${
+                idx === imagenActual ? 'border-[#0A0A0A] dark:border-[#F5F3FA]' : 'border-[#E7E0DA] dark:border-[#3A2E4D] opacity-60'
               }`}
               aria-label={`Ver imagen ${idx + 1}`}
             >

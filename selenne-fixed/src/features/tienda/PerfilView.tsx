@@ -51,7 +51,7 @@ const estadoConfig: Record<string, { label: string; bg: string; text: string }> 
   Enviado:    { label: 'En camino',  bg: 'bg-violet-50 dark:bg-violet-950/40',   text: 'text-violet-700 dark:text-violet-400'  },
   Enviada:    { label: 'En camino',  bg: 'bg-violet-50 dark:bg-violet-950/40',   text: 'text-violet-700 dark:text-violet-400'  },
   Rechazado:  { label: 'Rechazado',  bg: 'bg-red-50 dark:bg-red-950/40',         text: 'text-red-600 dark:text-red-400'     },
-  Cancelado:  { label: 'Cancelado',  bg: 'bg-gray-100 dark:bg-[#362b34]',        text: 'text-gray-500 dark:text-[#b8a3ac]'    },
+  Cancelado:  { label: 'Cancelado',  bg: 'bg-gray-100 dark:bg-[#221830]',        text: 'text-gray-500 dark:text-[#b9aedd]'    },
 };
 
 // ── Ciudades de Colombia ──────────────────────────────────────────────────────
@@ -119,36 +119,36 @@ const CitySelect: React.FC<{ value: string; onChange: (v: string) => void; class
     <div ref={ref} className={`relative ${className ?? ''}`}>
       <button type="button"
         onClick={() => { setOpen(o => !o); setTimeout(() => inputRef.current?.focus(), 50); }}
-        className="w-full flex items-center gap-2 pl-10 pr-3 h-[42px] border border-gray-200 dark:border-[#453840] rounded-xl text-sm bg-white dark:bg-[#322631] focus:outline-none focus:ring-2 focus:ring-[#A3395C]/30 focus:border-[#A3395C] transition-all text-left"
+        className="w-full flex items-center gap-2 pl-10 pr-3 h-[42px] border border-gray-200 dark:border-[#3A2E4D] rounded-xl text-sm bg-white dark:bg-[#1e1530] focus:outline-none focus:ring-2 focus:ring-[#5C2A52]/30 focus:border-[#5C2A52] transition-all text-left"
         style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
-        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#A3395C] pointer-events-none" />
-        <span className={`flex-1 truncate ${value ? 'text-gray-900 dark:text-[#F5EDE9]' : 'text-gray-400 dark:text-[#8a7a86]'}`}>{label || 'Selecciona tu ciudad'}</span>
-        <ChevronDown className={`w-4 h-4 text-gray-400 dark:text-[#b8a3ac] transition-transform flex-shrink-0 ${open ? 'rotate-180' : ''}`} />
+        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#5C2A52] pointer-events-none" />
+        <span className={`flex-1 truncate ${value ? 'text-gray-900 dark:text-[#F5F3FA]' : 'text-gray-400 dark:text-[#8a7a86]'}`}>{label || 'Selecciona tu ciudad'}</span>
+        <ChevronDown className={`w-4 h-4 text-gray-400 dark:text-[#b9aedd] transition-transform flex-shrink-0 ${open ? 'rotate-180' : ''}`} />
       </button>
 
       {open && (
-        <div className="absolute left-0 right-0 top-full mt-1 bg-white dark:bg-[#322631] border border-gray-200 dark:border-[#453840] rounded-xl shadow-lg z-50 overflow-hidden">
-          <div className="p-2 border-b border-gray-100 dark:border-[#453840]">
+        <div className="absolute left-0 right-0 top-full mt-1 bg-white dark:bg-[#1e1530] border border-gray-200 dark:border-[#3A2E4D] rounded-xl shadow-lg z-50 overflow-hidden">
+          <div className="p-2 border-b border-gray-100 dark:border-[#3A2E4D]">
             <div className="relative">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 dark:text-[#b8a3ac]" />
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 dark:text-[#b9aedd]" />
               <input ref={inputRef} value={q} onChange={e => setQ(e.target.value)}
                 placeholder="Buscar ciudad..."
-                className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-gray-200 dark:border-[#453840] outline-none focus:border-[#A3395C] bg-gray-50 dark:bg-[#2a2029] text-gray-900 dark:text-[#F5EDE9]"
+                className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-gray-200 dark:border-[#3A2E4D] outline-none focus:border-[#5C2A52] bg-gray-50 dark:bg-[#17101f] text-gray-900 dark:text-[#F5F3FA]"
                 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} />
             </div>
           </div>
           <div className="overflow-y-auto" style={{ maxHeight: 200 }}>
             {Object.keys(grouped).length === 0
-              ? <p className="text-center py-4 text-xs text-gray-400 dark:text-[#b8a3ac]">Sin resultados</p>
+              ? <p className="text-center py-4 text-xs text-gray-400 dark:text-[#b9aedd]">Sin resultados</p>
               : Object.entries(grouped).map(([dep, cities]) => (
                 <div key={dep}>
-                  <p className="px-3 py-1 text-[10px] font-bold text-gray-400 dark:text-[#b8a3ac] uppercase tracking-wider bg-gray-50 dark:bg-[#2a2029]"
+                  <p className="px-3 py-1 text-[10px] font-bold text-gray-400 dark:text-[#b9aedd] uppercase tracking-wider bg-gray-50 dark:bg-[#17101f]"
                     style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>{dep}</p>
                   {cities.map(c => (
                     <button key={c.value} type="button"
                       onClick={() => { onChange(c.value); setOpen(false); setQ(''); }}
-                      className={`w-full text-left px-4 py-2 text-sm hover:bg-[#fdf2f8] dark:hover:bg-[#3a2530] hover:text-[#A3395C] transition-colors
-                        ${value === c.value ? 'bg-[#fdf2f8] dark:bg-[#3a2530] text-[#A3395C] font-semibold' : 'text-gray-700 dark:text-[#F5EDE9]'}`}
+                      className={`w-full text-left px-4 py-2 text-sm hover:bg-[#fdf2f8] dark:hover:bg-[#241935] hover:text-[#5C2A52] transition-colors
+                        ${value === c.value ? 'bg-[#fdf2f8] dark:bg-[#241935] text-[#5C2A52] font-semibold' : 'text-gray-700 dark:text-[#F5F3FA]'}`}
                       style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                       {c.label}
                     </button>
@@ -164,7 +164,7 @@ const CitySelect: React.FC<{ value: string; onChange: (v: string) => void; class
 
 const fieldClass = (error?: string) =>
   `w-full pl-10 pr-3 h-[42px] text-sm border rounded-xl focus:outline-none focus:ring-2 transition-all ${
-    error ? 'border-red-300 dark:border-red-500/50 focus:ring-red-200 dark:focus:ring-red-500/20 bg-red-50 dark:bg-red-950/30' : 'border-gray-200 dark:border-[#453840] focus:ring-[#A3395C]/30 focus:border-[#A3395C] bg-white dark:bg-[#322631]'
+    error ? 'border-red-300 dark:border-red-500/50 focus:ring-red-200 dark:focus:ring-red-500/20 bg-red-50 dark:bg-red-950/30' : 'border-gray-200 dark:border-[#3A2E4D] focus:ring-[#5C2A52]/30 focus:border-[#5C2A52] bg-white dark:bg-[#1e1530]'
   }`;
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -281,41 +281,41 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
     .join('');
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-[#2a2029] overflow-x-hidden">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#17101f] overflow-x-hidden">
 
       {/* ── Nav top ── */}
-      <div className="bg-white dark:bg-[#322631] border-b border-gray-100 dark:border-[#453840] px-4 py-3 flex items-center gap-3 sticky top-0 z-10 shadow-sm">
-        <button type="button" title="Volver" onClick={onBack} className="p-2 hover:bg-gray-100 dark:hover:bg-[#362b34] rounded-xl transition-colors flex-shrink-0">
-          <ArrowLeft className="w-5 h-5 text-gray-500 dark:text-[#b8a3ac]" />
+      <div className="bg-white dark:bg-[#1e1530] border-b border-gray-100 dark:border-[#3A2E4D] px-4 py-3 flex items-center gap-3 sticky top-0 z-10 shadow-sm">
+        <button type="button" title="Volver" onClick={onBack} className="p-2 hover:bg-gray-100 dark:hover:bg-[#221830] rounded-xl transition-colors flex-shrink-0">
+          <ArrowLeft className="w-5 h-5 text-gray-500 dark:text-[#b9aedd]" />
         </button>
-        <span className="text-sm text-gray-500 dark:text-[#b8a3ac] truncate">Mi cuenta</span>
+        <span className="text-sm text-gray-500 dark:text-[#b9aedd] truncate">Mi cuenta</span>
       </div>
 
-      <div className="min-h-[calc(100vh-53px)] bg-white dark:bg-[#322631]">
+      <div className="min-h-[calc(100vh-53px)] bg-white dark:bg-[#1e1530]">
       <div className="max-w-3xl mx-auto px-8 py-8">
 
         {/* Título */}
-        <h1 className="text-sm font-bold text-gray-900 dark:text-[#F5EDE9] uppercase tracking-widest mb-6">Perfil</h1>
+        <h1 className="text-sm font-bold text-gray-900 dark:text-[#F5F3FA] uppercase tracking-widest mb-6">Perfil</h1>
 
         {/* Card info personal */}
-        <div className="rounded-xl border border-gray-200 dark:border-[#453840] overflow-hidden mb-6" style={{ boxShadow: '0 2px 12px rgba(214, 83, 145, 0.07)' }}>
-          <div className="bg-gradient-to-br from-[#241B22] via-[#7a3350] to-[#A3395C] px-6 py-8 flex flex-col items-center text-center">
+        <div className="rounded-xl border border-gray-200 dark:border-[#3A2E4D] overflow-hidden mb-6" style={{ boxShadow: '0 2px 12px rgba(214, 83, 145, 0.07)' }}>
+          <div className="bg-gradient-to-br from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] px-6 py-8 flex flex-col items-center text-center">
             <div className="w-20 h-20 rounded-full bg-white/15 border-2 border-white/40 flex items-center justify-center text-white text-2xl font-bold mb-3"
               style={{ fontFamily: '"Playfair Display", Georgia, serif' }}>
               {iniciales}
             </div>
             <p className="text-white font-semibold text-lg leading-tight" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>{user?.name || 'Mi cuenta'}</p>
           </div>
-          <div className="p-5 border-b border-gray-100 dark:border-[#453840] bg-white dark:bg-[#322631]">
+          <div className="p-5 border-b border-gray-100 dark:border-[#3A2E4D] bg-white dark:bg-[#1e1530]">
             <button type="button"
               onClick={() => { setFormData({ nombre: user?.name || '', ...profileData }); setErrors({ nombre: '', telefono: '', direccion: '', documento: '' }); setEditModalOpen(true); }}
               style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="w-full px-4 py-2.5 bg-gradient-to-r from-[#241B22] via-[#7a3350] to-[#A3395C] text-white rounded-lg hover:opacity-90 flex items-center justify-center gap-2 transition text-sm font-medium"
+              className="w-full px-4 py-2.5 bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] text-white rounded-lg hover:opacity-90 flex items-center justify-center gap-2 transition text-sm font-medium"
             >
               <Edit className="w-4 h-4" /> Editar Perfil
             </button>
           </div>
-          <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-5 bg-white dark:bg-[#322631]">
+          <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-5 bg-white dark:bg-[#1e1530]">
             {[
               { icon: Mail,       label: 'Correo electrónico', value: user?.email },
               { icon: Phone,      label: 'Teléfono',           value: profileData.telefono  || '—' },
@@ -324,12 +324,12 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
               { icon: CreditCard, label: 'Documento',          value: profileData.documento || '—' },
             ].map(({ icon: Icon, label, value }) => (
               <div key={label} className="flex items-start gap-3">
-                <div className="w-9 h-9 rounded-lg bg-[#EFD9DF] dark:bg-[#3a2530] flex items-center justify-center flex-shrink-0">
-                  <Icon className="w-4 h-4 text-[#A3395C]" />
+                <div className="w-9 h-9 rounded-lg bg-[#C9A8C3] dark:bg-[#241935] flex items-center justify-center flex-shrink-0">
+                  <Icon className="w-4 h-4 text-[#5C2A52]" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs text-gray-400 dark:text-[#b8a3ac] mb-0.5" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>{label}</p>
-                  <p className="text-sm font-medium text-gray-900 dark:text-[#F5EDE9] break-words" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>{value}</p>
+                  <p className="text-xs text-gray-400 dark:text-[#b9aedd] mb-0.5" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>{label}</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-[#F5F3FA] break-words" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>{value}</p>
                 </div>
               </div>
             ))}
@@ -337,56 +337,56 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
         </div>
 
         {/* Mis pedidos */}
-        <div className="rounded-xl border border-gray-200 dark:border-[#453840] overflow-hidden mb-6" style={{ boxShadow: '0 2px 12px rgba(214, 83, 145, 0.07)' }}>
-          <div className="bg-[#FBF8F5] dark:bg-[#2a2029] px-6 py-4 border-b border-gray-200 dark:border-[#453840]">
-            <h3 className="font-semibold text-gray-900 dark:text-[#F5EDE9] text-base" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Mis Pedidos</h3>
+        <div className="rounded-xl border border-gray-200 dark:border-[#3A2E4D] overflow-hidden mb-6" style={{ boxShadow: '0 2px 12px rgba(214, 83, 145, 0.07)' }}>
+          <div className="bg-[#F7F5FC] dark:bg-[#17101f] px-6 py-4 border-b border-gray-200 dark:border-[#3A2E4D]">
+            <h3 className="font-semibold text-gray-900 dark:text-[#F5F3FA] text-base" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Mis Pedidos</h3>
           </div>
           <button type="button"
             onClick={() => { setPedidosModalOpen(true); cargarPedidos(); }}
-            className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-[#FBF8F5] dark:hover:bg-[#362b34] transition group bg-white dark:bg-[#322631]"
+            className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-[#F7F5FC] dark:hover:bg-[#221830] transition group bg-white dark:bg-[#1e1530]"
           >
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-[#EFD9DF] dark:bg-[#3a2530] flex items-center justify-center flex-shrink-0">
-                <Package className="w-4 h-4 text-[#A3395C]" />
+              <div className="w-9 h-9 rounded-lg bg-[#C9A8C3] dark:bg-[#241935] flex items-center justify-center flex-shrink-0">
+                <Package className="w-4 h-4 text-[#5C2A52]" />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-900 dark:text-[#F5EDE9]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Ver mis pedidos</p>
-                <p className="text-xs text-gray-400 dark:text-[#b8a3ac] mt-0.5" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Historial y seguimiento de tus compras</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-[#F5F3FA]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Ver mis pedidos</p>
+                <p className="text-xs text-gray-400 dark:text-[#b9aedd] mt-0.5" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Historial y seguimiento de tus compras</p>
               </div>
             </div>
-            <ChevronRight className="w-4 h-4 text-gray-400 dark:text-[#b8a3ac] group-hover:text-[#A3395C] transition-colors flex-shrink-0" />
+            <ChevronRight className="w-4 h-4 text-gray-400 dark:text-[#b9aedd] group-hover:text-[#5C2A52] transition-colors flex-shrink-0" />
           </button>
         </div>
 
         {/* Seguridad */}
-        <div className="rounded-xl border border-gray-200 dark:border-[#453840] overflow-hidden mb-8" style={{ boxShadow: '0 2px 12px rgba(214, 83, 145, 0.07)' }}>
-          <div className="bg-[#FBF8F5] dark:bg-[#2a2029] px-6 py-4 border-b border-gray-200 dark:border-[#453840]">
-            <h3 className="font-semibold text-gray-900 dark:text-[#F5EDE9] text-base" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Seguridad</h3>
+        <div className="rounded-xl border border-gray-200 dark:border-[#3A2E4D] overflow-hidden mb-8" style={{ boxShadow: '0 2px 12px rgba(214, 83, 145, 0.07)' }}>
+          <div className="bg-[#F7F5FC] dark:bg-[#17101f] px-6 py-4 border-b border-gray-200 dark:border-[#3A2E4D]">
+            <h3 className="font-semibold text-gray-900 dark:text-[#F5F3FA] text-base" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Seguridad</h3>
           </div>
-          <div className="divide-y divide-gray-100 dark:divide-[#453840] bg-white dark:bg-[#322631]">
+          <div className="divide-y divide-gray-100 dark:divide-[#3A2E4D] bg-white dark:bg-[#1e1530]">
             <button type="button"
               onClick={() => setPasswordModalOpen(true)}
-              className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-[#FBF8F5] dark:hover:bg-[#362b34] transition group"
+              className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-[#F7F5FC] dark:hover:bg-[#221830] transition group"
             >
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-[#EFD9DF] dark:bg-[#3a2530] flex items-center justify-center flex-shrink-0">
-                  <Lock className="w-4 h-4 text-[#A3395C]" />
+                <div className="w-9 h-9 rounded-lg bg-[#C9A8C3] dark:bg-[#241935] flex items-center justify-center flex-shrink-0">
+                  <Lock className="w-4 h-4 text-[#5C2A52]" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-900 dark:text-[#F5EDE9]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Cambiar contraseña</p>
-                  <p className="text-xs text-gray-400 dark:text-[#b8a3ac] mt-0.5" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Actualiza tu contraseña periódicamente</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-[#F5F3FA]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Cambiar contraseña</p>
+                  <p className="text-xs text-gray-400 dark:text-[#b9aedd] mt-0.5" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Actualiza tu contraseña periódicamente</p>
                 </div>
               </div>
-              <ChevronRight className="w-4 h-4 text-gray-400 dark:text-[#b8a3ac] group-hover:text-[#A3395C] transition-colors flex-shrink-0" />
+              <ChevronRight className="w-4 h-4 text-gray-400 dark:text-[#b9aedd] group-hover:text-[#5C2A52] transition-colors flex-shrink-0" />
             </button>
             <div className="px-6 py-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-[#EFD9DF] dark:bg-[#3a2530] flex items-center justify-center flex-shrink-0">
-                  <Bell className="w-4 h-4 text-[#A3395C]" />
+                <div className="w-9 h-9 rounded-lg bg-[#C9A8C3] dark:bg-[#241935] flex items-center justify-center flex-shrink-0">
+                  <Bell className="w-4 h-4 text-[#5C2A52]" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-900 dark:text-[#F5EDE9]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Notificaciones por correo</p>
-                  <p className="text-xs text-gray-400 dark:text-[#b8a3ac] mt-0.5" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Activa o desactiva las notificaciones de tus pedidos</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-[#F5F3FA]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Notificaciones por correo</p>
+                  <p className="text-xs text-gray-400 dark:text-[#b9aedd] mt-0.5" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Activa o desactiva las notificaciones de tus pedidos</p>
                 </div>
               </div>
               <button type="button"
@@ -403,7 +403,7 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
                     .then(() => toast.success(n ? 'Notificaciones activadas' : 'Notificaciones desactivadas'))
                     .catch(() => toast.error('Error al guardar preferencia'));
                 }}
-                className={`relative flex-shrink-0 w-11 h-6 rounded-full transition-colors duration-200 focus:outline-none ${notifications ? 'bg-gradient-to-r from-[#241B22] to-[#A3395C]' : 'bg-gray-300 dark:bg-[#453840]'}`}
+                className={`relative flex-shrink-0 w-11 h-6 rounded-full transition-colors duration-200 focus:outline-none ${notifications ? 'bg-gradient-to-r from-[#0A0A0A] to-[#5C2A52]' : 'bg-gray-300 dark:bg-[#3A2E4D]'}`}
               >
                 <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all duration-200 ${notifications ? 'left-6' : 'left-1'}`} />
               </button>
@@ -412,9 +412,9 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
         </div>
 
         {/* Cerrar sesión */}
-        <div className="rounded-xl border border-gray-200 dark:border-[#453840] overflow-hidden" style={{ boxShadow: '0 2px 12px rgba(214, 83, 145, 0.07)' }}>
+        <div className="rounded-xl border border-gray-200 dark:border-[#3A2E4D] overflow-hidden" style={{ boxShadow: '0 2px 12px rgba(214, 83, 145, 0.07)' }}>
           <button type="button" onClick={onLogout}
-            className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors group bg-white dark:bg-[#322631]">
+            className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors group bg-white dark:bg-[#1e1530]">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-lg bg-red-50 dark:bg-red-950/30 flex items-center justify-center flex-shrink-0">
                 <LogOut className="w-4 h-4 text-red-500" />
@@ -429,10 +429,10 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
 
       {/* ══ Modal Editar Perfil ══ */}
       <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
-        <DialogContent className="max-w-2xl h-auto flex flex-col p-0 gap-0 dark:bg-[#322631]">
-          <DialogHeader className="px-5 sm:px-8 pt-5 sm:pt-6 pb-3 sm:pb-4 border-b border-gray-100 dark:border-[#453840] flex-shrink-0">
+        <DialogContent className="max-w-2xl h-auto flex flex-col p-0 gap-0 dark:bg-[#1e1530]">
+          <DialogHeader className="px-5 sm:px-8 pt-5 sm:pt-6 pb-3 sm:pb-4 border-b border-gray-100 dark:border-[#3A2E4D] flex-shrink-0">
             <DialogTitle style={{ fontFamily: '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}
-              className="text-xl sm:text-2xl text-gray-900 dark:text-[#F5EDE9] leading-tight">
+              className="text-xl sm:text-2xl text-gray-900 dark:text-[#F5F3FA] leading-tight">
               Editar Perfil
             </DialogTitle>
             <DialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
@@ -443,24 +443,24 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
           <div className="flex-1 overflow-y-auto">
             <div className="space-y-4 sm:space-y-6 py-4 sm:py-6 px-5 sm:px-8">
               {/* Datos de cuenta */}
-              <div className="bg-white dark:bg-[#322631] rounded-xl border border-gray-100 dark:border-[#453840] shadow-sm overflow-hidden">
-                <div className="bg-[#FBF8F5] dark:bg-[#2a2029] px-5 sm:px-6 py-3 sm:py-4 border-b border-gray-100 dark:border-[#453840]">
-                  <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-gray-900 dark:text-[#F5EDE9] text-base">Datos de Cuenta</h3>
+              <div className="bg-white dark:bg-[#1e1530] rounded-xl border border-gray-100 dark:border-[#3A2E4D] shadow-sm overflow-hidden">
+                <div className="bg-[#F7F5FC] dark:bg-[#17101f] px-5 sm:px-6 py-3 sm:py-4 border-b border-gray-100 dark:border-[#3A2E4D]">
+                  <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-gray-900 dark:text-[#F5F3FA] text-base">Datos de Cuenta</h3>
                 </div>
                 <div className="p-5 sm:p-6 flex flex-col gap-4 sm:gap-5">
                   <div>
-                    <label className="text-xs text-gray-600 dark:text-[#b8a3ac] block mb-1.5" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
-                      Nombre completo <span className="text-[#A3395C]">*</span>
+                    <label className="text-xs text-gray-600 dark:text-[#b9aedd] block mb-1.5" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                      Nombre completo <span className="text-[#5C2A52]">*</span>
                     </label>
                     <div className="relative">
-                      <User className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${errors.nombre ? 'text-red-400' : 'text-[#A3395C]'}`} />
+                      <User className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${errors.nombre ? 'text-red-400' : 'text-[#5C2A52]'}`} />
                       <input type="text" value={formData.nombre}
                         onChange={e => {
                           const val = e.target.value;
                           if (val && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]*$/.test(val)) { setErrors(p => ({ ...p, nombre: 'Solo se permiten letras' })); return; }
                           setFormData(p => ({ ...p, nombre: val })); setErrors(p => ({ ...p, nombre: '' }));
                         }}
-                        className={`w-full pl-10 pr-3 h-[42px] text-sm border rounded-xl focus:outline-none focus:ring-2 transition-all ${errors.nombre ? 'border-red-300 dark:border-red-900/50 focus:ring-red-200 dark:focus:ring-red-900/30 bg-red-50 dark:bg-red-950/40' : 'border-[#E7E0DA] dark:border-[#453840] focus:ring-[#A3395C]/30 focus:border-[#A3395C]'}`}
+                        className={`w-full pl-10 pr-3 h-[42px] text-sm border rounded-xl focus:outline-none focus:ring-2 transition-all ${errors.nombre ? 'border-red-300 dark:border-red-900/50 focus:ring-red-200 dark:focus:ring-red-900/30 bg-red-50 dark:bg-red-950/40' : 'border-[#E7E0DA] dark:border-[#3A2E4D] focus:ring-[#5C2A52]/30 focus:border-[#5C2A52]'}`}
                         placeholder="Tu nombre completo"
                         style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} />
                     </div>
@@ -469,16 +469,16 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                     <div>
-                      <label className="text-xs text-gray-600 dark:text-[#b8a3ac] block mb-1.5" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Documento</label>
+                      <label className="text-xs text-gray-600 dark:text-[#b9aedd] block mb-1.5" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Documento</label>
                       <div className="relative">
-                        <FileText className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${errors.documento ? 'text-red-400' : 'text-[#A3395C]'}`} />
+                        <FileText className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${errors.documento ? 'text-red-400' : 'text-[#5C2A52]'}`} />
                         <input type="text" value={formData.documento}
                           onChange={e => {
                             const val = e.target.value;
                             if (val && !/^\d*$/.test(val)) { setErrors(p => ({ ...p, documento: 'Solo se permiten números' })); return; }
                             setFormData(p => ({ ...p, documento: val })); setErrors(p => ({ ...p, documento: '' }));
                           }}
-                          className={`w-full pl-10 pr-3 h-[42px] text-sm border rounded-xl focus:outline-none focus:ring-2 transition-all ${errors.documento ? 'border-red-300 dark:border-red-900/50 focus:ring-red-200 dark:focus:ring-red-900/30 bg-red-50 dark:bg-red-950/40' : 'border-[#E7E0DA] dark:border-[#453840] focus:ring-[#A3395C]/30 focus:border-[#A3395C]'}`}
+                          className={`w-full pl-10 pr-3 h-[42px] text-sm border rounded-xl focus:outline-none focus:ring-2 transition-all ${errors.documento ? 'border-red-300 dark:border-red-900/50 focus:ring-red-200 dark:focus:ring-red-900/30 bg-red-50 dark:bg-red-950/40' : 'border-[#E7E0DA] dark:border-[#3A2E4D] focus:ring-[#5C2A52]/30 focus:border-[#5C2A52]'}`}
                           placeholder="Número de documento"
                           style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} />
                       </div>
@@ -486,16 +486,16 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
                     </div>
 
                     <div>
-                      <label className="text-xs text-gray-600 dark:text-[#b8a3ac] block mb-1.5" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Teléfono</label>
+                      <label className="text-xs text-gray-600 dark:text-[#b9aedd] block mb-1.5" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Teléfono</label>
                       <div className="relative">
-                        <Phone className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${errors.telefono ? 'text-red-400' : 'text-[#A3395C]'}`} />
+                        <Phone className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${errors.telefono ? 'text-red-400' : 'text-[#5C2A52]'}`} />
                         <input type="tel" value={formData.telefono}
                           onChange={e => {
                             const val = e.target.value;
                             if (val && !/^\d*$/.test(val)) { setErrors(p => ({ ...p, telefono: 'Solo se permiten números' })); return; }
                             setFormData(p => ({ ...p, telefono: val })); setErrors(p => ({ ...p, telefono: '' }));
                           }}
-                          className={`w-full pl-10 pr-3 h-[42px] text-sm border rounded-xl focus:outline-none focus:ring-2 transition-all ${errors.telefono ? 'border-red-300 dark:border-red-900/50 focus:ring-red-200 dark:focus:ring-red-900/30 bg-red-50 dark:bg-red-950/40' : 'border-[#E7E0DA] dark:border-[#453840] focus:ring-[#A3395C]/30 focus:border-[#A3395C]'}`}
+                          className={`w-full pl-10 pr-3 h-[42px] text-sm border rounded-xl focus:outline-none focus:ring-2 transition-all ${errors.telefono ? 'border-red-300 dark:border-red-900/50 focus:ring-red-200 dark:focus:ring-red-900/30 bg-red-50 dark:bg-red-950/40' : 'border-[#E7E0DA] dark:border-[#3A2E4D] focus:ring-[#5C2A52]/30 focus:border-[#5C2A52]'}`}
                           placeholder="3001234567"
                           style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} />
                       </div>
@@ -506,23 +506,23 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
               </div>
 
               {/* Ubicación */}
-              <div className="bg-white dark:bg-[#322631] rounded-xl border border-gray-100 dark:border-[#453840] shadow-sm overflow-hidden">
-                <div className="bg-[#FBF8F5] dark:bg-[#2a2029] px-5 sm:px-6 py-3 sm:py-4 border-b border-gray-100 dark:border-[#453840]">
-                  <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-gray-900 dark:text-[#F5EDE9] text-base">Ubicación</h3>
+              <div className="bg-white dark:bg-[#1e1530] rounded-xl border border-gray-100 dark:border-[#3A2E4D] shadow-sm overflow-hidden">
+                <div className="bg-[#F7F5FC] dark:bg-[#17101f] px-5 sm:px-6 py-3 sm:py-4 border-b border-gray-100 dark:border-[#3A2E4D]">
+                  <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-gray-900 dark:text-[#F5F3FA] text-base">Ubicación</h3>
                 </div>
                 <div className="p-5 sm:p-6 flex flex-col gap-4 sm:gap-5">
                   <div>
-                    <label className="text-xs text-gray-600 dark:text-[#b8a3ac] block mb-1.5" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Ciudad</label>
+                    <label className="text-xs text-gray-600 dark:text-[#b9aedd] block mb-1.5" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Ciudad</label>
                     <CitySelect value={formData.ciudad} onChange={v => setFormData(p => ({ ...p, ciudad: v }))} />
                   </div>
 
                   <div>
-                    <label className="text-xs text-gray-600 dark:text-[#b8a3ac] block mb-1.5" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Dirección</label>
+                    <label className="text-xs text-gray-600 dark:text-[#b9aedd] block mb-1.5" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Dirección</label>
                     <div className="relative">
-                      <MapPin className={`absolute left-3 top-3 w-4 h-4 ${errors.direccion ? 'text-red-400' : 'text-[#A3395C]'}`} />
+                      <MapPin className={`absolute left-3 top-3 w-4 h-4 ${errors.direccion ? 'text-red-400' : 'text-[#5C2A52]'}`} />
                       <textarea value={formData.direccion}
                         onChange={e => { setFormData(p => ({ ...p, direccion: e.target.value })); setErrors(p => ({ ...p, direccion: '' })); }}
-                        className={`w-full pl-10 pr-3 py-2.5 text-sm border rounded-xl focus:outline-none focus:ring-2 min-h-[42px] max-h-[80px] resize-none transition-all ${errors.direccion ? 'border-red-300 dark:border-red-900/50 focus:ring-red-200 dark:focus:ring-red-900/30 bg-red-50 dark:bg-red-950/40' : 'border-[#E7E0DA] dark:border-[#453840] focus:ring-[#A3395C]/30 focus:border-[#A3395C]'}`}
+                        className={`w-full pl-10 pr-3 py-2.5 text-sm border rounded-xl focus:outline-none focus:ring-2 min-h-[42px] max-h-[80px] resize-none transition-all ${errors.direccion ? 'border-red-300 dark:border-red-900/50 focus:ring-red-200 dark:focus:ring-red-900/30 bg-red-50 dark:bg-red-950/40' : 'border-[#E7E0DA] dark:border-[#3A2E4D] focus:ring-[#5C2A52]/30 focus:border-[#5C2A52]'}`}
                         placeholder="Calle 10 # 43E – 125, Apto 301..."
                         style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} />
                     </div>
@@ -533,13 +533,13 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
             </div>
           </div>
 
-          <DialogFooter className="gap-2 px-5 sm:px-8 py-3 sm:py-5 border-t border-gray-100 dark:border-[#453840] flex-shrink-0">
+          <DialogFooter className="gap-2 px-5 sm:px-8 py-3 sm:py-5 border-t border-gray-100 dark:border-[#3A2E4D] flex-shrink-0">
             <button type="button" onClick={() => setEditModalOpen(false)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="px-6 py-2 bg-gray-100 dark:bg-[#362b34] text-gray-700 dark:text-[#F5EDE9] rounded-lg hover:bg-gray-200 dark:hover:bg-[#3a2530] transition">
+              className="px-6 py-2 bg-gray-100 dark:bg-[#221830] text-gray-700 dark:text-[#F5F3FA] rounded-lg hover:bg-gray-200 dark:hover:bg-[#241935] transition">
               Cancelar
             </button>
             <button type="button" onClick={handleSaveProfile} disabled={saving} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="px-6 py-2 bg-gradient-to-r from-[#241B22] via-[#7a3350] to-[#A3395C] text-white rounded-lg hover:opacity-90 disabled:opacity-50 flex items-center gap-2 transition">
+              className="px-6 py-2 bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] text-white rounded-lg hover:opacity-90 disabled:opacity-50 flex items-center gap-2 transition">
               {saving && <Loader2 className="w-4 h-4 animate-spin" />}
               {saving ? 'Guardando...' : 'Guardar Cambios'}
             </button>
@@ -549,15 +549,15 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
 
       {/* ══ Modal Cambiar Contraseña ══ */}
       <Dialog open={passwordModalOpen} onOpenChange={v => { setPasswordModalOpen(v); if (!v) setPasswordData({ current: '', new: '', confirm: '' }); }}>
-        <DialogContent className="max-w-md p-0 overflow-hidden gap-0 dark:bg-[#322631]">
+        <DialogContent className="max-w-md p-0 overflow-hidden gap-0 dark:bg-[#1e1530]">
           {/* Título */}
-          <div style={{ padding: '28px 32px 20px' }} className="border-b border-gray-100 dark:border-[#453840]">
+          <div style={{ padding: '28px 32px 20px' }} className="border-b border-gray-100 dark:border-[#3A2E4D]">
             <DialogTitle style={{ fontFamily: '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}
-              className="text-2xl text-gray-900 dark:text-[#F5EDE9] leading-tight">
+              className="text-2xl text-gray-900 dark:text-[#F5F3FA] leading-tight">
               Cambiar contraseña
             </DialogTitle>
             <DialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="text-sm text-gray-500 dark:text-[#b8a3ac] mt-1">
+              className="text-sm text-gray-500 dark:text-[#b9aedd] mt-1">
               Mantén tu cuenta segura con una contraseña fuerte
             </DialogDescription>
           </div>
@@ -570,23 +570,23 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
               { key: 'confirm', label: 'Confirmar nueva contraseña',  placeholder: 'Repite la contraseña'  },
             ] as const).map(({ key, label, placeholder }) => (
               <div key={key}>
-                <label className="text-xs font-semibold text-gray-500 dark:text-[#b8a3ac] uppercase tracking-wide block mb-2"
+                <label className="text-xs font-semibold text-gray-500 dark:text-[#b9aedd] uppercase tracking-wide block mb-2"
                   style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                   {label}
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-[#b8a3ac]" />
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-[#b9aedd]" />
                   <input
                     type={showPwd[key] ? 'text' : 'password'}
                     value={passwordData[key]}
                     onChange={e => setPasswordData(p => ({ ...p, [key]: e.target.value }))}
                     placeholder={placeholder}
-                    className="w-full pl-10 pr-10 h-11 text-sm border rounded-xl border-gray-200 dark:border-[#453840] focus:outline-none focus:border-gray-900 dark:focus:border-[#A3395C] transition-colors bg-white dark:bg-[#2a2029] text-gray-900 dark:text-[#F5EDE9]"
+                    className="w-full pl-10 pr-10 h-11 text-sm border rounded-xl border-gray-200 dark:border-[#3A2E4D] focus:outline-none focus:border-gray-900 dark:focus:border-[#5C2A52] transition-colors bg-white dark:bg-[#17101f] text-gray-900 dark:text-[#F5F3FA]"
                     style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                   />
                   <button type="button" aria-label="Mostrar/Ocultar"
                     onClick={() => setShowPwd(p => ({ ...p, [key]: !p[key] }))}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-[#b8a3ac] hover:text-gray-600 dark:hover:text-[#F5EDE9] transition-colors">
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-[#b9aedd] hover:text-gray-600 dark:hover:text-[#F5F3FA] transition-colors">
                     {showPwd[key] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
@@ -599,10 +599,10 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
                         <div key={i} className={`h-1 flex-1 transition-colors ${
                           score >= i
                             ? i <= 1 ? 'bg-red-400' : i <= 2 ? 'bg-yellow-400' : i <= 3 ? 'bg-blue-400' : 'bg-green-500'
-                            : 'bg-gray-200 dark:bg-[#453840]'}`} />
+                            : 'bg-gray-200 dark:bg-[#3A2E4D]'}`} />
                       ))}
                     </div>
-                    <span className="text-xs text-gray-400 dark:text-[#b8a3ac] w-12 text-right"
+                    <span className="text-xs text-gray-400 dark:text-[#b9aedd] w-12 text-right"
                       style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                       {label}
                     </span>
@@ -620,15 +620,15 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
           </div>
 
           {/* Acciones */}
-          <div style={{ padding: '16px 32px 28px' }} className="border-t border-gray-100 dark:border-[#453840] flex items-center justify-end gap-3">
+          <div style={{ padding: '16px 32px 28px' }} className="border-t border-gray-100 dark:border-[#3A2E4D] flex items-center justify-end gap-3">
             <button type="button"
               onClick={() => { setPasswordModalOpen(false); setPasswordData({ current: '', new: '', confirm: '' }); }}
-              className="h-10 px-5 text-sm text-gray-600 dark:text-[#b8a3ac] border border-gray-200 dark:border-[#453840] hover:bg-gray-50 dark:hover:bg-[#362b34] transition-colors rounded-xl"
+              className="h-10 px-5 text-sm text-gray-600 dark:text-[#b9aedd] border border-gray-200 dark:border-[#3A2E4D] hover:bg-gray-50 dark:hover:bg-[#221830] transition-colors rounded-xl"
               style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
               Cancelar
             </button>
             <button type="button" onClick={handleChangePassword} disabled={saving}
-              className="h-10 px-5 text-sm font-semibold text-white bg-gradient-to-r from-[#241B22] via-[#7a3350] to-[#A3395C] hover:opacity-90 transition-all flex items-center gap-2 disabled:opacity-50 rounded-xl shadow-sm"
+              className="h-10 px-5 text-sm font-semibold text-white bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] hover:opacity-90 transition-all flex items-center gap-2 disabled:opacity-50 rounded-xl shadow-sm"
               style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
               {saving ? 'Guardando...' : 'Actualizar contraseña'}
@@ -639,24 +639,24 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
 
       {/* ══ Modal Pedidos ══ */}
       <Dialog open={pedidosModalOpen} onOpenChange={v => { setPedidosModalOpen(v); if (!v) setPedidoSelec(null); }}>
-        <DialogContent className="max-w-2xl p-0 overflow-hidden gap-0 max-h-[90vh] flex flex-col dark:bg-[#322631]">
+        <DialogContent className="max-w-2xl p-0 overflow-hidden gap-0 max-h-[90vh] flex flex-col dark:bg-[#1e1530]">
 
           {/* Título */}
-          <div style={{ padding: '28px 32px 20px' }} className="border-b border-gray-100 dark:border-[#453840] flex items-start justify-between flex-shrink-0">
+          <div style={{ padding: '28px 32px 20px' }} className="border-b border-gray-100 dark:border-[#3A2E4D] flex items-start justify-between flex-shrink-0">
             <div className="flex items-center gap-3">
               {pedidoSelec && (
                 <button type="button" aria-label="Volver a mis pedidos" onClick={() => setPedidoSelec(null)}
-                  className="p-1 -ml-1 hover:bg-gray-100 dark:hover:bg-[#362b34] transition-colors rounded">
-                  <ArrowLeft className="w-4 h-4 text-gray-500 dark:text-[#b8a3ac]" />
+                  className="p-1 -ml-1 hover:bg-gray-100 dark:hover:bg-[#221830] transition-colors rounded">
+                  <ArrowLeft className="w-4 h-4 text-gray-500 dark:text-[#b9aedd]" />
                 </button>
               )}
               <div>
                 <DialogTitle style={{ fontFamily: '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}
-                  className="text-2xl text-gray-900 dark:text-[#F5EDE9] leading-tight">
+                  className="text-2xl text-gray-900 dark:text-[#F5F3FA] leading-tight">
                   {pedidoSelec ? 'Detalle del pedido' : 'Mis pedidos'}
                 </DialogTitle>
                 <DialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                  className="text-sm text-gray-500 dark:text-[#b8a3ac] mt-1">
+                  className="text-sm text-gray-500 dark:text-[#b9aedd] mt-1">
                   {pedidoSelec
                     ? new Date(pedidoSelec.fechaPedido).toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' })
                     : `${pedidos.length} pedido${pedidos.length !== 1 ? 's' : ''} en total`}
@@ -666,7 +666,7 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
             <div className="flex items-center gap-2 flex-shrink-0 mr-8">
               {!pedidoSelec && (
                 <button type="button" title="Actualizar" aria-label="Actualizar pedidos" onClick={cargarPedidos} disabled={loadingP}
-                  className="p-1.5 hover:bg-gray-100 dark:hover:bg-[#362b34] transition-colors rounded text-gray-400 dark:text-[#b8a3ac] disabled:opacity-40">
+                  className="p-1.5 hover:bg-gray-100 dark:hover:bg-[#221830] transition-colors rounded text-gray-400 dark:text-[#b9aedd] disabled:opacity-40">
                   <RefreshCw className={`w-4 h-4 ${loadingP ? 'animate-spin' : ''}`} />
                 </button>
               )}
@@ -680,17 +680,17 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
               <div style={{ padding: '24px 32px' }}>
                 {loadingP && pedidos.length === 0 ? (
                   <div className="flex flex-col items-center py-16 gap-3">
-                    <Loader2 className="w-7 h-7 animate-spin text-gray-400 dark:text-[#b8a3ac]" />
-                    <p className="text-sm text-gray-400 dark:text-[#b8a3ac]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Cargando pedidos...</p>
+                    <Loader2 className="w-7 h-7 animate-spin text-gray-400 dark:text-[#b9aedd]" />
+                    <p className="text-sm text-gray-400 dark:text-[#b9aedd]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Cargando pedidos...</p>
                   </div>
                 ) : pedidos.length === 0 ? (
                   <div className="text-center py-16">
-                    <div className="w-20 h-20 rounded-full bg-[#FBF0F4] dark:bg-[#3a2530] flex items-center justify-center mx-auto mb-5">
-                      <Package className="w-9 h-9 text-[#A3395C]" strokeWidth={1.5} />
+                    <div className="w-20 h-20 rounded-full bg-[#FBF0F4] dark:bg-[#241935] flex items-center justify-center mx-auto mb-5">
+                      <Package className="w-9 h-9 text-[#5C2A52]" strokeWidth={1.5} />
                     </div>
                     <p style={{ fontFamily: '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}
-                      className="text-lg font-semibold text-gray-800 dark:text-[#F5EDE9]">Sin pedidos aún</p>
-                    <p className="text-sm text-gray-400 dark:text-[#b8a3ac] mt-1.5">Tus pedidos aparecerán aquí cuando realices una compra</p>
+                      className="text-lg font-semibold text-gray-800 dark:text-[#F5F3FA]">Sin pedidos aún</p>
+                    <p className="text-sm text-gray-400 dark:text-[#b9aedd] mt-1.5">Tus pedidos aparecerán aquí cuando realices una compra</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
@@ -699,31 +699,31 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
                       return (
                         <button key={pedido.pedidoID} type="button"
                           onClick={() => setPedidoSelec(pedido)}
-                          className="group w-full text-left rounded-2xl border border-gray-100 dark:border-[#453840] bg-white dark:bg-[#2a2029] p-5 hover:border-[#EFD9DF] dark:hover:border-[#5a3a48] hover:shadow-md transition-all">
+                          className="group w-full text-left rounded-2xl border border-gray-100 dark:border-[#3A2E4D] bg-white dark:bg-[#17101f] p-5 hover:border-[#C9A8C3] dark:hover:border-[#5a3a48] hover:shadow-md transition-all">
                           <div className="flex items-start justify-between gap-4 mb-2">
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                                 <span className={`px-2.5 py-0.5 text-xs font-semibold rounded-full ${cfg.bg} ${cfg.text}`}>{cfg.label}</span>
                               </div>
-                              <p className="text-sm text-gray-500 dark:text-[#b8a3ac] flex items-center gap-1.5"
+                              <p className="text-sm text-gray-500 dark:text-[#b9aedd] flex items-center gap-1.5"
                                 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                                 <Calendar className="w-3.5 h-3.5" />
                                 {new Date(pedido.fechaPedido).toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' })}
                               </p>
                             </div>
-                            <p className="text-lg font-bold text-[#A3395C] flex-shrink-0"
+                            <p className="text-lg font-bold text-[#5C2A52] flex-shrink-0"
                               style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                               {fmt(pedido.total)}
                             </p>
                           </div>
-                          <div className="flex flex-wrap gap-2 text-xs mt-3 pt-3 border-t border-gray-100 dark:border-[#453840]">
+                          <div className="flex flex-wrap gap-2 text-xs mt-3 pt-3 border-t border-gray-100 dark:border-[#3A2E4D]">
                             {pedido.metodoPago && (
-                              <span className="text-gray-500 dark:text-[#b8a3ac] flex items-center gap-1">
+                              <span className="text-gray-500 dark:text-[#b9aedd] flex items-center gap-1">
                                 <CreditCard className="w-3 h-3" />{pedido.metodoPago}
                               </span>
                             )}
                             {pedido.ciudad && (
-                              <span className="text-gray-500 dark:text-[#b8a3ac] flex items-center gap-1">
+                              <span className="text-gray-500 dark:text-[#b9aedd] flex items-center gap-1">
                                 <MapPin className="w-3 h-3" />{pedido.ciudad}
                               </span>
                             )}
@@ -732,7 +732,7 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
                                 <Truck className="w-3 h-3" />Guía: {pedido.numeroGuia}
                               </span>
                             )}
-                            <ChevronRight className="w-4 h-4 text-gray-300 dark:text-[#5a4a54] group-hover:text-[#A3395C] group-hover:translate-x-0.5 transition-all ml-auto" />
+                            <ChevronRight className="w-4 h-4 text-gray-300 dark:text-[#5a4a54] group-hover:text-[#5C2A52] group-hover:translate-x-0.5 transition-all ml-auto" />
                           </div>
                         </button>
                       );
@@ -750,7 +750,7 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
 
                   {/* Estado + Total */}
                   <div className="flex items-center justify-between rounded-xl px-5 py-4"
-                    style={{ background: 'linear-gradient(90deg, #241B22 0%, #7a3350 55%, #A3395C 100%)' }}>
+                    style={{ background: 'linear-gradient(90deg, #0A0A0A 0%, #3B0A45 55%, #5C2A52 100%)' }}>
                     <span className="px-3 py-1 text-xs font-semibold uppercase tracking-wide rounded-full bg-white/15 text-white">{cfg.label}</span>
                     <span className="text-2xl font-black text-white"
                       style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
@@ -760,12 +760,12 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
 
                   {/* Productos */}
                   <div>
-                    <p className="text-xs font-semibold text-gray-400 dark:text-[#b8a3ac] uppercase tracking-widest mb-3"
+                    <p className="text-xs font-semibold text-gray-400 dark:text-[#b9aedd] uppercase tracking-widest mb-3"
                       style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Productos</p>
                     <div className="space-y-3">
                       {(pedidoSelec.detalles ?? []).map((d, i) => (
-                        <div key={i} className="flex gap-4 rounded-xl border border-gray-100 dark:border-[#453840] p-4">
-                          <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 dark:bg-[#2a2029] flex-shrink-0">
+                        <div key={i} className="flex gap-4 rounded-xl border border-gray-100 dark:border-[#3A2E4D] p-4">
+                          <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 dark:bg-[#17101f] flex-shrink-0">
                             {d.imagenProducto ? (
                               <img src={d.imagenProducto.startsWith('http') ? d.imagenProducto : `${apiBase}${d.imagenProducto}`}
                                 alt={d.productoNombre} className="w-full h-full object-cover" />
@@ -776,19 +776,19 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold text-gray-900 dark:text-[#F5EDE9] mb-1"
+                            <p className="text-sm font-semibold text-gray-900 dark:text-[#F5F3FA] mb-1"
                               style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>{d.productoNombre}</p>
-                            <div className="flex flex-wrap gap-2 text-xs text-gray-500 dark:text-[#b8a3ac] mb-2">
+                            <div className="flex flex-wrap gap-2 text-xs text-gray-500 dark:text-[#b9aedd] mb-2">
                               {d.talla && <span>Talla: {d.talla}</span>}
                               {d.talla && d.color && <span>·</span>}
                               {d.color && <span>Color: {d.color}</span>}
                             </div>
                             <div className="flex items-center justify-between">
-                              <span className="text-xs text-gray-400 dark:text-[#b8a3ac]"
+                              <span className="text-xs text-gray-400 dark:text-[#b9aedd]"
                                 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                                 {fmt(d.precioUnitario)} × {d.cantidad}
                               </span>
-                              <span className="text-sm font-bold text-gray-900 dark:text-[#F5EDE9]"
+                              <span className="text-sm font-bold text-gray-900 dark:text-[#F5F3FA]"
                                 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>{fmt(d.subtotal)}</span>
                             </div>
                           </div>
@@ -799,20 +799,20 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
 
                   {/* Resumen de pago */}
                   <div>
-                    <p className="text-xs font-semibold text-gray-400 dark:text-[#b8a3ac] uppercase tracking-widest mb-3"
+                    <p className="text-xs font-semibold text-gray-400 dark:text-[#b9aedd] uppercase tracking-widest mb-3"
                       style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Resumen</p>
-                    <div className="rounded-xl border border-gray-100 dark:border-[#453840] overflow-hidden">
+                    <div className="rounded-xl border border-gray-100 dark:border-[#3A2E4D] overflow-hidden">
                       {[
-                        { label: 'Subtotal', value: fmt(pedidoSelec.subtotal ?? 0), className: 'text-gray-600 dark:text-[#b8a3ac]' },
+                        { label: 'Subtotal', value: fmt(pedidoSelec.subtotal ?? 0), className: 'text-gray-600 dark:text-[#b9aedd]' },
                         ...((pedidoSelec.descuento ?? 0) > 0 ? [{ label: 'Descuento', value: `-${fmt(pedidoSelec.descuento ?? 0)}`, className: 'text-green-600 dark:text-green-400' }] : []),
-                        { label: 'Envío', value: (pedidoSelec.envio ?? 0) === 0 ? 'Gratis' : fmt(pedidoSelec.envio ?? 0), className: 'text-gray-600 dark:text-[#b8a3ac]' },
+                        { label: 'Envío', value: (pedidoSelec.envio ?? 0) === 0 ? 'Gratis' : fmt(pedidoSelec.envio ?? 0), className: 'text-gray-600 dark:text-[#b9aedd]' },
                       ].map(({ label, value, className }) => (
-                        <div key={label} className={`flex justify-between text-sm px-4 py-3 border-b border-gray-100 dark:border-[#453840] ${className}`}
+                        <div key={label} className={`flex justify-between text-sm px-4 py-3 border-b border-gray-100 dark:border-[#3A2E4D] ${className}`}
                           style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                           <span>{label}</span><span>{value}</span>
                         </div>
                       ))}
-                      <div className="flex justify-between text-base font-bold text-gray-900 dark:text-[#F5EDE9] px-4 py-3"
+                      <div className="flex justify-between text-base font-bold text-gray-900 dark:text-[#F5F3FA] px-4 py-3"
                         style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                         <span>Total</span><span>{fmt(pedidoSelec.total)}</span>
                       </div>
@@ -821,21 +821,21 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
 
                   {/* Info envío */}
                   <div>
-                    <p className="text-xs font-semibold text-gray-400 dark:text-[#b8a3ac] uppercase tracking-widest mb-3"
+                    <p className="text-xs font-semibold text-gray-400 dark:text-[#b9aedd] uppercase tracking-widest mb-3"
                       style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Envío</p>
-                    <div className="rounded-xl border border-gray-100 dark:border-[#453840] overflow-hidden">
+                    <div className="rounded-xl border border-gray-100 dark:border-[#3A2E4D] overflow-hidden">
                       {[
-                        { icon: <CreditCard className="w-4 h-4 text-gray-400 dark:text-[#b8a3ac]" />, label: 'Método de pago', value: pedidoSelec.metodoPago },
-                        { icon: <MapPin className="w-4 h-4 text-gray-400 dark:text-[#b8a3ac]" />,     label: 'Ciudad',         value: pedidoSelec.ciudad },
-                        { icon: <MapPin className="w-4 h-4 text-gray-400 dark:text-[#b8a3ac]" />,     label: 'Dirección',      value: pedidoSelec.direccionEnvio },
-                        ...(pedidoSelec.numeroGuia ? [{ icon: <Truck className="w-4 h-4 text-gray-400 dark:text-[#b8a3ac]" />, label: 'Número de guía', value: `${pedidoSelec.numeroGuia}${pedidoSelec.transportadora ? ` · ${pedidoSelec.transportadora}` : ''}` }] : []),
+                        { icon: <CreditCard className="w-4 h-4 text-gray-400 dark:text-[#b9aedd]" />, label: 'Método de pago', value: pedidoSelec.metodoPago },
+                        { icon: <MapPin className="w-4 h-4 text-gray-400 dark:text-[#b9aedd]" />,     label: 'Ciudad',         value: pedidoSelec.ciudad },
+                        { icon: <MapPin className="w-4 h-4 text-gray-400 dark:text-[#b9aedd]" />,     label: 'Dirección',      value: pedidoSelec.direccionEnvio },
+                        ...(pedidoSelec.numeroGuia ? [{ icon: <Truck className="w-4 h-4 text-gray-400 dark:text-[#b9aedd]" />, label: 'Número de guía', value: `${pedidoSelec.numeroGuia}${pedidoSelec.transportadora ? ` · ${pedidoSelec.transportadora}` : ''}` }] : []),
                       ].filter(r => r.value).map(({ icon, label, value }) => (
-                        <div key={label} className="flex items-start gap-3 px-4 py-3 border-b border-gray-100 dark:border-[#453840] last:border-b-0">
+                        <div key={label} className="flex items-start gap-3 px-4 py-3 border-b border-gray-100 dark:border-[#3A2E4D] last:border-b-0">
                           <span className="mt-0.5 flex-shrink-0">{icon}</span>
                           <div className="min-w-0">
-                            <p className="text-xs text-gray-400 dark:text-[#b8a3ac] mb-0.5"
+                            <p className="text-xs text-gray-400 dark:text-[#b9aedd] mb-0.5"
                               style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>{label}</p>
-                            <p className="text-sm text-gray-800 dark:text-[#F5EDE9] break-words"
+                            <p className="text-sm text-gray-800 dark:text-[#F5F3FA] break-words"
                               style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>{value}</p>
                           </div>
                         </div>
@@ -844,9 +844,9 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
                   </div>
 
                   {pedidoSelec.notas && (
-                    <div className="rounded-xl border border-gray-100 dark:border-[#453840] p-4 text-sm text-gray-600 dark:text-[#b8a3ac]"
+                    <div className="rounded-xl border border-gray-100 dark:border-[#3A2E4D] p-4 text-sm text-gray-600 dark:text-[#b9aedd]"
                       style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
-                      <span className="font-semibold text-gray-900 dark:text-[#F5EDE9]">Notas: </span>{pedidoSelec.notas}
+                      <span className="font-semibold text-gray-900 dark:text-[#F5F3FA]">Notas: </span>{pedidoSelec.notas}
                     </div>
                   )}
                 </div>

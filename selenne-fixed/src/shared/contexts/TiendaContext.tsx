@@ -10,7 +10,7 @@ export interface Producto {
   imagen: string;
   imagenes?: string[];
   imagenesPorColor?: Record<string, string[]>;
-  categoria: 'mujer' | 'accesorios' | 'sale';
+  categoria: 'mujer' | 'hombre' | 'accesorios' | 'sale';
   subcategoria?: string;
   tipoProducto: string;
   tallas: string[];

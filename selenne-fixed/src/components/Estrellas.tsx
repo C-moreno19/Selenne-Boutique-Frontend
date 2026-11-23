@@ -33,7 +33,7 @@ export function Estrellas({ valor, total, onChange, size = 16, className }: Estr
         ))}
       </div>
       {total !== undefined && (
-        <span className="text-xs text-gray-500 dark:text-[#b8a3ac]">
+        <span className="text-xs text-gray-500 dark:text-[#b9aedd]">
           {total > 0 ? `${valor.toFixed(1)} (${total})` : 'Sin reseñas aún'}
         </span>
       )}

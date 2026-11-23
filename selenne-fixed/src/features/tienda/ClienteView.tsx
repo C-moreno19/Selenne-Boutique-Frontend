@@ -27,14 +27,15 @@ export const ClienteView: React.FC<ClienteViewProps> = ({ onLogout }) => {
   // La categoria vive en la URL (/dashboard/tienda/:categoria), igual que en
   // LandingView; los paneles internos (checkout/perfil/mensajes) quedan como
   // overlay local, todavia no tienen ruta propia.
-  const categoriaUrlMatch = location.pathname.match(/^\/dashboard\/tienda\/(mujer|accesorios|sale)$/);
+  const categoriaUrlMatch = location.pathname.match(/^\/dashboard\/tienda\/(hombre|mujer|accesorios|sale)$/);
   const categoriaUrl = categoriaUrlMatch ? (categoriaUrlMatch[1] as Categoria) : undefined;
   const categoriaActiva: Categoria = categoriaUrl ?? "mujer";
+  const subInicial = new URLSearchParams(location.search).get("sub") || undefined;
   const [subVista, setSubVista] = useState<"checkout" | "perfil" | "mensajes" | null>(null);
   const vistaActual: Vista = subVista ?? (categoriaUrl ? "tienda" : "home");
 
-  const irATienda = (categoria: Categoria) => {
-    navigate(`/dashboard/tienda/${categoria}`);
+  const irATienda = (categoria: Categoria, sub?: string) => {
+    navigate(sub ? `/dashboard/tienda/${categoria}?sub=${sub}` : `/dashboard/tienda/${categoria}`);
     window.scrollTo({ top: 0 });
   };
 
@@ -45,30 +46,30 @@ export const ClienteView: React.FC<ClienteViewProps> = ({ onLogout }) => {
     onLogout();
   };
 
-  const heroTitle = user?.name ? `Hola, ${user.name.split(' ')[0]}` : 'Selenne Boutique';
+  const heroTitle = user?.name ? `Hola, ${user.name.split(' ')[0]}` : 'District Store';
 
   const accountSlot = (
     <button
       onClick={() => setSubVista("perfil")}
-      className="p-1.5 sm:p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full transition-colors"
+      className="p-1.5 sm:p-2 hover:bg-[#C9A8C3] dark:hover:bg-[#241935] rounded-full transition-colors"
       aria-label="Mi cuenta"
       title="Mi cuenta"
     >
-      <User className="w-[18px] h-[18px] sm:w-6 sm:h-6 text-[#241B22] dark:text-[#F5EDE9]" />
+      <User className="w-[18px] h-[18px] sm:w-6 sm:h-6 text-[#0A0A0A] dark:text-[#F5F3FA]" />
     </button>
   );
 
   const mensajesSlot = vistaActual === 'perfil' ? (
     <button
       onClick={() => setSubVista("mensajes")}
-      className="p-1.5 sm:p-2 hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530] rounded-full transition-colors relative"
+      className="p-1.5 sm:p-2 hover:bg-[#C9A8C3] dark:hover:bg-[#241935] rounded-full transition-colors relative"
       title="Mensajes"
     >
-      <svg className="w-[18px] h-[18px] sm:w-6 sm:h-6 text-[#241B22] dark:text-[#F5EDE9]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="w-[18px] h-[18px] sm:w-6 sm:h-6 text-[#0A0A0A] dark:text-[#F5F3FA]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
       </svg>
       {notifHook.noLeidas > 0 && (
-        <span className="absolute -top-1 -right-1 bg-[#A3395C] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
+        <span className="absolute -top-1 -right-1 bg-[#5C2A52] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
           {notifHook.noLeidas > 9 ? '9+' : notifHook.noLeidas}
         </span>
       )}
@@ -76,7 +77,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({ onLogout }) => {
   ) : undefined;
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#2a2029] flex flex-col">
+    <div className="min-h-screen bg-white dark:bg-[#17101f] flex flex-col">
       <TiendaHeader
         categoriaActiva={categoriaActiva}
         tiendaNavActiva={vistaActual === 'tienda'}
@@ -102,6 +103,7 @@ export const ClienteView: React.FC<ClienteViewProps> = ({ onLogout }) => {
           <TiendaCatalogo
             vista={vistaActual === 'home' ? 'home' : 'tienda'}
             categoriaActiva={categoriaActiva}
+            subInicial={subInicial}
             heroTitle={heroTitle}
             onIrATienda={irATienda}
             onAbrirCarrito={() => setCarritoAbierto(true)}

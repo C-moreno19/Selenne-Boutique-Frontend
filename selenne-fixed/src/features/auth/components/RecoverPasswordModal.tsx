@@ -153,19 +153,19 @@ export const RecoverPasswordModal: React.FC<RecoverPasswordModalProps> = ({
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
-            className="bg-white dark:bg-[#322631] w-full max-w-md p-6 relative rounded-xl shadow-[0_20px_40px_rgba(0,0,0,0.15)] max-h-[90vh] overflow-y-auto"
+            className="bg-white dark:bg-[#1e1530] w-full max-w-md p-6 relative rounded-xl shadow-[0_20px_40px_rgba(0,0,0,0.15)] max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               onClick={handleClose}
               aria-label="Cerrar modal"
-              className="absolute top-3 right-3 text-gray-500 dark:text-[#b8a3ac] hover:text-[#A3395C] transition-colors"
+              className="absolute top-3 right-3 text-gray-500 dark:text-[#b9aedd] hover:text-[#5C2A52] transition-colors"
             >
               <X size={20} />
             </button>
 
             <h2
-              className="mb-4 text-[#241B22] dark:text-[#F5EDE9] text-2xl"
+              className="mb-4 text-[#0A0A0A] dark:text-[#F5F3FA] text-2xl"
               style={{ fontFamily: '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}
             >
               Recuperar contraseña
@@ -173,7 +173,7 @@ export const RecoverPasswordModal: React.FC<RecoverPasswordModalProps> = ({
 
             {step === "email" ? (
               <div className="space-y-4">
-                <p className="text-[#1a1a1a] dark:text-[#F5EDE9] mb-4 text-sm font-inter">
+                <p className="text-[#1a1a1a] dark:text-[#F5F3FA] mb-4 text-sm font-inter">
                   Ingresa tu email y te enviaremos un código para restablecer tu contraseña.
                 </p>
 
@@ -196,14 +196,14 @@ export const RecoverPasswordModal: React.FC<RecoverPasswordModalProps> = ({
                 <button
                   onClick={handleClose}
                   aria-label="Volver al inicio de sesión"
-                  className="w-full text-center text-[#A3395C] hover:underline transition-all text-sm font-inter"
+                  className="w-full text-center text-[#5C2A52] hover:underline transition-all text-sm font-inter"
                 >
                   Volver al inicio de sesión
                 </button>
               </div>
             ) : (
               <div className="space-y-3">
-                <p className="text-[#1a1a1a] dark:text-[#F5EDE9] text-sm font-inter">
+                <p className="text-[#1a1a1a] dark:text-[#F5F3FA] text-sm font-inter">
                   📧 Token enviado a <strong>{email}</strong>. Revisa tu correo (incluyendo spam) y pégalo abajo.
                 </p>
 
@@ -258,7 +258,7 @@ export const RecoverPasswordModal: React.FC<RecoverPasswordModalProps> = ({
                       setConfirmPasswordError("");
                     }}
                     aria-label="Cambiar email"
-                    className="text-[#A3395C] hover:underline transition-all text-sm font-inter"
+                    className="text-[#5C2A52] hover:underline transition-all text-sm font-inter"
                   >
                     ← Cambiar email
                   </button>
@@ -266,7 +266,7 @@ export const RecoverPasswordModal: React.FC<RecoverPasswordModalProps> = ({
                   <button
                     onClick={handleSendCode}
                     aria-label="Reenviar email"
-                    className="text-[#A3395C] hover:underline transition-all text-sm font-inter"
+                    className="text-[#5C2A52] hover:underline transition-all text-sm font-inter"
                     disabled={loading}
                   >
                     Reenviar email

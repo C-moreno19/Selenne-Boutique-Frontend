@@ -24,20 +24,20 @@ export function EstadoVacioProductos({ busqueda, hayFiltrosActivos, onLimpiarTod
 
   return (
     <div className="flex flex-col items-center justify-center text-center py-20 px-4">
-      <div className="w-14 h-14 rounded-full bg-[#FBF8F5] dark:bg-[#362b34] flex items-center justify-center mb-4">
-        <PackageSearch className="w-6 h-6 text-[#A3395C]" />
+      <div className="w-14 h-14 rounded-full bg-[#F7F5FC] dark:bg-[#221830] flex items-center justify-center mb-4">
+        <PackageSearch className="w-6 h-6 text-[#5C2A52]" />
       </div>
       <p
-        className="text-gray-900 dark:text-[#F5EDE9] text-base font-medium"
+        className="text-gray-900 dark:text-[#F5F3FA] text-base font-medium"
         style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
       >
         {titulo}
       </p>
-      <p className="text-gray-500 dark:text-[#b8a3ac] text-sm mt-1 max-w-xs">{subtitulo}</p>
+      <p className="text-gray-500 dark:text-[#b9aedd] text-sm mt-1 max-w-xs">{subtitulo}</p>
       {puedeLimpiar && (
         <button
           onClick={onLimpiarTodo}
-          className="mt-5 px-5 py-2 text-xs font-bold tracking-widest border border-gray-300 dark:border-[#453840] dark:text-[#F5EDE9] rounded-lg hover:border-[#A3395C] hover:text-[#A3395C] transition-colors"
+          className="mt-5 px-5 py-2 text-xs font-bold tracking-widest border border-gray-300 dark:border-[#3A2E4D] dark:text-[#F5F3FA] rounded-lg hover:border-[#5C2A52] hover:text-[#5C2A52] transition-colors"
         >
           VER TODO EL CATÁLOGO
         </button>

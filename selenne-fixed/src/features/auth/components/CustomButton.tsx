@@ -22,20 +22,18 @@ export const CustomButton: React.FC<CustomButtonProps> = ({
   
   const variantClasses = variant === 'primary'
     ? 'text-white'
-    : 'bg-[#EFD9DF] dark:bg-[#3a2530] text-[#241B22] dark:text-[#F5EDE9] hover:bg-[#A3395C] hover:text-white';
+    : 'border border-[#0A0A0A] dark:border-[#F5F3FA] text-[#0A0A0A] dark:text-[#F5F3FA] hover:bg-[#0A0A0A] hover:text-white dark:hover:bg-[#F5F3FA] dark:hover:text-[#0A0A0A]';
 
   return (
     <motion.button
       type={type}
       onClick={onClick}
       disabled={loading}
-      className={`${baseClasses} ${variantClasses} disabled:opacity-50 disabled:cursor-not-allowed`}
+      className={`${baseClasses} ${variantClasses} disabled:opacity-50 disabled:cursor-not-allowed text-xs font-bold uppercase tracking-widest`}
       style={{
-        borderRadius: '6px',
         fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
-        fontWeight: '600',
-        height: '44px',
-        ...(variant === 'primary' ? { background: 'linear-gradient(90deg, #241B22 0%, #7a3350 55%, #A3395C 100%)' } : {}),
+        height: '48px',
+        ...(variant === 'primary' ? { background: 'linear-gradient(90deg, #0A0A0A 0%, #3B0A45 55%, #5C2A52 100%)' } : {}),
       }}
       whileHover={{ scale: loading ? 1 : 1.01 }}
       whileTap={{ scale: loading ? 1 : 0.99 }}

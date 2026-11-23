@@ -72,19 +72,19 @@ export const ResenasView: React.FC = () => {
   return (
     <div className="p-6 sm:p-8">
       <div className="mb-6">
-        <h1 style={{ fontFamily: '"Playfair Display", Georgia, serif' }} className="text-3xl text-[#241B22] dark:text-[#F5EDE9] mb-1">Reseñas</h1>
-        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500 dark:text-[#b8a3ac]">
+        <h1 style={{ fontFamily: '"Playfair Display", Georgia, serif' }} className="text-3xl text-[#0A0A0A] dark:text-[#F5F3FA] mb-1">Reseñas</h1>
+        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500 dark:text-[#b9aedd]">
           Modera las reseñas que los clientes dejan en los productos.
         </p>
       </div>
 
-      <div className="flex gap-2 mb-6 border-b border-[#E7E0DA] dark:border-[#453840]">
+      <div className="flex gap-2 mb-6 border-b border-[#E7E0DA] dark:border-[#3A2E4D]">
         {TABS.map(t => (
           <button key={t.value} onClick={() => setTab(t.value)}
             className={`px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors ${
               tab === t.value
-                ? 'border-[#A3395C] text-[#A3395C]'
-                : 'border-transparent text-gray-500 dark:text-[#b8a3ac] hover:text-gray-700 dark:hover:text-[#F5EDE9]'
+                ? 'border-[#5C2A52] text-[#5C2A52]'
+                : 'border-transparent text-gray-500 dark:text-[#b9aedd] hover:text-gray-700 dark:hover:text-[#F5F3FA]'
             }`}
             style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
             {t.label}
@@ -95,16 +95,16 @@ export const ResenasView: React.FC = () => {
       {loading ? (
         <div className="flex justify-center py-16"><Loader2 className="w-6 h-6 animate-spin text-gray-400" /></div>
       ) : resenas.length === 0 ? (
-        <div className="text-center py-16 text-gray-400 dark:text-[#b8a3ac] text-sm" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+        <div className="text-center py-16 text-gray-400 dark:text-[#b9aedd] text-sm" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
           No hay reseñas {tab === 'pendiente' ? 'pendientes' : tab === 'aprobada' ? 'aprobadas' : 'rechazadas'}.
         </div>
       ) : (
         <div className="space-y-3">
           {resenas.map(r => (
-            <div key={r.valoracionID} className="bg-white dark:bg-[#322631] rounded-xl border border-[#E7E0DA] dark:border-[#453840] p-4 flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4">
+            <div key={r.valoracionID} className="bg-white dark:bg-[#1e1530] rounded-xl border border-[#E7E0DA] dark:border-[#3A2E4D] p-4 flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4">
               <div className="flex-1 min-w-0">
                 <div className="flex flex-wrap items-center gap-2 mb-1">
-                  <span className="font-semibold text-sm text-[#241B22] dark:text-[#F5EDE9]">{r.productoNombre ?? `Producto #${r.productoID}`}</span>
+                  <span className="font-semibold text-sm text-[#0A0A0A] dark:text-[#F5F3FA]">{r.productoNombre ?? `Producto #${r.productoID}`}</span>
                   {r.verificadoCompra && (
                     <span className="flex items-center gap-1 text-[10px] font-medium text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-950/40 px-1.5 py-0.5 rounded-full">
                       <ShieldCheck className="w-3 h-3" /> Compra verificada
@@ -117,12 +117,12 @@ export const ResenasView: React.FC = () => {
                       <StarIcon key={i} width={14} height={14} className={i <= r.puntuacion ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'} />
                     ))}
                   </div>
-                  <span className="text-xs text-gray-400 dark:text-[#b8a3ac]">
+                  <span className="text-xs text-gray-400 dark:text-[#b9aedd]">
                     {r.nombreUsuario} · {new Date(r.fechaCreacion).toLocaleDateString('es-CO', { year: 'numeric', month: 'short', day: 'numeric' })}
                   </span>
                 </div>
                 {r.comentario && (
-                  <p className="text-sm text-gray-600 dark:text-[#b8a3ac]">{r.comentario}</p>
+                  <p className="text-sm text-gray-600 dark:text-[#b9aedd]">{r.comentario}</p>
                 )}
               </div>
 

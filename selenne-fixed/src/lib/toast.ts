@@ -2,10 +2,10 @@ import { toast as t } from 'sonner@2.0.3';
 import type { CSSProperties } from 'react';
 
 const base: CSSProperties = {
-  background: 'linear-gradient(135deg, #fff 55%, #EFD9DF 100%)',
-  color: '#241B22',
+  background: 'linear-gradient(135deg, #fff 55%, #C9A8C3 100%)',
+  color: '#0A0A0A',
   border: 'none',
-  borderLeft: '4px solid #A3395C',
+  borderLeft: '4px solid #5C2A52',
   borderRadius: '14px',
   boxShadow: '0 12px 40px rgba(163,57,92,.18)',
   fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',

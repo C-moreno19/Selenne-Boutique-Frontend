@@ -50,14 +50,14 @@ const PriceCard: React.FC<{
   color?: 'default' | 'pink';
   onChange: (v: string) => void;
 }> = ({ label, value, required, note, color = 'default', onChange }) => (
-  <div className={`rounded-xl border-2 p-4 transition focus-within:border-[#A3395C] ${
-    color === 'pink' ? 'border-[#A3395C]/30 bg-[#EFD9DF]/40 dark:bg-[#3a2530]/40' : 'border-[#E7E0DA] dark:border-[#453840] bg-white dark:bg-[#322631]'
+  <div className={`rounded-xl border-2 p-4 transition focus-within:border-[#5C2A52] ${
+    color === 'pink' ? 'border-[#5C2A52]/30 bg-[#C9A8C3]/40 dark:bg-[#241935]/40' : 'border-[#E7E0DA] dark:border-[#3A2E4D] bg-white dark:bg-[#1e1530]'
   }`}>
-    <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className={`text-xs font-semibold uppercase tracking-wide mb-3 ${color === 'pink' ? 'text-[#A3395C]/70' : 'text-gray-500 dark:text-[#b8a3ac]'}`}>
+    <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className={`text-xs font-semibold uppercase tracking-wide mb-3 ${color === 'pink' ? 'text-[#5C2A52]/70' : 'text-gray-500 dark:text-[#b9aedd]'}`}>
       {label}{required && <span className="text-red-500 ml-1">*</span>}
     </p>
     <div className="flex items-baseline gap-1">
-      <span className={`text-sm font-medium ${color === 'pink' ? 'text-[#A3395C]/50' : 'text-gray-400 dark:text-[#b8a3ac]'}`}>$</span>
+      <span className={`text-sm font-medium ${color === 'pink' ? 'text-[#5C2A52]/50' : 'text-gray-400 dark:text-[#b9aedd]'}`}>$</span>
       <input
         inputMode="numeric"
         value={value}
@@ -65,11 +65,11 @@ const PriceCard: React.FC<{
         placeholder={required ? '0' : '—'}
         style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
         className={`flex-1 text-xl font-bold outline-none bg-transparent w-full min-w-0 ${
-          color === 'pink' ? 'text-[#A3395C] placeholder:text-[#A3395C]/25' : 'text-[#241B22] dark:text-[#F5EDE9] placeholder:text-gray-300 dark:text-[#5a4d52] dark:placeholder:text-[#5a4d52]'
+          color === 'pink' ? 'text-[#5C2A52] placeholder:text-[#5C2A52]/25' : 'text-[#0A0A0A] dark:text-[#F5F3FA] placeholder:text-gray-300 dark:text-[#5a4d52] dark:placeholder:text-[#5a4d52]'
         }`}
       />
     </div>
-    <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className={`text-xs mt-1 ${color === 'pink' ? 'text-[#A3395C]/40' : 'text-gray-400 dark:text-[#b8a3ac]'}`}>
+    <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className={`text-xs mt-1 ${color === 'pink' ? 'text-[#5C2A52]/40' : 'text-gray-400 dark:text-[#b9aedd]'}`}>
       {note || 'COP'}
     </p>
   </div>
@@ -467,47 +467,47 @@ export const ProductosView: React.FC = () => {
     : '');
 
   return (
-    <div className="p-8 bg-[#FBF8F5] dark:bg-[#2a2029] min-h-screen">
+    <div className="p-8 bg-[#F7F5FC] dark:bg-[#17101f] min-h-screen">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 mb-4">
-        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500 dark:text-[#b8a3ac]">Dashboard</span>
-        <ChevronRight className="w-4 h-4 text-gray-400 dark:text-[#b8a3ac]" />
-        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-[#241B22] dark:text-[#F5EDE9]">Inventario</span>
+        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500 dark:text-[#b9aedd]">Dashboard</span>
+        <ChevronRight className="w-4 h-4 text-gray-400 dark:text-[#b9aedd]" />
+        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-[#0A0A0A] dark:text-[#F5F3FA]">Inventario</span>
       </div>
 
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="admin-page-title text-4xl text-[#241B22] dark:text-[#F5EDE9]">Inventario de Productos</h1>
-          <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-500 dark:text-[#b8a3ac] text-sm mt-1">
+          <h1 className="admin-page-title text-4xl text-[#0A0A0A] dark:text-[#F5F3FA]">Inventario de Productos</h1>
+          <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-500 dark:text-[#b9aedd] text-sm mt-1">
             {todosLosProductos.length} productos · los <strong>publicados</strong> son visibles para los clientes
           </p>
         </div>
         {puedeCrear && (
           <button onClick={openCreate} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-            className="px-6 py-3 bg-gradient-to-r from-[#241B22] via-[#7a3350] to-[#A3395C] text-white rounded-lg hover:opacity-90 flex items-center gap-2 transition">
+            className="px-6 py-3 bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] text-white rounded-lg hover:opacity-90 flex items-center gap-2 transition">
             <Plus className="w-5 h-5" /> Nuevo Producto
           </button>
         )}
       </div>
 
       {/* Filtros */}
-      <div className="bg-white dark:bg-[#322631] rounded-xl p-4 shadow-sm border border-[#E7E0DA] dark:border-[#453840] flex flex-wrap gap-3 mb-6">
-        <div className="flex-1 min-w-[200px] flex items-center gap-2 bg-[#FBF8F5] dark:bg-[#2a2029] border border-[#E7E0DA] dark:border-[#453840] rounded-lg px-3 focus-within:ring-2 focus-within:ring-[#A3395C]">
-          <Search className="w-4 h-4 text-gray-400 dark:text-[#b8a3ac] shrink-0" />
+      <div className="bg-white dark:bg-[#1e1530] rounded-xl p-4 shadow-sm border border-[#E7E0DA] dark:border-[#3A2E4D] flex flex-wrap gap-3 mb-6">
+        <div className="flex-1 min-w-[200px] flex items-center gap-2 bg-[#F7F5FC] dark:bg-[#17101f] border border-[#E7E0DA] dark:border-[#3A2E4D] rounded-lg px-3 focus-within:ring-2 focus-within:ring-[#5C2A52]">
+          <Search className="w-4 h-4 text-gray-400 dark:text-[#b9aedd] shrink-0" />
           <input type="text" placeholder="Buscar por nombre o referencia..." value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
             className="flex-1 bg-transparent py-2.5 text-sm focus:outline-none" />
         </div>
         <Select value={categoriaFiltro} onValueChange={setCategoriaFiltro}>
-          <SelectTrigger className="w-44 h-10 border-[#E7E0DA] dark:border-[#453840] text-sm"><SelectValue placeholder="Categoría" /></SelectTrigger>
+          <SelectTrigger className="w-44 h-10 border-[#E7E0DA] dark:border-[#3A2E4D] text-sm"><SelectValue placeholder="Categoría" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="todas">Todas las categorías</SelectItem>
             {categorias_unicas.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
           </SelectContent>
         </Select>
         <Select value={estadoFiltro} onValueChange={setEstadoFiltro}>
-          <SelectTrigger className="w-40 h-10 border-[#E7E0DA] dark:border-[#453840] text-sm"><SelectValue placeholder="Estado" /></SelectTrigger>
+          <SelectTrigger className="w-40 h-10 border-[#E7E0DA] dark:border-[#3A2E4D] text-sm"><SelectValue placeholder="Estado" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="todos">Todos</SelectItem>
             <SelectItem value="publicado">Publicados</SelectItem>
@@ -518,20 +518,20 @@ export const ProductosView: React.FC = () => {
         </Select>
         {(searchQuery || categoriaFiltro !== 'todas' || estadoFiltro !== 'todos') && (
           <button onClick={() => { setSearchQuery(''); setCategoriaFiltro('todas'); setEstadoFiltro('todos'); }}
-            className="px-3 py-2 text-gray-400 dark:text-[#b8a3ac] hover:text-gray-600 dark:text-[#b8a3ac] dark:hover:text-[#F5EDE9] flex items-center gap-1 text-sm">
+            className="px-3 py-2 text-gray-400 dark:text-[#b9aedd] hover:text-gray-600 dark:text-[#b9aedd] dark:hover:text-[#F5F3FA] flex items-center gap-1 text-sm">
             <X className="w-4 h-4" /> Limpiar
           </button>
         )}
-        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="ml-auto self-center text-sm text-gray-500 dark:text-[#b8a3ac]">
-          <strong className="text-[#241B22] dark:text-[#F5EDE9]">{filtered.length}</strong> de <strong className="text-[#241B22] dark:text-[#F5EDE9]">{todosLosProductos.length}</strong>
+        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="ml-auto self-center text-sm text-gray-500 dark:text-[#b9aedd]">
+          <strong className="text-[#0A0A0A] dark:text-[#F5F3FA]">{filtered.length}</strong> de <strong className="text-[#0A0A0A] dark:text-[#F5F3FA]">{todosLosProductos.length}</strong>
         </span>
       </div>
 
       {/* Tabla */}
-      <div className="bg-white dark:bg-[#322631] rounded-xl shadow-sm border border-[#E7E0DA] dark:border-[#453840] overflow-hidden">
+      <div className="bg-white dark:bg-[#1e1530] rounded-xl shadow-sm border border-[#E7E0DA] dark:border-[#3A2E4D] overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-[#FBF8F5] dark:bg-[#2a2029] border-b border-[#E7E0DA] dark:border-[#453840]">
+            <thead className="bg-[#F7F5FC] dark:bg-[#17101f] border-b border-[#E7E0DA] dark:border-[#3A2E4D]">
               <tr>
                 <th className="px-4 py-3 w-14"></th>
                 {([
@@ -549,7 +549,7 @@ export const ProductosView: React.FC = () => {
                       <button
                         onClick={() => toggleSort(campo)}
                         style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                        className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-[#b8a3ac] hover:text-[#A3395C] dark:hover:text-[#A3395C] transition-colors"
+                        className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-[#b9aedd] hover:text-[#5C2A52] dark:hover:text-[#5C2A52] transition-colors"
                       >
                         {label}
                         {sortBy === campo
@@ -557,56 +557,56 @@ export const ProductosView: React.FC = () => {
                           : <ArrowUpDown className="w-3 h-3 opacity-40" />}
                       </button>
                     ) : (
-                      <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-[#b8a3ac]">{label}</span>
+                      <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-[#b9aedd]">{label}</span>
                     )}
                   </th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50 dark:divide-[#453840]">
+            <tbody className="divide-y divide-gray-50 dark:divide-[#3A2E4D]">
               {filtered.map(p => (
-                <tr key={p.id} className="group relative hover:bg-[#FBF8F5] dark:hover:bg-[#2a2029]/70 transition">
+                <tr key={p.id} className="group relative hover:bg-[#F7F5FC] dark:hover:bg-[#17101f]/70 transition">
                   {/* Imagen */}
                   <td className="px-4 py-3">
-                    <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-[#A3395C] scale-y-0 group-hover:scale-y-100 transition-transform origin-center" />
+                    <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-[#5C2A52] scale-y-0 group-hover:scale-y-100 transition-transform origin-center" />
                     {p.imagen ? (
-                      <img src={p.imagen} alt={p.nombre} className="w-14 h-14 object-cover rounded-xl border border-[#E7E0DA] dark:border-[#453840] shadow-sm" />
+                      <img src={p.imagen} alt={p.nombre} className="w-14 h-14 object-cover rounded-xl border border-[#E7E0DA] dark:border-[#3A2E4D] shadow-sm" />
                     ) : (
-                      <div className="w-14 h-14 bg-gray-100 dark:bg-[#362b34] rounded-xl flex items-center justify-center">
+                      <div className="w-14 h-14 bg-gray-100 dark:bg-[#221830] rounded-xl flex items-center justify-center">
                         <Package className="w-5 h-5 text-gray-300 dark:text-[#5a4d52]" />
                       </div>
                     )}
                   </td>
                   {/* Nombre + código */}
                   <td className="px-4 py-3">
-                    <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#241B22] dark:text-[#F5EDE9] text-sm">{p.nombre}</p>
-                    {p.codigo && <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac] font-mono mt-0.5">{p.codigo}</p>}
+                    <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#0A0A0A] dark:text-[#F5F3FA] text-sm">{p.nombre}</p>
+                    {p.codigo && <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b9aedd] font-mono mt-0.5">{p.codigo}</p>}
                   </td>
                   {/* Marca / Categoría */}
                   <td className="px-4 py-3">
-                    <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-700 dark:text-[#F5EDE9]">{p.marca || '—'}</p>
-                    <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac]">{p.categoria}</p>
+                    <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-700 dark:text-[#F5F3FA]">{p.marca || '—'}</p>
+                    <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b9aedd]">{p.categoria}</p>
                   </td>
                   {/* Costo */}
                   <td className="px-4 py-3">
-                    <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500 dark:text-[#b8a3ac]">{fmt(p.precioCompra)}</span>
+                    <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500 dark:text-[#b9aedd]">{fmt(p.precioCompra)}</span>
                   </td>
                   {/* Precio (venta + oferta combinados) */}
                   <td className="px-4 py-3">
                     {p.precioOferta ? (
                       <div className="flex flex-col gap-0.5">
                         <div className="flex items-center gap-1.5">
-                          <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#A3395C]">{fmt(p.precioOferta)}</span>
+                          <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#5C2A52]">{fmt(p.precioOferta)}</span>
                           {p.precio > 0 && (
                             <span className="px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400">
                               -{Math.round((1 - p.precioOferta / p.precio) * 100)}%
                             </span>
                           )}
                         </div>
-                        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac] line-through">{fmt(p.precio)}</span>
+                        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b9aedd] line-through">{fmt(p.precio)}</span>
                       </div>
                     ) : (
-                      <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#241B22] dark:text-[#F5EDE9]">{fmt(p.precio)}</span>
+                      <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#0A0A0A] dark:text-[#F5F3FA]">{fmt(p.precio)}</span>
                     )}
                   </td>
                   {/* Stock */}
@@ -619,16 +619,16 @@ export const ProductosView: React.FC = () => {
                   <td className="px-4 py-3">
                     {p.tallas.length > 0 ? (
                       <div className="flex flex-col gap-0.5">
-                        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-600 dark:text-[#b8a3ac]">
+                        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-600 dark:text-[#b9aedd]">
                           {p.tallas.slice(0, 3).join(', ')}{p.tallas.length > 3 ? ` +${p.tallas.length - 3}` : ''}
                         </span>
                         {p.colores.length > 0 && (
                           <div className="flex gap-1">
                             {p.colores.slice(0, 4).map(c => {
                               const hex = colores.find((x: any) => x.nombre === c)?.hexColor || '#ccc';
-                              return <span key={c} className="w-3 h-3 rounded-full border border-gray-300 dark:border-[#453840] inline-block" style={{ backgroundColor: hex }} title={c} />;
+                              return <span key={c} className="w-3 h-3 rounded-full border border-gray-300 dark:border-[#3A2E4D] inline-block" style={{ backgroundColor: hex }} title={c} />;
                             })}
-                            {p.colores.length > 4 && <span className="text-xs text-gray-400 dark:text-[#b8a3ac]">+{p.colores.length - 4}</span>}
+                            {p.colores.length > 4 && <span className="text-xs text-gray-400 dark:text-[#b9aedd]">+{p.colores.length - 4}</span>}
                           </div>
                         )}
                       </div>
@@ -645,7 +645,7 @@ export const ProductosView: React.FC = () => {
                       className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
                         p.activo
                           ? 'bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-400 border-green-200 dark:border-green-900/50 hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-600 dark:hover:text-red-400 hover:border-red-200 dark:hover:border-red-900/50'
-                          : 'bg-gray-100 dark:bg-[#362b34] text-gray-500 dark:text-[#b8a3ac] border-[#E7E0DA] dark:border-[#453840] hover:bg-green-50 dark:hover:bg-green-950/40 hover:text-green-700 dark:hover:text-green-400 hover:border-green-200 dark:hover:border-green-900/50'
+                          : 'bg-gray-100 dark:bg-[#221830] text-gray-500 dark:text-[#b9aedd] border-[#E7E0DA] dark:border-[#3A2E4D] hover:bg-green-50 dark:hover:bg-green-950/40 hover:text-green-700 dark:hover:text-green-400 hover:border-green-200 dark:hover:border-green-900/50'
                       } ${!puedeEditar ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                       title={p.activo ? 'Clic para ocultar' : 'Clic para publicar'}
                     >
@@ -657,18 +657,18 @@ export const ProductosView: React.FC = () => {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1">
                       <button onClick={() => { setSelectedProduct(p); setViewOpen(true); }}
-                        className="p-1.5 text-gray-400 dark:text-[#b8a3ac] hover:bg-blue-50 dark:hover:bg-blue-950/40 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg transition" title="Ver detalle">
+                        className="p-1.5 text-gray-400 dark:text-[#b9aedd] hover:bg-blue-50 dark:hover:bg-blue-950/40 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg transition" title="Ver detalle">
                         <Eye className="w-4 h-4" />
                       </button>
                       {puedeEditar && (
                         <button onClick={() => openEdit(p)}
-                          className="p-1.5 text-gray-400 dark:text-[#b8a3ac] hover:bg-amber-50 dark:hover:bg-amber-950/40 hover:text-amber-600 dark:hover:text-amber-400 rounded-lg transition" title="Editar">
+                          className="p-1.5 text-gray-400 dark:text-[#b9aedd] hover:bg-amber-50 dark:hover:bg-amber-950/40 hover:text-amber-600 dark:hover:text-amber-400 rounded-lg transition" title="Editar">
                           <Edit className="w-4 h-4" />
                         </button>
                       )}
                       {puedeEliminar && (
                         <button onClick={() => { setSelectedProduct(p); setDeleteOpen(true); }}
-                          className="p-1.5 text-gray-400 dark:text-[#b8a3ac] hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-600 dark:hover:text-red-400 rounded-lg transition" title="Eliminar">
+                          className="p-1.5 text-gray-400 dark:text-[#b9aedd] hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-600 dark:hover:text-red-400 rounded-lg transition" title="Eliminar">
                           <Trash2 className="w-4 h-4" />
                         </button>
                       )}
@@ -678,15 +678,15 @@ export const ProductosView: React.FC = () => {
               ))}
               {filtered.length === 0 && (
                 <tr><td colSpan={9} className="px-6 py-16 text-center">
-                  <Package className="w-12 h-12 text-gray-200 dark:text-[#453840] mx-auto mb-3" />
-                  <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-400 dark:text-[#b8a3ac]">No se encontraron productos</p>
+                  <Package className="w-12 h-12 text-gray-200 dark:text-[#3A2E4D] mx-auto mb-3" />
+                  <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-400 dark:text-[#b9aedd]">No se encontraron productos</p>
                 </td></tr>
               )}
             </tbody>
           </table>
         </div>
-        <div className="px-6 py-3 border-t border-[#E7E0DA] dark:border-[#453840]">
-          <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac]">
+        <div className="px-6 py-3 border-t border-[#E7E0DA] dark:border-[#3A2E4D]">
+          <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b9aedd]">
             {filtered.length} de {todosLosProductos.length} productos
           </span>
         </div>
@@ -695,12 +695,12 @@ export const ProductosView: React.FC = () => {
       {/* ═══ MODAL VER ═══ */}
       <Dialog open={viewOpen} onOpenChange={setViewOpen}>
         <DialogContent className="max-w-2xl h-auto flex flex-col p-0 gap-0">
-          <div className="px-8 pt-6 pb-5 flex-shrink-0" style={{ background: 'linear-gradient(90deg, #241B22 0%, #7a3350 55%, #A3395C 100%)' }}>
-            <p className="text-[10px] font-bold uppercase tracking-[3px] text-[#EFD9DF] mb-1">Selenne Boutique</p>
+          <div className="px-8 pt-6 pb-5 flex-shrink-0" style={{ background: 'linear-gradient(90deg, #0A0A0A 0%, #3B0A45 55%, #5C2A52 100%)' }}>
+            <p className="text-[10px] font-bold uppercase tracking-[3px] text-[#C9A8C3] mb-1">District Store</p>
             <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xl font-bold text-white flex items-center gap-2">
               <Package className="w-5 h-5 opacity-80" /> {selectedProduct?.nombre}
             </DialogTitle>
-            <DialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-[#EFD9DF] text-sm mt-0.5">
+            <DialogDescription style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-[#C9A8C3] text-sm mt-0.5">
               {selectedProduct?.codigo && <span className="font-mono">{selectedProduct.codigo}</span>}
               {selectedProduct?.marca && <span> · {selectedProduct.marca}</span>}
             </DialogDescription>
@@ -713,20 +713,20 @@ export const ProductosView: React.FC = () => {
                 <div className="flex gap-6 items-start">
                   {selectedProduct.imagen ? (
                     <img src={selectedProduct.imagen} alt={selectedProduct.nombre}
-                      className="w-32 h-32 object-cover rounded-xl border border-[#E7E0DA] dark:border-[#453840] flex-shrink-0" />
+                      className="w-32 h-32 object-cover rounded-xl border border-[#E7E0DA] dark:border-[#3A2E4D] flex-shrink-0" />
                   ) : (
-                    <div className="w-32 h-32 bg-gray-100 dark:bg-[#362b34] rounded-xl flex items-center justify-center flex-shrink-0 border border-[#E7E0DA] dark:border-[#453840]">
+                    <div className="w-32 h-32 bg-gray-100 dark:bg-[#221830] rounded-xl flex items-center justify-center flex-shrink-0 border border-[#E7E0DA] dark:border-[#3A2E4D]">
                       <Package className="w-8 h-8 text-gray-300 dark:text-[#5a4d52]" />
                     </div>
                   )}
                   <div className="flex-1 grid grid-cols-3 gap-4">
                     {[
-                      { label: 'Precio de Costo', value: fmt(selectedProduct.precioCompra), cls: 'text-[#241B22] dark:text-[#F5EDE9]' },
-                      { label: 'Precio de Venta', value: fmt(selectedProduct.precio), cls: 'text-[#241B22] dark:text-[#F5EDE9]' },
-                      { label: 'Precio Oferta', value: selectedProduct.precioOferta ? fmt(selectedProduct.precioOferta) : 'Sin oferta', cls: selectedProduct.precioOferta ? 'text-[#A3395C]' : 'text-gray-300 dark:text-[#5a4d52]' },
+                      { label: 'Precio de Costo', value: fmt(selectedProduct.precioCompra), cls: 'text-[#0A0A0A] dark:text-[#F5F3FA]' },
+                      { label: 'Precio de Venta', value: fmt(selectedProduct.precio), cls: 'text-[#0A0A0A] dark:text-[#F5F3FA]' },
+                      { label: 'Precio Oferta', value: selectedProduct.precioOferta ? fmt(selectedProduct.precioOferta) : 'Sin oferta', cls: selectedProduct.precioOferta ? 'text-[#5C2A52]' : 'text-gray-300 dark:text-[#5a4d52]' },
                     ].map(({ label, value, cls }) => (
-                      <div key={label} className="bg-[#FBF8F5] dark:bg-[#2a2029] rounded-xl p-4">
-                        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500 dark:text-[#b8a3ac] mb-2 uppercase tracking-wide">{label}</p>
+                      <div key={label} className="bg-[#F7F5FC] dark:bg-[#17101f] rounded-xl p-4">
+                        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500 dark:text-[#b9aedd] mb-2 uppercase tracking-wide">{label}</p>
                         <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className={`text-base font-bold ${cls}`}>{value}</p>
                       </div>
                     ))}
@@ -734,9 +734,9 @@ export const ProductosView: React.FC = () => {
                 </div>
 
                 {/* Info general */}
-                <div className="bg-white dark:bg-[#322631] rounded-xl border border-[#E7E0DA] dark:border-[#453840] shadow-sm overflow-hidden">
-                  <div className="bg-[#FBF8F5] dark:bg-[#2a2029] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#453840]">
-                    <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#241B22] dark:text-[#F5EDE9] text-base flex items-center gap-2"><ClipboardList className="w-4 h-4 text-gray-400 dark:text-[#b8a3ac]" />Información General</h3>
+                <div className="bg-white dark:bg-[#1e1530] rounded-xl border border-[#E7E0DA] dark:border-[#3A2E4D] shadow-sm overflow-hidden">
+                  <div className="bg-[#F7F5FC] dark:bg-[#17101f] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#3A2E4D]">
+                    <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#0A0A0A] dark:text-[#F5F3FA] text-base flex items-center gap-2"><ClipboardList className="w-4 h-4 text-gray-400 dark:text-[#b9aedd]" />Información General</h3>
                   </div>
                   <div className="p-6 grid grid-cols-2 gap-6">
                     {[
@@ -748,8 +748,8 @@ export const ProductosView: React.FC = () => {
                       ['Materiales', selectedProduct.materiales?.join(', ') || '—'],
                     ].map(([label, value]) => (
                       <div key={label} className="flex flex-col gap-1">
-                        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500 dark:text-[#b8a3ac] font-medium uppercase">{label}</p>
-                        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#241B22] dark:text-[#F5EDE9]">{value}</p>
+                        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500 dark:text-[#b9aedd] font-medium uppercase">{label}</p>
+                        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#0A0A0A] dark:text-[#F5F3FA]">{value}</p>
                       </div>
                     ))}
                   </div>
@@ -757,24 +757,24 @@ export const ProductosView: React.FC = () => {
 
                 {/* Variantes */}
                 {selectedProduct.variantes?.length > 0 && (
-                  <div className="bg-white dark:bg-[#322631] rounded-xl border border-[#E7E0DA] dark:border-[#453840] shadow-sm overflow-hidden">
-                    <div className="bg-[#FBF8F5] dark:bg-[#2a2029] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#453840]">
-                      <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#241B22] dark:text-[#F5EDE9] text-base flex items-center gap-2"><Package className="w-4 h-4 text-gray-400 dark:text-[#b8a3ac]" />Stock por Talla y Color</h3>
+                  <div className="bg-white dark:bg-[#1e1530] rounded-xl border border-[#E7E0DA] dark:border-[#3A2E4D] shadow-sm overflow-hidden">
+                    <div className="bg-[#F7F5FC] dark:bg-[#17101f] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#3A2E4D]">
+                      <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#0A0A0A] dark:text-[#F5F3FA] text-base flex items-center gap-2"><Package className="w-4 h-4 text-gray-400 dark:text-[#b9aedd]" />Stock por Talla y Color</h3>
                     </div>
                     <div className="p-6">
                       <table className="w-full text-sm">
                         <thead>
-                          <tr className="border-b border-[#E7E0DA] dark:border-[#453840]">
-                            <th className="pb-3 text-left text-xs text-gray-500 dark:text-[#b8a3ac] uppercase font-semibold">Talla</th>
-                            <th className="pb-3 text-left text-xs text-gray-500 dark:text-[#b8a3ac] uppercase font-semibold">Color</th>
-                            <th className="pb-3 text-right text-xs text-gray-500 dark:text-[#b8a3ac] uppercase font-semibold">Stock</th>
+                          <tr className="border-b border-[#E7E0DA] dark:border-[#3A2E4D]">
+                            <th className="pb-3 text-left text-xs text-gray-500 dark:text-[#b9aedd] uppercase font-semibold">Talla</th>
+                            <th className="pb-3 text-left text-xs text-gray-500 dark:text-[#b9aedd] uppercase font-semibold">Color</th>
+                            <th className="pb-3 text-right text-xs text-gray-500 dark:text-[#b9aedd] uppercase font-semibold">Stock</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-50 dark:divide-[#453840]">
+                        <tbody className="divide-y divide-gray-50 dark:divide-[#3A2E4D]">
                           {selectedProduct.variantes.map((v, i) => (
                             <tr key={i}>
-                              <td className="py-3 text-gray-700 dark:text-[#F5EDE9] font-medium">{v.tallaNombre || '—'}</td>
-                              <td className="py-3 text-gray-700 dark:text-[#F5EDE9]">{v.colorNombre || '—'}</td>
+                              <td className="py-3 text-gray-700 dark:text-[#F5F3FA] font-medium">{v.tallaNombre || '—'}</td>
+                              <td className="py-3 text-gray-700 dark:text-[#F5F3FA]">{v.colorNombre || '—'}</td>
                               <td className="py-3 text-right">
                                 <span className={`px-2 py-1 rounded-lg text-xs font-semibold ${stockColor(v.stock)}`}>
                                   {v.stock === 0 ? 'Agotado' : v.stock}
@@ -790,12 +790,12 @@ export const ProductosView: React.FC = () => {
 
                 {/* Descripción */}
                 {selectedProduct.descripcion && (
-                  <div className="bg-white dark:bg-[#322631] rounded-xl border border-[#E7E0DA] dark:border-[#453840] shadow-sm overflow-hidden">
-                    <div className="bg-[#FBF8F5] dark:bg-[#2a2029] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#453840]">
-                      <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#241B22] dark:text-[#F5EDE9] text-base flex items-center gap-2"><FileText className="w-4 h-4 text-gray-400 dark:text-[#b8a3ac]" />Descripción</h3>
+                  <div className="bg-white dark:bg-[#1e1530] rounded-xl border border-[#E7E0DA] dark:border-[#3A2E4D] shadow-sm overflow-hidden">
+                    <div className="bg-[#F7F5FC] dark:bg-[#17101f] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#3A2E4D]">
+                      <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#0A0A0A] dark:text-[#F5F3FA] text-base flex items-center gap-2"><FileText className="w-4 h-4 text-gray-400 dark:text-[#b9aedd]" />Descripción</h3>
                     </div>
                     <div className="p-6">
-                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-700 dark:text-[#F5EDE9] leading-relaxed">{selectedProduct.descripcion}</p>
+                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-700 dark:text-[#F5F3FA] leading-relaxed">{selectedProduct.descripcion}</p>
                     </div>
                   </div>
                 )}
@@ -803,16 +803,16 @@ export const ProductosView: React.FC = () => {
               </div>
             </div>
           )}
-          <DialogFooter className="gap-2 px-8 py-5 border-t border-[#E7E0DA] dark:border-[#453840] flex-shrink-0">
+          <DialogFooter className="gap-2 px-8 py-5 border-t border-[#E7E0DA] dark:border-[#3A2E4D] flex-shrink-0">
             {puedeEditar && selectedProduct && (
               <button onClick={() => { setViewOpen(false); openEdit(selectedProduct); }}
                 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                className="px-6 py-2 bg-gradient-to-r from-[#241B22] via-[#7a3350] to-[#A3395C] text-white rounded-lg hover:opacity-90 transition">
+                className="px-6 py-2 bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] text-white rounded-lg hover:opacity-90 transition">
                 Editar
               </button>
             )}
             <button onClick={() => setViewOpen(false)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="px-6 py-2 bg-gray-100 dark:bg-[#362b34] text-gray-700 dark:text-[#F5EDE9] rounded-lg hover:bg-gray-200 dark:hover:bg-[#3a2530] transition">
+              className="px-6 py-2 bg-gray-100 dark:bg-[#221830] text-gray-700 dark:text-[#F5F3FA] rounded-lg hover:bg-gray-200 dark:hover:bg-[#241935] transition">
               Cerrar
             </button>
           </DialogFooter>
@@ -822,7 +822,7 @@ export const ProductosView: React.FC = () => {
       {/* ═══ MODAL CREAR / EDITAR ═══ */}
       <Dialog open={formOpen} onOpenChange={open => { if (!saving) setFormOpen(open); }}>
         <DialogContent className="max-w-3xl h-auto flex flex-col p-0 gap-0">
-          <DialogHeader className="px-8 pt-6 pb-4 border-b border-[#E7E0DA] dark:border-[#453840] flex-shrink-0">
+          <DialogHeader className="px-8 pt-6 pb-4 border-b border-[#E7E0DA] dark:border-[#3A2E4D] flex-shrink-0">
             <DialogTitle style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-2xl">
               {isEditing ? 'Editar Producto' : 'Nuevo Producto'}
             </DialogTitle>
@@ -832,7 +832,7 @@ export const ProductosView: React.FC = () => {
           </DialogHeader>
 
           {/* Tabs */}
-          <div className="flex border-b border-[#E7E0DA] dark:border-[#453840] px-8 flex-shrink-0">
+          <div className="flex border-b border-[#E7E0DA] dark:border-[#3A2E4D] px-8 flex-shrink-0">
             {[
               { key: 'info', label: 'Información y Precios' },
               { key: 'variantes', label: 'Tallas, Colores y Stock' },
@@ -840,7 +840,7 @@ export const ProductosView: React.FC = () => {
             ].map(tab => (
               <button key={tab.key} onClick={() => setActiveTab(tab.key as any)}
                 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                className={`px-5 py-3 text-sm font-medium border-b-2 transition ${activeTab === tab.key ? 'border-[#A3395C] text-[#A3395C]' : 'border-transparent text-gray-500 dark:text-[#b8a3ac] hover:text-gray-700 dark:text-[#F5EDE9] dark:hover:text-[#F5EDE9]'}`}>
+                className={`px-5 py-3 text-sm font-medium border-b-2 transition ${activeTab === tab.key ? 'border-[#5C2A52] text-[#5C2A52]' : 'border-transparent text-gray-500 dark:text-[#b9aedd] hover:text-gray-700 dark:text-[#F5F3FA] dark:hover:text-[#F5F3FA]'}`}>
                 {tab.label}
               </button>
             ))}
@@ -853,29 +853,29 @@ export const ProductosView: React.FC = () => {
               {activeTab === 'info' && (
                 <div key="info" className="animate-fade-slide-in space-y-6">
                   {/* Sección: Datos básicos + Foto */}
-                  <div className="bg-white dark:bg-[#322631] rounded-xl border border-[#E7E0DA] dark:border-[#453840] shadow-sm overflow-hidden">
-                    <div className="bg-[#FBF8F5] dark:bg-[#2a2029] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#453840]">
-                      <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#241B22] dark:text-[#F5EDE9] text-base">📋 Datos del Artículo</h3>
+                  <div className="bg-white dark:bg-[#1e1530] rounded-xl border border-[#E7E0DA] dark:border-[#3A2E4D] shadow-sm overflow-hidden">
+                    <div className="bg-[#F7F5FC] dark:bg-[#17101f] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#3A2E4D]">
+                      <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#0A0A0A] dark:text-[#F5F3FA] text-base">📋 Datos del Artículo</h3>
                     </div>
                     <div className="p-6">
                       <div className="flex gap-6 items-start">
                         {/* Foto */}
                         <div className="flex-shrink-0">
-                          <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 dark:text-[#F5EDE9] mb-2 block">Foto</Label>
+                          <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 dark:text-[#F5F3FA] mb-2 block">Foto</Label>
                           <label className={`relative flex flex-col items-center justify-center w-32 h-32 rounded-xl border-2 border-dashed cursor-pointer transition overflow-hidden group ${
-                            currentImageSrc ? 'border-transparent' : 'border-gray-300 dark:border-[#453840] hover:border-[#A3395C] bg-[#FBF8F5] dark:bg-[#2a2029] hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530]'
+                            currentImageSrc ? 'border-transparent' : 'border-gray-300 dark:border-[#3A2E4D] hover:border-[#5C2A52] bg-[#F7F5FC] dark:bg-[#17101f] hover:bg-[#C9A8C3] dark:hover:bg-[#241935]'
                           } ${uploadingImg ? 'opacity-60 pointer-events-none' : ''}`}>
                             {currentImageSrc ? (
                               <>
                                 <img src={currentImageSrc} alt="preview" className="w-full h-full object-cover" />
-                                <div className="absolute inset-0 bg-[#241B22]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <div className="absolute inset-0 bg-[#0A0A0A]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                   <Upload className="w-5 h-5 text-white" />
                                 </div>
                               </>
                             ) : (
                               <div className="flex flex-col items-center gap-1 pointer-events-none">
-                                {uploadingImg ? <Loader2 className="w-6 h-6 text-[#A3395C] animate-spin" /> : <ImageIcon className="w-7 h-7 text-gray-300 dark:text-[#5a4d52]" />}
-                                <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac] text-center px-2">
+                                {uploadingImg ? <Loader2 className="w-6 h-6 text-[#5C2A52] animate-spin" /> : <ImageIcon className="w-7 h-7 text-gray-300 dark:text-[#5a4d52]" />}
+                                <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b9aedd] text-center px-2">
                                   {uploadingImg ? 'Subiendo...' : 'Subir foto'}
                                 </p>
                               </div>
@@ -891,39 +891,39 @@ export const ProductosView: React.FC = () => {
                               Quitar
                             </button>
                           )}
-                          <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac] text-center mt-1">JPG, PNG · 5MB</p>
+                          <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b9aedd] text-center mt-1">JPG, PNG · 5MB</p>
                         </div>
 
                         {/* Campos */}
                         <div className="flex-1 grid grid-cols-2 gap-4">
                           <div className="col-span-2">
-                            <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 dark:text-[#F5EDE9] mb-1 block">Nombre <span className="text-red-500">*</span></Label>
+                            <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 dark:text-[#F5F3FA] mb-1 block">Nombre <span className="text-red-500">*</span></Label>
                             <Input value={form.nombre} onChange={e => setForm(f => ({ ...f, nombre: e.target.value }))}
-                              placeholder="Ej: Vestido Floral Primavera" className="h-10 border-gray-300 dark:border-[#453840]" />
+                              placeholder="Ej: Vestido Floral Primavera" className="h-10 border-gray-300 dark:border-[#3A2E4D]" />
                           </div>
                           <div>
-                            <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 dark:text-[#F5EDE9] mb-1 block">Referencia / Código</Label>
+                            <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 dark:text-[#F5F3FA] mb-1 block">Referencia / Código</Label>
                             <Input value={form.codigo} onChange={e => setForm(f => ({ ...f, codigo: e.target.value }))}
-                              placeholder="Ej: VES-001" className="h-10 border-gray-300 dark:border-[#453840] font-mono" />
+                              placeholder="Ej: VES-001" className="h-10 border-gray-300 dark:border-[#3A2E4D] font-mono" />
                           </div>
                           <div>
-                            <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 dark:text-[#F5EDE9] mb-1 block">Categoría <span className="text-red-500">*</span></Label>
+                            <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 dark:text-[#F5F3FA] mb-1 block">Categoría <span className="text-red-500">*</span></Label>
                             <Select value={form.categoriaPrincipalID} onValueChange={v => setForm(f => ({ ...f, categoriaPrincipalID: v }))}>
-                              <SelectTrigger className="h-10 border-gray-300 dark:border-[#453840]"><SelectValue placeholder="Selecciona..." /></SelectTrigger>
+                              <SelectTrigger className="h-10 border-gray-300 dark:border-[#3A2E4D]"><SelectValue placeholder="Selecciona..." /></SelectTrigger>
                               <SelectContent>{categorias.map((c: any) => <SelectItem key={c.id} value={String(c.id)}>{c.nombre}</SelectItem>)}</SelectContent>
                             </Select>
                           </div>
                           <div>
-                            <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 dark:text-[#F5EDE9] mb-1 block">Marca</Label>
+                            <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 dark:text-[#F5F3FA] mb-1 block">Marca</Label>
                             <Select value={form.marcaID} onValueChange={v => setForm(f => ({ ...f, marcaID: v }))}>
-                              <SelectTrigger className="h-10 border-gray-300 dark:border-[#453840]"><SelectValue placeholder="Selecciona..." /></SelectTrigger>
+                              <SelectTrigger className="h-10 border-gray-300 dark:border-[#3A2E4D]"><SelectValue placeholder="Selecciona..." /></SelectTrigger>
                               <SelectContent>{marcas.map((m: any) => <SelectItem key={m.id} value={String(m.id)}>{m.nombre}</SelectItem>)}</SelectContent>
                             </Select>
                           </div>
                           <div>
-                            <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 dark:text-[#F5EDE9] mb-1 block">Tipo de Prenda</Label>
+                            <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 dark:text-[#F5F3FA] mb-1 block">Tipo de Prenda</Label>
                             <Select value={form.tipoProductoID} onValueChange={v => setForm(f => ({ ...f, tipoProductoID: v }))}>
-                              <SelectTrigger className="h-10 border-gray-300 dark:border-[#453840]"><SelectValue placeholder="Selecciona..." /></SelectTrigger>
+                              <SelectTrigger className="h-10 border-gray-300 dark:border-[#3A2E4D]"><SelectValue placeholder="Selecciona..." /></SelectTrigger>
                               <SelectContent>{tiposProducto.map((t: any) => <SelectItem key={t.id} value={String(t.id)}>{t.nombre}</SelectItem>)}</SelectContent>
                             </Select>
                           </div>
@@ -932,17 +932,17 @@ export const ProductosView: React.FC = () => {
 
                       {/* Descripción */}
                       <div className="mt-4">
-                        <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 dark:text-[#F5EDE9] mb-1 block">Descripción</Label>
+                        <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 dark:text-[#F5F3FA] mb-1 block">Descripción</Label>
                         <Textarea value={form.descripcion} onChange={e => setForm(f => ({ ...f, descripcion: e.target.value }))}
-                          placeholder="Describe el artículo: tela, diseño, ocasión de uso..." className="border-gray-300 dark:border-[#453840] resize-none" rows={2} />
+                          placeholder="Describe el artículo: tela, diseño, ocasión de uso..." className="border-gray-300 dark:border-[#3A2E4D] resize-none" rows={2} />
                       </div>
                     </div>
                   </div>
 
                   {/* Sección: Precios */}
-                  <div className="bg-white dark:bg-[#322631] rounded-xl border border-[#E7E0DA] dark:border-[#453840] shadow-sm overflow-hidden">
-                    <div className="bg-[#FBF8F5] dark:bg-[#2a2029] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#453840]">
-                      <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#241B22] dark:text-[#F5EDE9] text-base flex items-center gap-2"><Tag className="w-4 h-4 text-gray-400 dark:text-[#b8a3ac]" />Precios y Stock</h3>
+                  <div className="bg-white dark:bg-[#1e1530] rounded-xl border border-[#E7E0DA] dark:border-[#3A2E4D] shadow-sm overflow-hidden">
+                    <div className="bg-[#F7F5FC] dark:bg-[#17101f] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#3A2E4D]">
+                      <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#0A0A0A] dark:text-[#F5F3FA] text-base flex items-center gap-2"><Tag className="w-4 h-4 text-gray-400 dark:text-[#b9aedd]" />Precios y Stock</h3>
                     </div>
                     <div className="p-6">
                       <div className="grid grid-cols-3 gap-4 mb-4">
@@ -953,14 +953,14 @@ export const ProductosView: React.FC = () => {
                         <PriceCard label="Precio Oferta" value={form.precioOferta} note="Opcional" color="pink"
                           onChange={v => setForm(f => ({ ...f, precioOferta: v }))} />
                       </div>
-                      <div className="flex items-center gap-4 pt-4 border-t border-[#E7E0DA] dark:border-[#453840]">
+                      <div className="flex items-center gap-4 pt-4 border-t border-[#E7E0DA] dark:border-[#3A2E4D]">
                         <div className="flex-1">
-                          <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 dark:text-[#F5EDE9]">Stock general</p>
-                          <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac] mt-0.5">Si usas variantes por talla/color, el stock se suma automáticamente.</p>
+                          <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 dark:text-[#F5F3FA]">Stock general</p>
+                          <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b9aedd] mt-0.5">Si usas variantes por talla/color, el stock se suma automáticamente.</p>
                         </div>
                         <Input type="number" min="0" value={form.stock}
                           onChange={e => setForm(f => ({ ...f, stock: e.target.value }))}
-                          className="w-24 h-10 border-gray-300 dark:border-[#453840] text-center font-semibold" />
+                          className="w-24 h-10 border-gray-300 dark:border-[#3A2E4D] text-center font-semibold" />
                       </div>
                     </div>
                   </div>
@@ -971,44 +971,44 @@ export const ProductosView: React.FC = () => {
               {activeTab === 'variantes' && (
                 <div key="variantes" className="animate-fade-slide-in space-y-6">
                   {/* Tallas */}
-                  <div className="bg-white dark:bg-[#322631] rounded-xl border border-[#E7E0DA] dark:border-[#453840] shadow-sm overflow-hidden">
-                    <div className="bg-[#FBF8F5] dark:bg-[#2a2029] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#453840]">
-                      <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#241B22] dark:text-[#F5EDE9] text-base flex items-center gap-2"><Ruler className="w-4 h-4 text-gray-400 dark:text-[#b8a3ac]" />Tallas disponibles</h3>
+                  <div className="bg-white dark:bg-[#1e1530] rounded-xl border border-[#E7E0DA] dark:border-[#3A2E4D] shadow-sm overflow-hidden">
+                    <div className="bg-[#F7F5FC] dark:bg-[#17101f] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#3A2E4D]">
+                      <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#0A0A0A] dark:text-[#F5F3FA] text-base flex items-center gap-2"><Ruler className="w-4 h-4 text-gray-400 dark:text-[#b9aedd]" />Tallas disponibles</h3>
                     </div>
                     <div className="p-6 flex flex-wrap gap-3">
                       {tallas.map((t: any) => (
                         <button key={t.id} onClick={() => toggleTalla(t.nombre)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                          className={`px-5 py-2 rounded-lg text-sm border font-medium transition ${form.tallasSeleccionadas.includes(t.nombre) ? 'bg-[#241B22] text-white border-[#241B22]' : 'bg-white dark:bg-[#322631] text-gray-600 dark:text-[#b8a3ac] border-[#E7E0DA] dark:border-[#453840] hover:border-gray-400 dark:hover:border-[#5a4d52]'}`}>
+                          className={`px-5 py-2 rounded-lg text-sm border font-medium transition ${form.tallasSeleccionadas.includes(t.nombre) ? 'bg-[#0A0A0A] text-white border-[#0A0A0A]' : 'bg-white dark:bg-[#1e1530] text-gray-600 dark:text-[#b9aedd] border-[#E7E0DA] dark:border-[#3A2E4D] hover:border-gray-400 dark:hover:border-[#5a4d52]'}`}>
                           {t.nombre}
                         </button>
                       ))}
-                      {tallas.length === 0 && <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-400 dark:text-[#b8a3ac]">No hay tallas registradas.</p>}
+                      {tallas.length === 0 && <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-400 dark:text-[#b9aedd]">No hay tallas registradas.</p>}
                     </div>
                   </div>
 
                   {/* Colores */}
-                  <div className="bg-white dark:bg-[#322631] rounded-xl border border-[#E7E0DA] dark:border-[#453840] shadow-sm overflow-hidden">
-                    <div className="bg-[#FBF8F5] dark:bg-[#2a2029] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#453840]">
-                      <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#241B22] dark:text-[#F5EDE9] text-base flex items-center gap-2"><Palette className="w-4 h-4 text-gray-400 dark:text-[#b8a3ac]" />Colores disponibles</h3>
+                  <div className="bg-white dark:bg-[#1e1530] rounded-xl border border-[#E7E0DA] dark:border-[#3A2E4D] shadow-sm overflow-hidden">
+                    <div className="bg-[#F7F5FC] dark:bg-[#17101f] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#3A2E4D]">
+                      <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#0A0A0A] dark:text-[#F5F3FA] text-base flex items-center gap-2"><Palette className="w-4 h-4 text-gray-400 dark:text-[#b9aedd]" />Colores disponibles</h3>
                     </div>
                     <div className="p-6 flex flex-wrap gap-3">
                       {colores.map((c: any) => (
                         <button key={c.id} onClick={() => toggleColor(c.nombre)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm border transition ${form.coloresSeleccionados.includes(c.nombre) ? 'border-[#A3395C] bg-[#EFD9DF] dark:bg-[#3a2530] text-[#A3395C]' : 'bg-white dark:bg-[#322631] border-[#E7E0DA] dark:border-[#453840] text-gray-600 dark:text-[#b8a3ac] hover:border-gray-400 dark:hover:border-[#5a4d52]'}`}>
-                          {c.codigoHex && <span className="w-4 h-4 rounded-full border border-[#E7E0DA] dark:border-[#453840] flex-shrink-0" style={{ background: c.codigoHex }} />}
+                          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm border transition ${form.coloresSeleccionados.includes(c.nombre) ? 'border-[#5C2A52] bg-[#C9A8C3] dark:bg-[#241935] text-[#5C2A52]' : 'bg-white dark:bg-[#1e1530] border-[#E7E0DA] dark:border-[#3A2E4D] text-gray-600 dark:text-[#b9aedd] hover:border-gray-400 dark:hover:border-[#5a4d52]'}`}>
+                          {c.codigoHex && <span className="w-4 h-4 rounded-full border border-[#E7E0DA] dark:border-[#3A2E4D] flex-shrink-0" style={{ background: c.codigoHex }} />}
                           {c.nombre}
                         </button>
                       ))}
-                      {colores.length === 0 && <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-400 dark:text-[#b8a3ac]">No hay colores registrados.</p>}
+                      {colores.length === 0 && <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-400 dark:text-[#b9aedd]">No hay colores registrados.</p>}
                     </div>
                   </div>
 
                   {/* Stock por combinación */}
                   {form.variantes.length > 0 ? (
-                    <div className="bg-white dark:bg-[#322631] rounded-xl border border-[#E7E0DA] dark:border-[#453840] shadow-sm overflow-hidden">
-                      <div className="bg-[#FBF8F5] dark:bg-[#2a2029] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#453840]">
-                        <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#241B22] dark:text-[#F5EDE9] text-base flex items-center gap-2">
-                          <Package className="w-4 h-4 text-gray-400 dark:text-[#b8a3ac]" />Stock por combinación <span className="font-normal text-gray-400 dark:text-[#b8a3ac] text-sm">· {form.variantes.length} variantes</span>
+                    <div className="bg-white dark:bg-[#1e1530] rounded-xl border border-[#E7E0DA] dark:border-[#3A2E4D] shadow-sm overflow-hidden">
+                      <div className="bg-[#F7F5FC] dark:bg-[#17101f] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#3A2E4D]">
+                        <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#0A0A0A] dark:text-[#F5F3FA] text-base flex items-center gap-2">
+                          <Package className="w-4 h-4 text-gray-400 dark:text-[#b9aedd]" />Stock por combinación <span className="font-normal text-gray-400 dark:text-[#b9aedd] text-sm">· {form.variantes.length} variantes</span>
                         </h3>
                         {(() => {
                           const total = Number(form.stock) || 0;
@@ -1016,7 +1016,7 @@ export const ProductosView: React.FC = () => {
                           const restante = total - usado;
                           if (total === 0) return null;
                           return (
-                            <p className={`text-xs mt-1 font-medium ${restante < 0 ? 'text-red-500' : restante === 0 ? 'text-emerald-600' : 'text-gray-500 dark:text-[#b8a3ac]'}`}>
+                            <p className={`text-xs mt-1 font-medium ${restante < 0 ? 'text-red-500' : restante === 0 ? 'text-emerald-600' : 'text-gray-500 dark:text-[#b9aedd]'}`}>
                               {usado} / {total} unidades distribuidas{restante > 0 ? ` · ${restante} disponibles` : restante < 0 ? ` · ${Math.abs(restante)} excedidos` : ' · completo'}
                             </p>
                           );
@@ -1025,21 +1025,21 @@ export const ProductosView: React.FC = () => {
                       <div className="p-6">
                         <table className="w-full text-sm">
                           <thead>
-                            <tr className="border-b border-[#E7E0DA] dark:border-[#453840]">
-                              <th className="pb-3 text-left text-xs text-gray-500 dark:text-[#b8a3ac] uppercase font-semibold">Talla</th>
-                              <th className="pb-3 text-left text-xs text-gray-500 dark:text-[#b8a3ac] uppercase font-semibold">Color</th>
-                              <th className="pb-3 text-right text-xs text-gray-500 dark:text-[#b8a3ac] uppercase font-semibold">Stock (unidades)</th>
+                            <tr className="border-b border-[#E7E0DA] dark:border-[#3A2E4D]">
+                              <th className="pb-3 text-left text-xs text-gray-500 dark:text-[#b9aedd] uppercase font-semibold">Talla</th>
+                              <th className="pb-3 text-left text-xs text-gray-500 dark:text-[#b9aedd] uppercase font-semibold">Color</th>
+                              <th className="pb-3 text-right text-xs text-gray-500 dark:text-[#b9aedd] uppercase font-semibold">Stock (unidades)</th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y divide-gray-50 dark:divide-[#453840]">
+                          <tbody className="divide-y divide-gray-50 dark:divide-[#3A2E4D]">
                             {form.variantes.map((v, i) => (
                               <tr key={i}>
-                                <td className="py-3 font-medium text-gray-700 dark:text-[#F5EDE9]">{v.tallaNombre || '—'}</td>
-                                <td className="py-3 text-gray-700 dark:text-[#F5EDE9]">{v.colorNombre || <span className="text-gray-400 dark:text-[#b8a3ac] italic text-xs">sin color</span>}</td>
+                                <td className="py-3 font-medium text-gray-700 dark:text-[#F5F3FA]">{v.tallaNombre || '—'}</td>
+                                <td className="py-3 text-gray-700 dark:text-[#F5F3FA]">{v.colorNombre || <span className="text-gray-400 dark:text-[#b9aedd] italic text-xs">sin color</span>}</td>
                                 <td className="py-3 text-right">
                                   <Input type="number" min="0" value={v.stock}
                                     onChange={e => updateStock(v.tallaNombre, v.colorNombre, Number(e.target.value))}
-                                    className="h-8 w-24 ml-auto border-gray-300 dark:border-[#453840] text-center text-sm" />
+                                    className="h-8 w-24 ml-auto border-gray-300 dark:border-[#3A2E4D] text-center text-sm" />
                                 </td>
                               </tr>
                             ))}
@@ -1048,16 +1048,16 @@ export const ProductosView: React.FC = () => {
                       </div>
                     </div>
                   ) : (
-                    <div className="text-center py-12 bg-[#FBF8F5] dark:bg-[#2a2029] rounded-xl border-2 border-dashed border-[#E7E0DA] dark:border-[#453840]">
+                    <div className="text-center py-12 bg-[#F7F5FC] dark:bg-[#17101f] rounded-xl border-2 border-dashed border-[#E7E0DA] dark:border-[#3A2E4D]">
                       <Package className="w-10 h-10 mx-auto mb-2 text-gray-300 dark:text-[#5a4d52]" />
-                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-400 dark:text-[#b8a3ac]">Selecciona al menos una talla para configurar el stock por variante</p>
+                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-400 dark:text-[#b9aedd]">Selecciona al menos una talla para configurar el stock por variante</p>
                     </div>
                   )}
 
                   {/* Materiales */}
-                  <div className="bg-white dark:bg-[#322631] rounded-xl border border-[#E7E0DA] dark:border-[#453840] shadow-sm overflow-hidden">
-                    <div className="bg-[#FBF8F5] dark:bg-[#2a2029] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#453840]">
-                      <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#241B22] dark:text-[#F5EDE9] text-base flex items-center gap-2"><Layers className="w-4 h-4 text-gray-400 dark:text-[#b8a3ac]" />Materiales / Composición</h3>
+                  <div className="bg-white dark:bg-[#1e1530] rounded-xl border border-[#E7E0DA] dark:border-[#3A2E4D] shadow-sm overflow-hidden">
+                    <div className="bg-[#F7F5FC] dark:bg-[#17101f] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#3A2E4D]">
+                      <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#0A0A0A] dark:text-[#F5F3FA] text-base flex items-center gap-2"><Layers className="w-4 h-4 text-gray-400 dark:text-[#b9aedd]" />Materiales / Composición</h3>
                     </div>
                     <div className="p-6 flex flex-wrap gap-3">
                       {materiales.map((m: any) => (
@@ -1067,11 +1067,11 @@ export const ProductosView: React.FC = () => {
                             ? f.materialesSeleccionados.filter(x => x !== m.nombre)
                             : [...f.materialesSeleccionados, m.nombre]
                         }))} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                          className={`px-4 py-2 rounded-lg text-sm border transition ${form.materialesSeleccionados.includes(m.nombre) ? 'bg-[#A3395C] text-white border-[#A3395C]' : 'bg-white dark:bg-[#322631] text-gray-600 dark:text-[#b8a3ac] border-[#E7E0DA] dark:border-[#453840] hover:border-[#A3395C]'}`}>
+                          className={`px-4 py-2 rounded-lg text-sm border transition ${form.materialesSeleccionados.includes(m.nombre) ? 'bg-[#5C2A52] text-white border-[#5C2A52]' : 'bg-white dark:bg-[#1e1530] text-gray-600 dark:text-[#b9aedd] border-[#E7E0DA] dark:border-[#3A2E4D] hover:border-[#5C2A52]'}`}>
                           {m.nombre}
                         </button>
                       ))}
-                      {materiales.length === 0 && <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-400 dark:text-[#b8a3ac]">No hay materiales registrados.</p>}
+                      {materiales.length === 0 && <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-400 dark:text-[#b9aedd]">No hay materiales registrados.</p>}
                     </div>
                   </div>
                 </div>
@@ -1081,25 +1081,25 @@ export const ProductosView: React.FC = () => {
               {activeTab === 'imagenes' && (
                 <div key="imagenes" className="animate-fade-slide-in space-y-6">
                   {/* Imagen principal */}
-                  <div className="bg-white dark:bg-[#322631] rounded-xl border border-[#E7E0DA] dark:border-[#453840] shadow-sm overflow-hidden">
-                    <div className="bg-[#FBF8F5] dark:bg-[#2a2029] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#453840]">
-                      <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#241B22] dark:text-[#F5EDE9] text-base flex items-center gap-2"><ImageIcon className="w-4 h-4 text-gray-400 dark:text-[#b8a3ac]" />Imagen Principal</h3>
-                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac] mt-1">La imagen que se muestra en la lista de productos</p>
+                  <div className="bg-white dark:bg-[#1e1530] rounded-xl border border-[#E7E0DA] dark:border-[#3A2E4D] shadow-sm overflow-hidden">
+                    <div className="bg-[#F7F5FC] dark:bg-[#17101f] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#3A2E4D]">
+                      <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#0A0A0A] dark:text-[#F5F3FA] text-base flex items-center gap-2"><ImageIcon className="w-4 h-4 text-gray-400 dark:text-[#b9aedd]" />Imagen Principal</h3>
+                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b9aedd] mt-1">La imagen que se muestra en la lista de productos</p>
                     </div>
                     <div className="p-6 flex items-start gap-4">
                       {(imagePreview || form.imagenPrincipal) ? (
                         <img
                           src={imagePreview || (form.imagenPrincipal.startsWith('http') ? form.imagenPrincipal : `${apiBase}${form.imagenPrincipal}`)}
                           alt="Principal"
-                          className="w-24 h-24 object-cover rounded-xl border border-[#E7E0DA] dark:border-[#453840]"
+                          className="w-24 h-24 object-cover rounded-xl border border-[#E7E0DA] dark:border-[#3A2E4D]"
                         />
                       ) : (
-                        <div className="w-24 h-24 bg-gray-100 dark:bg-[#362b34] rounded-xl border-2 border-dashed border-[#E7E0DA] dark:border-[#453840] flex items-center justify-center">
+                        <div className="w-24 h-24 bg-gray-100 dark:bg-[#221830] rounded-xl border-2 border-dashed border-[#E7E0DA] dark:border-[#3A2E4D] flex items-center justify-center">
                           <ImageIcon className="w-8 h-8 text-gray-300 dark:text-[#5a4d52]" />
                         </div>
                       )}
                       <div className="flex flex-col gap-2">
-                        <label className="cursor-pointer px-4 py-2 bg-gray-100 dark:bg-[#362b34] hover:bg-gray-200 dark:hover:bg-[#3a2530] text-gray-700 dark:text-[#F5EDE9] rounded-lg text-sm font-medium transition flex items-center gap-2" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                        <label className="cursor-pointer px-4 py-2 bg-gray-100 dark:bg-[#221830] hover:bg-gray-200 dark:hover:bg-[#241935] text-gray-700 dark:text-[#F5F3FA] rounded-lg text-sm font-medium transition flex items-center gap-2" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                           <Upload className="w-4 h-4" />
                           {uploadingImg ? 'Subiendo...' : 'Cambiar imagen'}
                           <input type="file" accept="image/jpeg,image/jpg,image/png,image/webp" className="hidden"
@@ -1113,21 +1113,21 @@ export const ProductosView: React.FC = () => {
                             Quitar imagen
                           </button>
                         )}
-                        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac]">JPG, PNG, WebP · máx. 5MB</p>
+                        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b9aedd]">JPG, PNG, WebP · máx. 5MB</p>
                       </div>
                     </div>
                   </div>
 
                   {/* Imágenes por color */}
-                  <div className="bg-white dark:bg-[#322631] rounded-xl border border-[#E7E0DA] dark:border-[#453840] shadow-sm overflow-hidden">
-                    <div className="bg-[#FBF8F5] dark:bg-[#2a2029] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#453840]">
-                      <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#241B22] dark:text-[#F5EDE9] text-base flex items-center gap-2"><Palette className="w-4 h-4 text-gray-400 dark:text-[#b8a3ac]" />Imágenes por Color</h3>
-                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac] mt-1">Sube aquí todas las fotos de este producto. Cuando el cliente elija un color, verá solo las fotos que subiste para ese color — sube al menos una foto por cada color para que ninguna quede escondida.</p>
+                  <div className="bg-white dark:bg-[#1e1530] rounded-xl border border-[#E7E0DA] dark:border-[#3A2E4D] shadow-sm overflow-hidden">
+                    <div className="bg-[#F7F5FC] dark:bg-[#17101f] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#3A2E4D]">
+                      <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#0A0A0A] dark:text-[#F5F3FA] text-base flex items-center gap-2"><Palette className="w-4 h-4 text-gray-400 dark:text-[#b9aedd]" />Imágenes por Color</h3>
+                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b9aedd] mt-1">Sube aquí todas las fotos de este producto. Cuando el cliente elija un color, verá solo las fotos que subiste para ese color — sube al menos una foto por cada color para que ninguna quede escondida.</p>
                     </div>
                     <div className="p-6">
                       {form.coloresSeleccionados.length === 0 ? (
-                        <div className="text-center py-10 bg-[#FBF8F5] dark:bg-[#2a2029] rounded-xl border-2 border-dashed border-[#E7E0DA] dark:border-[#453840]">
-                          <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-400 dark:text-[#b8a3ac]">
+                        <div className="text-center py-10 bg-[#F7F5FC] dark:bg-[#17101f] rounded-xl border-2 border-dashed border-[#E7E0DA] dark:border-[#3A2E4D]">
+                          <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-400 dark:text-[#b9aedd]">
                             Primero selecciona los colores en la pestaña <strong>"Tallas, Colores y Stock"</strong>
                           </p>
                         </div>
@@ -1139,11 +1139,11 @@ export const ProductosView: React.FC = () => {
                             const imgs = form.imagenesPorColor[colorNombre] || [];
                             const subiendo = uploadingColorImg === colorNombre;
                             return (
-                              <div key={colorNombre} className="border border-[#E7E0DA] dark:border-[#453840] rounded-xl p-4">
+                              <div key={colorNombre} className="border border-[#E7E0DA] dark:border-[#3A2E4D] rounded-xl p-4">
                                 <div className="flex items-center gap-2 mb-3">
-                                  <span className="w-5 h-5 rounded-full border border-[#E7E0DA] dark:border-[#453840] flex-shrink-0" style={{ background: hex }} />
-                                  <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-gray-700 dark:text-[#F5EDE9]">{colorNombre}</span>
-                                  <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac]">({imgs.length} foto{imgs.length !== 1 ? 's' : ''})</span>
+                                  <span className="w-5 h-5 rounded-full border border-[#E7E0DA] dark:border-[#3A2E4D] flex-shrink-0" style={{ background: hex }} />
+                                  <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-gray-700 dark:text-[#F5F3FA]">{colorNombre}</span>
+                                  <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b9aedd]">({imgs.length} foto{imgs.length !== 1 ? 's' : ''})</span>
                                 </div>
                                 <div className="flex flex-wrap gap-3">
                                   {imgs.map(url => (
@@ -1151,7 +1151,7 @@ export const ProductosView: React.FC = () => {
                                       <img
                                         src={url.startsWith('http') ? url : `${apiBase}${url}`}
                                         alt={colorNombre}
-                                        className="w-20 h-20 object-cover rounded-lg border border-[#E7E0DA] dark:border-[#453840]"
+                                        className="w-20 h-20 object-cover rounded-lg border border-[#E7E0DA] dark:border-[#3A2E4D]"
                                       />
                                       <button
                                         onClick={() => quitarImagenColor(colorNombre, url)}
@@ -1161,10 +1161,10 @@ export const ProductosView: React.FC = () => {
                                       </button>
                                     </div>
                                   ))}
-                                  <label className={`w-20 h-20 border-2 border-dashed rounded-lg flex flex-col items-center justify-center cursor-pointer transition ${subiendo ? 'border-[#E7E0DA] dark:border-[#453840] bg-[#FBF8F5] dark:bg-[#2a2029]' : 'border-gray-300 dark:border-[#453840] hover:border-[#A3395C] hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530]'}`}>
+                                  <label className={`w-20 h-20 border-2 border-dashed rounded-lg flex flex-col items-center justify-center cursor-pointer transition ${subiendo ? 'border-[#E7E0DA] dark:border-[#3A2E4D] bg-[#F7F5FC] dark:bg-[#17101f]' : 'border-gray-300 dark:border-[#3A2E4D] hover:border-[#5C2A52] hover:bg-[#C9A8C3] dark:hover:bg-[#241935]'}`}>
                                     {subiendo
-                                      ? <Loader2 className="w-5 h-5 text-[#A3395C] animate-spin" />
-                                      : <><Plus className="w-5 h-5 text-gray-400 dark:text-[#b8a3ac]" /><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac] mt-1">Agregar</span></>
+                                      ? <Loader2 className="w-5 h-5 text-[#5C2A52] animate-spin" />
+                                      : <><Plus className="w-5 h-5 text-gray-400 dark:text-[#b9aedd]" /><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b9aedd] mt-1">Agregar</span></>
                                     }
                                     <input type="file" accept="image/jpeg,image/jpg,image/png,image/webp" className="hidden"
                                       disabled={!!uploadingColorImg}
@@ -1181,10 +1181,10 @@ export const ProductosView: React.FC = () => {
 
                   {/* Galería sin color específico: solo aplica a productos sin colores (ej. accesorios con Talla Única) */}
                   {form.coloresSeleccionados.length === 0 && (
-                    <div className="bg-white dark:bg-[#322631] rounded-xl border border-[#E7E0DA] dark:border-[#453840] shadow-sm overflow-hidden">
-                      <div className="bg-[#FBF8F5] dark:bg-[#2a2029] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#453840]">
-                        <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#241B22] dark:text-[#F5EDE9] text-base flex items-center gap-2"><ImageIcon className="w-4 h-4 text-gray-400 dark:text-[#b8a3ac]" />Galería de fotos</h3>
-                        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac] mt-1">Este producto no tiene colores, así que estas son todas sus fotos de la galería</p>
+                    <div className="bg-white dark:bg-[#1e1530] rounded-xl border border-[#E7E0DA] dark:border-[#3A2E4D] shadow-sm overflow-hidden">
+                      <div className="bg-[#F7F5FC] dark:bg-[#17101f] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#3A2E4D]">
+                        <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#0A0A0A] dark:text-[#F5F3FA] text-base flex items-center gap-2"><ImageIcon className="w-4 h-4 text-gray-400 dark:text-[#b9aedd]" />Galería de fotos</h3>
+                        <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b9aedd] mt-1">Este producto no tiene colores, así que estas son todas sus fotos de la galería</p>
                       </div>
                       <div className="p-6">
                         <div className="flex flex-wrap gap-3">
@@ -1193,7 +1193,7 @@ export const ProductosView: React.FC = () => {
                               <img
                                 src={url.startsWith('http') ? url : `${apiBase}${url}`}
                                 alt="adicional"
-                                className="w-20 h-20 object-cover rounded-lg border border-[#E7E0DA] dark:border-[#453840]"
+                                className="w-20 h-20 object-cover rounded-lg border border-[#E7E0DA] dark:border-[#3A2E4D]"
                               />
                               <button
                                 onClick={() => quitarImagenAdicional(url)}
@@ -1203,10 +1203,10 @@ export const ProductosView: React.FC = () => {
                               </button>
                             </div>
                           ))}
-                          <label className={`w-20 h-20 border-2 border-dashed rounded-lg flex flex-col items-center justify-center cursor-pointer transition ${uploadingAdicional ? 'border-[#E7E0DA] dark:border-[#453840] bg-[#FBF8F5] dark:bg-[#2a2029]' : 'border-gray-300 dark:border-[#453840] hover:border-[#A3395C] hover:bg-[#EFD9DF] dark:hover:bg-[#3a2530]'}`}>
+                          <label className={`w-20 h-20 border-2 border-dashed rounded-lg flex flex-col items-center justify-center cursor-pointer transition ${uploadingAdicional ? 'border-[#E7E0DA] dark:border-[#3A2E4D] bg-[#F7F5FC] dark:bg-[#17101f]' : 'border-gray-300 dark:border-[#3A2E4D] hover:border-[#5C2A52] hover:bg-[#C9A8C3] dark:hover:bg-[#241935]'}`}>
                             {uploadingAdicional
-                              ? <Loader2 className="w-5 h-5 text-[#A3395C] animate-spin" />
-                              : <><Plus className="w-5 h-5 text-gray-400 dark:text-[#b8a3ac]" /><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b8a3ac] mt-1">Agregar</span></>
+                              ? <Loader2 className="w-5 h-5 text-[#5C2A52] animate-spin" />
+                              : <><Plus className="w-5 h-5 text-gray-400 dark:text-[#b9aedd]" /><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b9aedd] mt-1">Agregar</span></>
                             }
                             <input type="file" accept="image/jpeg,image/jpg,image/png,image/webp" className="hidden"
                               disabled={uploadingAdicional}
@@ -1231,13 +1231,13 @@ export const ProductosView: React.FC = () => {
             </div>
           </div>
 
-          <DialogFooter className="gap-2 px-8 py-5 border-t border-[#E7E0DA] dark:border-[#453840] flex-shrink-0">
+          <DialogFooter className="gap-2 px-8 py-5 border-t border-[#E7E0DA] dark:border-[#3A2E4D] flex-shrink-0">
             <button onClick={() => setFormOpen(false)} disabled={saving} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="px-6 py-2 bg-gray-100 dark:bg-[#362b34] text-gray-700 dark:text-[#F5EDE9] rounded-lg hover:bg-gray-200 dark:hover:bg-[#3a2530] transition disabled:opacity-50">
+              className="px-6 py-2 bg-gray-100 dark:bg-[#221830] text-gray-700 dark:text-[#F5F3FA] rounded-lg hover:bg-gray-200 dark:hover:bg-[#241935] transition disabled:opacity-50">
               Cancelar
             </button>
             <button onClick={guardar} disabled={saving || uploadingImg} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="px-6 py-2 bg-gradient-to-r from-[#241B22] via-[#7a3350] to-[#A3395C] text-white rounded-lg hover:opacity-90 disabled:opacity-50 flex items-center gap-2 transition">
+              className="px-6 py-2 bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] text-white rounded-lg hover:opacity-90 disabled:opacity-50 flex items-center gap-2 transition">
               {(saving || uploadingImg) && <Loader2 className="w-4 h-4 animate-spin" />}
               {isEditing ? 'Guardar Cambios' : 'Crear Producto'}
             </button>

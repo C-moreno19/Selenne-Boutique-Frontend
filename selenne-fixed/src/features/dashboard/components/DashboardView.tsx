@@ -108,13 +108,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onLogout }) => {
         <div className="flex items-center justify-center min-h-[70vh]">
           <div className="text-center max-w-md mx-auto px-6">
             <div className="mb-6 text-7xl">🔒</div>
-            <h2 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-3xl text-[#241B22] dark:text-[#F5EDE9] mb-3">
+            <h2 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-3xl text-[#0A0A0A] dark:text-[#F5F3FA] mb-3">
               Sin acceso
             </h2>
-            <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-500 dark:text-[#b8a3ac] mb-2">
+            <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-500 dark:text-[#b9aedd] mb-2">
               No tienes permisos para ver esta sección.
             </p>
-            <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-400 dark:text-[#b8a3ac] text-sm">
+            <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-400 dark:text-[#b9aedd] text-sm">
               Pídele al administrador que te asigne los permisos necesarios.
             </p>
           </div>
@@ -176,7 +176,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onLogout }) => {
   };
 
   return (
-    <div className="admin-panel min-h-screen bg-[#FBF8F5] dark:bg-[#2a2029]">
+    <div className="admin-panel min-h-screen bg-[#F7F5FC] dark:bg-[#17101f]">
       {/* Sidebar Izquierdo */}
       <DashboardSidebar
         currentSection={currentSection}
