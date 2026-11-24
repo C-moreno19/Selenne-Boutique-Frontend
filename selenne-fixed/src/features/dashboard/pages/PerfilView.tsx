@@ -113,7 +113,7 @@ export const PerfilView: React.FC = () => {
   };
 
   const fieldClass = (error?: string) =>
-    `w-full pl-10 pr-3 h-[42px] text-sm border rounded-xl focus:outline-none focus:ring-2 transition-all ${
+    `w-full pl-10 pr-3 h-[42px] text-sm border rounded-none focus:outline-none focus:ring-2 transition-all ${
       error ? 'border-red-300 dark:border-red-900/50 focus:ring-red-200 dark:focus:ring-red-900/30 bg-red-50 dark:bg-red-950/40' : 'border-[#E7E0DA] dark:border-[#3A2E4D] focus:ring-[#5C2A52]/30 focus:border-[#5C2A52]'
     }`;
 
@@ -130,7 +130,7 @@ export const PerfilView: React.FC = () => {
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 mb-4">
         <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500 dark:text-[#b9aedd]">Dashboard</span>
-        <ChevronRight className="w-4 h-4 text-gray-400 dark:text-[#b9aedd]" />
+        <ChevronRight className="w-4 h-4 text-[#C9A8C3]" />
         <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-[#0A0A0A] dark:text-[#F5F3FA]">Perfil</span>
       </div>
 
@@ -144,7 +144,7 @@ export const PerfilView: React.FC = () => {
 
         {/* Columna izquierda: resumen de cuenta */}
         <div className="lg:col-span-1">
-          <div className="bg-white dark:bg-[#1e1530] rounded-xl border border-[#E7E0DA] dark:border-[#3A2E4D] overflow-hidden" style={{ boxShadow: '0 2px 12px rgba(214, 83, 145, 0.07)' }}>
+          <div className="bg-white dark:bg-[#1e1530] rounded-none border border-[#E7E0DA] dark:border-[#3A2E4D] overflow-hidden" style={{ boxShadow: '0 2px 12px rgba(214, 83, 145, 0.07)' }}>
             <div className="bg-gradient-to-br from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] px-6 py-8 flex flex-col items-center text-center">
               <div className="w-20 h-20 rounded-full bg-white/15 border-2 border-white/40 flex items-center justify-center text-white text-2xl font-bold mb-3" style={{ fontFamily: '"Playfair Display", Georgia, serif' }}>
                 {iniciales}
@@ -162,7 +162,7 @@ export const PerfilView: React.FC = () => {
                   setEditModalOpen(true);
                 }}
                 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                className="w-full px-4 py-2.5 bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] text-white rounded-lg hover:opacity-90 flex items-center justify-center gap-2 transition text-sm font-medium"
+                className="w-full px-4 py-2.5 bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] text-white rounded-none hover:opacity-90 flex items-center justify-center gap-2 transition text-sm font-medium"
               >
                 <Edit className="w-4 h-4" /> Editar Perfil
               </button>
@@ -174,9 +174,9 @@ export const PerfilView: React.FC = () => {
         <div className="lg:col-span-2 space-y-6">
 
           {/* Informacion personal */}
-          <div className="bg-white dark:bg-[#1e1530] rounded-xl border border-[#E7E0DA] dark:border-[#3A2E4D] overflow-hidden" style={{ boxShadow: '0 2px 12px rgba(214, 83, 145, 0.07)' }}>
-            <div className="bg-[#F7F5FC] dark:bg-[#17101f] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#3A2E4D]">
-              <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#0A0A0A] dark:text-[#F5F3FA] text-base">Información Personal</h3>
+          <div className="bg-white dark:bg-[#1e1530] rounded-none border border-[#E7E0DA] dark:border-[#3A2E4D] overflow-hidden" style={{ boxShadow: '0 2px 12px rgba(214, 83, 145, 0.07)' }}>
+            <div className="bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] px-6 py-4">
+              <h3 style={{ fontFamily: '"Playfair Display", Georgia, serif' }} className="font-semibold text-white text-base">Información Personal</h3>
             </div>
             <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-5">
               {[
@@ -187,7 +187,7 @@ export const PerfilView: React.FC = () => {
                 { icon: IdCard,  label: 'Documento de identidad', value: profileData.documento || '—' },
               ].map(({ icon: Icon, label, value }) => (
                 <div key={label} className="flex items-start gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-[#C9A8C3] dark:bg-[#241935] flex items-center justify-center flex-shrink-0">
+                  <div className="w-9 h-9 rounded-none bg-[#C9A8C3] dark:bg-[#241935] flex items-center justify-center flex-shrink-0">
                     <Icon className="w-4 h-4 text-[#5C2A52]" />
                   </div>
                   <div className="min-w-0">
@@ -200,9 +200,9 @@ export const PerfilView: React.FC = () => {
           </div>
 
           {/* Seguridad */}
-          <div className="bg-white dark:bg-[#1e1530] rounded-xl border border-[#E7E0DA] dark:border-[#3A2E4D] overflow-hidden" style={{ boxShadow: '0 2px 12px rgba(214, 83, 145, 0.07)' }}>
-            <div className="bg-[#F7F5FC] dark:bg-[#17101f] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#3A2E4D]">
-              <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#0A0A0A] dark:text-[#F5F3FA] text-base">Seguridad</h3>
+          <div className="bg-white dark:bg-[#1e1530] rounded-none border border-[#E7E0DA] dark:border-[#3A2E4D] overflow-hidden" style={{ boxShadow: '0 2px 12px rgba(214, 83, 145, 0.07)' }}>
+            <div className="bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] px-6 py-4">
+              <h3 style={{ fontFamily: '"Playfair Display", Georgia, serif' }} className="font-semibold text-white text-base">Seguridad</h3>
             </div>
             <div className="divide-y divide-gray-100 dark:divide-[#3A2E4D]">
               <button
@@ -210,7 +210,7 @@ export const PerfilView: React.FC = () => {
                 className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-[#F7F5FC] dark:hover:bg-[#221830] transition group"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-[#C9A8C3] dark:bg-[#241935] flex items-center justify-center flex-shrink-0">
+                  <div className="w-9 h-9 rounded-none bg-[#C9A8C3] dark:bg-[#241935] flex items-center justify-center flex-shrink-0">
                     <Lock className="w-4 h-4 text-[#5C2A52]" />
                   </div>
                   <div>
@@ -222,7 +222,7 @@ export const PerfilView: React.FC = () => {
               </button>
               <div className="px-6 py-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-[#C9A8C3] dark:bg-[#241935] flex items-center justify-center flex-shrink-0">
+                  <div className="w-9 h-9 rounded-none bg-[#C9A8C3] dark:bg-[#241935] flex items-center justify-center flex-shrink-0">
                     <Bell className="w-4 h-4 text-[#5C2A52]" />
                   </div>
                   <div>
@@ -266,9 +266,9 @@ export const PerfilView: React.FC = () => {
           <div className="flex-1 overflow-y-auto">
             <div className="space-y-4 sm:space-y-6 py-4 sm:py-6 px-5 sm:px-8">
               {/* Datos de cuenta */}
-              <div className="bg-white dark:bg-[#1e1530] rounded-xl border border-[#E7E0DA] dark:border-[#3A2E4D] shadow-sm overflow-hidden">
+              <div className="bg-white dark:bg-[#1e1530] rounded-none border border-[#E7E0DA] dark:border-[#3A2E4D] shadow-sm overflow-hidden">
                 <div className="bg-[#F7F5FC] dark:bg-[#17101f] px-5 sm:px-6 py-3 sm:py-4 border-b border-[#E7E0DA] dark:border-[#3A2E4D]">
-                  <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#0A0A0A] dark:text-[#F5F3FA] text-base">Datos de Cuenta</h3>
+                  <h3 style={{ fontFamily: '"Playfair Display", Georgia, serif' }} className="font-semibold text-white text-base">Datos de Cuenta</h3>
                 </div>
                 <div className="p-5 sm:p-6 flex flex-col gap-4 sm:gap-5">
                   <div>
@@ -357,9 +357,9 @@ export const PerfilView: React.FC = () => {
               </div>
 
               {/* Ubicación */}
-              <div className="bg-white dark:bg-[#1e1530] rounded-xl border border-[#E7E0DA] dark:border-[#3A2E4D] shadow-sm overflow-hidden">
+              <div className="bg-white dark:bg-[#1e1530] rounded-none border border-[#E7E0DA] dark:border-[#3A2E4D] shadow-sm overflow-hidden">
                 <div className="bg-[#F7F5FC] dark:bg-[#17101f] px-5 sm:px-6 py-3 sm:py-4 border-b border-[#E7E0DA] dark:border-[#3A2E4D]">
-                  <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#0A0A0A] dark:text-[#F5F3FA] text-base">Ubicación</h3>
+                  <h3 style={{ fontFamily: '"Playfair Display", Georgia, serif' }} className="font-semibold text-white text-base">Ubicación</h3>
                 </div>
                 <div className="p-5 sm:p-6 flex flex-col gap-4 sm:gap-5">
                   <div>
@@ -372,7 +372,7 @@ export const PerfilView: React.FC = () => {
                         value={formData.ciudad}
                         onChange={(e) => setFormData({ ...formData, ciudad: e.target.value })}
                         style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                        className="w-full pl-10 pr-8 h-[42px] text-sm border border-[#E7E0DA] dark:border-[#3A2E4D] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#5C2A52]/30 focus:border-[#5C2A52] transition-all appearance-none bg-white dark:bg-[#1e1530] text-[#0A0A0A] dark:text-[#F5F3FA]"
+                        className="w-full pl-10 pr-8 h-[42px] text-sm border border-[#E7E0DA] dark:border-[#3A2E4D] rounded-none focus:outline-none focus:ring-2 focus:ring-[#5C2A52]/30 focus:border-[#5C2A52] transition-all appearance-none bg-white dark:bg-[#1e1530] text-[#0A0A0A] dark:text-[#F5F3FA]"
                       >
                         <option value="">Selecciona una ciudad</option>
                         {CIUDADES_COLOMBIA.sort().map((c) => (
@@ -390,7 +390,7 @@ export const PerfilView: React.FC = () => {
                       <MapPin className={`absolute left-3 top-3 w-4 h-4 ${errors.address ? 'text-red-400' : 'text-[#5C2A52]'}`} />
                       <textarea value={formData.address} onChange={(e) => { setFormData({ ...formData, address: e.target.value }); setErrors({ ...errors, address: '' }); }}
                         style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                        className={`w-full pl-10 pr-3 py-2.5 text-sm border rounded-xl focus:outline-none focus:ring-2 min-h-[42px] max-h-[80px] resize-none transition-all ${errors.address ? 'border-red-300 dark:border-red-900/50 focus:ring-red-200 dark:focus:ring-red-900/30 bg-red-50 dark:bg-red-950/40' : 'border-[#E7E0DA] dark:border-[#3A2E4D] focus:ring-[#5C2A52]/30 focus:border-[#5C2A52]'}`}
+                        className={`w-full pl-10 pr-3 py-2.5 text-sm border rounded-none focus:outline-none focus:ring-2 min-h-[42px] max-h-[80px] resize-none transition-all ${errors.address ? 'border-red-300 dark:border-red-900/50 focus:ring-red-200 dark:focus:ring-red-900/30 bg-red-50 dark:bg-red-950/40' : 'border-[#E7E0DA] dark:border-[#3A2E4D] focus:ring-[#5C2A52]/30 focus:border-[#5C2A52]'}`}
                         placeholder="Calle 123 # 45-67, Barrio..." />
                     </div>
                     {errors.address && <p className="text-xs text-red-500 mt-1" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>{errors.address}</p>}
@@ -402,11 +402,11 @@ export const PerfilView: React.FC = () => {
 
           <DialogFooter className="gap-2 px-5 sm:px-8 py-3 sm:py-5 border-t border-[#E7E0DA] dark:border-[#3A2E4D] flex-shrink-0">
             <button onClick={() => setEditModalOpen(false)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="px-6 py-2 bg-gray-100 dark:bg-[#221830] text-gray-700 dark:text-[#F5F3FA] rounded-lg hover:bg-gray-200 dark:hover:bg-[#241935] transition">
+              className="px-6 py-2 bg-gray-100 dark:bg-[#221830] text-gray-700 dark:text-[#F5F3FA] rounded-none hover:bg-gray-200 dark:hover:bg-[#241935] transition">
               Cancelar
             </button>
             <button onClick={handleSaveProfile} disabled={saving} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="px-6 py-2 bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] text-white rounded-lg hover:opacity-90 disabled:opacity-50 flex items-center gap-2 transition">
+              className="px-6 py-2 bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] text-white rounded-none hover:opacity-90 disabled:opacity-50 flex items-center gap-2 transition">
               {saving && <Loader2 className="w-4 h-4 animate-spin" />}
               {saving ? 'Guardando...' : 'Guardar Cambios'}
             </button>
@@ -416,7 +416,7 @@ export const PerfilView: React.FC = () => {
 
       {/* ── Modal Cambiar Contraseña ── */}
       <Dialog open={passwordModalOpen} onOpenChange={setPasswordModalOpen}>
-        <DialogContent hideCloseButton className="max-w-md p-0 rounded-2xl">
+        <DialogContent hideCloseButton className="max-w-md p-0 rounded-none">
           {/* Header */}
           <div className="bg-[#C9A8C3] dark:bg-[#241935] border-b border-pink-100 dark:border-[#4a3540] px-6 py-5 flex items-center gap-4">
             <div className="w-12 h-12 bg-[#0A0A0A] rounded-full flex items-center justify-center flex-shrink-0">
@@ -451,7 +451,7 @@ export const PerfilView: React.FC = () => {
                     onChange={(e) => setPasswordData({ ...passwordData, [key]: e.target.value })}
                     placeholder={placeholder}
                     style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                    className="w-full pl-10 pr-10 h-[42px] text-sm border border-[#E7E0DA] dark:border-[#3A2E4D] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#5C2A52]/30 focus:border-[#5C2A52] transition-all"
+                    className="w-full pl-10 pr-10 h-[42px] text-sm border border-[#E7E0DA] dark:border-[#3A2E4D] rounded-none focus:outline-none focus:ring-2 focus:ring-[#5C2A52]/30 focus:border-[#5C2A52] transition-all"
                   />
                   <button type="button" aria-label={showPasswords[key as keyof typeof showPasswords] ? 'Ocultar contraseña' : 'Mostrar contraseña'} onClick={() => setShowPasswords({ ...showPasswords, [key]: !showPasswords[key as keyof typeof showPasswords] })}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-[#b9aedd] hover:text-gray-600 dark:hover:text-[#F5F3FA] transition">
@@ -484,11 +484,11 @@ export const PerfilView: React.FC = () => {
           <div className="px-6 py-4 bg-[#F7F5FC] dark:bg-[#17101f] border-t border-[#E7E0DA] dark:border-[#3A2E4D] flex justify-end gap-3">
             <button onClick={() => { setPasswordModalOpen(false); setPasswordData({ current: '', new: '', confirm: '' }); }}
               style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="px-5 h-[40px] text-sm bg-white dark:bg-[#1e1530] border border-[#E7E0DA] dark:border-[#3A2E4D] text-gray-700 dark:text-[#F5F3FA] rounded-xl hover:bg-gray-100 dark:hover:bg-[#221830] transition flex items-center gap-2">
+              className="px-5 h-[40px] text-sm bg-white dark:bg-[#1e1530] border border-[#E7E0DA] dark:border-[#3A2E4D] text-gray-700 dark:text-[#F5F3FA] rounded-none hover:bg-gray-100 dark:hover:bg-[#221830] transition flex items-center gap-2">
               <X className="w-4 h-4" /> Cancelar
             </button>
             <button onClick={handleChangePassword} disabled={saving} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="px-5 h-[40px] text-sm bg-gradient-to-r from-[#5C2A52] to-[#C9A8C3] text-white rounded-xl hover:opacity-90 transition-all flex items-center gap-2 shadow-sm disabled:opacity-60 disabled:cursor-not-allowed">
+              className="px-5 h-[40px] text-sm bg-gradient-to-r from-[#5C2A52] to-[#C9A8C3] text-white rounded-none hover:opacity-90 transition-all flex items-center gap-2 shadow-sm disabled:opacity-60 disabled:cursor-not-allowed">
               <Lock className="w-4 h-4" />
               {saving ? 'Guardando...' : 'Cambiar Contraseña'}
             </button>

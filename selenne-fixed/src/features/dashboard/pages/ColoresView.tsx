@@ -61,7 +61,7 @@ export const ColoresView: React.FC = () => {
     <div className="p-8 bg-[#F7F5FC] dark:bg-[#17101f] min-h-screen">
       <div className="flex items-center gap-2 mb-4">
         <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500 dark:text-[#b9aedd]">Dashboard</span>
-        <ChevronRight className="w-4 h-4 text-gray-400 dark:text-[#b9aedd]" />
+        <ChevronRight className="w-4 h-4 text-[#C9A8C3]" />
         <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-[#0A0A0A] dark:text-[#F5F3FA]">Colores</span>
       </div>
       <div className="flex items-center justify-between mb-6">
@@ -71,22 +71,22 @@ export const ColoresView: React.FC = () => {
         </div>
         {puedeCrear && (
           <button onClick={openCreate} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-            className="px-6 py-3 bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] text-white rounded-lg hover:opacity-90 flex items-center gap-2 transition">
+            className="px-6 py-3 bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] text-white rounded-none hover:opacity-90 flex items-center gap-2 transition">
             <Plus className="w-5 h-5" /> Nuevo Color
           </button>
         )}
       </div>
 
-      <div className="bg-white dark:bg-[#1e1530] rounded-xl p-6 border border-[#E7E0DA] dark:border-[#3A2E4D] mb-6" style={{ boxShadow: '0 2px 12px rgba(214, 83, 145, 0.07)' }}>
+      <div className="bg-white dark:bg-[#1e1530] rounded-none p-6 border border-[#E7E0DA] dark:border-[#3A2E4D] mb-6" style={{ boxShadow: '0 2px 12px rgba(214, 83, 145, 0.07)' }}>
         <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-[#b9aedd]" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#C9A8C3]" />
           <input type="text" placeholder="Buscar colores..." value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-            className="w-full pl-12 pr-4 py-3 bg-[#F7F5FC] dark:bg-[#17101f] border border-[#E7E0DA] dark:border-[#3A2E4D] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C2A52]" />
+            className="w-full pl-12 pr-4 py-3 bg-[#F7F5FC] dark:bg-[#17101f] border border-[#E7E0DA] dark:border-[#3A2E4D] rounded-none focus:outline-none focus:ring-2 focus:ring-[#5C2A52]" />
         </div>
       </div>
 
-      <div className="bg-white dark:bg-[#1e1530] rounded-xl border border-[#E7E0DA] dark:border-[#3A2E4D] overflow-hidden" style={{ boxShadow: '0 2px 12px rgba(214, 83, 145, 0.07)' }}>
+      <div className="bg-white dark:bg-[#1e1530] rounded-none border border-[#E7E0DA] dark:border-[#3A2E4D] overflow-hidden" style={{ boxShadow: '0 2px 12px rgba(214, 83, 145, 0.07)' }}>
         <table className="w-full">
           <thead className="bg-[#F7F5FC] dark:bg-[#17101f] border-b border-[#E7E0DA] dark:border-[#3A2E4D]">
             <tr>
@@ -113,13 +113,13 @@ export const ColoresView: React.FC = () => {
                   <div className="flex items-center justify-end gap-2">
                     {puedeEditar && (
                       <button onClick={() => openEdit(item)}
-                        className="p-2 text-gray-500 dark:text-[#b9aedd] hover:bg-[#C9A8C3] dark:hover:bg-[#241935] hover:text-[#5C2A52] rounded-lg transition" title="Editar">
+                        className="p-2 text-gray-500 dark:text-[#b9aedd] hover:bg-[#C9A8C3] dark:hover:bg-[#241935] hover:text-[#5C2A52] rounded-none transition" title="Editar">
                         <Edit className="w-5 h-5" />
                       </button>
                     )}
                     {puedeEliminar && (
                       <button onClick={() => { setSelected(item); setDeleteOpen(true); }}
-                        className="p-2 text-gray-500 dark:text-[#b9aedd] hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-600 dark:hover:text-red-400 rounded-lg transition" title="Eliminar">
+                        className="p-2 text-gray-500 dark:text-[#b9aedd] hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-600 dark:hover:text-red-400 rounded-none transition" title="Eliminar">
                         <Trash2 className="w-5 h-5" />
                       </button>
                     )}
@@ -152,9 +152,9 @@ export const ColoresView: React.FC = () => {
           </DialogHeader>
           <div className="flex-1 overflow-y-auto">
             <div className="space-y-6 py-6 px-8">
-              <div className="bg-white dark:bg-[#1e1530] rounded-xl border border-[#E7E0DA] dark:border-[#3A2E4D] shadow-sm overflow-hidden">
-                <div className="bg-[#F7F5FC] dark:bg-[#17101f] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#3A2E4D]">
-                  <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#0A0A0A] dark:text-[#F5F3FA] text-base">Información</h3>
+              <div className="bg-white dark:bg-[#1e1530] rounded-none border border-[#E7E0DA] dark:border-[#3A2E4D] shadow-sm overflow-hidden">
+                <div className="bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] px-6 py-4">
+                  <h3 style={{ fontFamily: '"Playfair Display", Georgia, serif' }} className="font-semibold text-white text-base">Información</h3>
                 </div>
                 <div className="p-6 flex flex-col gap-5">
                   <div className="flex flex-col gap-2">
@@ -166,7 +166,7 @@ export const ColoresView: React.FC = () => {
                     <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 dark:text-[#F5F3FA]">Color</Label>
                     <div className="flex items-center gap-4">
                       <input type="color" value={hexColor} onChange={e => setHexColor(e.target.value)}
-                        className="w-16 h-10 border border-gray-300 dark:border-[#3A2E4D] rounded-lg cursor-pointer" />
+                        className="w-16 h-10 border border-gray-300 dark:border-[#3A2E4D] rounded-none cursor-pointer" />
                       <div className="w-10 h-10 rounded-full border-2 border-[#E7E0DA] dark:border-[#3A2E4D] shadow-sm" style={{ backgroundColor: hexColor }} />
                       <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500 dark:text-[#b9aedd] font-mono">{hexColor}</span>
                     </div>
@@ -177,9 +177,9 @@ export const ColoresView: React.FC = () => {
           </div>
           <DialogFooter className="gap-2 px-8 py-5 border-t border-[#E7E0DA] dark:border-[#3A2E4D] flex-shrink-0">
             <button onClick={() => setFormOpen(false)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="px-6 py-2 bg-gray-100 dark:bg-[#221830] text-gray-700 dark:text-[#F5F3FA] rounded-lg hover:bg-gray-200 dark:hover:bg-[#241935] transition">Cancelar</button>
+              className="px-6 py-2 bg-gray-100 dark:bg-[#221830] text-gray-700 dark:text-[#F5F3FA] rounded-none hover:bg-gray-200 dark:hover:bg-[#241935] transition">Cancelar</button>
             <button onClick={guardar} disabled={saving} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="px-6 py-2 bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] text-white rounded-lg hover:opacity-90 disabled:opacity-50 flex items-center gap-2 transition">
+              className="px-6 py-2 bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] text-white rounded-none hover:opacity-90 disabled:opacity-50 flex items-center gap-2 transition">
               {saving && <Loader2 className="w-4 h-4 animate-spin" />}
               {isEditing ? 'Guardar Cambios' : 'Crear Color'}
             </button>

@@ -23,7 +23,6 @@ import { Estrellas } from "../../components/Estrellas";
 import { CarritoSheet } from "../../components/CarritoSheet";
 import { FavoritosSheet } from "../../components/FavoritosSheet";
 import { useProductosCombinados } from "../../shared/data/useProductosCombinados";
-import { PRODUCTOS_EJEMPLO } from "../../shared/data/productosEjemplo";
 import { useTienda } from "../../shared/contexts/TiendaContext";
 import { useSubcategorias } from "../../shared/contexts/SubcategoriasContext";
 import { useAuth } from "../../shared/contexts/AuthContext";
@@ -51,8 +50,7 @@ export const ProductoDetalleView: React.FC = () => {
     getTotalCarrito,
   } = useTienda();
 
-  const producto = productosData.find((p) => p.id === Number(id))
-    ?? PRODUCTOS_EJEMPLO.find((p) => p.id === Number(id));
+  const producto = productosData.find((p) => p.id === Number(id));
 
   const [tallaSeleccionada, setTallaSeleccionada] = useState("");
   const [colorSeleccionado, setColorSeleccionado] = useState("");

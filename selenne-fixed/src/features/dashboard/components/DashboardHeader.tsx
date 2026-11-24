@@ -66,7 +66,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           <div className="flex items-center gap-4">
             <button
               onClick={toggleSidebar}
-              className="p-2 text-gray-600 dark:text-[#b9aedd] hover:bg-gray-100 dark:hover:bg-[#241935] rounded-lg transition"
+              className="p-2 text-gray-600 dark:text-[#b9aedd] hover:bg-gray-100 dark:hover:bg-[#241935] rounded-none transition"
               aria-label="Toggle sidebar"
             >
               <Menu className="w-6 h-6" />
@@ -91,7 +91,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                className="w-full pl-12 pr-4 py-3 bg-[#F7F5FC] dark:bg-[#17101f] dark:text-[#F5F3FA] dark:placeholder-[#b9aedd] border border-[#E7E0DA] dark:border-[#3A2E4D] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C2A52] focus:border-transparent transition-all"
+                className="w-full pl-12 pr-4 py-3 bg-[#F7F5FC] dark:bg-[#17101f] dark:text-[#F5F3FA] dark:placeholder-[#b9aedd] border border-[#E7E0DA] dark:border-[#3A2E4D] rounded-none focus:outline-none focus:ring-2 focus:ring-[#5C2A52] focus:border-transparent transition-all"
               />
             </div>
           </div>
@@ -101,7 +101,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
             {/* Mensajes / Notificaciones unificado */}
             <button
               onClick={() => setMessagesOpen(true)}
-              className="relative p-2.5 text-gray-600 dark:text-[#b9aedd] hover:bg-[#F7F5FC] dark:hover:bg-[#17101f] rounded-lg transition"
+              className="relative p-2.5 text-gray-600 dark:text-[#b9aedd] hover:bg-[#F7F5FC] dark:hover:bg-[#17101f] rounded-none transition"
               title="Mensajes y notificaciones"
             >
               <Bell className="w-5 h-5" />
@@ -119,7 +119,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
             <div className="relative">
               <button
                 onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#F7F5FC] dark:hover:bg-[#17101f] transition"
+                className="flex items-center gap-3 px-3 py-2 rounded-none hover:bg-[#F7F5FC] dark:hover:bg-[#17101f] transition"
               >
                 <div className="w-10 h-10 bg-gradient-to-br from-[#5C2A52] to-[#C9A8C3] rounded-full flex items-center justify-center">
                   <User className="w-5 h-5 text-white" />
@@ -141,7 +141,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                     className="fixed inset-0 z-40" 
                     onClick={() => setIsUserMenuOpen(false)}
                   />
-                  <div className="absolute top-full right-0 mt-2 bg-white dark:bg-[#1e1530] rounded-lg shadow-lg border border-[#E7E0DA] dark:border-[#3A2E4D] py-2 min-w-[220px] z-50">
+                  <div className="absolute top-full right-0 mt-2 bg-white dark:bg-[#1e1530] rounded-none shadow-lg border border-[#E7E0DA] dark:border-[#3A2E4D] py-2 min-w-[220px] z-50">
                     <button
                       onClick={() => {
                         onSectionChange('perfil');
@@ -175,16 +175,16 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
       {/* Modal de Mensajes / Actividad reciente */}
       <Dialog open={messagesOpen} onOpenChange={(v) => { setMessagesOpen(v); if (v) cargar(); }}>
         <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col p-0 gap-0">
-          <DialogHeader className="px-8 pt-6 pb-4 border-b border-[#E7E0DA] dark:border-[#3A2E4D] flex-shrink-0">
+          <DialogHeader className="px-8 pt-6 pb-5 flex-shrink-0" style={{ background: 'linear-gradient(90deg, #0A0A0A 0%, #3B0A45 55%, #5C2A52 100%)' }}>
             <div className="flex items-center gap-2">
-              <DialogTitle style={{ fontFamily: FONT_SANS }} className="text-2xl">
+              <DialogTitle style={{ fontFamily: '"Playfair Display", Georgia, serif' }} className="text-2xl text-white">
                 Actividad reciente
               </DialogTitle>
-              <button onClick={cargar} className="p-1.5 hover:bg-[#F7F5FC] dark:hover:bg-[#241935] rounded-lg transition" title="Actualizar">
-                <Loader2 className={`w-4 h-4 text-gray-400 dark:text-[#b9aedd] ${loading ? 'animate-spin' : ''}`} />
+              <button onClick={cargar} className="p-1.5 hover:bg-white/10 rounded-none transition" title="Actualizar">
+                <Loader2 className={`w-4 h-4 text-[#C9A8C3] ${loading ? 'animate-spin' : ''}`} />
               </button>
             </div>
-            <DialogDescription style={{ fontFamily: FONT_SANS }}>
+            <DialogDescription style={{ fontFamily: FONT_SANS }} className="text-[#C9A8C3]">
               Pedidos nuevos, usuarios registrados y alertas de stock
             </DialogDescription>
           </DialogHeader>
@@ -192,13 +192,23 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           <div className="flex-1 overflow-y-auto">
             <div className="space-y-3 py-6 px-8">
               {loading && notificaciones.length === 0 ? (
-                <div className="flex flex-col items-center py-16 gap-3">
-                  <Loader2 className="w-7 h-7 animate-spin text-[#5C2A52]" />
-                  <p style={{ fontFamily: FONT_SANS }} className="text-sm text-gray-400 dark:text-[#b9aedd]">Cargando actividad...</p>
+                <div className="space-y-3">
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <div key={i} className="flex items-start gap-3 p-4 border border-[#E7E0DA] dark:border-[#3A2E4D] animate-pulse">
+                      <div className="w-10 h-10 bg-[#F7F5FC] dark:bg-[#241935] flex-shrink-0" />
+                      <div className="flex-1 space-y-2">
+                        <div className="h-3 w-1/3 bg-[#F7F5FC] dark:bg-[#241935]" />
+                        <div className="h-3 w-2/3 bg-[#F7F5FC] dark:bg-[#241935]" />
+                      </div>
+                    </div>
+                  ))}
+                  <p style={{ fontFamily: FONT_SANS }} className="text-center text-xs text-gray-400 dark:text-[#b9aedd] pt-2">
+                    El servidor puede tardar unos segundos en despertar si nadie lo usó en un rato.
+                  </p>
                 </div>
               ) : notificaciones.length === 0 ? (
                 <div className="text-center py-16">
-                  <div className="w-16 h-16 bg-[#fdf2f8] dark:bg-[#241935] rounded-full flex items-center justify-center mx-auto mb-4">
+                  <div className="w-16 h-16 bg-[#F7F5FC] dark:bg-[#241935] flex items-center justify-center mx-auto mb-4">
                     <Bell className="w-7 h-7 text-[#5C2A52]" />
                   </div>
                   <p style={{ fontFamily: FONT_SANS }} className="text-sm text-gray-400 dark:text-[#b9aedd]">
@@ -230,7 +240,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
               <button
                 onClick={marcarTodas}
                 style={{ fontFamily: FONT_SANS }}
-                className="flex items-center gap-2 px-6 py-2 bg-gray-100 dark:bg-[#221830] text-gray-700 dark:text-[#F5F3FA] rounded-lg hover:bg-gray-200 dark:hover:bg-[#241935] transition"
+                className="flex items-center gap-2 px-6 py-2 bg-gray-100 dark:bg-[#221830] text-gray-700 dark:text-[#F5F3FA] rounded-none hover:bg-gray-200 dark:hover:bg-[#241935] transition"
               >
                 <CheckCheck className="w-4 h-4" /> Marcar todo leído
               </button>
@@ -238,7 +248,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
             <button
               onClick={() => setMessagesOpen(false)}
               style={{ fontFamily: FONT_SANS }}
-              className="px-6 py-2 bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] text-white rounded-lg hover:opacity-90 transition"
+              className="px-6 py-2 bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] text-white rounded-none hover:opacity-90 transition"
             >
               Cerrar
             </button>

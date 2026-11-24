@@ -404,7 +404,7 @@ export const UsuariosView: React.FC = () => {
     <div className="p-8 bg-[#F7F5FC] dark:bg-[#17101f] min-h-screen">
       <div className="flex items-center gap-2 mb-4">
         <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500 dark:text-[#b9aedd]">Dashboard</span>
-        <ChevronRight className="w-4 h-4 text-gray-400 dark:text-[#b9aedd]" />
+        <ChevronRight className="w-4 h-4 text-[#C9A8C3]" />
         <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-[#0A0A0A] dark:text-[#F5F3FA]">Gestión de Usuarios</span>
       </div>
       <div className="mb-6">
@@ -416,26 +416,26 @@ export const UsuariosView: React.FC = () => {
       </div>
 
       <div className="space-y-6">
-        <div className="bg-white dark:bg-[#1e1530] rounded-xl p-6 shadow-sm border border-[#E7E0DA] dark:border-[#3A2E4D]">
+        <div className="bg-white dark:bg-[#1e1530] rounded-none p-6 shadow-sm border border-[#E7E0DA] dark:border-[#3A2E4D]">
           <div className="flex flex-col lg:flex-row gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-[#b9aedd]" />
-              <input type="text" placeholder="Buscar por nombre, email o rol..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="w-full pl-12 pr-4 py-3 bg-[#F7F5FC] dark:bg-[#17101f] border border-[#E7E0DA] dark:border-[#3A2E4D] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C2A52]" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#C9A8C3]" />
+              <input type="text" placeholder="Buscar por nombre, email o rol..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="w-full pl-12 pr-4 py-3 bg-[#F7F5FC] dark:bg-[#17101f] border border-[#E7E0DA] dark:border-[#3A2E4D] rounded-none focus:outline-none focus:ring-2 focus:ring-[#5C2A52]" />
             </div>
             <div className="flex gap-3">
-              <button onClick={() => { setLoading(true); loadUsers().finally(() => setLoading(false)); }} className="px-4 py-3 bg-white dark:bg-[#1e1530] border border-[#E7E0DA] dark:border-[#3A2E4D] text-gray-700 dark:text-[#F5F3FA] rounded-lg hover:bg-[#F7F5FC] dark:hover:bg-[#221830] transition">
+              <button onClick={() => { setLoading(true); loadUsers().finally(() => setLoading(false)); }} className="px-4 py-3 bg-white dark:bg-[#1e1530] border border-[#E7E0DA] dark:border-[#3A2E4D] text-gray-700 dark:text-[#F5F3FA] rounded-none hover:bg-[#F7F5FC] dark:hover:bg-[#221830] transition">
                 <RefreshCw className="w-5 h-5" />
               </button>
-              <button onClick={exportarExcel} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="px-4 py-3 bg-white dark:bg-[#1e1530] border border-[#E7E0DA] dark:border-[#3A2E4D] text-green-700 dark:text-green-400 rounded-lg hover:bg-green-50 dark:hover:bg-green-950/40 hover:border-green-300 dark:hover:border-green-900/50 transition flex items-center gap-2" title="Exportar a Excel">
+              <button onClick={exportarExcel} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="px-4 py-3 bg-white dark:bg-[#1e1530] border border-[#E7E0DA] dark:border-[#3A2E4D] text-green-700 dark:text-green-400 rounded-none hover:bg-green-50 dark:hover:bg-green-950/40 hover:border-green-300 dark:hover:border-green-900/50 transition flex items-center gap-2" title="Exportar a Excel">
                 <FileSpreadsheet className="w-5 h-5" />
                 <span className="hidden sm:inline">Excel</span>
               </button>
-              <button onClick={exportarPDF} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="px-4 py-3 bg-white dark:bg-[#1e1530] border border-[#E7E0DA] dark:border-[#3A2E4D] text-red-600 dark:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/40 hover:border-red-300 dark:hover:border-red-900/50 transition flex items-center gap-2" title="Exportar a PDF">
+              <button onClick={exportarPDF} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="px-4 py-3 bg-white dark:bg-[#1e1530] border border-[#E7E0DA] dark:border-[#3A2E4D] text-red-600 dark:text-red-400 rounded-none hover:bg-red-50 dark:hover:bg-red-950/40 hover:border-red-300 dark:hover:border-red-900/50 transition flex items-center gap-2" title="Exportar a PDF">
                 <FileText className="w-5 h-5" />
                 <span className="hidden sm:inline">PDF</span>
               </button>
               {puedeCrear && (
-              <button onClick={handleCreate} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="px-6 py-3 bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] text-white rounded-lg hover:opacity-90 transition flex items-center gap-2">
+              <button onClick={handleCreate} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="px-6 py-3 bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] text-white rounded-none hover:opacity-90 transition flex items-center gap-2">
                 <Plus className="w-5 h-5" /> Nuevo Usuario
               </button>
               )}
@@ -443,7 +443,7 @@ export const UsuariosView: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-[#1e1530] rounded-xl shadow-sm border border-[#E7E0DA] dark:border-[#3A2E4D] overflow-hidden">
+        <div className="bg-white dark:bg-[#1e1530] rounded-none shadow-sm border border-[#E7E0DA] dark:border-[#3A2E4D] overflow-hidden">
           <div>
             <table className="w-full" style={{ tableLayout: 'fixed' }}>
               <colgroup>
@@ -499,13 +499,13 @@ export const UsuariosView: React.FC = () => {
                             : rect.bottom + 4;
                           setDropdownPos({ top, right: window.innerWidth - rect.right });
                           setActiveDropdown(activeDropdown === u.usuarioID ? null : u.usuarioID);
-                        }} className="p-2 hover:bg-gray-100 dark:hover:bg-[#221830] rounded-lg transition">
+                        }} className="p-2 hover:bg-gray-100 dark:hover:bg-[#221830] rounded-none transition">
                           <MoreVertical className="w-5 h-5 text-gray-600 dark:text-[#b9aedd]" />
                         </button>
                         {activeDropdown === u.usuarioID && dropdownPos && (
                           <>
                             <div className="fixed inset-0 z-40" onClick={() => setActiveDropdown(null)} />
-                            <div className="fixed bg-white dark:bg-[#1e1530] rounded-lg shadow-xl border border-[#E7E0DA] dark:border-[#3A2E4D] py-2 min-w-[200px] z-50" style={{ top: dropdownPos.top, right: dropdownPos.right }}>
+                            <div className="fixed bg-white dark:bg-[#1e1530] rounded-none shadow-xl border border-[#E7E0DA] dark:border-[#3A2E4D] py-2 min-w-[200px] z-50" style={{ top: dropdownPos.top, right: dropdownPos.right }}>
                               <button onClick={() => { setSelectedUser(u); setViewOpen(true); setActiveDropdown(null); }} className="w-full flex items-center gap-3 px-4 py-2 hover:bg-[#F7F5FC] dark:hover:bg-[#221830] text-left">
                                 <Eye className="w-4 h-4 text-gray-600 dark:text-[#b9aedd]" /><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-700 dark:text-[#F5F3FA]">Ver Detalles</span>
                               </button>
@@ -566,9 +566,9 @@ export const UsuariosView: React.FC = () => {
           {selectedUser && (
             <div className="flex-1 overflow-y-auto">
               <div className="space-y-6 py-6 px-8">
-                <div className="bg-white dark:bg-[#1e1530] rounded-xl border border-[#E7E0DA] dark:border-[#3A2E4D] shadow-sm overflow-hidden">
-                  <div className="bg-[#F7F5FC] dark:bg-[#17101f] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#3A2E4D]">
-                    <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#0A0A0A] dark:text-[#F5F3FA] text-base flex items-center gap-2"><User className="w-4 h-4 text-gray-400 dark:text-[#b9aedd]" />Información del Usuario</h3>
+                <div className="bg-white dark:bg-[#1e1530] rounded-none border border-[#E7E0DA] dark:border-[#3A2E4D] shadow-sm overflow-hidden">
+                  <div className="bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] px-6 py-4">
+                    <h3 style={{ fontFamily: '"Playfair Display", Georgia, serif' }} className="font-semibold text-white text-base flex items-center gap-2"><User className="w-4 h-4 text-[#C9A8C3]" />Información del Usuario</h3>
                   </div>
                   <div className="p-6 grid grid-cols-2 gap-6">
                     <div className="flex flex-col gap-1">
@@ -609,7 +609,7 @@ export const UsuariosView: React.FC = () => {
             </div>
           )}
           <DialogFooter className="gap-2 px-8 py-5 border-t border-[#E7E0DA] dark:border-[#3A2E4D] flex-shrink-0">
-            <button onClick={() => setViewOpen(false)} className="px-6 py-2 bg-gray-100 dark:bg-[#221830] text-gray-700 dark:text-[#F5F3FA] rounded-lg hover:bg-gray-200 dark:hover:bg-[#241935] transition" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Cerrar</button>
+            <button onClick={() => setViewOpen(false)} className="px-6 py-2 bg-gray-100 dark:bg-[#221830] text-gray-700 dark:text-[#F5F3FA] rounded-none hover:bg-gray-200 dark:hover:bg-[#241935] transition" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Cerrar</button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -623,9 +623,9 @@ export const UsuariosView: React.FC = () => {
           </DialogHeader>
           <div className="flex-1 overflow-y-auto">
             <div className="space-y-6 py-6 px-8">
-              <div className="bg-white dark:bg-[#1e1530] rounded-xl border border-[#E7E0DA] dark:border-[#3A2E4D] shadow-sm overflow-hidden">
-                <div className="bg-[#F7F5FC] dark:bg-[#17101f] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#3A2E4D]">
-                  <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#0A0A0A] dark:text-[#F5F3FA] text-base flex items-center gap-2"><User className="w-4 h-4 text-gray-400 dark:text-[#b9aedd]" />Información del Usuario</h3>
+              <div className="bg-white dark:bg-[#1e1530] rounded-none border border-[#E7E0DA] dark:border-[#3A2E4D] shadow-sm overflow-hidden">
+                <div className="bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] px-6 py-4">
+                  <h3 style={{ fontFamily: '"Playfair Display", Georgia, serif' }} className="font-semibold text-white text-base flex items-center gap-2"><User className="w-4 h-4 text-[#C9A8C3]" />Información del Usuario</h3>
                 </div>
                 <div className="p-6 space-y-4">
                   <div className="grid grid-cols-2 gap-4">
@@ -656,7 +656,7 @@ export const UsuariosView: React.FC = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label className="text-sm text-gray-700 dark:text-[#F5F3FA] mb-1 block">Rol *</Label>
-                      <select value={form.roleID} onChange={e => setForm({...form, roleID: e.target.value})} className="w-full px-3 py-2 border border-[#E7E0DA] dark:border-[#3A2E4D] dark:bg-[#17101f] dark:text-[#F5F3FA] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C2A52] text-sm" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                      <select value={form.roleID} onChange={e => setForm({...form, roleID: e.target.value})} className="w-full px-3 py-2 border border-[#E7E0DA] dark:border-[#3A2E4D] dark:bg-[#17101f] dark:text-[#F5F3FA] rounded-none focus:outline-none focus:ring-2 focus:ring-[#5C2A52] text-sm" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                         <option value="">Selecciona un rol</option>
                         {roles.map(r => <option key={r.roleID} value={r.roleID}>{r.nombre}</option>)}
                       </select>
@@ -664,7 +664,7 @@ export const UsuariosView: React.FC = () => {
                     </div>
                     <div>
                       <Label className="text-sm text-gray-700 dark:text-[#F5F3FA] mb-1 block">Estado</Label>
-                      <select value={form.estado} onChange={e => setForm({...form, estado: e.target.value})} className="w-full px-3 py-2 border border-[#E7E0DA] dark:border-[#3A2E4D] dark:bg-[#17101f] dark:text-[#F5F3FA] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C2A52] text-sm" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                      <select value={form.estado} onChange={e => setForm({...form, estado: e.target.value})} className="w-full px-3 py-2 border border-[#E7E0DA] dark:border-[#3A2E4D] dark:bg-[#17101f] dark:text-[#F5F3FA] rounded-none focus:outline-none focus:ring-2 focus:ring-[#5C2A52] text-sm" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                         <option value="activo">Activo</option>
                         <option value="inactivo">Inactivo</option>
                       </select>
@@ -683,15 +683,15 @@ export const UsuariosView: React.FC = () => {
                   </div>
                   <div>
                     <Label className="text-sm text-gray-700 dark:text-[#F5F3FA] mb-1 block">Dirección</Label>
-                    <textarea value={form.direccion} onChange={e => setForm({...form, direccion: e.target.value})} className="w-full px-3 py-2 border border-[#E7E0DA] dark:border-[#3A2E4D] dark:bg-[#17101f] dark:text-[#F5F3FA] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C2A52] text-sm min-h-[70px] resize-none" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} placeholder="Calle 123 #45-67, Ciudad" />
+                    <textarea value={form.direccion} onChange={e => setForm({...form, direccion: e.target.value})} className="w-full px-3 py-2 border border-[#E7E0DA] dark:border-[#3A2E4D] dark:bg-[#17101f] dark:text-[#F5F3FA] rounded-none focus:outline-none focus:ring-2 focus:ring-[#5C2A52] text-sm min-h-[70px] resize-none" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} placeholder="Calle 123 #45-67, Ciudad" />
                   </div>
                 </div>
               </div>
             </div>
           </div>
           <DialogFooter className="gap-2 px-8 py-5 border-t border-[#E7E0DA] dark:border-[#3A2E4D] flex-shrink-0">
-            <button onClick={() => { setCreateOpen(false); setEditOpen(false); }} className="px-6 py-2 bg-gray-100 dark:bg-[#221830] text-gray-700 dark:text-[#F5F3FA] rounded-lg hover:bg-gray-200 dark:hover:bg-[#241935]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Cancelar</button>
-            <button onClick={editOpen ? saveEdit : saveCreate} disabled={saving} className="px-6 py-2 bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] text-white rounded-lg hover:opacity-90 disabled:opacity-50 flex items-center gap-2" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+            <button onClick={() => { setCreateOpen(false); setEditOpen(false); }} className="px-6 py-2 bg-gray-100 dark:bg-[#221830] text-gray-700 dark:text-[#F5F3FA] rounded-none hover:bg-gray-200 dark:hover:bg-[#241935]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Cancelar</button>
+            <button onClick={editOpen ? saveEdit : saveCreate} disabled={saving} className="px-6 py-2 bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] text-white rounded-none hover:opacity-90 disabled:opacity-50 flex items-center gap-2" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
               {saving && <Loader2 className="w-4 h-4 animate-spin" />}
               {editOpen ? "Guardar Cambios" : "Crear Usuario"}
             </button>
@@ -727,7 +727,7 @@ export const UsuariosView: React.FC = () => {
                 const allSel = permisos.every(p => permisosSet.has(p.nombre));
                 const someSel = permisos.some(p => permisosSet.has(p.nombre));
                 return (
-                  <div key={modulo} className="bg-white dark:bg-[#1e1530] rounded-xl border border-[#E7E0DA] dark:border-[#3A2E4D] shadow-sm overflow-hidden">
+                  <div key={modulo} className="bg-white dark:bg-[#1e1530] rounded-none border border-[#E7E0DA] dark:border-[#3A2E4D] shadow-sm overflow-hidden">
                     <button onClick={() => toggleModulo(permisos)} className="w-full flex items-center gap-3 px-6 py-4 bg-[#F7F5FC] dark:bg-[#17101f] hover:bg-gray-100 dark:hover:bg-[#221830] transition text-left border-b border-[#E7E0DA] dark:border-[#3A2E4D]">
                       <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition ${allSel ? "bg-[#5C2A52] border-[#5C2A52]" : someSel ? "bg-pink-200 dark:bg-[#4a3540] border-[#5C2A52]" : "border-gray-300 dark:border-[#3A2E4D]"}`}>
                         {(allSel || someSel) && <span className="text-white text-xs font-bold">✓</span>}
@@ -750,8 +750,8 @@ export const UsuariosView: React.FC = () => {
             </div>
           </div>
           <DialogFooter className="gap-2 px-8 py-5 border-t border-[#E7E0DA] dark:border-[#3A2E4D] flex-shrink-0">
-            <button onClick={() => setPermisosOpen(false)} className="px-6 py-2 bg-gray-100 dark:bg-[#221830] text-gray-700 dark:text-[#F5F3FA] rounded-lg hover:bg-gray-200 dark:hover:bg-[#241935]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Cancelar</button>
-            <button onClick={savePermisos} disabled={savingPermisos} className="px-6 py-2 bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] text-white rounded-lg hover:opacity-90 disabled:opacity-50 flex items-center gap-2" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+            <button onClick={() => setPermisosOpen(false)} className="px-6 py-2 bg-gray-100 dark:bg-[#221830] text-gray-700 dark:text-[#F5F3FA] rounded-none hover:bg-gray-200 dark:hover:bg-[#241935]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Cancelar</button>
+            <button onClick={savePermisos} disabled={savingPermisos} className="px-6 py-2 bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] text-white rounded-none hover:opacity-90 disabled:opacity-50 flex items-center gap-2" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
               {savingPermisos && <Loader2 className="w-4 h-4 animate-spin" />} Guardar Permisos
             </button>
           </DialogFooter>

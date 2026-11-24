@@ -169,20 +169,20 @@ export const ProveedoresView: React.FC = () => {
       <h1 className="admin-page-title text-4xl text-[#0A0A0A] dark:text-[#F5F3FA] mb-6">Gestión de Proveedores</h1>
 
       {/* Barra */}
-      <div className="bg-white dark:bg-[#1e1530] rounded-xl p-6 shadow-sm border border-[#E7E0DA] dark:border-[#3A2E4D] flex flex-col lg:flex-row gap-4 mb-6">
+      <div className="bg-white dark:bg-[#1e1530] rounded-none p-6 shadow-sm border border-[#E7E0DA] dark:border-[#3A2E4D] flex flex-col lg:flex-row gap-4 mb-6">
         <div className="flex-1 relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-[#b9aedd]" />
           <input type="text" placeholder="Buscar proveedores..." value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-            className="w-full pl-12 pr-4 py-3 bg-[#F7F5FC] dark:bg-[#17101f] border border-[#E7E0DA] dark:border-[#3A2E4D] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C2A52]" />
+            className="w-full pl-12 pr-4 py-3 bg-[#F7F5FC] dark:bg-[#17101f] border border-[#E7E0DA] dark:border-[#3A2E4D] rounded-none focus:outline-none focus:ring-2 focus:ring-[#5C2A52]" />
         </div>
         <div className="flex gap-3">
-          <button onClick={() => { setLoading(true); loadData(); }} className="px-4 py-3 bg-white dark:bg-[#1e1530] border border-[#E7E0DA] dark:border-[#3A2E4D] text-gray-700 dark:text-[#F5F3FA] rounded-lg hover:bg-[#F7F5FC] dark:hover:bg-[#221830] transition">
+          <button onClick={() => { setLoading(true); loadData(); }} className="px-4 py-3 bg-white dark:bg-[#1e1530] border border-[#E7E0DA] dark:border-[#3A2E4D] text-gray-700 dark:text-[#F5F3FA] rounded-none hover:bg-[#F7F5FC] dark:hover:bg-[#221830] transition">
             <RefreshCw className="w-5 h-5" />
           </button>
           {puedeCrear && (
             <button onClick={openCreate} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="px-6 py-3 bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] text-white rounded-lg hover:opacity-90 flex items-center gap-2 transition">
+              className="px-6 py-3 bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] text-white rounded-none hover:opacity-90 flex items-center gap-2 transition">
               <Plus className="w-5 h-5" /> Nuevo Proveedor
             </button>
           )}
@@ -190,7 +190,7 @@ export const ProveedoresView: React.FC = () => {
       </div>
 
       {/* Tabla */}
-      <div className="bg-white dark:bg-[#1e1530] rounded-xl shadow-sm border border-[#E7E0DA] dark:border-[#3A2E4D] overflow-hidden">
+      <div className="bg-white dark:bg-[#1e1530] rounded-none shadow-sm border border-[#E7E0DA] dark:border-[#3A2E4D] overflow-hidden">
         <table className="w-full">
           <thead className="bg-[#F7F5FC] dark:bg-[#17101f] border-b border-[#E7E0DA] dark:border-[#3A2E4D]">
             <tr>
@@ -228,13 +228,13 @@ export const ProveedoresView: React.FC = () => {
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-2">
                     <button onClick={() => { setSelected(p); setViewOpen(true); }}
-                      className="p-2 text-gray-500 dark:text-[#b9aedd] hover:bg-blue-50 dark:hover:bg-blue-950/40 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg transition" title="Ver detalles">
+                      className="p-2 text-gray-500 dark:text-[#b9aedd] hover:bg-blue-50 dark:hover:bg-blue-950/40 hover:text-blue-600 dark:hover:text-blue-400 rounded-none transition" title="Ver detalles">
                       <Eye className="w-5 h-5" />
                     </button>
                     {puedeAdmin && (
                       <>
                         <button onClick={() => openEdit(p)}
-                          className="p-2 text-gray-500 dark:text-[#b9aedd] hover:bg-yellow-50 dark:hover:bg-yellow-950/40 hover:text-yellow-600 dark:hover:text-yellow-400 rounded-lg transition" title="Editar">
+                          className="p-2 text-gray-500 dark:text-[#b9aedd] hover:bg-yellow-50 dark:hover:bg-yellow-950/40 hover:text-yellow-600 dark:hover:text-yellow-400 rounded-none transition" title="Editar">
                           <Edit className="w-5 h-5" />
                         </button>
                       </>
@@ -269,7 +269,7 @@ export const ProveedoresView: React.FC = () => {
 
           <div className="flex-1 overflow-y-auto">
             <div className="space-y-6 py-6 px-8">
-              <div className="bg-white dark:bg-[#1e1530] rounded-xl border border-[#E7E0DA] dark:border-[#3A2E4D] shadow-sm overflow-hidden">
+              <div className="bg-white dark:bg-[#1e1530] rounded-none border border-[#E7E0DA] dark:border-[#3A2E4D] shadow-sm overflow-hidden">
                 <div className="bg-[#C9A8C3]/50 dark:bg-[#241935]/50 px-6 py-4 border-b border-[#E7E0DA] dark:border-[#3A2E4D]">
                   <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#5C2A52] text-base flex items-center gap-2"><ClipboardList className="w-4 h-4" />Información del Proveedor</h3>
                 </div>
@@ -324,9 +324,9 @@ export const ProveedoresView: React.FC = () => {
 
           <DialogFooter className="gap-2 px-8 py-5 border-t border-[#E7E0DA] dark:border-[#3A2E4D] flex-shrink-0">
             <button onClick={() => { setFormOpen(false); resetForm(); }} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="px-6 py-2 bg-gray-100 dark:bg-[#221830] text-gray-700 dark:text-[#F5F3FA] rounded-lg hover:bg-gray-200 dark:hover:bg-[#241935] transition">Cancelar</button>
+              className="px-6 py-2 bg-gray-100 dark:bg-[#221830] text-gray-700 dark:text-[#F5F3FA] rounded-none hover:bg-gray-200 dark:hover:bg-[#241935] transition">Cancelar</button>
             <button onClick={guardar} disabled={saving} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', background: 'linear-gradient(90deg, #0A0A0A 0%, #3B0A45 55%, #5C2A52 100%)' }}
-              className="px-6 py-2 text-white rounded-lg disabled:opacity-50 flex items-center gap-2 transition-transform hover:scale-105">
+              className="px-6 py-2 text-white rounded-none disabled:opacity-50 flex items-center gap-2 transition-transform hover:scale-105">
               {saving && <Loader2 className="w-4 h-4 animate-spin" />}
               {isEditing ? 'Guardar Cambios' : 'Crear Proveedor'}
             </button>
@@ -346,7 +346,7 @@ export const ProveedoresView: React.FC = () => {
           </div>
           {selected && (
             <div className="bg-[#F7F5FC] dark:bg-[#17101f] px-6 py-5">
-              <div className="bg-white dark:bg-[#1e1530] rounded-xl border border-[#E7E0DA] dark:border-[#3A2E4D] shadow-sm overflow-hidden">
+              <div className="bg-white dark:bg-[#1e1530] rounded-none border border-[#E7E0DA] dark:border-[#3A2E4D] shadow-sm overflow-hidden">
                 <div className="px-5 py-3 border-b border-[#E7E0DA] dark:border-[#3A2E4D] bg-[#C9A8C3]/50 dark:bg-[#241935]/50">
                   <h3 className="font-semibold text-[#5C2A52] text-xs uppercase tracking-wider">Información General</h3>
                 </div>
@@ -369,7 +369,7 @@ export const ProveedoresView: React.FC = () => {
           )}
           <div className="px-6 py-4 border-t border-[#E7E0DA] dark:border-[#3A2E4D] bg-white dark:bg-[#1e1530] flex-shrink-0 flex justify-end">
             <button onClick={() => setViewOpen(false)}
-              className="px-6 py-2 bg-gray-100 dark:bg-[#221830] text-gray-700 dark:text-[#F5F3FA] rounded-lg hover:bg-gray-200 dark:hover:bg-[#241935] transition text-sm font-medium">Cerrar</button>
+              className="px-6 py-2 bg-gray-100 dark:bg-[#221830] text-gray-700 dark:text-[#F5F3FA] rounded-none hover:bg-gray-200 dark:hover:bg-[#241935] transition text-sm font-medium">Cerrar</button>
           </div>
         </DialogContent>
       </Dialog>

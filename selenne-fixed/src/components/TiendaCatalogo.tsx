@@ -16,7 +16,6 @@ import { Estrellas } from "./Estrellas";
 import { useTienda } from "../shared/contexts/TiendaContext";
 import { useCatalogoFiltrado, type Categoria } from "../shared/hooks/useCatalogoFiltrado";
 import { formatCurrency } from "../shared/utils";
-import { PRODUCTOS_EJEMPLO } from "../shared/data/productosEjemplo";
 import type { Producto } from "../shared/contexts/TiendaContext";
 
 interface TiendaCatalogoProps {
@@ -84,23 +83,25 @@ export const TiendaCatalogo: React.FC<TiendaCatalogoProps> = ({
     return (
       <>
         {/* Hero de marca */}
-        <section
-          className="relative flex items-center px-6 sm:px-16 py-28 sm:py-40 overflow-hidden"
-          style={{
-            backgroundImage: [
-              'linear-gradient(90deg, rgba(10,5,15,0.88) 0%, rgba(59,10,69,0.7) 45%, rgba(92,42,82,0.35) 100%)',
-              'url(/backgrounds/flor-fondo.jpg)',
-            ].join(', '),
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundColor: '#0A0A0A',
-          }}
-        >
+        <section className="relative flex items-center px-6 sm:px-16 py-28 sm:py-40 overflow-hidden bg-black">
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover"
+          >
+            <source src="/backgrounds/hero-sale.mp4" type="video/mp4" />
+          </video>
+          <div
+            className="absolute inset-0"
+            style={{ background: 'linear-gradient(90deg, rgba(10,5,15,0.88) 0%, rgba(59,10,69,0.7) 45%, rgba(92,42,82,0.35) 100%)' }}
+          />
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="max-w-xl text-left"
+            className="relative max-w-xl text-left"
           >
             <p
               style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
@@ -150,7 +151,8 @@ export const TiendaCatalogo: React.FC<TiendaCatalogoProps> = ({
 
         {/* Destacados */}
         {(() => {
-          const productosAMostrar = destacados.length > 0 ? destacados : PRODUCTOS_EJEMPLO;
+          const productosAMostrar = destacados;
+          if (productosAMostrar.length === 0) return null;
           return (
           <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full">
             <div className="flex items-end justify-between mb-6">
@@ -211,7 +213,10 @@ export const TiendaCatalogo: React.FC<TiendaCatalogoProps> = ({
   return (
     <>
       {/* Banner de categoría */}
-      <div className="w-full relative overflow-hidden" style={{ aspectRatio: '1750 / 899' }}>
+      <div className="w-full relative overflow-hidden bg-black" style={{ aspectRatio: '1750 / 899' }}>
+        <video autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover">
+          <source src="/backgrounds/hero-sale.mp4" type="video/mp4" />
+        </video>
         <AnimatePresence mode="wait">
           <motion.div
             key={categoriaActiva}
@@ -220,11 +225,15 @@ export const TiendaCatalogo: React.FC<TiendaCatalogoProps> = ({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.4 }}
             className="absolute inset-0 flex items-center justify-center"
-            style={{ background: 'linear-gradient(135deg, #0A0A0A 0%, #3B0A45 55%, #5C2A52 100%)' }}
+            style={{
+              background: categoriaActiva === 'sale'
+                ? 'linear-gradient(135deg, rgba(0,0,0,0.75) 0%, rgba(40,0,0,0.6) 55%, rgba(80,0,0,0.45) 100%)'
+                : 'linear-gradient(135deg, rgba(10,10,10,0.55) 0%, rgba(59,10,69,0.45) 55%, rgba(92,42,82,0.3) 100%)',
+            }}
           >
             <span
               style={{ fontFamily: '"Playfair Display", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif' }}
-              className="text-white text-4xl sm:text-6xl tracking-wide uppercase"
+              className={`text-4xl sm:text-6xl tracking-wide uppercase ${categoriaActiva === 'sale' ? 'text-red-600' : 'text-white'}`}
             >
               {categoriaActiva}
             </span>
@@ -314,12 +323,7 @@ export const TiendaCatalogo: React.FC<TiendaCatalogoProps> = ({
 
       {/* Grid de Productos */}
       {(() => {
-        const sinFiltrosNiBusqueda = contadorFiltros === 0 && !busqueda;
-        const ejemplosCategoria = categoriaActiva === "sale"
-          ? PRODUCTOS_EJEMPLO.slice(0, 4)
-          : PRODUCTOS_EJEMPLO.filter((p) => p.categoria === categoriaActiva);
-        const mostrarEjemplos = !productosLoading && productosFiltrados.length === 0 && sinFiltrosNiBusqueda && ejemplosCategoria.length > 0;
-        const productosGrid = mostrarEjemplos ? ejemplosCategoria : productosPagina;
+        const productosGrid = productosPagina;
 
         return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -327,8 +331,6 @@ export const TiendaCatalogo: React.FC<TiendaCatalogoProps> = ({
           <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-600 dark:text-[#b9aedd]">
             {productosLoading
               ? 'Cargando productos…'
-              : mostrarEjemplos
-              ? 'Productos de ejemplo — el catálogo real aún no tiene stock en esta categoría'
               : `${productosFiltrados.length} ${productosFiltrados.length === 1 ? 'producto encontrado' : 'productos encontrados'}`}
           </p>
         </div>
@@ -460,7 +462,7 @@ export const TiendaCatalogo: React.FC<TiendaCatalogoProps> = ({
         )}
 
         {/* Paginación */}
-        {!mostrarEjemplos && totalPaginas > 1 && (
+        {totalPaginas > 1 && (
           <div className="flex items-center justify-center gap-4 mt-8 mb-4">
             <button
               onClick={() => { setPaginaActual(p => p - 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}

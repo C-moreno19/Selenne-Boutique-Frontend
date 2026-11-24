@@ -129,19 +129,21 @@ export const LoginView: React.FC<LoginViewProps> = ({
       </div>
 
       {/* Login Panel - Right (45%) */}
-      <div className="flex-1 lg:w-[45%] h-full overflow-y-auto flex items-center justify-center bg-white dark:bg-[#17101f] px-16 py-8">
+      <div className="flex-1 lg:w-[45%] h-full overflow-hidden relative bg-white dark:bg-[#17101f]">
+        {/* Back arrow — fijo arriba a la izquierda del panel */}
+        {onBack && (
+          <button
+            type="button"
+            onClick={onBack}
+            style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+            className="absolute top-6 left-6 sm:left-10 flex items-center gap-2 border border-[#E7E0DA] dark:border-[#3A2E4D] px-4 py-2 text-xs font-bold uppercase tracking-wide text-[#241B22] dark:text-[#F5F3FA] hover:bg-[#0A0A0A] hover:text-white hover:border-[#0A0A0A] transition-colors z-10"
+          >
+            <ArrowLeft size={14} />
+            Volver a la tienda
+          </button>
+        )}
+        <div className="min-h-full flex items-center justify-center px-16 py-8">
         <div className="w-full max-w-md space-y-5">
-          {/* Back arrow */}
-          {onBack && (
-            <button
-              type="button"
-              onClick={onBack}
-              className="flex items-center gap-1 text-gray-500 dark:text-[#b9aedd] hover:text-[#5C2A52] transition-colors text-sm"
-            >
-              <ArrowLeft size={16} />
-              Volver a la tienda
-            </button>
-          )}
           {/* Logo */}
           <motion.div
             className="flex justify-center mb-4"
@@ -153,7 +155,10 @@ export const LoginView: React.FC<LoginViewProps> = ({
           </motion.div>
 
           {/* Form */}
-          <div className="space-y-5 border border-[#E7E0DA] dark:border-[#3A2E4D] p-6 sm:p-8">
+          <form
+            onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}
+            className="space-y-5 border border-[#E7E0DA] dark:border-[#3A2E4D] p-6 sm:p-8"
+          >
             <CustomInput
               type="email"
               label="Email *"
@@ -180,6 +185,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
               />
               <div className="flex justify-end mt-2">
                 <button
+                  type="button"
                   onClick={onForgotPassword}
                   className="text-[#5C2A52] hover:underline transition-all"
                   style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: '14px' }}
@@ -189,12 +195,13 @@ export const LoginView: React.FC<LoginViewProps> = ({
               </div>
             </div>
 
-            <CustomButton onClick={handleSubmit} loading={loading}>
+            <CustomButton type="submit" onClick={handleSubmit} loading={loading}>
               INICIAR SESIÓN
             </CustomButton>
 
             <div className="text-center pt-4">
               <button
+                type="button"
                 onClick={onRegister}
                 className="text-[#1a1a1a] dark:text-[#F5F3FA] hover:text-[#5C2A52] transition-all"
                 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: '14px' }}
@@ -202,7 +209,8 @@ export const LoginView: React.FC<LoginViewProps> = ({
                 ¿No tienes cuenta? <span className="underline">Registrarse</span>
               </button>
             </div>
-          </div>
+          </form>
+        </div>
         </div>
       </div>
     </div>

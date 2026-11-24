@@ -23,7 +23,7 @@ const TIPO_CONFIG: Record<string, { icon: React.ReactNode; bg: string; border: s
   },
   info: {
     icon: <Info className="w-5 h-5 text-[#5C2A52]" />,
-    bg: "bg-[#fdf2f8] dark:bg-[#241935]", border: "border-[#f9a8d4] dark:border-[#5a3a48]",
+    bg: "bg-[#F7F5FC] dark:bg-[#241935]", border: "border-[#C9A8C3] dark:border-[#3A2E4D]",
   },
 };
 
@@ -57,12 +57,12 @@ export const NotificacionCard: React.FC<NotificacionCardProps> = ({
   return (
     <div
       onClick={onClick}
-      className={`bg-white dark:bg-[#1e1530] rounded-2xl border shadow-sm overflow-hidden transition-all ${onClick ? "cursor-pointer hover:shadow-md" : ""} ${
+      className={`bg-white dark:bg-[#1e1530] rounded-none border shadow-sm overflow-hidden transition-all ${onClick ? "cursor-pointer hover:shadow-md" : ""} ${
         !notif.leida ? "border-l-4 border-l-[#5C2A52] border-gray-100 dark:border-[#3A2E4D]" : "border-gray-100 dark:border-[#3A2E4D]"
       }`}
     >
       <div className="p-4 flex items-start gap-3">
-        <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${cfg.bg} border ${cfg.border}`}>
+        <div className={`w-10 h-10 rounded-none flex items-center justify-center flex-shrink-0 ${cfg.bg} border ${cfg.border}`}>
           {cfg.icon}
         </div>
         <div className="flex-1 min-w-0">

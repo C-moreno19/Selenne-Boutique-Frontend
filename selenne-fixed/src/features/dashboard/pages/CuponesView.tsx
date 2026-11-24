@@ -146,22 +146,22 @@ export const CuponesView: React.FC = () => {
         </div>
         {puedeEditar && (
           <button onClick={openCreate} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-            className="px-6 py-3 bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] text-white rounded-lg hover:opacity-90 flex items-center gap-2 transition">
+            className="px-6 py-3 bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] text-white rounded-none hover:opacity-90 flex items-center gap-2 transition">
             <Plus className="w-5 h-5" /> Nuevo Cupón
           </button>
         )}
       </div>
 
-      <div className="bg-white dark:bg-[#1e1530] rounded-xl p-6 border border-[#E7E0DA] dark:border-[#3A2E4D] mb-6" style={{ boxShadow: '0 2px 12px rgba(214, 83, 145, 0.07)' }}>
+      <div className="bg-white dark:bg-[#1e1530] rounded-none p-6 border border-[#E7E0DA] dark:border-[#3A2E4D] mb-6" style={{ boxShadow: '0 2px 12px rgba(214, 83, 145, 0.07)' }}>
         <div className="relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-[#b9aedd]" />
           <input type="text" placeholder="Buscar por código..." value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-            className="w-full pl-12 pr-4 py-3 bg-[#F7F5FC] dark:bg-[#17101f] border border-[#E7E0DA] dark:border-[#3A2E4D] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C2A52]" />
+            className="w-full pl-12 pr-4 py-3 bg-[#F7F5FC] dark:bg-[#17101f] border border-[#E7E0DA] dark:border-[#3A2E4D] rounded-none focus:outline-none focus:ring-2 focus:ring-[#5C2A52]" />
         </div>
       </div>
 
-      <div className="bg-white dark:bg-[#1e1530] rounded-xl border border-[#E7E0DA] dark:border-[#3A2E4D] overflow-hidden" style={{ boxShadow: '0 2px 12px rgba(214, 83, 145, 0.07)' }}>
+      <div className="bg-white dark:bg-[#1e1530] rounded-none border border-[#E7E0DA] dark:border-[#3A2E4D] overflow-hidden" style={{ boxShadow: '0 2px 12px rgba(214, 83, 145, 0.07)' }}>
         {loading ? (
           <div className="flex justify-center py-16"><Loader2 className="w-6 h-6 animate-spin text-gray-400" /></div>
         ) : (
@@ -203,15 +203,15 @@ export const CuponesView: React.FC = () => {
                     {puedeEditar && (
                       <>
                         <button onClick={() => toggleActivo(c)}
-                          className="p-2 text-gray-500 dark:text-[#b9aedd] hover:bg-[#C9A8C3] dark:hover:bg-[#241935] hover:text-[#5C2A52] rounded-lg transition" title={c.activo ? 'Desactivar' : 'Activar'}>
+                          className="p-2 text-gray-500 dark:text-[#b9aedd] hover:bg-[#C9A8C3] dark:hover:bg-[#241935] hover:text-[#5C2A52] rounded-none transition" title={c.activo ? 'Desactivar' : 'Activar'}>
                           <Power className="w-5 h-5" />
                         </button>
                         <button onClick={() => openEdit(c)}
-                          className="p-2 text-gray-500 dark:text-[#b9aedd] hover:bg-[#C9A8C3] dark:hover:bg-[#241935] hover:text-[#5C2A52] rounded-lg transition" title="Editar">
+                          className="p-2 text-gray-500 dark:text-[#b9aedd] hover:bg-[#C9A8C3] dark:hover:bg-[#241935] hover:text-[#5C2A52] rounded-none transition" title="Editar">
                           <Edit className="w-5 h-5" />
                         </button>
                         <button onClick={() => { setSelected(c); setDeleteOpen(true); }}
-                          className="p-2 text-gray-500 dark:text-[#b9aedd] hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-600 dark:hover:text-red-400 rounded-lg transition" title="Eliminar">
+                          className="p-2 text-gray-500 dark:text-[#b9aedd] hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-600 dark:hover:text-red-400 rounded-none transition" title="Eliminar">
                           <Trash2 className="w-5 h-5" />
                         </button>
                       </>
@@ -294,9 +294,9 @@ export const CuponesView: React.FC = () => {
           </div>
           <DialogFooter className="gap-2 px-8 py-5 border-t border-[#E7E0DA] dark:border-[#3A2E4D] flex-shrink-0">
             <button onClick={() => setFormOpen(false)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="px-6 py-2 bg-gray-100 dark:bg-[#221830] text-gray-700 dark:text-[#F5F3FA] rounded-lg hover:bg-gray-200 dark:hover:bg-[#241935] transition">Cancelar</button>
+              className="px-6 py-2 bg-gray-100 dark:bg-[#221830] text-gray-700 dark:text-[#F5F3FA] rounded-none hover:bg-gray-200 dark:hover:bg-[#241935] transition">Cancelar</button>
             <button onClick={guardar} disabled={saving} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="px-6 py-2 bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] text-white rounded-lg hover:opacity-90 disabled:opacity-50 flex items-center gap-2 transition">
+              className="px-6 py-2 bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] text-white rounded-none hover:opacity-90 disabled:opacity-50 flex items-center gap-2 transition">
               {saving && <Loader2 className="w-4 h-4 animate-spin" />}
               {isEditing ? 'Guardar Cambios' : 'Crear Cupón'}
             </button>

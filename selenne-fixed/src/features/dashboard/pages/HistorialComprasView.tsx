@@ -91,25 +91,25 @@ export const HistorialComprasView: React.FC<HistorialComprasViewProps> = ({ onBa
       </div>
 
       <div className="flex items-center gap-4 mb-6">
-        <button onClick={onBack} className="p-2 text-gray-500 dark:text-[#b9aedd] hover:bg-gray-100 dark:hover:bg-[#221830] rounded-lg transition">
+        <button onClick={onBack} className="p-2 text-gray-500 dark:text-[#b9aedd] hover:bg-gray-100 dark:hover:bg-[#221830] rounded-none transition">
           <ArrowLeft className="w-5 h-5" />
         </button>
         <h1 className="admin-page-title text-4xl text-[#0A0A0A] dark:text-[#F5F3FA]">Historial de Compras</h1>
       </div>
 
-      <div className="bg-white dark:bg-[#1e1530] rounded-xl p-6 shadow-sm border border-[#E7E0DA] dark:border-[#3A2E4D] flex flex-col lg:flex-row gap-4 mb-6">
+      <div className="bg-white dark:bg-[#1e1530] rounded-none p-6 shadow-sm border border-[#E7E0DA] dark:border-[#3A2E4D] flex flex-col lg:flex-row gap-4 mb-6">
         <div className="flex-1 relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-[#b9aedd]" />
           <input type="text" placeholder="Buscar por orden o proveedor..." value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-            className="w-full pl-12 pr-4 py-3 bg-[#F7F5FC] dark:bg-[#17101f] border border-[#E7E0DA] dark:border-[#3A2E4D] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C2A52]" />
+            className="w-full pl-12 pr-4 py-3 bg-[#F7F5FC] dark:bg-[#17101f] border border-[#E7E0DA] dark:border-[#3A2E4D] rounded-none focus:outline-none focus:ring-2 focus:ring-[#5C2A52]" />
         </div>
-        <button onClick={() => { setLoading(true); loadData(); }} className="px-4 py-3 bg-white dark:bg-[#1e1530] border border-[#E7E0DA] dark:border-[#3A2E4D] text-gray-700 dark:text-[#F5F3FA] rounded-lg hover:bg-[#F7F5FC] dark:hover:bg-[#221830] transition">
+        <button onClick={() => { setLoading(true); loadData(); }} className="px-4 py-3 bg-white dark:bg-[#1e1530] border border-[#E7E0DA] dark:border-[#3A2E4D] text-gray-700 dark:text-[#F5F3FA] rounded-none hover:bg-[#F7F5FC] dark:hover:bg-[#221830] transition">
           <RefreshCw className="w-5 h-5" />
         </button>
       </div>
 
-      <div className="bg-white dark:bg-[#1e1530] rounded-xl shadow-sm border border-[#E7E0DA] dark:border-[#3A2E4D] overflow-hidden">
+      <div className="bg-white dark:bg-[#1e1530] rounded-none shadow-sm border border-[#E7E0DA] dark:border-[#3A2E4D] overflow-hidden">
         <table className="w-full">
           <thead className="bg-[#F7F5FC] dark:bg-[#17101f] border-b border-[#E7E0DA] dark:border-[#3A2E4D]">
             <tr>
@@ -135,12 +135,12 @@ export const HistorialComprasView: React.FC<HistorialComprasViewProps> = ({ onBa
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-2">
                     <button onClick={() => { setSelectedCompra(compra); setViewOpen(true); }}
-                      className="p-2 text-gray-500 dark:text-[#b9aedd] hover:bg-blue-50 dark:hover:bg-blue-950/40 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg transition" title="Ver detalles">
+                      className="p-2 text-gray-500 dark:text-[#b9aedd] hover:bg-blue-50 dark:hover:bg-blue-950/40 hover:text-blue-600 dark:hover:text-blue-400 rounded-none transition" title="Ver detalles">
                       <Eye className="w-5 h-5" />
                     </button>
                     {puedeAdmin && (
                       <button onClick={() => { setSelectedCompra(compra); setDeleteOpen(true); }}
-                        className="p-2 text-gray-500 dark:text-[#b9aedd] hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-600 dark:hover:text-red-400 rounded-lg transition" title="Eliminar">
+                        className="p-2 text-gray-500 dark:text-[#b9aedd] hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-600 dark:hover:text-red-400 rounded-none transition" title="Eliminar">
                         <Trash2 className="w-5 h-5" />
                       </button>
                     )}
@@ -186,7 +186,7 @@ export const HistorialComprasView: React.FC<HistorialComprasViewProps> = ({ onBa
                   <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs font-semibold text-gray-500 dark:text-[#b9aedd] uppercase mb-2">Productos</p>
                   <div className="space-y-2">
                     {selectedCompra.detalles.map((d, i) => (
-                      <div key={i} className="flex justify-between items-center p-3 bg-[#F7F5FC] dark:bg-[#17101f] rounded-lg">
+                      <div key={i} className="flex justify-between items-center p-3 bg-[#F7F5FC] dark:bg-[#17101f] rounded-none">
                         <div><p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium">{d.nombreProducto}</p><p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500 dark:text-[#b9aedd]">{d.cantidad} x {fmt(d.precioUnitario)}</p></div>
                         <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-sm">{fmt(d.total)}</p>
                       </div>
@@ -197,7 +197,7 @@ export const HistorialComprasView: React.FC<HistorialComprasViewProps> = ({ onBa
             </div>
           )}
           <DialogFooter className="px-8 py-4 border-t border-[#E7E0DA] dark:border-[#3A2E4D] bg-white dark:bg-[#1e1530] flex-shrink-0">
-            <button onClick={() => setViewOpen(false)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="px-6 py-2 bg-gray-100 dark:bg-[#221830] text-gray-700 dark:text-[#F5F3FA] rounded-lg hover:bg-gray-200 dark:hover:bg-[#241935] transition">Cerrar</button>
+            <button onClick={() => setViewOpen(false)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="px-6 py-2 bg-gray-100 dark:bg-[#221830] text-gray-700 dark:text-[#F5F3FA] rounded-none hover:bg-gray-200 dark:hover:bg-[#241935] transition">Cerrar</button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

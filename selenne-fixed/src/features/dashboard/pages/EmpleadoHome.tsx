@@ -21,9 +21,9 @@ export const EmpleadoHome: React.FC = () => {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         {stats.map((stat, index) => (
-          <div key={index} className="bg-white rounded-lg shadow p-6">
+          <div key={index} className="bg-white rounded-none shadow p-6">
             <div className="flex items-center justify-between mb-4">
-              <div className={`${stat.color} p-3 rounded-lg`}>
+              <div className={`${stat.color} p-3 rounded-none`}>
                 <stat.icon className="w-6 h-6 text-white" />
               </div>
             </div>
@@ -38,7 +38,7 @@ export const EmpleadoHome: React.FC = () => {
       </div>
 
       {/* Recent Sales */}
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-white rounded-none shadow p-6">
         <h2 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: '24px' }} className="mb-4">
           Ventas Recientes
         </h2>

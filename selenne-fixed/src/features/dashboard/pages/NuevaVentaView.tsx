@@ -150,7 +150,7 @@ export const NuevaVentaView: React.FC<NuevaVentaViewProps> = ({ onBack, onSucces
       <div className="mb-6 flex items-center gap-3">
         <button
           onClick={onBack}
-          className="p-2 hover:bg-gray-100 dark:hover:bg-[#221830] rounded-lg transition"
+          className="p-2 hover:bg-gray-100 dark:hover:bg-[#221830] rounded-none transition"
           title="Volver"
         >
           <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-[#b9aedd]" />
@@ -169,7 +169,7 @@ export const NuevaVentaView: React.FC<NuevaVentaViewProps> = ({ onBack, onSucces
         {/* Formulario Principal */}
         <div className="lg:col-span-2 space-y-6">
           {/* Cliente */}
-          <div className="bg-white dark:bg-[#1e1530] rounded-xl p-6 shadow-sm border border-[#E7E0DA] dark:border-[#3A2E4D]">
+          <div className="bg-white dark:bg-[#1e1530] rounded-none p-6 shadow-sm border border-[#E7E0DA] dark:border-[#3A2E4D]">
             <h2 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xl text-[#0A0A0A] dark:text-[#F5F3FA] mb-4">
               Información del Cliente
             </h2>
@@ -212,7 +212,7 @@ export const NuevaVentaView: React.FC<NuevaVentaViewProps> = ({ onBack, onSucces
           </div>
 
           {/* Agregar Productos */}
-          <div className="bg-white dark:bg-[#1e1530] rounded-xl p-6 shadow-sm border border-[#E7E0DA] dark:border-[#3A2E4D]">
+          <div className="bg-white dark:bg-[#1e1530] rounded-none p-6 shadow-sm border border-[#E7E0DA] dark:border-[#3A2E4D]">
             <h2 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xl text-[#0A0A0A] dark:text-[#F5F3FA] mb-4">
               Agregar Productos
             </h2>
@@ -254,7 +254,7 @@ export const NuevaVentaView: React.FC<NuevaVentaViewProps> = ({ onBack, onSucces
                     <Label className="text-sm text-gray-700 dark:text-[#F5F3FA] block mb-2" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                       Precio Unitario
                     </Label>
-                    <div className="px-4 py-2.5 bg-[#F7F5FC] dark:bg-[#17101f] border border-[#E7E0DA] dark:border-[#3A2E4D] rounded-lg text-[#0A0A0A] dark:text-[#F5F3FA]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                    <div className="px-4 py-2.5 bg-[#F7F5FC] dark:bg-[#17101f] border border-[#E7E0DA] dark:border-[#3A2E4D] rounded-none text-[#0A0A0A] dark:text-[#F5F3FA]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                       {formatPrecio(productoSeleccionado.precioVenta)}
                     </div>
                   </div>
@@ -263,7 +263,7 @@ export const NuevaVentaView: React.FC<NuevaVentaViewProps> = ({ onBack, onSucces
 
               <button
                 onClick={handleAgregarProducto}
-                className="w-full px-4 py-3 bg-[#5C2A52] text-white rounded-lg hover:bg-[#3B0A45] transition flex items-center justify-center gap-2"
+                className="w-full px-4 py-3 bg-[#5C2A52] text-white rounded-none hover:bg-[#3B0A45] transition flex items-center justify-center gap-2"
                 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
               >
                 <Plus className="w-5 h-5" />
@@ -273,13 +273,13 @@ export const NuevaVentaView: React.FC<NuevaVentaViewProps> = ({ onBack, onSucces
           </div>
 
           {/* Carrito */}
-          <div className="bg-white dark:bg-[#1e1530] rounded-xl p-6 shadow-sm border border-[#E7E0DA] dark:border-[#3A2E4D]">
+          <div className="bg-white dark:bg-[#1e1530] rounded-none p-6 shadow-sm border border-[#E7E0DA] dark:border-[#3A2E4D]">
             <h2 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xl text-[#0A0A0A] dark:text-[#F5F3FA] mb-4">
               Carrito
             </h2>
             
             {productosVenta.length === 0 ? (
-              <div className="bg-[#F7F5FC] dark:bg-[#17101f] rounded-lg p-8 text-center border-2 border-dashed border-[#E7E0DA] dark:border-[#3A2E4D]">
+              <div className="bg-[#F7F5FC] dark:bg-[#17101f] rounded-none p-8 text-center border-2 border-dashed border-[#E7E0DA] dark:border-[#3A2E4D]">
                 <ShoppingCart className="w-12 h-12 text-gray-400 dark:text-[#b9aedd] mx-auto mb-2" />
                 <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500 dark:text-[#b9aedd]">
                   No hay productos en el carrito
@@ -288,7 +288,7 @@ export const NuevaVentaView: React.FC<NuevaVentaViewProps> = ({ onBack, onSucces
             ) : (
               <div className="space-y-4">
                 {productosVenta.map((producto) => (
-                  <div key={producto.id} className="flex items-center justify-between bg-[#F7F5FC] dark:bg-[#17101f] p-4 rounded-lg border border-[#E7E0DA] dark:border-[#3A2E4D]">
+                  <div key={producto.id} className="flex items-center justify-between bg-[#F7F5FC] dark:bg-[#17101f] p-4 rounded-none border border-[#E7E0DA] dark:border-[#3A2E4D]">
                     <div className="flex-1">
                       <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-[#0A0A0A] dark:text-[#F5F3FA] font-semibold">
                         {producto.nombre}
@@ -311,7 +311,7 @@ export const NuevaVentaView: React.FC<NuevaVentaViewProps> = ({ onBack, onSucces
                       </span>
                       <button
                         onClick={() => handleEliminarProducto(producto.id)}
-                        className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-lg transition"
+                        className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-none transition"
                         title="Eliminar"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -326,7 +326,7 @@ export const NuevaVentaView: React.FC<NuevaVentaViewProps> = ({ onBack, onSucces
 
         {/* Resumen Lateral */}
         <div className="lg:col-span-1">
-          <div className="bg-white dark:bg-[#1e1530] rounded-xl p-6 shadow-sm border border-[#E7E0DA] dark:border-[#3A2E4D] sticky top-24">
+          <div className="bg-white dark:bg-[#1e1530] rounded-none p-6 shadow-sm border border-[#E7E0DA] dark:border-[#3A2E4D] sticky top-24">
             <h2 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xl text-[#0A0A0A] dark:text-[#F5F3FA] mb-6">
               Resumen
             </h2>
@@ -363,7 +363,7 @@ export const NuevaVentaView: React.FC<NuevaVentaViewProps> = ({ onBack, onSucces
             <button
               onClick={handleGuardarVenta}
               disabled={!clienteSeleccionado || productosVenta.length === 0}
-              className="w-full px-4 py-3 bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] text-white rounded-lg hover:opacity-90 transition disabled:bg-gray-300 dark:disabled:bg-[#3A2E4D] disabled:cursor-not-allowed"
+              className="w-full px-4 py-3 bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] text-white rounded-none hover:opacity-90 transition disabled:bg-gray-300 dark:disabled:bg-[#3A2E4D] disabled:cursor-not-allowed"
               style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
             >
               Guardar Venta
@@ -371,7 +371,7 @@ export const NuevaVentaView: React.FC<NuevaVentaViewProps> = ({ onBack, onSucces
 
             <button
               onClick={onBack}
-              className="w-full mt-2 px-4 py-3 bg-gray-100 dark:bg-[#221830] text-gray-700 dark:text-[#F5F3FA] rounded-lg hover:bg-gray-200 dark:hover:bg-[#241935] transition"
+              className="w-full mt-2 px-4 py-3 bg-gray-100 dark:bg-[#221830] text-gray-700 dark:text-[#F5F3FA] rounded-none hover:bg-gray-200 dark:hover:bg-[#241935] transition"
               style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
             >
               Cancelar

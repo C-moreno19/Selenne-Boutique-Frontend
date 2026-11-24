@@ -93,7 +93,7 @@ export const ClientesView: React.FC = () => {
     <div className="p-8 bg-[#F7F5FC] dark:bg-[#17101f] min-h-screen">
       <div className="flex items-center gap-2 mb-4">
         <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500 dark:text-[#b9aedd]">Dashboard</span>
-        <ChevronRight className="w-4 h-4 text-gray-400 dark:text-[#b9aedd]" />
+        <ChevronRight className="w-4 h-4 text-[#C9A8C3]" />
         <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-[#0A0A0A] dark:text-[#F5F3FA]">Clientes</span>
       </div>
 
@@ -106,13 +106,13 @@ export const ClientesView: React.FC = () => {
         </div>
         <button onClick={() => { setLoading(true); loadClientes(); }}
           style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-          className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#1e1530] border border-[#E7E0DA] dark:border-[#3A2E4D] text-gray-600 dark:text-[#b9aedd] rounded-lg hover:bg-[#F7F5FC] dark:hover:bg-[#221830] text-sm transition">
+          className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#1e1530] border border-[#E7E0DA] dark:border-[#3A2E4D] text-gray-600 dark:text-[#b9aedd] rounded-none hover:bg-[#F7F5FC] dark:hover:bg-[#221830] text-sm transition">
           <RefreshCw className="w-4 h-4" /> Actualizar
         </button>
       </div>
 
-      <div className="bg-white dark:bg-[#1e1530] rounded-xl p-4 shadow-sm border border-[#E7E0DA] dark:border-[#3A2E4D] mb-6">
-        <div className="flex items-center gap-2 bg-[#F7F5FC] dark:bg-[#17101f] border border-[#E7E0DA] dark:border-[#3A2E4D] rounded-lg px-3 focus-within:ring-2 focus-within:ring-[#5C2A52]">
+      <div className="bg-white dark:bg-[#1e1530] rounded-none p-4 shadow-sm border border-[#E7E0DA] dark:border-[#3A2E4D] mb-6">
+        <div className="flex items-center gap-2 bg-[#F7F5FC] dark:bg-[#17101f] border border-[#E7E0DA] dark:border-[#3A2E4D] rounded-none px-3 focus-within:ring-2 focus-within:ring-[#5C2A52]">
           <Search className="w-4 h-4 text-gray-400 dark:text-[#b9aedd] shrink-0" />
           <input type="text" placeholder="Buscar por nombre, email o teléfono..."
             value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
@@ -121,7 +121,7 @@ export const ClientesView: React.FC = () => {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-[#1e1530] rounded-xl shadow-sm border border-[#E7E0DA] dark:border-[#3A2E4D] overflow-hidden">
+      <div className="bg-white dark:bg-[#1e1530] rounded-none shadow-sm border border-[#E7E0DA] dark:border-[#3A2E4D] overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="w-8 h-8 text-[#5C2A52] animate-spin" />
@@ -168,7 +168,7 @@ export const ClientesView: React.FC = () => {
                     </td>
                     <td className="px-5 py-4">
                       <button onClick={() => { setSelectedCliente(c); setViewOpen(true); }}
-                        className="p-1.5 text-gray-400 dark:text-[#b9aedd] hover:bg-blue-50 dark:hover:bg-blue-950/40 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg transition" title="Ver detalles">
+                        className="p-1.5 text-gray-400 dark:text-[#b9aedd] hover:bg-blue-50 dark:hover:bg-blue-950/40 hover:text-blue-600 dark:hover:text-blue-400 rounded-none transition" title="Ver detalles">
                         <Eye className="w-4 h-4" />
                       </button>
                     </td>
@@ -211,9 +211,9 @@ export const ClientesView: React.FC = () => {
           {selectedCliente && (
             <div className="flex-1 overflow-y-auto">
               <div className="space-y-6 py-6 px-8">
-                <div className="bg-white dark:bg-[#1e1530] rounded-xl border border-[#E7E0DA] dark:border-[#3A2E4D] shadow-sm overflow-hidden">
-                  <div className="bg-[#F7F5FC] dark:bg-[#17101f] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#3A2E4D]">
-                    <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#0A0A0A] dark:text-[#F5F3FA] text-base flex items-center gap-2"><User className="w-4 h-4 text-gray-400 dark:text-[#b9aedd]" />Información Personal</h3>
+                <div className="bg-white dark:bg-[#1e1530] rounded-none border border-[#E7E0DA] dark:border-[#3A2E4D] shadow-sm overflow-hidden">
+                  <div className="bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] px-6 py-4">
+                    <h3 style={{ fontFamily: '"Playfair Display", Georgia, serif' }} className="font-semibold text-white text-base flex items-center gap-2"><User className="w-4 h-4 text-[#C9A8C3]" />Información Personal</h3>
                   </div>
                   <div className="p-6 grid grid-cols-2 gap-6">
                     <div className="flex flex-col gap-1">
@@ -251,20 +251,20 @@ export const ClientesView: React.FC = () => {
                   );
                   if (pedidosCliente.length === 0) return null;
                   return (
-                    <div className="bg-white dark:bg-[#1e1530] rounded-xl border border-[#E7E0DA] dark:border-[#3A2E4D] shadow-sm overflow-hidden">
-                      <div className="bg-[#F7F5FC] dark:bg-[#17101f] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#3A2E4D]">
-                        <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-[#0A0A0A] dark:text-[#F5F3FA] text-base flex items-center gap-2"><Package className="w-4 h-4 text-gray-400 dark:text-[#b9aedd]" />Pedidos ({pedidosCliente.length})</h3>
+                    <div className="bg-white dark:bg-[#1e1530] rounded-none border border-[#E7E0DA] dark:border-[#3A2E4D] shadow-sm overflow-hidden">
+                      <div className="bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] px-6 py-4">
+                        <h3 style={{ fontFamily: '"Playfair Display", Georgia, serif' }} className="font-semibold text-white text-base flex items-center gap-2"><Package className="w-4 h-4 text-[#C9A8C3]" />Pedidos ({pedidosCliente.length})</h3>
                       </div>
                       <div className="p-6 space-y-3 max-h-48 overflow-y-auto">
                         {pedidosCliente.map(pedido => (
-                          <div key={pedido.id} className="flex justify-between items-center p-3 bg-[#F7F5FC] dark:bg-[#17101f] rounded-xl">
+                          <div key={pedido.id} className="flex justify-between items-center p-3 bg-[#F7F5FC] dark:bg-[#17101f] rounded-none">
                             <div>
                               <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-semibold text-[#0A0A0A] dark:text-[#F5F3FA]">{pedido.numeroComprobante}</p>
                               <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-500 dark:text-[#b9aedd]">{new Date(pedido.fecha).toLocaleDateString('es-CO')}</p>
                             </div>
                             <div className="flex items-center gap-3">
                               <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-bold text-[#0A0A0A] dark:text-[#F5F3FA]">{formatCurrency(pedido.monto ?? 0)}</span>
-                              <span className={`px-2 py-1 rounded-lg text-xs font-semibold ${
+                              <span className={`px-2 py-1 rounded-none text-xs font-semibold ${
                                 pedido.estado === 'Completada' ? 'bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-400' :
                                 pedido.estado === 'Aprobada' ? 'bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400' :
                                 pedido.estado === 'Pendiente' ? 'bg-yellow-100 dark:bg-yellow-950/40 text-yellow-700 dark:text-yellow-400' :
@@ -282,7 +282,7 @@ export const ClientesView: React.FC = () => {
           )}
           <DialogFooter className="gap-2 px-8 py-5 border-t border-[#E7E0DA] dark:border-[#3A2E4D] flex-shrink-0">
             <button onClick={() => setViewOpen(false)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="px-6 py-2 bg-gray-100 dark:bg-[#221830] text-gray-700 dark:text-[#F5F3FA] rounded-lg hover:bg-gray-200 dark:hover:bg-[#241935] transition">Cerrar</button>
+              className="px-6 py-2 bg-gray-100 dark:bg-[#221830] text-gray-700 dark:text-[#F5F3FA] rounded-none hover:bg-gray-200 dark:hover:bg-[#241935] transition">Cerrar</button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

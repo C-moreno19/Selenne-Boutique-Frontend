@@ -101,7 +101,7 @@ export const ResenasView: React.FC = () => {
       ) : (
         <div className="space-y-3">
           {resenas.map(r => (
-            <div key={r.valoracionID} className="bg-white dark:bg-[#1e1530] rounded-xl border border-[#E7E0DA] dark:border-[#3A2E4D] p-4 flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4">
+            <div key={r.valoracionID} className="bg-white dark:bg-[#1e1530] rounded-none border border-[#E7E0DA] dark:border-[#3A2E4D] p-4 flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4">
               <div className="flex-1 min-w-0">
                 <div className="flex flex-wrap items-center gap-2 mb-1">
                   <span className="font-semibold text-sm text-[#0A0A0A] dark:text-[#F5F3FA]">{r.productoNombre ?? `Producto #${r.productoID}`}</span>
@@ -130,18 +130,18 @@ export const ResenasView: React.FC = () => {
                 <div className="flex sm:flex-col gap-2 flex-shrink-0">
                   {tab !== 'aprobada' && (
                     <button onClick={() => moderar(r.valoracionID, 'aprobada')} disabled={procesando === r.valoracionID}
-                      className="h-9 px-3 text-xs font-semibold text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-950/40 rounded-lg flex items-center gap-1.5 hover:opacity-80 disabled:opacity-50">
+                      className="h-9 px-3 text-xs font-semibold text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-950/40 rounded-none flex items-center gap-1.5 hover:opacity-80 disabled:opacity-50">
                       <Check className="w-3.5 h-3.5" /> Aprobar
                     </button>
                   )}
                   {tab !== 'rechazada' && (
                     <button onClick={() => moderar(r.valoracionID, 'rechazada')} disabled={procesando === r.valoracionID}
-                      className="h-9 px-3 text-xs font-semibold text-orange-700 dark:text-orange-400 bg-orange-50 dark:bg-orange-950/40 rounded-lg flex items-center gap-1.5 hover:opacity-80 disabled:opacity-50">
+                      className="h-9 px-3 text-xs font-semibold text-orange-700 dark:text-orange-400 bg-orange-50 dark:bg-orange-950/40 rounded-none flex items-center gap-1.5 hover:opacity-80 disabled:opacity-50">
                       <X className="w-3.5 h-3.5" /> Rechazar
                     </button>
                   )}
                   <button onClick={() => setDeleteTarget(r)} disabled={procesando === r.valoracionID}
-                    className="h-9 px-3 text-xs font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 rounded-lg flex items-center gap-1.5 hover:opacity-80 disabled:opacity-50">
+                    className="h-9 px-3 text-xs font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 rounded-none flex items-center gap-1.5 hover:opacity-80 disabled:opacity-50">
                     <Trash2 className="w-3.5 h-3.5" /> Eliminar
                   </button>
                 </div>

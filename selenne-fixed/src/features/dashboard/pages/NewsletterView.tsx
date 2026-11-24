@@ -73,7 +73,7 @@ export const NewsletterView: React.FC = () => {
     <div className="p-8 bg-[#F7F5FC] dark:bg-[#17101f] min-h-screen">
       <div className="flex items-center gap-2 mb-4">
         <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500 dark:text-[#b9aedd]">Dashboard</span>
-        <ChevronRight className="w-4 h-4 text-gray-400 dark:text-[#b9aedd]" />
+        <ChevronRight className="w-4 h-4 text-[#C9A8C3]" />
         <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-[#0A0A0A] dark:text-[#F5F3FA]">Newsletter</span>
       </div>
       <div className="mb-6">
@@ -85,9 +85,9 @@ export const NewsletterView: React.FC = () => {
 
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Enviar promoción */}
-        <div className="bg-white dark:bg-[#1e1530] rounded-xl border border-[#E7E0DA] dark:border-[#3A2E4D] shadow-sm overflow-hidden h-fit">
-          <div className="bg-[#F7F5FC] dark:bg-[#17101f] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#3A2E4D]">
-            <h3 className="font-semibold text-[#0A0A0A] dark:text-[#F5F3FA] text-base flex items-center gap-2">
+        <div className="bg-white dark:bg-[#1e1530] rounded-none border border-[#E7E0DA] dark:border-[#3A2E4D] shadow-sm overflow-hidden h-fit">
+          <div className="bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] px-6 py-4">
+            <h3 className="font-semibold text-white text-base flex items-center gap-2">
               <Send className="w-4 h-4 text-[#5C2A52]" /> Enviar promoción
             </h3>
           </div>
@@ -102,12 +102,12 @@ export const NewsletterView: React.FC = () => {
               <textarea value={mensaje} onChange={e => setMensaje(e.target.value)}
                 rows={6}
                 placeholder="Escribe el contenido del correo..."
-                className="w-full px-3 py-2.5 border border-gray-300 dark:border-[#3A2E4D] rounded-xl text-sm focus:outline-none focus:border-[#5C2A52] resize-none bg-white dark:bg-[#17101f] text-gray-900 dark:text-[#F5F3FA] transition" />
+                className="w-full px-3 py-2.5 border border-gray-300 dark:border-[#3A2E4D] rounded-none text-sm focus:outline-none focus:border-[#5C2A52] resize-none bg-white dark:bg-[#17101f] text-gray-900 dark:text-[#F5F3FA] transition" />
             </div>
             <button
               onClick={() => { if (!asunto.trim() || !mensaje.trim()) { toast.error('Completa el asunto y el mensaje'); return; } setConfirmarEnvioOpen(true); }}
               disabled={enviando || activos.length === 0}
-              className="w-full px-6 py-2.5 bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] text-white rounded-lg hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2 transition font-semibold text-sm">
+              className="w-full px-6 py-2.5 bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] text-white rounded-none hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2 transition font-semibold text-sm">
               {enviando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               Enviar a {activos.length} suscriptores
             </button>
@@ -118,9 +118,9 @@ export const NewsletterView: React.FC = () => {
         </div>
 
         {/* Lista de suscriptores */}
-        <div className="bg-white dark:bg-[#1e1530] rounded-xl border border-[#E7E0DA] dark:border-[#3A2E4D] shadow-sm overflow-hidden h-fit">
-          <div className="bg-[#F7F5FC] dark:bg-[#17101f] px-6 py-4 border-b border-[#E7E0DA] dark:border-[#3A2E4D]">
-            <h3 className="font-semibold text-[#0A0A0A] dark:text-[#F5F3FA] text-base flex items-center gap-2">
+        <div className="bg-white dark:bg-[#1e1530] rounded-none border border-[#E7E0DA] dark:border-[#3A2E4D] shadow-sm overflow-hidden h-fit">
+          <div className="bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] px-6 py-4">
+            <h3 className="font-semibold text-white text-base flex items-center gap-2">
               <Users className="w-4 h-4 text-[#5C2A52]" /> Suscriptores
             </h3>
           </div>
@@ -147,7 +147,7 @@ export const NewsletterView: React.FC = () => {
                     </span>
                     {puedeEditar && (
                       <button onClick={() => setEliminarId(s.suscriptorID)}
-                        className="p-1.5 text-gray-400 dark:text-[#b9aedd] hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-600 dark:hover:text-red-400 rounded-lg transition" title="Eliminar">
+                        className="p-1.5 text-gray-400 dark:text-[#b9aedd] hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-600 dark:hover:text-red-400 rounded-none transition" title="Eliminar">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     )}
