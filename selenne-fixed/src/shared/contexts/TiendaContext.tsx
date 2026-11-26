@@ -13,6 +13,7 @@ export interface Producto {
   categoria: 'mujer' | 'hombre' | 'accesorios' | 'sale';
   subcategoria?: string;
   tipoProducto: string;
+  marca?: string;
   tallas: string[];
   colores?: string[];
   materiales?: string[];

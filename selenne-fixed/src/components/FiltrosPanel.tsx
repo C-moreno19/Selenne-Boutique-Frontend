@@ -3,6 +3,9 @@ import { motion, AnimatePresence } from "motion/react";
 import { ChevronUp, X } from "lucide-react";
 import { formatCurrency } from "../shared/utils";
 
+const FONT_SANS = '"Helvetica Neue", Helvetica, Arial, sans-serif';
+const GRADIENT = "linear-gradient(90deg, #0A0A0A 0%, #3B0A45 55%, #5C2A52 100%)";
+
 export interface FiltrosAplicados {
   precioMin: number | null;
   precioMax: number | null;
@@ -144,8 +147,8 @@ export function FiltrosPanel({
             transition={{ duration: 0.3, ease: 'easeOut' }}
             className="fixed right-0 top-0 h-full w-80 bg-white dark:bg-[#1e1530] z-50 flex flex-col shadow-2xl">
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-[#3A2E4D]">
-          <span className="text-xs font-bold tracking-widest text-gray-900 dark:text-[#F5F3FA]">APLICAR FILTROS</span>
-          <button onClick={onClose} className="flex items-center gap-1 text-xs font-bold tracking-widest text-gray-900 dark:text-[#F5F3FA] hover:text-gray-600 dark:hover:text-[#b9aedd]">
+          <span style={{ fontFamily: FONT_SANS }} className="text-xs font-bold tracking-widest text-gray-900 dark:text-[#F5F3FA]">APLICAR FILTROS</span>
+          <button onClick={onClose} style={{ fontFamily: FONT_SANS }} className="flex items-center gap-1 text-xs font-bold tracking-widest text-gray-900 dark:text-[#F5F3FA] hover:text-gray-600 dark:hover:text-[#b9aedd]">
             CERRAR <X className="w-4 h-4" />
           </button>
         </div>
@@ -155,7 +158,7 @@ export function FiltrosPanel({
           <div className="px-5 py-4 border-b border-gray-100 dark:border-[#3A2E4D]">
             <button onClick={() => setSeccionesAbiertas(s => ({ ...s, precio: !s.precio }))}
               className="w-full flex items-center justify-between mb-3">
-              <span className="text-xs font-bold tracking-widest text-gray-900 dark:text-[#F5F3FA]">PRECIO</span>
+              <span style={{ fontFamily: FONT_SANS }} className="text-xs font-bold tracking-widest text-gray-900 dark:text-[#F5F3FA]">PRECIO</span>
               <ChevronUp className={`w-4 h-4 text-gray-500 dark:text-[#b9aedd] transition-transform ${seccionesAbiertas.precio ? '' : 'rotate-180'}`} />
             </button>
             {seccionesAbiertas.precio && (
@@ -174,11 +177,11 @@ export function FiltrosPanel({
                     style={{ left: `calc(${(precioMaxLocal / maxPrecioGlobal) * 100}% - 8px)` }} />
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="flex-1 border border-gray-200 dark:border-[#3A2E4D] rounded px-3 py-2 text-sm text-gray-700 dark:text-[#F5F3FA]">
+                  <div className="flex-1 border border-gray-200 dark:border-[#3A2E4D] rounded-none px-3 py-2 text-sm text-gray-700 dark:text-[#F5F3FA]">
                     {formatCurrency(precioMinLocal)}
                   </div>
                   <span className="text-gray-400 dark:text-[#b9aedd]">—</span>
-                  <div className="flex-1 border border-gray-200 dark:border-[#3A2E4D] rounded px-3 py-2 text-sm text-gray-700 dark:text-[#F5F3FA]">
+                  <div className="flex-1 border border-gray-200 dark:border-[#3A2E4D] rounded-none px-3 py-2 text-sm text-gray-700 dark:text-[#F5F3FA]">
                     {formatCurrency(precioMaxLocal)}
                   </div>
                 </div>
@@ -191,14 +194,14 @@ export function FiltrosPanel({
             <div className="px-5 py-4 border-b border-gray-100 dark:border-[#3A2E4D]">
               <button onClick={() => setSeccionesAbiertas(s => ({ ...s, talla: !s.talla }))}
                 className="w-full flex items-center justify-between mb-3">
-                <span className="text-xs font-bold tracking-widest text-gray-900 dark:text-[#F5F3FA]">TALLA</span>
+                <span style={{ fontFamily: FONT_SANS }} className="text-xs font-bold tracking-widest text-gray-900 dark:text-[#F5F3FA]">TALLA</span>
                 <ChevronUp className={`w-4 h-4 text-gray-500 dark:text-[#b9aedd] transition-transform ${seccionesAbiertas.talla ? '' : 'rotate-180'}`} />
               </button>
               {seccionesAbiertas.talla && (
                 <div className="flex flex-wrap gap-2">
                   {tallasDisponibles.map(t => (
                     <button key={t} onClick={() => setTallaLocal(tallaLocal.includes(t) ? tallaLocal.filter(x => x !== t) : [...tallaLocal, t])}
-                      className={`px-3 py-1.5 text-sm border rounded transition-colors ${tallaLocal.includes(t) ? 'border-black dark:border-[#5C2A52] bg-black dark:bg-[#5C2A52] text-white' : 'border-gray-300 dark:border-[#3A2E4D] text-gray-700 dark:text-[#F5F3FA] hover:border-gray-900 dark:hover:border-[#5C2A52]'}`}>
+                      className={`px-3 py-1.5 text-sm border rounded-none transition-colors ${tallaLocal.includes(t) ? 'border-black dark:border-[#5C2A52] bg-black dark:bg-[#5C2A52] text-white' : 'border-gray-300 dark:border-[#3A2E4D] text-gray-700 dark:text-[#F5F3FA] hover:border-gray-900 dark:hover:border-[#5C2A52]'}`}>
                       {t}
                     </button>
                   ))}
@@ -212,14 +215,14 @@ export function FiltrosPanel({
             <div className="px-5 py-4 border-b border-gray-100 dark:border-[#3A2E4D]">
               <button onClick={() => setSeccionesAbiertas(s => ({ ...s, tipo: !s.tipo }))}
                 className="w-full flex items-center justify-between mb-3">
-                <span className="text-xs font-bold tracking-widest text-gray-900 dark:text-[#F5F3FA]">TIPO DE PRODUCTO</span>
+                <span style={{ fontFamily: FONT_SANS }} className="text-xs font-bold tracking-widest text-gray-900 dark:text-[#F5F3FA]">TIPO DE PRODUCTO</span>
                 <ChevronUp className={`w-4 h-4 text-gray-500 dark:text-[#b9aedd] transition-transform ${seccionesAbiertas.tipo ? '' : 'rotate-180'}`} />
               </button>
               {seccionesAbiertas.tipo && (
                 <div className="flex flex-wrap gap-2">
                   {tiposProductoDisponibles.map(t => (
                     <button key={t} onClick={() => setTipoLocal(tipoLocal === t ? '' : t)}
-                      className={`px-3 py-1.5 text-sm border rounded transition-colors ${tipoLocal === t ? 'border-black dark:border-[#5C2A52] bg-black dark:bg-[#5C2A52] text-white' : 'border-gray-300 dark:border-[#3A2E4D] text-gray-700 dark:text-[#F5F3FA] hover:border-gray-900 dark:hover:border-[#5C2A52]'}`}>
+                      className={`px-3 py-1.5 text-sm border rounded-none transition-colors ${tipoLocal === t ? 'border-black dark:border-[#5C2A52] bg-black dark:bg-[#5C2A52] text-white' : 'border-gray-300 dark:border-[#3A2E4D] text-gray-700 dark:text-[#F5F3FA] hover:border-gray-900 dark:hover:border-[#5C2A52]'}`}>
                       {t}
                     </button>
                   ))}
@@ -233,14 +236,14 @@ export function FiltrosPanel({
             <div className="px-5 py-4 border-b border-gray-100 dark:border-[#3A2E4D]">
               <button onClick={() => setSeccionesAbiertas(s => ({ ...s, categoria: !s.categoria }))}
                 className="w-full flex items-center justify-between mb-3">
-                <span className="text-xs font-bold tracking-widest text-gray-900 dark:text-[#F5F3FA]">CATEGORÍA</span>
+                <span style={{ fontFamily: FONT_SANS }} className="text-xs font-bold tracking-widest text-gray-900 dark:text-[#F5F3FA]">CATEGORÍA</span>
                 <ChevronUp className={`w-4 h-4 text-gray-500 dark:text-[#b9aedd] transition-transform ${seccionesAbiertas.categoria ? '' : 'rotate-180'}`} />
               </button>
               {seccionesAbiertas.categoria && (
                 <div className="flex flex-wrap gap-2">
                   {categoriasRopaDisponibles.map(c => (
                     <button key={c} onClick={() => setCategoriaLocal(categoriaLocal === c ? '' : c)}
-                      className={`px-3 py-1.5 text-sm border rounded transition-colors ${categoriaLocal === c ? 'border-black dark:border-[#5C2A52] bg-black dark:bg-[#5C2A52] text-white' : 'border-gray-300 dark:border-[#3A2E4D] text-gray-700 dark:text-[#F5F3FA] hover:border-gray-900 dark:hover:border-[#5C2A52]'}`}>
+                      className={`px-3 py-1.5 text-sm border rounded-none transition-colors ${categoriaLocal === c ? 'border-black dark:border-[#5C2A52] bg-black dark:bg-[#5C2A52] text-white' : 'border-gray-300 dark:border-[#3A2E4D] text-gray-700 dark:text-[#F5F3FA] hover:border-gray-900 dark:hover:border-[#5C2A52]'}`}>
                       {c}
                     </button>
                   ))}
@@ -254,14 +257,14 @@ export function FiltrosPanel({
             <div className="px-5 py-4 border-b border-gray-100 dark:border-[#3A2E4D]">
               <button onClick={() => setSeccionesAbiertas(s => ({ ...s, color: !s.color }))}
                 className="w-full flex items-center justify-between mb-3">
-                <span className="text-xs font-bold tracking-widest text-gray-900 dark:text-[#F5F3FA]">COLOR</span>
+                <span style={{ fontFamily: FONT_SANS }} className="text-xs font-bold tracking-widest text-gray-900 dark:text-[#F5F3FA]">COLOR</span>
                 <ChevronUp className={`w-4 h-4 text-gray-500 dark:text-[#b9aedd] transition-transform ${seccionesAbiertas.color ? '' : 'rotate-180'}`} />
               </button>
               {seccionesAbiertas.color && (
                 <div className="flex flex-wrap gap-2">
                   {coloresDisponibles.map(c => (
                     <button key={c} onClick={() => setColorLocal(colorLocal === c ? '' : c)}
-                      className={`px-3 py-1.5 text-sm border rounded transition-colors ${colorLocal === c ? 'border-black dark:border-[#5C2A52] bg-black dark:bg-[#5C2A52] text-white' : 'border-gray-300 dark:border-[#3A2E4D] text-gray-700 dark:text-[#F5F3FA] hover:border-gray-900 dark:hover:border-[#5C2A52]'}`}>
+                      className={`px-3 py-1.5 text-sm border rounded-none transition-colors ${colorLocal === c ? 'border-black dark:border-[#5C2A52] bg-black dark:bg-[#5C2A52] text-white' : 'border-gray-300 dark:border-[#3A2E4D] text-gray-700 dark:text-[#F5F3FA] hover:border-gray-900 dark:hover:border-[#5C2A52]'}`}>
                       {c}
                     </button>
                   ))}
@@ -275,14 +278,14 @@ export function FiltrosPanel({
             <div className="px-5 py-4 border-b border-gray-100 dark:border-[#3A2E4D]">
               <button onClick={() => setSeccionesAbiertas(s => ({ ...s, material: !s.material }))}
                 className="w-full flex items-center justify-between mb-3">
-                <span className="text-xs font-bold tracking-widest text-gray-900 dark:text-[#F5F3FA]">MATERIAL</span>
+                <span style={{ fontFamily: FONT_SANS }} className="text-xs font-bold tracking-widest text-gray-900 dark:text-[#F5F3FA]">MATERIAL</span>
                 <ChevronUp className={`w-4 h-4 text-gray-500 dark:text-[#b9aedd] transition-transform ${seccionesAbiertas.material ? '' : 'rotate-180'}`} />
               </button>
               {seccionesAbiertas.material && (
                 <div className="flex flex-wrap gap-2">
                   {materialesDisponibles.map(m => (
                     <button key={m} onClick={() => setMaterialLocal(materialLocal === m ? '' : m)}
-                      className={`px-3 py-1.5 text-sm border rounded transition-colors ${materialLocal === m ? 'border-black dark:border-[#5C2A52] bg-black dark:bg-[#5C2A52] text-white' : 'border-gray-300 dark:border-[#3A2E4D] text-gray-700 dark:text-[#F5F3FA] hover:border-gray-900 dark:hover:border-[#5C2A52]'}`}>
+                      className={`px-3 py-1.5 text-sm border rounded-none transition-colors ${materialLocal === m ? 'border-black dark:border-[#5C2A52] bg-black dark:bg-[#5C2A52] text-white' : 'border-gray-300 dark:border-[#3A2E4D] text-gray-700 dark:text-[#F5F3FA] hover:border-gray-900 dark:hover:border-[#5C2A52]'}`}>
                       {m}
                     </button>
                   ))}
@@ -301,7 +304,8 @@ export function FiltrosPanel({
 
         <div className="px-5 py-4 border-t border-gray-100 dark:border-[#3A2E4D]">
           <button onClick={aplicarFiltros}
-            className="w-full bg-black text-white py-3 text-xs font-bold tracking-widest hover:bg-gray-800 transition-all duration-200 hover:scale-[1.02]">
+            style={{ background: GRADIENT, fontFamily: FONT_SANS }}
+            className="w-full text-white py-3 text-xs font-bold tracking-widest hover:opacity-90 transition-all duration-200 hover:scale-[1.02]">
             MOSTRAR ARTÍCULOS
           </button>
         </div>

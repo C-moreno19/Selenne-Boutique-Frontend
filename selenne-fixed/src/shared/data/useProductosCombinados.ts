@@ -39,6 +39,7 @@ export const useProductosCombinados = (): Producto[] => {
           categoria,
           subcategoria: p.categoria,
           tipoProducto: p.tipoProducto || 'General',
+          marca: p.marca && p.marca !== 'Sin Marca' ? p.marca : undefined,
           tallas: Array.isArray(p.tallas) ? p.tallas : [],
           colores: Array.isArray(p.colores) ? p.colores : [],
           materiales: Array.isArray(p.materiales) ? p.materiales : [],

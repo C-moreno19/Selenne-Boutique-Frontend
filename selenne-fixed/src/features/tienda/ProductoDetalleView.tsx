@@ -58,22 +58,24 @@ export const ProductoDetalleView: React.FC = () => {
   const [carritoAbierto, setCarritoAbierto] = useState(false);
   const [favoritosOpen, setFavoritosOpen] = useState(false);
 
-  // Preseleccionar la primera talla/color disponibles cuando cambia el producto.
+  // Al entrar al producto se ve primero la foto principal; solo se cambia a
+  // las fotos de un color cuando el cliente lo elige (o si vino de un link
+  // con ?color= ya apuntando a uno). No se preselecciona el primer color.
   useEffect(() => {
     if (!producto) return;
     const colorPreferido = searchParams.get("color");
-    const colorIni = (colorPreferido && producto.colores?.includes(colorPreferido))
-      ? colorPreferido
-      : (producto.colores?.[0] || "");
+    const colorIni = (colorPreferido && producto.colores?.includes(colorPreferido)) ? colorPreferido : "";
     setColorSeleccionado(colorIni);
     const tallasP = producto.tallas || [];
     const variantesP = producto.variantes || [];
+    // Si hay una talla sin stock agotado la deja sin seleccionar — así el
+    // botón de compra queda bloqueado en vez de forzar una talla agotada.
     const tallaIni = tallasP.find((t: string) => {
       if (!variantesP.length) return true;
       const v = variantesP.find((x) => x.tallaNombre === t && (!colorIni || x.colorNombre === colorIni));
       return v ? v.stock > 0 : true;
     });
-    setTallaSeleccionada(tallaIni || tallasP[0] || "Única");
+    setTallaSeleccionada(tallaIni || (tallasP.length === 0 ? "Única" : ""));
     setCantidadSeleccionada(1);
     window.scrollTo({ top: 0 });
   }, [producto?.id]);
@@ -133,6 +135,36 @@ export const ProductoDetalleView: React.FC = () => {
       : (producto.imagen ? [producto.imagen] : []);
     return [...new Set([producto.imagen, ...imgsGenerales].filter(Boolean))];
   })();
+
+  // Stock real de una talla (considerando el color elegido) — se reutiliza
+  // para pintar los botones de talla Y para bloquear de verdad el botón de
+  // compra, en vez de confiar solo en el flag general `producto.agotado`.
+  const tallasProducto: string[] = producto.tallas || [];
+  const variantesProd = producto.variantes || [];
+  const stockGeneralProd: number = producto.stock ?? 0;
+  const todosVariantesCero = variantesProd.length > 0 && variantesProd.every((x) => (x.stock ?? 0) <= 0);
+  const calcularStockTalla = (talla: string): { sinStock: boolean; stockDisponible: number } => {
+    if (talla === "Única") {
+      return { sinStock: stockGeneralProd <= 0, stockDisponible: stockGeneralProd };
+    }
+    if (variantesProd.length > 0 && !todosVariantesCero) {
+      const colorEfectivo = colorSeleccionado || (producto.colores?.length === 1 ? producto.colores[0] : null);
+      let stockDisponible: number;
+      if (colorEfectivo) {
+        const v = variantesProd.find((x) => x.tallaNombre === talla && x.colorNombre === colorEfectivo);
+        stockDisponible = v?.stock ?? 0;
+      } else {
+        stockDisponible = variantesProd.filter((x) => x.tallaNombre === talla).reduce((s, x) => s + (x.stock ?? 0), 0);
+      }
+      return { sinStock: stockDisponible <= 0, stockDisponible };
+    }
+    const stockDisponible = stockGeneralProd > 0 ? stockGeneralProd : 10;
+    return { sinStock: stockDisponible <= 0, stockDisponible };
+  };
+  const seleccionSinStock = tallasProducto.length > 0
+    ? (!tallaSeleccionada || calcularStockTalla(tallaSeleccionada).sinStock)
+    : false;
+  const noSePuedeComprar = !!producto.agotado || seleccionSinStock;
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#17101f] flex flex-col">
@@ -263,7 +295,7 @@ export const ProductoDetalleView: React.FC = () => {
           <div className="flex-1 flex flex-col gap-4 pt-5 sm:pt-0">
             <div>
               <p style={{ fontFamily: FONT_SANS }} className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#5C2A52] mb-2">
-                {[producto.tipoProducto, producto.subcategoria].filter(Boolean).join(" · ") || "District Store"}
+                {[producto.marca, producto.tipoProducto, producto.subcategoria].filter(Boolean).join(" · ") || "District Store"}
               </p>
               <div className="flex items-start justify-between gap-3">
                 <h1
@@ -343,34 +375,13 @@ export const ProductoDetalleView: React.FC = () => {
             )}
 
             {(() => {
-              const tallasProducto: string[] = producto.tallas || [];
-              const variantes = producto.variantes || [];
-              const stockGeneral: number = producto.stock ?? 0;
               if (tallasProducto.length === 0) return null;
-              const todosVariantesCero = variantes.length > 0 && variantes.every((x) => (x.stock ?? 0) <= 0);
               return (
                 <div>
                   <p style={{ fontFamily: FONT_SANS }} className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#0A0A0A] dark:text-[#F5F3FA] mb-3">Talla</p>
                   <div className="flex flex-wrap gap-2">
                     {tallasProducto.map((talla) => {
-                      let sinStock = false;
-                      let stockDisponible: number;
-                      if (talla === "Única") {
-                        sinStock = stockGeneral <= 0;
-                        stockDisponible = stockGeneral;
-                      } else if (variantes.length > 0 && !todosVariantesCero) {
-                        const colorEfectivo = colorSeleccionado || (producto.colores?.length === 1 ? producto.colores[0] : null);
-                        if (colorEfectivo) {
-                          const v = variantes.find((x) => x.tallaNombre === talla && x.colorNombre === colorEfectivo);
-                          stockDisponible = v?.stock ?? 0;
-                        } else {
-                          stockDisponible = variantes.filter((x) => x.tallaNombre === talla).reduce((s, x) => s + (x.stock ?? 0), 0);
-                        }
-                        sinStock = stockDisponible <= 0;
-                      } else {
-                        stockDisponible = stockGeneral > 0 ? stockGeneral : 10;
-                        sinStock = stockDisponible <= 0;
-                      }
+                      const { sinStock, stockDisponible } = calcularStockTalla(talla);
                       const seleccionada = tallaSeleccionada === talla;
                       return (
                         <button
@@ -428,15 +439,15 @@ export const ProductoDetalleView: React.FC = () => {
               </div>
               <button
                 onClick={handleAgregarAlCarrito}
-                disabled={!tallaSeleccionada || producto.agotado}
-                style={!tallaSeleccionada || producto.agotado ? undefined : { background: GRADIENT }}
+                disabled={noSePuedeComprar}
+                style={noSePuedeComprar ? undefined : { background: GRADIENT }}
                 className={`flex-1 h-11 text-xs font-bold uppercase tracking-widest text-white transition-all ${
-                  !tallaSeleccionada || producto.agotado
+                  noSePuedeComprar
                     ? "bg-[#E7E0DA] dark:bg-[#3A2E4D] text-[#c3bab3] dark:text-[#5a4d52] cursor-not-allowed"
                     : "hover:opacity-90"
                 }`}
               >
-                {producto.agotado ? "Agotado" : "Agregar al Carrito"}
+                {noSePuedeComprar ? "Agotado" : "Agregar al Carrito"}
               </button>
             </div>
 

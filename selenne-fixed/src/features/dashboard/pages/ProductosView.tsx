@@ -931,6 +931,7 @@ export const ProductosView: React.FC = () => {
                         </div>
                         <Input type="number" min="0" value={form.stock}
                           onChange={e => setForm(f => ({ ...f, stock: e.target.value }))}
+                          onFocus={e => e.target.select()}
                           className="w-24 h-10 border-gray-300 dark:border-[#3A2E4D] text-center font-semibold" />
                       </div>
                     </div>
@@ -1008,8 +1009,10 @@ export const ProductosView: React.FC = () => {
                                 <td className="py-3 font-medium text-gray-700 dark:text-[#F5F3FA]">{v.tallaNombre || '—'}</td>
                                 <td className="py-3 text-gray-700 dark:text-[#F5F3FA]">{v.colorNombre || <span className="text-gray-400 dark:text-[#b9aedd] italic text-xs">sin color</span>}</td>
                                 <td className="py-3 text-right">
-                                  <Input type="number" min="0" value={v.stock}
-                                    onChange={e => updateStock(v.tallaNombre, v.colorNombre, Number(e.target.value))}
+                                  <Input type="number" min="0" value={v.stock === 0 ? '' : v.stock}
+                                    placeholder="0"
+                                    onChange={e => updateStock(v.tallaNombre, v.colorNombre, e.target.value === '' ? 0 : Number(e.target.value))}
+                                    onFocus={e => e.target.select()}
                                     className="h-8 w-24 ml-auto border-gray-300 dark:border-[#3A2E4D] text-center text-sm" />
                                 </td>
                               </tr>
