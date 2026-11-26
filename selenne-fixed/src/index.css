@@ -44,12 +44,34 @@ input:-webkit-autofill:focus {
   transition: background-color 9999s ease-in-out 0s;
 }
 
-/* Sonner toast: el look de marca (gradiente suave, borde de color, texto
-   oscuro) ya lo define src/lib/toast.ts via el prop `style` de cada
-   llamada, mas los `classNames` de <Toaster> en components/ui/sonner.tsx.
-   No hace falta (ni conviene) forzar nada mas aca con !important. */
+/* Sonner toast: tarjeta oscura de marca con esquinas cuadradas y una barra
+   de acento a la izquierda que cambia de color segun el tipo (exito/error/
+   info). El resto del look (fondo, bordes, tipografia) lo define
+   src/components/ui/sonner.tsx via `classNames`. */
 [data-sonner-toast] {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  border-left: 4px solid #5C2A52 !important;
+}
+[data-sonner-toast] [data-icon] svg {
+  color: #C9A8C3;
+}
+[data-sonner-toast][data-type="success"] {
+  border-left-color: #22c55e !important;
+}
+[data-sonner-toast][data-type="success"] [data-icon] svg {
+  color: #22c55e;
+}
+[data-sonner-toast][data-type="error"] {
+  border-left-color: #dc2626 !important;
+}
+[data-sonner-toast][data-type="error"] [data-icon] svg {
+  color: #dc2626;
+}
+[data-sonner-toast][data-type="warning"] {
+  border-left-color: #f59e0b !important;
+}
+[data-sonner-toast][data-type="warning"] [data-icon] svg {
+  color: #f59e0b;
 }
 
 @import "tailwindcss";

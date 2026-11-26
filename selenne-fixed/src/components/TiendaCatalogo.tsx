@@ -152,7 +152,7 @@ export const TiendaCatalogo: React.FC<TiendaCatalogoProps> = ({
         {/* Destacados */}
         {(() => {
           const productosAMostrar = destacados;
-          if (productosAMostrar.length === 0) return null;
+          if (productosAMostrar.length === 0 && !productosLoading) return null;
           return (
           <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full">
             <div className="flex items-end justify-between mb-6">
@@ -170,6 +170,17 @@ export const TiendaCatalogo: React.FC<TiendaCatalogoProps> = ({
                 Ver todo →
               </button>
             </div>
+            {productosAMostrar.length === 0 && productosLoading ? (
+              <div className="flex gap-4 sm:gap-6 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap sm:overflow-visible">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="flex-shrink-0 w-40 sm:w-56">
+                    <div className="w-full h-52 sm:h-64 bg-[#F7F5FC] dark:bg-[#17101f] animate-pulse mb-3" />
+                    <div className="h-3 w-3/4 bg-[#F7F5FC] dark:bg-[#17101f] animate-pulse mb-1.5" />
+                    <div className="h-3 w-1/3 bg-[#F7F5FC] dark:bg-[#17101f] animate-pulse" />
+                  </div>
+                ))}
+              </div>
+            ) : (
             <div className={`flex gap-4 sm:gap-6 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap sm:overflow-visible ${productosAMostrar.length < 4 ? 'sm:justify-center' : ''}`}>
               {productosAMostrar.map((producto, indiceDestacado) => (
                 <motion.button
@@ -203,6 +214,7 @@ export const TiendaCatalogo: React.FC<TiendaCatalogoProps> = ({
                 </motion.button>
               ))}
             </div>
+            )}
           </section>
           );
         })()}
