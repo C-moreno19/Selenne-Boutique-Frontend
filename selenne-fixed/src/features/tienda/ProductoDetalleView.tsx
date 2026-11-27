@@ -47,7 +47,10 @@ export const ProductoDetalleView: React.FC = () => {
     actualizarCantidad,
     toggleFavorito,
     esFavorito,
-    getTotalCarrito,
+    estaSeleccionado,
+    toggleSeleccion,
+    seleccionarTodos,
+    getTotalSeleccionado,
   } = useTienda();
 
   const producto = productosData.find((p) => p.id === Number(id));
@@ -234,11 +237,14 @@ export const ProductoDetalleView: React.FC = () => {
                 onOpenChange={setCarritoAbierto}
                 items={carritoItems}
                 formatPrecio={formatPrecio}
-                total={getTotalCarrito()}
+                total={getTotalSeleccionado()}
                 onActualizarCantidad={actualizarCantidad}
                 onRemover={removerDelCarrito}
                 onCheckout={() => navigate("/checkout")}
                 onVerProducto={(item) => navigate(`/producto/${item.id}`)}
+                estaSeleccionado={estaSeleccionado}
+                onToggleSeleccion={toggleSeleccion}
+                onToggleTodos={seleccionarTodos}
                 trigger={
                   <button
                     className="p-1.5 sm:p-2 hover:bg-[#C9A8C3] dark:hover:bg-[#241935] rounded-none transition-colors relative"

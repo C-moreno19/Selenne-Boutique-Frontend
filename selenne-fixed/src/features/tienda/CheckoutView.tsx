@@ -62,7 +62,10 @@ interface CheckoutViewProps {
 }
 
 export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
-  const { carritoItems, getTotalCarrito, limpiarCarrito, agregarPedido } = useTienda();
+  const { getCarritoItemsSeleccionados, getTotalSeleccionado, removerVariosDelCarrito, agregarPedido } = useTienda();
+  // Solo se procesan los items que el cliente marcó en el carrito; los demás quedan guardados.
+  const carritoItems = getCarritoItemsSeleccionados();
+  const getTotalCarrito = getTotalSeleccionado;
   const { crearPedido } = usePedidosAdmin();
   const { user, loginAsync } = useAuth();
   const [metodoPago, setMetodoPago] = useState('contra-entrega');
@@ -336,7 +339,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
     // Validaciones primero: si alguna falla, ni siquiera se marca
     // enviandoPedido=true, asi el usuario puede corregir y reintentar
     // sin que el boton quede bloqueado.
-    if (carritoItems.length === 0) { toast.error('Tu carrito está vacío.'); return; }
+    if (carritoItems.length === 0) { toast.error('Selecciona al menos un producto del carrito para comprar.'); return; }
     if (!datosEnvio.nombre?.trim()) { toast.error('Por favor completa tu nombre completo.'); return; }
     if (!datosEnvio.documento?.trim()) { toast.error('Por favor ingresa tu documento.'); return; }
     if (!datosEnvio.email?.trim()) { toast.error('Por favor ingresa tu correo.'); return; }
@@ -390,15 +393,15 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
           await postForm(`/api/pedidos/${pedidoID}/comprobante`, formData);
         } catch (uploadErr) {
           console.error('Error subiendo comprobante:', uploadErr);
-          limpiarCarrito();
+          removerVariosDelCarrito(carritoItems.map(item => item.carritoID));
           toast.error('Tu pedido #' + pedidoID + ' quedó registrado, pero no se pudo subir el comprobante. Escríbenos por WhatsApp para enviarlo.');
           setTimeout(() => { onBack(); }, 3000);
           return;
         }
       }
 
-      // 3. Limpiar carrito y mostrar éxito
-      limpiarCarrito();
+      // 3. Quitar del carrito solo los items comprados (los no seleccionados quedan) y mostrar éxito
+      removerVariosDelCarrito(carritoItems.map(item => item.carritoID));
       toast.success('¡Pedido registrado con éxito! El administrador revisará tu pedido.');
       setTimeout(() => { onBack(); }, 2000);
 

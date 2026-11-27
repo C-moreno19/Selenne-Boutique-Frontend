@@ -879,7 +879,13 @@ export const ProductosView: React.FC = () => {
                           </div>
                           <div>
                             <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 dark:text-[#F5F3FA] mb-1 block">Categoría <span className="text-red-500">*</span></Label>
-                            <Select value={form.categoriaPrincipalID} onValueChange={v => setForm(f => ({ ...f, categoriaPrincipalID: v }))}>
+                            <Select value={form.categoriaPrincipalID} onValueChange={v => setForm(f => {
+                              const nuevaCatNombre = categorias.find((c: any) => String(c.id) === v)?.nombre?.toLowerCase();
+                              const tipoSigueValido = tiposProducto.find((t: any) => String(t.id) === f.tipoProductoID && (
+                                !t.categoriasAplicables || t.categoriasAplicables.split(',').includes(nuevaCatNombre)
+                              ));
+                              return { ...f, categoriaPrincipalID: v, tipoProductoID: tipoSigueValido ? f.tipoProductoID : '' };
+                            })}>
                               <SelectTrigger className="h-10 border-gray-300 dark:border-[#3A2E4D]"><SelectValue placeholder="Selecciona..." /></SelectTrigger>
                               <SelectContent>{categorias.map((c: any) => <SelectItem key={c.id} value={String(c.id)}>{c.nombre}</SelectItem>)}</SelectContent>
                             </Select>
@@ -893,10 +899,18 @@ export const ProductosView: React.FC = () => {
                           </div>
                           <div>
                             <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 dark:text-[#F5F3FA] mb-1 block">Tipo de Prenda</Label>
-                            <Select value={form.tipoProductoID} onValueChange={v => setForm(f => ({ ...f, tipoProductoID: v }))}>
-                              <SelectTrigger className="h-10 border-gray-300 dark:border-[#3A2E4D]"><SelectValue placeholder="Selecciona..." /></SelectTrigger>
-                              <SelectContent>{tiposProducto.map((t: any) => <SelectItem key={t.id} value={String(t.id)}>{t.nombre}</SelectItem>)}</SelectContent>
-                            </Select>
+                            {(() => {
+                              const catNombre = categorias.find((c: any) => String(c.id) === form.categoriaPrincipalID)?.nombre?.toLowerCase();
+                              const tiposFiltrados = tiposProducto.filter((t: any) =>
+                                !t.categoriasAplicables || !catNombre || t.categoriasAplicables.split(',').includes(catNombre)
+                              );
+                              return (
+                                <Select value={form.tipoProductoID} onValueChange={v => setForm(f => ({ ...f, tipoProductoID: v }))}>
+                                  <SelectTrigger className="h-10 border-gray-300 dark:border-[#3A2E4D]"><SelectValue placeholder="Selecciona..." /></SelectTrigger>
+                                  <SelectContent>{tiposFiltrados.map((t: any) => <SelectItem key={t.id} value={String(t.id)}>{t.nombre}</SelectItem>)}</SelectContent>
+                                </Select>
+                              );
+                            })()}
                           </div>
                         </div>
                       </div>

@@ -64,7 +64,10 @@ export const TiendaHeader: React.FC<TiendaHeaderProps> = ({
     actualizarCantidad,
     removerDelCarrito,
     toggleFavorito,
-    getTotalCarrito,
+    estaSeleccionado,
+    toggleSeleccion,
+    seleccionarTodos,
+    getTotalSeleccionado,
   } = useTienda();
 
   const formatPrecio = (precio: number) => formatCurrency(precio);
@@ -293,10 +296,13 @@ export const TiendaHeader: React.FC<TiendaHeaderProps> = ({
               onOpenChange={onCarritoOpenChange}
               items={carritoItems}
               formatPrecio={formatPrecio}
-              total={getTotalCarrito()}
+              total={getTotalSeleccionado()}
               onActualizarCantidad={actualizarCantidad}
               onRemover={removerDelCarrito}
               onCheckout={onCheckout}
+              estaSeleccionado={estaSeleccionado}
+              onToggleSeleccion={toggleSeleccion}
+              onToggleTodos={seleccionarTodos}
               onVerProducto={(item) => {
                 onCarritoOpenChange(false);
                 navigate(`/producto/${item.id}`);

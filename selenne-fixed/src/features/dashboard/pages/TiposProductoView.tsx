@@ -21,24 +21,49 @@ export const TiposProductoView: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [selected, setSelected] = useState<any>(null);
   const [formName, setFormName] = useState('');
+  const [formCategorias, setFormCategorias] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
+
+  const CATEGORIAS_OPCIONES = [
+    { clave: 'hombre', etiqueta: 'Hombre' },
+    { clave: 'mujer', etiqueta: 'Mujer' },
+    { clave: 'accesorios', etiqueta: 'Accesorios' },
+    { clave: 'sale', etiqueta: 'Sale' },
+  ];
 
   const filtered = tiposProducto.filter(item =>
     item.nombre.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const openCreate = () => { setFormName(''); setIsEditing(false); setFormOpen(true); };
-  const openEdit = (item: any) => { setSelected(item); setFormName(item.nombre); setIsEditing(true); setFormOpen(true); };
+  const etiquetaCategorias = (item: any) => {
+    const claves = (item.categoriasAplicables || '').split(',').filter(Boolean);
+    if (claves.length === 0) return 'Todas las categorías';
+    return claves.map((c: string) => CATEGORIAS_OPCIONES.find(o => o.clave === c)?.etiqueta || c).join(', ');
+  };
+
+  const openCreate = () => { setFormName(''); setFormCategorias([]); setIsEditing(false); setFormOpen(true); };
+  const openEdit = (item: any) => {
+    setSelected(item);
+    setFormName(item.nombre);
+    setFormCategorias((item.categoriasAplicables || '').split(',').filter(Boolean));
+    setIsEditing(true);
+    setFormOpen(true);
+  };
+
+  const toggleCategoria = (clave: string) => {
+    setFormCategorias(prev => prev.includes(clave) ? prev.filter(c => c !== clave) : [...prev, clave]);
+  };
 
   const guardar = async () => {
     if (!formName.trim()) { toast.error('El nombre es obligatorio'); return; }
     setSaving(true);
     try {
+      const categoriasAplicables = formCategorias.length > 0 ? formCategorias.join(',') : undefined;
       if (isEditing && selected) {
-        await editarTipoProducto(selected.id, formName.trim());
+        await editarTipoProducto(selected.id, formName.trim(), categoriasAplicables);
         toast.success('Tipo de Producto actualizado');
       } else {
-        await agregarTipoProducto(formName.trim());
+        await agregarTipoProducto(formName.trim(), categoriasAplicables);
         toast.success('Tipo de Producto creado');
       }
       setFormOpen(false);
@@ -92,6 +117,7 @@ export const TiposProductoView: React.FC = () => {
             <tr>
               
               <th className="px-6 py-4 text-left"><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-[#b9aedd]">NOMBRE</span></th>
+              <th className="px-6 py-4 text-left"><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-[#b9aedd]">CATEGORÍAS</span></th>
               <th className="px-6 py-4 text-right"><span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-[#b9aedd]">ACCIONES</span></th>
             </tr>
           </thead>
@@ -101,6 +127,9 @@ export const TiposProductoView: React.FC = () => {
                 
                 <td className="px-6 py-4">
                   <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-medium text-[#0A0A0A] dark:text-[#F5F3FA]">{item.nombre}</span>
+                </td>
+                <td className="px-6 py-4">
+                  <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500 dark:text-[#b9aedd]">{etiquetaCategorias(item)}</span>
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex items-center justify-end gap-2">
@@ -121,7 +150,7 @@ export const TiposProductoView: React.FC = () => {
               </tr>
             ))}
             {filtered.length === 0 && (
-              <tr><td colSpan={3} className="px-6 py-12 text-center text-gray-400 dark:text-[#b9aedd]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>No hay tipo de productos registrados</td></tr>
+              <tr><td colSpan={4} className="px-6 py-12 text-center text-gray-400 dark:text-[#b9aedd]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>No hay tipo de productos registrados</td></tr>
             )}
           </tbody>
         </table>
@@ -154,6 +183,26 @@ export const TiposProductoView: React.FC = () => {
                     <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 dark:text-[#F5F3FA]">Nombre <span className="text-red-500">*</span></Label>
                     <Input value={formName} onChange={e => setFormName(e.target.value)}
                       placeholder="Ej: Camiseta, Pantalón, Gorra..." className="h-10 border-gray-300 dark:border-[#3A2E4D]" />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-700 dark:text-[#F5F3FA]">
+                      ¿En qué categorías aparece?
+                    </Label>
+                    <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-xs text-gray-400 dark:text-[#b9aedd] -mt-1">
+                      No marques ninguna si aplica a todas (ej. "Zapatos" en Hombre y Mujer; "Anillos" solo en Accesorios).
+                    </p>
+                    <div className="flex flex-wrap gap-3">
+                      {CATEGORIAS_OPCIONES.map(opt => {
+                        const activo = formCategorias.includes(opt.clave);
+                        return (
+                          <button key={opt.clave} type="button" onClick={() => toggleCategoria(opt.clave)}
+                            style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                            className={`px-4 py-2 rounded-none text-sm border transition ${activo ? 'bg-[#5C2A52] text-white border-[#5C2A52]' : 'bg-white dark:bg-[#1e1530] text-gray-600 dark:text-[#b9aedd] border-[#E7E0DA] dark:border-[#3A2E4D] hover:border-[#5C2A52]'}`}>
+                            {opt.etiqueta}
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
               </div>

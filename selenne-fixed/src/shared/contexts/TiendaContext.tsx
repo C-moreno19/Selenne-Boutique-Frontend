@@ -63,6 +63,13 @@ interface TiendaContextType {
   getTotalCarrito: () => number;
   limpiarCarrito: () => void;
   agregarPedido: (datosEnvio: Pedido['datosEnvio'], metodoPago: 'contra-entrega' | 'transferencia') => void;
+  itemsSeleccionados: number[];
+  estaSeleccionado: (carritoID: number) => boolean;
+  toggleSeleccion: (carritoID: number) => void;
+  seleccionarTodos: (valor: boolean) => void;
+  getCarritoItemsSeleccionados: () => CarritoItem[];
+  getTotalSeleccionado: () => number;
+  removerVariosDelCarrito: (carritoIDs: number[]) => void;
 }
 
 const TiendaContext = createContext<TiendaContextType | undefined>(undefined);
@@ -106,7 +113,22 @@ export const TiendaProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     try { return JSON.parse(localStorage.getItem('selenne_pedidos') || '[]'); } catch { return []; }
   });
 
+  // Items marcados para comprar en el checkout — por defecto todos. Permite
+  // dejar algunos productos en el carrito y comprar solo una parte.
+  const [itemsSeleccionados, setItemsSeleccionados] = useState<number[]>([]);
+
   const loadingRef = useRef(false);
+
+  // Mantiene la selección en sync con el carrito: los items nuevos entran
+  // seleccionados por defecto, los que ya no existen se quitan de la lista.
+  useEffect(() => {
+    setItemsSeleccionados(prev => {
+      const idsActuales = new Set(carritoItems.map(i => i.carritoID));
+      const prevFiltrado = prev.filter(id => idsActuales.has(id));
+      const nuevos = carritoItems.map(i => i.carritoID).filter(id => !prev.includes(id));
+      return [...prevFiltrado, ...nuevos];
+    });
+  }, [carritoItems]);
 
   const loadFromApi = async () => {
     if (loadingRef.current) return;
@@ -339,6 +361,29 @@ export const TiendaProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const getTotalCarrito = () =>
     carritoItems.reduce((sum, item) => sum + item.precio * item.cantidad, 0);
 
+  // ── Selección de items a comprar ─────────────────────────────────────────
+  const estaSeleccionado = (carritoID: number) => itemsSeleccionados.includes(carritoID);
+
+  const toggleSeleccion = (carritoID: number) => {
+    setItemsSeleccionados(prev =>
+      prev.includes(carritoID) ? prev.filter(id => id !== carritoID) : [...prev, carritoID]
+    );
+  };
+
+  const seleccionarTodos = (valor: boolean) => {
+    setItemsSeleccionados(valor ? carritoItems.map(i => i.carritoID) : []);
+  };
+
+  const getCarritoItemsSeleccionados = () =>
+    carritoItems.filter(item => itemsSeleccionados.includes(item.carritoID));
+
+  const getTotalSeleccionado = () =>
+    getCarritoItemsSeleccionados().reduce((sum, item) => sum + item.precio * item.cantidad, 0);
+
+  const removerVariosDelCarrito = (carritoIDs: number[]) => {
+    carritoIDs.forEach(id => removerDelCarrito(id));
+  };
+
   const limpiarCarrito = async () => {
     if (!isLoggedIn()) {
       setCarritoItems([]);
@@ -372,6 +417,8 @@ export const TiendaProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       agregarAlCarrito, removerDelCarrito, actualizarCantidad,
       toggleFavorito, esFavorito, getTotalCarrito,
       limpiarCarrito, agregarPedido,
+      itemsSeleccionados, estaSeleccionado, toggleSeleccion, seleccionarTodos,
+      getCarritoItemsSeleccionados, getTotalSeleccionado, removerVariosDelCarrito,
     }}>
       {children}
     </TiendaContext.Provider>

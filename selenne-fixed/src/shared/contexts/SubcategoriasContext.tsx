@@ -6,6 +6,9 @@ export interface Subcategoria {
   id: string;
   nombre: string;
   hexColor?: string;
+  /** Solo aplica a tiposProducto: claves de categoria separadas por coma
+   *  (ej. "hombre,mujer"), o undefined/vacio si aplica a todas. */
+  categoriasAplicables?: string;
 }
 
 interface SubcategoriasContextType {
@@ -22,7 +25,7 @@ interface SubcategoriasContextType {
   agregarMarca: (nombre: string) => Promise<void>;
   agregarCategoria: (nombre: string) => Promise<void>;
   agregarCategoriaRopa: (nombre: string) => Promise<void>;
-  agregarTipoProducto: (nombre: string) => Promise<void>;
+  agregarTipoProducto: (nombre: string, categoriasAplicables?: string) => Promise<void>;
   eliminarColor: (id: string) => Promise<void>;
   eliminarTalla: (id: string) => Promise<void>;
   eliminarMaterial: (id: string) => Promise<void>;
@@ -34,7 +37,7 @@ interface SubcategoriasContextType {
   editarMaterial: (id: string, nombre: string) => Promise<void>;
   editarMarca: (id: string, nombre: string) => Promise<void>;
   editarCategoria: (id: string, nombre: string) => Promise<void>;
-  editarTipoProducto: (id: string, nombre: string) => Promise<void>;
+  editarTipoProducto: (id: string, nombre: string, categoriasAplicables?: string) => Promise<void>;
   recargar: () => Promise<void>;
 }
 
@@ -45,6 +48,13 @@ function mapColor(c: any): Subcategoria {
 }
 function mapById(idField: string) {
   return (item: any): Subcategoria => ({ id: String(item[idField] ?? item.id), nombre: item.nombre });
+}
+function mapTipoProducto(item: any): Subcategoria {
+  return {
+    id: String(item.tipoProductoID ?? item.id),
+    nombre: item.nombre,
+    categoriasAplicables: item.categoriasAplicables ?? item.CategoriasAplicables ?? undefined,
+  };
 }
 
 function isLoggedIn(): boolean {
@@ -123,7 +133,7 @@ export const SubcategoriasProvider: React.FC<{ children: ReactNode }> = ({ child
     setMarcas(mar.map(mapById('marcaID')));
     setCategorias(cat.map(mapById('categoriaPrincipalID')));
     setCategoriasRopa(cat.map(mapById('categoriaPrincipalID')));
-    setTiposProducto(tip.map(mapById('tipoProductoID')));
+    setTiposProducto(tip.map(mapTipoProducto));
   };
 
   useEffect(() => {
@@ -188,9 +198,9 @@ export const SubcategoriasProvider: React.FC<{ children: ReactNode }> = ({ child
     }
   };
 
-  const agregarTipoProducto = async (nombre: string) => {
-    const n = await doPost('/api/tipos-producto', { nombre });
-    if (n) setTiposProducto(p => [...p, mapById('tipoProductoID')(n)]);
+  const agregarTipoProducto = async (nombre: string, categoriasAplicables?: string) => {
+    const n = await doPost('/api/tipos-producto', { nombre, categoriasAplicables });
+    if (n) setTiposProducto(p => [...p, mapTipoProducto(n)]);
   };
   const eliminarTipoProducto = async (id: string) => {
     if (await doDelete(`/api/tipos-producto/${id}`)) setTiposProducto(p => p.filter(t => t.id !== id));
@@ -215,9 +225,9 @@ export const SubcategoriasProvider: React.FC<{ children: ReactNode }> = ({ child
       setCategoriasRopa(p => p.map(c => c.id === id ? { ...c, nombre } : c));
     }
   };
-  const editarTipoProducto = async (id: string, nombre: string) => {
-    const n = await doPut(`/api/tipos-producto/${id}`, { nombre });
-    if (n) setTiposProducto(p => p.map(t => t.id === id ? { ...t, nombre } : t));
+  const editarTipoProducto = async (id: string, nombre: string, categoriasAplicables?: string) => {
+    const n = await doPut(`/api/tipos-producto/${id}`, { nombre, categoriasAplicables });
+    if (n) setTiposProducto(p => p.map(t => t.id === id ? { ...t, nombre, categoriasAplicables } : t));
   };
 
   return (
