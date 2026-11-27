@@ -1,12 +1,13 @@
 import type { Categoria } from "../hooks/useCatalogoFiltrado";
+import type { Subcategoria } from "../contexts/SubcategoriasContext";
 
 export interface SubcategoriaMenu {
   /** Clave usada en la URL (?sub=...) y para filtrar por tipoProducto. */
   clave: string;
   /** Texto mostrado en el menú. */
   etiqueta: string;
-  /** Fragmentos (en minúscula) que matchean contra el tipoProducto real del producto. */
-  match: string[];
+  /** Nombre real del Tipo de Producto (tal cual se guarda en el producto). */
+  tipoNombre: string;
 }
 
 export interface CategoriaMenu {
@@ -15,38 +16,34 @@ export interface CategoriaMenu {
   subcategorias: SubcategoriaMenu[];
 }
 
-// Estructura comercial simple: Hombre y Mujer comparten la misma organización,
-// Accesorios tiene la suya. "Pantalones" incluye jeans como tipo de pantalón,
-// no como categoría aparte.
-const PRENDAS: SubcategoriaMenu[] = [
-  { clave: "camisetas", etiqueta: "Camisetas", match: ["camiseta", "t-shirt", "tshirt"] },
-  { clave: "camisas", etiqueta: "Camisas", match: ["camisa"] },
-  { clave: "pantalones", etiqueta: "Pantalones", match: ["pantalon", "pantalón", "jean"] },
-  { clave: "conjuntos", etiqueta: "Conjuntos", match: ["conjunto", "set"] },
-];
+const ETIQUETAS: Record<Categoria, string> = {
+  hombre: "Hombre",
+  mujer: "Mujer",
+  accesorios: "Accesorios",
+  sale: "Sale",
+};
 
-const ACCESORIOS: SubcategoriaMenu[] = [
-  { clave: "gorras", etiqueta: "Gorras", match: ["gorra", "cap"] },
-  { clave: "bolsos", etiqueta: "Bolsos", match: ["bolso", "cartera", "bag"] },
-  { clave: "otros", etiqueta: "Otros accesorios", match: [] },
-];
+const slugificar = (nombre: string) =>
+  nombre.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
-export const MEGA_MENU: CategoriaMenu[] = [
-  { categoria: "hombre", etiqueta: "Hombre", subcategorias: PRENDAS },
-  { categoria: "mujer", etiqueta: "Mujer", subcategorias: PRENDAS },
-  { categoria: "accesorios", etiqueta: "Accesorios", subcategorias: ACCESORIOS },
-];
-
-/** ¿El tipoProducto de un producto pertenece a esta subcategoría del menú? */
-export function coincideSubcategoria(sub: SubcategoriaMenu, tipoProducto: string, categoria: CategoriaMenu): boolean {
-  const t = (tipoProducto || "").toLowerCase();
-  if (sub.clave === "otros") {
-    // "Otros accesorios" = lo que no cae en ninguna subcategoría explícita de esa categoría.
-    return !categoria.subcategorias.some((s) => s.clave !== "otros" && s.match.some((m) => t.includes(m)));
-  }
-  return sub.match.some((m) => t.includes(m));
+/**
+ * Construye el menú de subcategorías de una categoría a partir de los Tipos
+ * de Producto reales (admin > Catálogo > Tipos de Producto), en vez de una
+ * lista fija en código — así un tipo nuevo aparece solo en el filtro/menú
+ * de las categorías donde se marcó que aplica (o en todas si no se marcó
+ * ninguna).
+ */
+export function buildCategoriaMenu(categoria: Categoria, tiposProducto: Subcategoria[]): CategoriaMenu {
+  const subcategorias = tiposProducto
+    .filter((t) => {
+      const claves = (t.categoriasAplicables || "").split(",").filter(Boolean);
+      return claves.length === 0 || claves.includes(categoria);
+    })
+    .map((t) => ({ clave: slugificar(t.nombre), etiqueta: t.nombre, tipoNombre: t.nombre.toLowerCase() }));
+  return { categoria, etiqueta: ETIQUETAS[categoria], subcategorias };
 }
 
-export function getCategoriaMenu(categoria: Categoria): CategoriaMenu | undefined {
-  return MEGA_MENU.find((c) => c.categoria === categoria);
+/** ¿El tipoProducto de un producto pertenece a esta subcategoría del menú? */
+export function coincideSubcategoria(sub: SubcategoriaMenu, tipoProducto: string): boolean {
+  return (tipoProducto || "").toLowerCase() === sub.tipoNombre;
 }

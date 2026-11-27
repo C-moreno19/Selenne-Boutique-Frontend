@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Search, Edit, Trash2, ChevronRight, Loader2 } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, ChevronRight, Loader2, Check } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '../../../components/ui/dialog';
 import { ConfirmDialog } from '../../../components/ConfirmDialog';
 import { Input } from '../../../components/ui/input';
@@ -22,6 +22,7 @@ export const TiposProductoView: React.FC = () => {
   const [selected, setSelected] = useState<any>(null);
   const [formName, setFormName] = useState('');
   const [formCategorias, setFormCategorias] = useState<string[]>([]);
+  const [formSinVariantes, setFormSinVariantes] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const CATEGORIAS_OPCIONES = [
@@ -41,11 +42,12 @@ export const TiposProductoView: React.FC = () => {
     return claves.map((c: string) => CATEGORIAS_OPCIONES.find(o => o.clave === c)?.etiqueta || c).join(', ');
   };
 
-  const openCreate = () => { setFormName(''); setFormCategorias([]); setIsEditing(false); setFormOpen(true); };
+  const openCreate = () => { setFormName(''); setFormCategorias([]); setFormSinVariantes(false); setIsEditing(false); setFormOpen(true); };
   const openEdit = (item: any) => {
     setSelected(item);
     setFormName(item.nombre);
     setFormCategorias((item.categoriasAplicables || '').split(',').filter(Boolean));
+    setFormSinVariantes(!!item.sinVariantes);
     setIsEditing(true);
     setFormOpen(true);
   };
@@ -60,10 +62,10 @@ export const TiposProductoView: React.FC = () => {
     try {
       const categoriasAplicables = formCategorias.length > 0 ? formCategorias.join(',') : undefined;
       if (isEditing && selected) {
-        await editarTipoProducto(selected.id, formName.trim(), categoriasAplicables);
+        await editarTipoProducto(selected.id, formName.trim(), categoriasAplicables, formSinVariantes);
         toast.success('Tipo de Producto actualizado');
       } else {
-        await agregarTipoProducto(formName.trim(), categoriasAplicables);
+        await agregarTipoProducto(formName.trim(), categoriasAplicables, formSinVariantes);
         toast.success('Tipo de Producto creado');
       }
       setFormOpen(false);
@@ -203,6 +205,24 @@ export const TiposProductoView: React.FC = () => {
                         );
                       })}
                     </div>
+                  </div>
+                  <div className="flex flex-col gap-2 pt-2 border-t border-[#E7E0DA] dark:border-[#3A2E4D]">
+                    <button type="button" onClick={() => setFormSinVariantes(v => !v)}
+                      className="flex items-start gap-3 text-left">
+                      <span className={`w-5 h-5 mt-0.5 border flex items-center justify-center flex-shrink-0 ${
+                        formSinVariantes ? 'bg-[#5C2A52] border-[#5C2A52]' : 'border-[#E7E0DA] dark:border-[#3A2E4D]'
+                      }`}>
+                        {formSinVariantes && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />}
+                      </span>
+                      <span>
+                        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="block text-sm font-medium text-gray-700 dark:text-[#F5F3FA]">
+                          Este tipo no usa tallas ni colores
+                        </span>
+                        <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="block text-xs text-gray-400 dark:text-[#b9aedd] mt-0.5">
+                          Para accesorios simples (anillos, collares, llaveros...). El producto se maneja solo con stock general y una galería de fotos.
+                        </span>
+                      </span>
+                    </button>
                   </div>
                 </div>
               </div>

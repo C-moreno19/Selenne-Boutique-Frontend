@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Search, Eye, Edit, Trash2, ChevronRight, Package, X, Loader2, Plus, Upload, Image as ImageIcon, ClipboardList, FileText, Tag, Ruler, Palette, Layers, ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '../../../components/ui/dialog';
 import { ConfirmDialog } from '../../../components/ConfirmDialog';
@@ -379,6 +379,21 @@ export const ProductosView: React.FC = () => {
   const updateStock = (tallaNombre: string, colorNombre: string, stock: number) => {
     setForm(f => ({ ...f, variantes: f.variantes.map(v => v.tallaNombre === tallaNombre && (v.colorNombre || '') === (colorNombre || '') ? { ...v, stock } : v) }));
   };
+
+  // El tipo de producto elegido puede marcar que no usa tallas/colores (ej.
+  // anillos, collares): en ese caso el formulario se simplifica a solo
+  // stock general + galeria de fotos, sin pedir variantes.
+  const tipoSeleccionado = tiposProducto.find((t: any) => t.id === form.tipoProductoID);
+  const esSinVariantes = !!tipoSeleccionado?.sinVariantes;
+
+  // Si el tipo elegido cambia a uno "sin variantes", se limpian tallas/colores
+  // que hubieran quedado seleccionados con el tipo anterior.
+  useEffect(() => {
+    if (esSinVariantes && (form.tallasSeleccionadas.length > 0 || form.coloresSeleccionados.length > 0 || form.variantes.length > 0)) {
+      setForm(f => ({ ...f, tallasSeleccionadas: [], coloresSeleccionados: [], variantes: [] }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [esSinVariantes]);
 
   const guardar = async () => {
     if (!form.nombre.trim()) { toast.error('El nombre es obligatorio'); return; }
@@ -830,7 +845,7 @@ export const ProductosView: React.FC = () => {
           {/* Tabs — con indicadores de progreso para guiar al admin paso a paso */}
           {(() => {
             const infoCompleta = !!(form.nombre.trim() && form.categoriaPrincipalID && form.precioVenta && Number(form.precioVenta) > 0);
-            const variantesCompletas = form.tallasSeleccionadas.length > 0;
+            const variantesCompletas = esSinVariantes || form.tallasSeleccionadas.length > 0;
             const coloresSinFotos = form.coloresSeleccionados.filter(c => (form.imagenesPorColor[c]?.length || 0) === 0);
             const faltaImagenPrincipal = !form.imagenPrincipal && !imagePreview;
             const imagenesOk = !faltaImagenPrincipal && coloresSinFotos.length === 0;
@@ -954,7 +969,20 @@ export const ProductosView: React.FC = () => {
               )}
 
               {/* ── TAB VARIANTES ── */}
-              {activeTab === 'variantes' && (
+              {activeTab === 'variantes' && esSinVariantes && (
+                <div key="variantes-simple" className="animate-fade-slide-in">
+                  <div className="text-center py-12 bg-[#F7F5FC] dark:bg-[#17101f] rounded-none border-2 border-dashed border-[#E7E0DA] dark:border-[#3A2E4D]">
+                    <Package className="w-10 h-10 mx-auto mb-3 text-gray-300 dark:text-[#5a4d52]" />
+                    <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm font-medium text-gray-600 dark:text-[#F5F3FA]">
+                      "{tipoSeleccionado?.nombre}" no usa tallas ni colores
+                    </p>
+                    <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-400 dark:text-[#b9aedd] mt-1">
+                      El stock se controla con el campo "Stock general" de la pestaña Información y Precios.
+                    </p>
+                  </div>
+                </div>
+              )}
+              {activeTab === 'variantes' && !esSinVariantes && (
                 <div key="variantes" className="animate-fade-slide-in space-y-6">
                   {/* Tallas */}
                   <div className="bg-white dark:bg-[#1e1530] rounded-none border border-[#E7E0DA] dark:border-[#3A2E4D] shadow-sm overflow-hidden">

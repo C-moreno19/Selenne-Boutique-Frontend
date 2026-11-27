@@ -14,7 +14,8 @@ import { CarritoSheet } from "./CarritoSheet";
 import { useProductosCombinados } from "../shared/data/useProductosCombinados";
 import { useTienda } from "../shared/contexts/TiendaContext";
 import type { Categoria } from "../shared/hooks/useCatalogoFiltrado";
-import { MEGA_MENU } from "../shared/data/megaMenu";
+import { buildCategoriaMenu } from "../shared/data/megaMenu";
+import { useSubcategorias } from "../shared/contexts/SubcategoriasContext";
 import { Logo } from "./Logo";
 import { formatCurrency } from "../shared/utils";
 
@@ -58,6 +59,11 @@ export const TiendaHeader: React.FC<TiendaHeaderProps> = ({
   const [acordeonMovil, setAcordeonMovil] = useState<Categoria | null>(null);
 
   const productosData = useProductosCombinados();
+  const { tiposProducto } = useSubcategorias();
+  const megaMenu = React.useMemo(
+    () => (["hombre", "mujer", "accesorios"] as const).map((cat) => buildCategoriaMenu(cat, tiposProducto)),
+    [tiposProducto]
+  );
   const {
     carritoItems,
     favoritos,
@@ -113,7 +119,7 @@ export const TiendaHeader: React.FC<TiendaHeaderProps> = ({
             {/* Navegación Desktop */}
             <nav className="hidden lg:flex items-center space-x-8">
               {(["hombre", "mujer", "accesorios"] as const).map((cat) => {
-                const menu = MEGA_MENU.find((m) => m.categoria === cat)!;
+                const menu = megaMenu.find((m) => m.categoria === cat)!;
                 return (
                   <div
                     key={cat}
@@ -329,7 +335,7 @@ export const TiendaHeader: React.FC<TiendaHeaderProps> = ({
         {menuMovilAbierto && (
           <nav className="lg:hidden py-4 space-y-2 border-t border-[#E7E0DA] dark:border-[#3A2E4D]">
             {(["hombre", "mujer", "accesorios"] as const).map((cat) => {
-              const menu = MEGA_MENU.find((m) => m.categoria === cat)!;
+              const menu = megaMenu.find((m) => m.categoria === cat)!;
               const abierto = acordeonMovil === cat;
               return (
                 <div key={cat}>

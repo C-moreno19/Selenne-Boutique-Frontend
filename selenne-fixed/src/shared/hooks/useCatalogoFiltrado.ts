@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useProductosCombinados } from "../data/useProductosCombinados";
 import { useProductos } from "../contexts/ProductosContext";
 import { useSubcategorias } from "../contexts/SubcategoriasContext";
-import { getCategoriaMenu, coincideSubcategoria } from "../data/megaMenu";
+import { buildCategoriaMenu, coincideSubcategoria } from "../data/megaMenu";
 import type { FiltrosAplicados } from "../../components/FiltrosPanel";
 
 export type Categoria = "hombre" | "mujer" | "accesorios" | "sale";
@@ -19,7 +19,7 @@ const PRODUCTOS_POR_PAGINA = 12;
 export function useCatalogoFiltrado(categoriaActiva: Categoria, subInicial?: string) {
   const productosData = useProductosCombinados();
   const { loading: productosLoading } = useProductos();
-  const { colores, tallas } = useSubcategorias();
+  const { colores, tallas, tiposProducto } = useSubcategorias();
 
   const [busqueda, setBusqueda] = useState("");
   const [ordenar, setOrdenar] = useState("destacados");
@@ -39,7 +39,7 @@ export function useCatalogoFiltrado(categoriaActiva: Categoria, subInicial?: str
     setFiltroSubcategoria(subInicial || "");
   }, [categoriaActiva, subInicial]);
 
-  const categoriaMenu = useMemo(() => getCategoriaMenu(categoriaActiva), [categoriaActiva]);
+  const categoriaMenu = useMemo(() => buildCategoriaMenu(categoriaActiva, tiposProducto), [categoriaActiva, tiposProducto]);
 
   const getColorHex = (colorNombre: string): string => {
     const color = colores.find((c) => c.nombre.toLowerCase() === colorNombre.toLowerCase());
@@ -105,7 +105,7 @@ export function useCatalogoFiltrado(categoriaActiva: Categoria, subInicial?: str
     if (filtroSubcategoria && categoriaMenu) {
       const sub = categoriaMenu.subcategorias.find((s) => s.clave === filtroSubcategoria);
       if (sub) {
-        productos = productos.filter((p) => coincideSubcategoria(sub, p.tipoProducto, categoriaMenu));
+        productos = productos.filter((p) => coincideSubcategoria(sub, p.tipoProducto));
       }
     }
 

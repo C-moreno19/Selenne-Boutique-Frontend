@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, CreditCard, Truck, ShieldCheck, MapPin, Upload, X, CheckCircle, AlertCircle } from 'lucide-react';
+import { ArrowLeft, CreditCard, Truck, ShieldCheck, MapPin, Upload, X, CheckCircle, AlertCircle, Lock } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
@@ -487,13 +487,13 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
           <div className="lg:col-span-2 space-y-6">
             {/* Validación de Documento */}
             {!emailValidado && (
-              <div className="bg-white dark:bg-[#1e1530] rounded-lg p-6 shadow-sm border border-gray-200 dark:border-[#3A2E4D]">
-                <h2
-                  style={{ fontFamily: PLAYFAIR }}
-                  className="text-2xl text-gray-900 dark:text-[#F5F3FA] mb-6"
-                >
-                  Validar Correo Electrónico
-                </h2>
+              <div className="bg-white dark:bg-[#1e1530] rounded-none shadow-sm border border-[#E7E0DA] dark:border-[#3A2E4D] overflow-hidden">
+                <div className="px-6 py-4" style={{ background: 'linear-gradient(90deg, #0A0A0A 0%, #3B0A45 55%, #5C2A52 100%)' }}>
+                  <h2 style={{ fontFamily: PLAYFAIR }} className="text-xl text-white">
+                    Validar Correo Electrónico
+                  </h2>
+                </div>
+                <div className="p-6">
                 <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-gray-600 dark:text-[#b9aedd] mb-6">
                   Puedes comprar sin crear una cuenta. Si ya tienes una, inicia sesión con tu contraseña para que se rellenen tus datos automáticamente.
                 </p>
@@ -538,26 +538,27 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                     </Button>
                   )}
                 </div>
+                </div>
               </div>
             )}
 
             {emailValidado && paso === 'envio' && (
               <>
                 {/* Resumen de Validación */}
-                <div className={`rounded-lg p-4 mb-6 ${clienteExistente ? 'bg-green-50 dark:bg-emerald-950/30 border border-green-200 dark:border-emerald-900/40' : 'bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/40'}`}>
+                <div className={`rounded-none p-4 mb-6 border-l-4 ${clienteExistente ? 'bg-[#F7F5FC] dark:bg-[#17101f] border-l-emerald-500 border-y border-r border-[#E7E0DA] dark:border-[#3A2E4D]' : 'bg-[#F7F5FC] dark:bg-[#17101f] border-l-[#5C2A52] border-y border-r border-[#E7E0DA] dark:border-[#3A2E4D]'}`}>
                   <div className="flex items-start gap-3">
                     <div className="mt-0.5">
                       {clienteExistente ? (
-                        <CheckCircle className="w-6 h-6 text-green-600 dark:text-emerald-400" />
+                        <CheckCircle className="w-6 h-6 text-emerald-500" />
                       ) : (
-                        <AlertCircle className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                        <AlertCircle className="w-6 h-6 text-[#5C2A52]" />
                       )}
                     </div>
                     <div className="flex-1">
-                      <h3 className={`font-semibold mb-1 ${clienteExistente ? 'text-green-900 dark:text-emerald-300' : 'text-blue-900 dark:text-blue-300'}`}>
+                      <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold mb-1 text-gray-900 dark:text-[#F5F3FA]">
                         {clienteExistente ? '¡Bienvenido de vuelta!' : 'Nuevo Cliente'}
                       </h3>
-                      <p className={`text-sm ${clienteExistente ? 'text-green-700 dark:text-emerald-400' : 'text-blue-700 dark:text-blue-400'}`}>
+                      <p style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-sm text-gray-500 dark:text-[#b9aedd]">
                         {clienteExistente 
                           ? 'Encontramos una cuenta con este email. Los datos se han rellenado automáticamente.'
                           : 'Este es tu primer pedido. Por favor, completa todos los datos de envío.'}
@@ -567,26 +568,24 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                 </div>
 
             {/* Información de Envío */}
-            <div className="bg-white dark:bg-[#1e1530] rounded-lg p-6 shadow-sm border border-gray-200 dark:border-[#3A2E4D]">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center">
-                  <MapPin className="w-6 h-6 text-[#5C2A52] mr-2" />
-                  <h2
-                    style={{ fontFamily: PLAYFAIR }}
-                    className="text-2xl text-gray-900 dark:text-[#F5F3FA]"
-                  >
+            <div className="bg-white dark:bg-[#1e1530] rounded-none shadow-sm border border-[#E7E0DA] dark:border-[#3A2E4D] overflow-hidden">
+              <div className="flex items-center justify-between px-6 py-4" style={{ background: 'linear-gradient(90deg, #0A0A0A 0%, #3B0A45 55%, #5C2A52 100%)' }}>
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-5 h-5 text-[#C9A8C3]" />
+                  <h2 style={{ fontFamily: PLAYFAIR }} className="text-xl text-white">
                     Información de Envío
                   </h2>
                 </div>
-                <Button
+                <button
+                  type="button"
                   onClick={handleCambiarEmail}
-                  variant="outline"
-                  className="text-sm"
+                  style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                  className="text-xs font-semibold uppercase tracking-wide text-[#C9A8C3] hover:text-white transition-colors border border-white/20 px-3 py-1.5"
                 >
                   Cambiar Email
-                </Button>
+                </button>
               </div>
-              <div className="space-y-4">
+              <div className="p-6 space-y-4">
                 <div>
                   <Label htmlFor="nombre">Nombre Completo *</Label>
                   <Input
@@ -665,7 +664,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                     <Label htmlFor="email">
                       Correo Electrónico *
                       {clienteExistente && (
-                        <span className="ml-2 text-xs bg-green-100 dark:bg-emerald-950/40 text-green-800 dark:text-emerald-400 px-2 py-1 rounded">
+                        <span className="ml-2 text-xs bg-green-100 dark:bg-emerald-950/40 text-green-800 dark:text-emerald-400 px-2 py-1 rounded-none">
                           Cliente registrado ✓
                         </span>
                       )}
@@ -691,7 +690,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                     onChange={handleInputChange}
                     placeholder="Instrucciones especiales de entrega"
                     maxLength={300}
-                    className="w-full mt-1 px-3 py-2 border border-gray-300 dark:border-[#3A2E4D] dark:bg-[#17101f] dark:text-[#F5F3FA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#5C2A52] focus:border-transparent"
+                    className="w-full mt-1 px-3 py-2 border border-gray-300 dark:border-[#3A2E4D] dark:bg-[#17101f] dark:text-[#F5F3FA] rounded-none focus:outline-none focus:ring-2 focus:ring-[#5C2A52] focus:border-transparent"
                     rows={3}
                   />
                   <p className="text-xs text-gray-400 dark:text-[#b9aedd] text-right mt-1">{datosEnvio.notas.length}/300</p>
@@ -711,29 +710,28 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
             {emailValidado && paso === 'pago' && (
               <>
             {/* Método de Pago */}
-            <div className="bg-white dark:bg-[#1e1530] rounded-lg p-6 shadow-sm border border-gray-200 dark:border-[#3A2E4D]">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center">
-                  <CreditCard className="w-6 h-6 text-[#5C2A52] mr-2" />
-                  <h2
-                    style={{ fontFamily: PLAYFAIR }}
-                    className="text-2xl text-gray-900 dark:text-[#F5F3FA]"
-                  >
+            <div className="bg-white dark:bg-[#1e1530] rounded-none shadow-sm border border-[#E7E0DA] dark:border-[#3A2E4D] overflow-hidden">
+              <div className="flex items-center justify-between px-6 py-4" style={{ background: 'linear-gradient(90deg, #0A0A0A 0%, #3B0A45 55%, #5C2A52 100%)' }}>
+                <div className="flex items-center gap-2">
+                  <CreditCard className="w-5 h-5 text-[#C9A8C3]" />
+                  <h2 style={{ fontFamily: PLAYFAIR }} className="text-xl text-white">
                     Método de Pago
                   </h2>
                 </div>
                 <button
                   type="button"
                   onClick={() => setPaso('envio')}
-                  className="flex items-center gap-1 text-sm text-gray-500 dark:text-[#b9aedd] hover:text-[#5C2A52] transition-colors"
+                  style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                  className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-[#C9A8C3] hover:text-white transition-colors"
                 >
-                  <ArrowLeft className="w-4 h-4" />
+                  <ArrowLeft className="w-3.5 h-3.5" />
                   Volver a Envío
                 </button>
               </div>
+              <div className="p-6">
               <RadioGroup value={metodoPago} onValueChange={setMetodoPago}>
                 <div className="space-y-3">
-                  <div className="flex items-center space-x-3 border border-gray-200 dark:border-[#3A2E4D] rounded-lg p-4 hover:border-[#5C2A52] transition-colors">
+                  <div className={`flex items-center space-x-3 rounded-none p-4 transition-colors ${metodoPago === 'contra-entrega' ? 'border-2 border-[#5C2A52] bg-[#F7F5FC] dark:bg-[#241935]' : 'border border-[#E7E0DA] dark:border-[#3A2E4D] hover:border-[#5C2A52]'}`}>
                     <RadioGroupItem value="contra-entrega" id="contra-entrega" />
                     <Label htmlFor="contra-entrega" className="flex-1 cursor-pointer">
                       <div className="flex items-center">
@@ -742,7 +740,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                       </div>
                     </Label>
                   </div>
-                  <div className="flex items-center space-x-3 border border-gray-200 dark:border-[#3A2E4D] rounded-lg p-4 hover:border-[#5C2A52] transition-colors">
+                  <div className={`flex items-center space-x-3 rounded-none p-4 transition-colors ${metodoPago === 'transferencia' ? 'border-2 border-[#5C2A52] bg-[#F7F5FC] dark:bg-[#241935]' : 'border border-[#E7E0DA] dark:border-[#3A2E4D] hover:border-[#5C2A52]'}`}>
                     <RadioGroupItem value="transferencia" id="transferencia" />
                     <Label htmlFor="transferencia" className="flex-1 cursor-pointer">
                       <div className="flex items-center">
@@ -757,7 +755,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
               {metodoPago === 'transferencia' && (
                 <div className="mt-6 space-y-6">
                   {/* Información de cuenta y QR */}
-                  <div className="border border-gray-200 dark:border-[#3A2E4D] rounded-lg p-6 bg-gray-50 dark:bg-[#17101f]">
+                  <div className="border border-[#E7E0DA] dark:border-[#3A2E4D] rounded-none p-6 bg-[#F7F5FC] dark:bg-[#17101f]">
                     <h3
                       style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                       className="text-lg text-gray-900 dark:text-[#F5F3FA] mb-4"
@@ -796,7 +794,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                       </div>
 
                       {/* Código QR */}
-                      <div className="flex flex-col items-center justify-center bg-white dark:bg-[#1e1530] p-4 rounded-lg border border-gray-200 dark:border-[#3A2E4D]">
+                      <div className="flex flex-col items-center justify-center bg-white dark:bg-[#1e1530] p-4 rounded-none border border-gray-200 dark:border-[#3A2E4D]">
                         <p className="text-xs text-gray-500 dark:text-[#b9aedd] mb-3">Escanea para transferir</p>
                         <img
                           src="/qr-transferencia.png"
@@ -817,7 +815,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                     {!comprobantePreview ? (
                       <label
                         htmlFor="comprobante"
-                        className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 dark:border-[#3A2E4D] rounded-lg cursor-pointer hover:border-[#5C2A52] transition-colors bg-gray-50 dark:bg-[#17101f]"
+                        className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 dark:border-[#3A2E4D] rounded-none cursor-pointer hover:border-[#5C2A52] transition-colors bg-gray-50 dark:bg-[#17101f]"
                       >
                         <div className="flex flex-col items-center justify-center pt-5 pb-6">
                           <Upload className="w-8 h-8 text-gray-400 dark:text-[#b9aedd] mb-2" />
@@ -837,7 +835,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                         />
                       </label>
                     ) : (
-                      <div className="relative border border-gray-200 dark:border-[#3A2E4D] rounded-lg p-4 bg-gray-50 dark:bg-[#17101f]">
+                      <div className="relative border border-gray-200 dark:border-[#3A2E4D] rounded-none p-4 bg-gray-50 dark:bg-[#17101f]">
                         <button
                           type="button"
                           title="Eliminar comprobante"
@@ -850,7 +848,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                           <img
                             src={comprobantePreview}
                             alt="Comprobante"
-                            className="w-full h-48 object-contain rounded"
+                            className="w-full h-48 object-contain rounded-none"
                           />
                         ) : (
                           <div className="flex items-center justify-center h-48">
@@ -864,17 +862,18 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                     )}
                   </div>
 
-                  <div className="bg-yellow-50 dark:bg-amber-950/30 border border-yellow-200 dark:border-amber-900/40 rounded-lg p-4">
+                  <div className="bg-yellow-50 dark:bg-amber-950/30 border border-yellow-200 dark:border-amber-900/40 rounded-none p-4">
                     <p className="text-sm text-yellow-800 dark:text-amber-400">
                       <strong>Importante:</strong> Tu pedido quedará en estado "Pendiente" hasta que el administrador confirme tu pago. Recibirás una notificación cuando sea aprobado.
                     </p>
                   </div>
                 </div>
               )}
+              </div>
             </div>
 
             {/* Garantías */}
-            <div className="rounded-lg p-6 text-white" style={{ background: 'linear-gradient(90deg, #0A0A0A 0%, #3B0A45 55%, #5C2A52 100%)' }}>
+            <div className="rounded-none p-6 text-white" style={{ background: 'linear-gradient(90deg, #0A0A0A 0%, #3B0A45 55%, #5C2A52 100%)' }}>
               <div className="flex items-center mb-4">
                 <ShieldCheck className="w-6 h-6 mr-2" />
                 <h3 style={{ fontFamily: PLAYFAIR }} className="text-xl">
@@ -893,13 +892,13 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
 
           {/* Resumen del Pedido */}
           <div className="lg:col-span-1">
-            <div className="bg-white dark:bg-[#1e1530] rounded-lg p-6 shadow-sm border border-gray-200 dark:border-[#3A2E4D] sticky top-24">
-              <h2
-                style={{ fontFamily: PLAYFAIR }}
-                className="text-2xl text-gray-900 dark:text-[#F5F3FA] mb-6"
-              >
-                Resumen del Pedido
-              </h2>
+            <div className="bg-white dark:bg-[#1e1530] rounded-none shadow-sm border border-[#E7E0DA] dark:border-[#3A2E4D] sticky top-24 overflow-hidden">
+              <div className="px-6 py-4" style={{ background: 'linear-gradient(90deg, #0A0A0A 0%, #3B0A45 55%, #5C2A52 100%)' }}>
+                <h2 style={{ fontFamily: PLAYFAIR }} className="text-xl text-white">
+                  Resumen del Pedido
+                </h2>
+              </div>
+              <div className="p-6">
 
               <div className="space-y-4 mb-6">
                 {carritoItems.map((item) => (
@@ -907,7 +906,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                     <img
                       src={item.imagen}
                       alt={item.nombre}
-                      className="w-16 h-16 object-cover rounded"
+                      className="w-16 h-16 object-cover rounded-none"
                     />
                     <div className="flex-1">
                       <h4 className="text-sm text-gray-900 dark:text-[#F5F3FA]">{item.nombre}</h4>
@@ -927,7 +926,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
               {/* Cupón de descuento */}
               <div className="mb-4">
                 {cuponAplicado ? (
-                  <div className="flex items-center justify-between bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-900 rounded-lg px-3 py-2">
+                  <div className="flex items-center justify-between bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-900 rounded-none px-3 py-2">
                     <span className="text-sm text-green-700 dark:text-green-400 font-medium">
                       Cupón "{cuponAplicado.codigo}" aplicado
                     </span>
@@ -1005,9 +1004,10 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                 <Button
                   onClick={handleFinalizarCompra}
                   disabled={enviandoPedido || !emailValidado}
-                  className="w-full bg-black hover:bg-gray-800 text-white h-12 disabled:opacity-60 transition-all duration-200 hover:scale-[1.02]"
-                  style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                  className="w-full text-white border-0 h-12 disabled:opacity-60 transition-all duration-200 hover:scale-[1.02] flex items-center justify-center gap-2"
+                  style={{ background: 'linear-gradient(90deg, #0A0A0A 0%, #3B0A45 55%, #5C2A52 100%)', fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 >
+                  {!enviandoPedido && <Lock className="w-4 h-4" />}
                   {enviandoPedido ? 'Procesando...' : metodoPago === 'transferencia' ? 'Enviar Pedido' : 'Confirmar Compra'}
                 </Button>
               )}
@@ -1017,6 +1017,14 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack }) => {
                   Al enviar, tu pedido quedará pendiente de confirmación
                 </p>
               )}
+
+              <div className="flex items-center justify-center gap-1.5 mt-4 pt-4 border-t border-[#E7E0DA] dark:border-[#3A2E4D]">
+                <Lock className="w-3.5 h-3.5 text-gray-400 dark:text-[#b9aedd]" />
+                <span style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="text-[11px] text-gray-400 dark:text-[#b9aedd]">
+                  Datos protegidos · Compra 100% segura
+                </span>
+              </div>
+              </div>
             </div>
           </div>
         </div>
