@@ -329,15 +329,15 @@ export const PedidosView: React.FC = () => {
             {puedeEditar ? (
               <div className="flex items-center justify-center gap-2">
                 <button type="button" onClick={() => setViewOpen(false)}
-                  className="px-5 py-2 rounded-full border border-[#E7E0DA] dark:border-[#3A2E4D] bg-white dark:bg-[#1e1530] text-gray-500 dark:text-[#b9aedd] text-sm font-medium hover:bg-[#F7F5FC] dark:hover:bg-[#221830] transition-all shadow-sm">
+                  className="px-5 py-2 rounded-none border border-[#E7E0DA] dark:border-[#3A2E4D] bg-white dark:bg-[#1e1530] text-gray-500 dark:text-[#b9aedd] text-sm font-medium hover:bg-[#F7F5FC] dark:hover:bg-[#221830] transition-all shadow-sm">
                   Cerrar
                 </button>
                 <button type="button" onClick={() => { setViewOpen(false); setRechazarOpen(true); }}
-                  className="px-5 py-2 rounded-full border border-rose-200 dark:border-rose-900/50 bg-white dark:bg-[#1e1530] text-rose-500 dark:text-rose-400 text-sm font-medium hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center gap-1.5 transition-all shadow-sm">
+                  className="px-5 py-2 rounded-none border border-rose-200 dark:border-rose-900/50 bg-white dark:bg-[#1e1530] text-rose-500 dark:text-rose-400 text-sm font-medium hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center gap-1.5 transition-all shadow-sm">
                   <XCircle className="w-3.5 h-3.5" /> Rechazar
                 </button>
                 <button type="button" onClick={() => { setViewOpen(false); setAprobarOpen(true); }}
-                  className="px-5 py-2 rounded-full text-white text-sm font-semibold flex items-center gap-1.5 transition-all hover:opacity-90 shadow-md"
+                  className="px-5 py-2 rounded-none text-white text-sm font-semibold flex items-center gap-1.5 transition-all hover:opacity-90 shadow-md"
                   style={{ background: 'linear-gradient(135deg, #5C2A52 0%, #3B0A45 100%)' }}>
                   <CheckCircle className="w-3.5 h-3.5" /> Aprobar
                 </button>
@@ -345,7 +345,7 @@ export const PedidosView: React.FC = () => {
             ) : (
               <div className="flex justify-center">
                 <button type="button" onClick={() => setViewOpen(false)}
-                  className="px-8 py-2 rounded-full border border-[#E7E0DA] dark:border-[#3A2E4D] bg-white dark:bg-[#1e1530] text-gray-500 dark:text-[#b9aedd] text-sm font-medium hover:bg-[#F7F5FC] dark:hover:bg-[#221830] transition-all shadow-sm">
+                  className="px-8 py-2 rounded-none border border-[#E7E0DA] dark:border-[#3A2E4D] bg-white dark:bg-[#1e1530] text-gray-500 dark:text-[#b9aedd] text-sm font-medium hover:bg-[#F7F5FC] dark:hover:bg-[#221830] transition-all shadow-sm">
                   Cerrar
                 </button>
               </div>
@@ -384,17 +384,17 @@ export const PedidosView: React.FC = () => {
         <DialogContent className="max-w-md flex flex-col p-0 gap-0 overflow-hidden max-h-[90vh]">
           <DialogDescription className="sr-only">Enviar correo de pago al cliente</DialogDescription>
           {/* Header */}
-          <div className="px-6 pt-6 pb-4 border-b border-[#E7E0DA] dark:border-[#3A2E4D] flex-shrink-0 pr-14 bg-[#C9A8C3] dark:bg-[#241935]">
+          <div className="px-6 pt-6 pb-4 flex-shrink-0 pr-14" style={{ background: 'linear-gradient(90deg, #0A0A0A 0%, #3B0A45 55%, #5C2A52 100%)' }}>
             <div className="flex items-center gap-3 mb-1">
-              <div className="w-9 h-9 bg-[#e7c2ce] dark:bg-[#4a3540] rounded-none flex items-center justify-center flex-shrink-0">
-                <Mail className="w-5 h-5 text-[#5C2A52]" />
+              <div className="w-9 h-9 bg-white/15 rounded-none flex items-center justify-center flex-shrink-0">
+                <Mail className="w-5 h-5 text-white" />
               </div>
-              <DialogTitle className="text-xl font-semibold text-[#0A0A0A] dark:text-[#F5F3FA]">
+              <DialogTitle className="text-xl font-semibold text-white">
                 Correo de pago
               </DialogTitle>
             </div>
-            <p className="text-sm text-gray-500 dark:text-[#b9aedd] ml-12">
-              Para <strong className="text-gray-700 dark:text-[#F5F3FA]">{selectedPedido?.nombreCliente}</strong>
+            <p className="text-sm text-[#C9A8C3] ml-12">
+              Para <strong className="text-white">{selectedPedido?.nombreCliente}</strong>
             </p>
           </div>
           {/* Body */}
@@ -424,7 +424,7 @@ export const PedidosView: React.FC = () => {
           {/* Footer */}
           <div className="px-6 py-4 border-t border-[#E7E0DA] dark:border-[#3A2E4D] bg-[#F7F5FC] dark:bg-[#17101f] flex-shrink-0 flex gap-2">
             <button type="button" onClick={() => setEmailPagoOpen(false)}
-              className="flex-1 py-2.5 rounded-full border border-[#E7E0DA] dark:border-[#3A2E4D] bg-white dark:bg-[#1e1530] text-gray-500 dark:text-[#b9aedd] hover:bg-[#F7F5FC] dark:hover:bg-[#221830] transition-all text-sm font-medium shadow-sm">
+              className="flex-1 py-2.5 rounded-none border border-[#E7E0DA] dark:border-[#3A2E4D] bg-white dark:bg-[#1e1530] text-gray-500 dark:text-[#b9aedd] hover:bg-[#F7F5FC] dark:hover:bg-[#221830] transition-all text-sm font-medium shadow-sm">
               Cancelar
             </button>
             <button type="button" onClick={enviarEmailPago} disabled={saving}
@@ -442,15 +442,15 @@ export const PedidosView: React.FC = () => {
         <DialogContent className="max-w-md p-0 gap-0 overflow-hidden">
           <DialogDescription className="sr-only">Confirmar aprobación del pedido</DialogDescription>
           {/* Header */}
-          <div className="px-6 pt-6 pb-4 border-b border-[#E7E0DA] dark:border-[#3A2E4D] pr-14 bg-[#C9A8C3] dark:bg-[#241935]">
+          <div className="px-6 pt-6 pb-4 pr-14" style={{ background: 'linear-gradient(90deg, #0A0A0A 0%, #3B0A45 55%, #5C2A52 100%)' }}>
             <div className="flex items-center gap-3 mb-1">
-              <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(34, 197, 94, 0.15)' }}>
-                <CheckCircle className="w-5 h-5 text-green-600" />
+              <div className="w-9 h-9 bg-white/15 rounded-none flex items-center justify-center flex-shrink-0">
+                <CheckCircle className="w-5 h-5 text-emerald-400" />
               </div>
-              <DialogTitle className="text-xl font-semibold text-[#0A0A0A] dark:text-[#F5F3FA]">Aprobar pedido</DialogTitle>
+              <DialogTitle className="text-xl font-semibold text-white">Aprobar pedido</DialogTitle>
             </div>
-            <p className="text-sm text-gray-500 dark:text-[#b9aedd] ml-12">
-              Pedido de <strong className="text-gray-700 dark:text-[#F5F3FA]">{selectedPedido?.nombreCliente}</strong>
+            <p className="text-sm text-[#C9A8C3] ml-12">
+              Pedido de <strong className="text-white">{selectedPedido?.nombreCliente}</strong>
             </p>
           </div>
           {/* Body */}
@@ -464,7 +464,7 @@ export const PedidosView: React.FC = () => {
           {/* Footer */}
           <div className="px-6 py-4 border-t border-[#E7E0DA] dark:border-[#3A2E4D] bg-[#F7F5FC] dark:bg-[#17101f] flex gap-2">
             <button type="button" onClick={() => setAprobarOpen(false)}
-              className="flex-1 py-2.5 rounded-full border border-[#E7E0DA] dark:border-[#3A2E4D] bg-white dark:bg-[#1e1530] text-gray-500 dark:text-[#b9aedd] hover:bg-[#F7F5FC] dark:hover:bg-[#221830] transition-all text-sm font-medium shadow-sm">
+              className="flex-1 py-2.5 rounded-none border border-[#E7E0DA] dark:border-[#3A2E4D] bg-white dark:bg-[#1e1530] text-gray-500 dark:text-[#b9aedd] hover:bg-[#F7F5FC] dark:hover:bg-[#221830] transition-all text-sm font-medium shadow-sm">
               Cancelar
             </button>
             <button type="button" onClick={() => selectedPedido && cambiarEstado(selectedPedido, 'Aprobado')}
@@ -483,21 +483,15 @@ export const PedidosView: React.FC = () => {
         <DialogContent className="max-w-md flex flex-col p-0 gap-0 overflow-hidden">
           <DialogDescription className="sr-only">Rechazar pedido</DialogDescription>
           {/* Header */}
-          <div className="px-6 pt-6 pb-4 border-b border-[#E7E0DA] dark:border-[#3A2E4D] flex-shrink-0 pr-14 bg-[#C9A8C3] dark:bg-[#241935]">
-            <svg width="0" height="0" className="absolute">
-              <defs>
-                <linearGradient id="rechazarIconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#fb7185" />
-                  <stop offset="100%" stopColor="#be123c" />
-                </linearGradient>
-              </defs>
-            </svg>
+          <div className="px-6 pt-6 pb-4 flex-shrink-0 pr-14" style={{ background: 'linear-gradient(90deg, #0A0A0A 0%, #3B0A45 55%, #5C2A52 100%)' }}>
             <div className="flex items-center gap-3 mb-1">
-              <XCircle className="w-7 h-7 flex-shrink-0" stroke="url(#rechazarIconGradient)" />
-              <DialogTitle className="text-xl font-semibold text-[#0A0A0A] dark:text-[#F5F3FA]">Rechazar pedido</DialogTitle>
+              <div className="w-9 h-9 bg-white/15 rounded-none flex items-center justify-center flex-shrink-0">
+                <XCircle className="w-5 h-5 text-rose-400" />
+              </div>
+              <DialogTitle className="text-xl font-semibold text-white">Rechazar pedido</DialogTitle>
             </div>
-            <p className="text-sm text-gray-500 dark:text-[#b9aedd] ml-10">
-              Pedido de <strong className="text-gray-700 dark:text-[#F5F3FA]">{selectedPedido?.nombreCliente}</strong>
+            <p className="text-sm text-[#C9A8C3] ml-12">
+              Pedido de <strong className="text-white">{selectedPedido?.nombreCliente}</strong>
             </p>
           </div>
           {/* Body */}
@@ -513,7 +507,7 @@ export const PedidosView: React.FC = () => {
           {/* Footer */}
           <div className="px-6 py-4 border-t border-[#E7E0DA] dark:border-[#3A2E4D] bg-[#F7F5FC] dark:bg-[#17101f] flex gap-2 flex-shrink-0">
             <button type="button" onClick={() => setRechazarOpen(false)}
-              className="flex-1 py-2.5 rounded-full border border-[#E7E0DA] dark:border-[#3A2E4D] bg-white dark:bg-[#1e1530] text-gray-500 dark:text-[#b9aedd] hover:bg-[#F7F5FC] dark:hover:bg-[#221830] transition-all text-sm font-medium shadow-sm">
+              className="flex-1 py-2.5 rounded-none border border-[#E7E0DA] dark:border-[#3A2E4D] bg-white dark:bg-[#1e1530] text-gray-500 dark:text-[#b9aedd] hover:bg-[#F7F5FC] dark:hover:bg-[#221830] transition-all text-sm font-medium shadow-sm">
               Cancelar
             </button>
             <button type="button" onClick={() => {

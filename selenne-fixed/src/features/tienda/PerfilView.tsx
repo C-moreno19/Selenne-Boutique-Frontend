@@ -119,7 +119,7 @@ const CitySelect: React.FC<{ value: string; onChange: (v: string) => void; class
     <div ref={ref} className={`relative ${className ?? ''}`}>
       <button type="button"
         onClick={() => { setOpen(o => !o); setTimeout(() => inputRef.current?.focus(), 50); }}
-        className="w-full flex items-center gap-2 pl-10 pr-3 h-[42px] border border-gray-200 dark:border-[#3A2E4D] rounded-xl text-sm bg-white dark:bg-[#1e1530] focus:outline-none focus:ring-2 focus:ring-[#5C2A52]/30 focus:border-[#5C2A52] transition-all text-left"
+        className="w-full flex items-center gap-2 pl-10 pr-3 h-[42px] border border-gray-200 dark:border-[#3A2E4D] rounded-none text-sm bg-white dark:bg-[#1e1530] focus:outline-none focus:ring-2 focus:ring-[#5C2A52]/30 focus:border-[#5C2A52] transition-all text-left"
         style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
         <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#5C2A52] pointer-events-none" />
         <span className={`flex-1 truncate ${value ? 'text-gray-900 dark:text-[#F5F3FA]' : 'text-gray-400 dark:text-[#8a7a86]'}`}>{label || 'Selecciona tu ciudad'}</span>
@@ -127,13 +127,13 @@ const CitySelect: React.FC<{ value: string; onChange: (v: string) => void; class
       </button>
 
       {open && (
-        <div className="absolute left-0 right-0 top-full mt-1 bg-white dark:bg-[#1e1530] border border-gray-200 dark:border-[#3A2E4D] rounded-xl shadow-lg z-50 overflow-hidden">
+        <div className="absolute left-0 right-0 top-full mt-1 bg-white dark:bg-[#1e1530] border border-gray-200 dark:border-[#3A2E4D] rounded-none shadow-lg z-50 overflow-hidden">
           <div className="p-2 border-b border-gray-100 dark:border-[#3A2E4D]">
             <div className="relative">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 dark:text-[#b9aedd]" />
               <input ref={inputRef} value={q} onChange={e => setQ(e.target.value)}
                 placeholder="Buscar ciudad..."
-                className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-gray-200 dark:border-[#3A2E4D] outline-none focus:border-[#5C2A52] bg-gray-50 dark:bg-[#17101f] text-gray-900 dark:text-[#F5F3FA]"
+                className="w-full pl-8 pr-3 py-1.5 text-xs rounded-none border border-gray-200 dark:border-[#3A2E4D] outline-none focus:border-[#5C2A52] bg-gray-50 dark:bg-[#17101f] text-gray-900 dark:text-[#F5F3FA]"
                 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} />
             </div>
           </div>
@@ -163,7 +163,7 @@ const CitySelect: React.FC<{ value: string; onChange: (v: string) => void; class
 };
 
 const fieldClass = (error?: string) =>
-  `w-full pl-10 pr-3 h-[42px] text-sm border rounded-xl focus:outline-none focus:ring-2 transition-all ${
+  `w-full pl-10 pr-3 h-[42px] text-sm border rounded-none focus:outline-none focus:ring-2 transition-all ${
     error ? 'border-red-300 dark:border-red-500/50 focus:ring-red-200 dark:focus:ring-red-500/20 bg-red-50 dark:bg-red-950/30' : 'border-gray-200 dark:border-[#3A2E4D] focus:ring-[#5C2A52]/30 focus:border-[#5C2A52] bg-white dark:bg-[#1e1530]'
   }`;
 
@@ -285,7 +285,7 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
 
       {/* ── Nav top ── */}
       <div className="bg-white dark:bg-[#1e1530] border-b border-gray-100 dark:border-[#3A2E4D] px-4 py-3 flex items-center gap-3 sticky top-0 z-10 shadow-sm">
-        <button type="button" title="Volver" onClick={onBack} className="p-2 hover:bg-gray-100 dark:hover:bg-[#221830] rounded-xl transition-colors flex-shrink-0">
+        <button type="button" title="Volver" onClick={onBack} className="p-2 hover:bg-gray-100 dark:hover:bg-[#221830] rounded-none transition-colors flex-shrink-0">
           <ArrowLeft className="w-5 h-5 text-gray-500 dark:text-[#b9aedd]" />
         </button>
         <span className="text-sm text-gray-500 dark:text-[#b9aedd] truncate">Mi cuenta</span>
@@ -298,7 +298,7 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
         <h1 className="text-sm font-bold text-gray-900 dark:text-[#F5F3FA] uppercase tracking-widest mb-6">Perfil</h1>
 
         {/* Card info personal */}
-        <div className="rounded-xl border border-gray-200 dark:border-[#3A2E4D] overflow-hidden mb-6" style={{ boxShadow: '0 2px 12px rgba(214, 83, 145, 0.07)' }}>
+        <div className="rounded-none border border-gray-200 dark:border-[#3A2E4D] overflow-hidden mb-6" style={{ boxShadow: '0 2px 12px rgba(214, 83, 145, 0.07)' }}>
           <div className="bg-gradient-to-br from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] px-6 py-8 flex flex-col items-center text-center">
             <div className="w-20 h-20 rounded-full bg-white/15 border-2 border-white/40 flex items-center justify-center text-white text-2xl font-bold mb-3"
               style={{ fontFamily: '"Playfair Display", Georgia, serif' }}>
@@ -310,7 +310,7 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
             <button type="button"
               onClick={() => { setFormData({ nombre: user?.name || '', ...profileData }); setErrors({ nombre: '', telefono: '', direccion: '', documento: '' }); setEditModalOpen(true); }}
               style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="w-full px-4 py-2.5 bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] text-white rounded-lg hover:opacity-90 flex items-center justify-center gap-2 transition text-sm font-medium"
+              className="w-full px-4 py-2.5 bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] text-white rounded-none hover:opacity-90 flex items-center justify-center gap-2 transition text-sm font-medium"
             >
               <Edit className="w-4 h-4" /> Editar Perfil
             </button>
@@ -324,7 +324,7 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
               { icon: CreditCard, label: 'Documento',          value: profileData.documento || '—' },
             ].map(({ icon: Icon, label, value }) => (
               <div key={label} className="flex items-start gap-3">
-                <div className="w-9 h-9 rounded-lg bg-[#C9A8C3] dark:bg-[#241935] flex items-center justify-center flex-shrink-0">
+                <div className="w-9 h-9 rounded-none bg-[#C9A8C3] dark:bg-[#241935] flex items-center justify-center flex-shrink-0">
                   <Icon className="w-4 h-4 text-[#5C2A52]" />
                 </div>
                 <div className="min-w-0">
@@ -337,7 +337,7 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
         </div>
 
         {/* Mis pedidos */}
-        <div className="rounded-xl border border-gray-200 dark:border-[#3A2E4D] overflow-hidden mb-6" style={{ boxShadow: '0 2px 12px rgba(214, 83, 145, 0.07)' }}>
+        <div className="rounded-none border border-gray-200 dark:border-[#3A2E4D] overflow-hidden mb-6" style={{ boxShadow: '0 2px 12px rgba(214, 83, 145, 0.07)' }}>
           <div className="bg-[#F7F5FC] dark:bg-[#17101f] px-6 py-4 border-b border-gray-200 dark:border-[#3A2E4D]">
             <h3 className="font-semibold text-gray-900 dark:text-[#F5F3FA] text-base" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Mis Pedidos</h3>
           </div>
@@ -346,7 +346,7 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
             className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-[#F7F5FC] dark:hover:bg-[#221830] transition group bg-white dark:bg-[#1e1530]"
           >
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-[#C9A8C3] dark:bg-[#241935] flex items-center justify-center flex-shrink-0">
+              <div className="w-9 h-9 rounded-none bg-[#C9A8C3] dark:bg-[#241935] flex items-center justify-center flex-shrink-0">
                 <Package className="w-4 h-4 text-[#5C2A52]" />
               </div>
               <div>
@@ -359,7 +359,7 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
         </div>
 
         {/* Seguridad */}
-        <div className="rounded-xl border border-gray-200 dark:border-[#3A2E4D] overflow-hidden mb-8" style={{ boxShadow: '0 2px 12px rgba(214, 83, 145, 0.07)' }}>
+        <div className="rounded-none border border-gray-200 dark:border-[#3A2E4D] overflow-hidden mb-8" style={{ boxShadow: '0 2px 12px rgba(214, 83, 145, 0.07)' }}>
           <div className="bg-[#F7F5FC] dark:bg-[#17101f] px-6 py-4 border-b border-gray-200 dark:border-[#3A2E4D]">
             <h3 className="font-semibold text-gray-900 dark:text-[#F5F3FA] text-base" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Seguridad</h3>
           </div>
@@ -369,7 +369,7 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
               className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-[#F7F5FC] dark:hover:bg-[#221830] transition group"
             >
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-[#C9A8C3] dark:bg-[#241935] flex items-center justify-center flex-shrink-0">
+                <div className="w-9 h-9 rounded-none bg-[#C9A8C3] dark:bg-[#241935] flex items-center justify-center flex-shrink-0">
                   <Lock className="w-4 h-4 text-[#5C2A52]" />
                 </div>
                 <div>
@@ -381,7 +381,7 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
             </button>
             <div className="px-6 py-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-[#C9A8C3] dark:bg-[#241935] flex items-center justify-center flex-shrink-0">
+                <div className="w-9 h-9 rounded-none bg-[#C9A8C3] dark:bg-[#241935] flex items-center justify-center flex-shrink-0">
                   <Bell className="w-4 h-4 text-[#5C2A52]" />
                 </div>
                 <div>
@@ -412,11 +412,11 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
         </div>
 
         {/* Cerrar sesión */}
-        <div className="rounded-xl border border-gray-200 dark:border-[#3A2E4D] overflow-hidden" style={{ boxShadow: '0 2px 12px rgba(214, 83, 145, 0.07)' }}>
+        <div className="rounded-none border border-gray-200 dark:border-[#3A2E4D] overflow-hidden" style={{ boxShadow: '0 2px 12px rgba(214, 83, 145, 0.07)' }}>
           <button type="button" onClick={onLogout}
             className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors group bg-white dark:bg-[#1e1530]">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-red-50 dark:bg-red-950/30 flex items-center justify-center flex-shrink-0">
+              <div className="w-9 h-9 rounded-none bg-red-50 dark:bg-red-950/30 flex items-center justify-center flex-shrink-0">
                 <LogOut className="w-4 h-4 text-red-500" />
               </div>
               <span className="text-sm font-medium text-red-500 group-hover:text-red-600 dark:text-red-400 dark:group-hover:text-red-300" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Cerrar sesión</span>
@@ -443,7 +443,7 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
           <div className="flex-1 overflow-y-auto">
             <div className="space-y-4 sm:space-y-6 py-4 sm:py-6 px-5 sm:px-8">
               {/* Datos de cuenta */}
-              <div className="bg-white dark:bg-[#1e1530] rounded-xl border border-gray-100 dark:border-[#3A2E4D] shadow-sm overflow-hidden">
+              <div className="bg-white dark:bg-[#1e1530] rounded-none border border-gray-100 dark:border-[#3A2E4D] shadow-sm overflow-hidden">
                 <div className="bg-[#F7F5FC] dark:bg-[#17101f] px-5 sm:px-6 py-3 sm:py-4 border-b border-gray-100 dark:border-[#3A2E4D]">
                   <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-gray-900 dark:text-[#F5F3FA] text-base">Datos de Cuenta</h3>
                 </div>
@@ -460,7 +460,7 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
                           if (val && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]*$/.test(val)) { setErrors(p => ({ ...p, nombre: 'Solo se permiten letras' })); return; }
                           setFormData(p => ({ ...p, nombre: val })); setErrors(p => ({ ...p, nombre: '' }));
                         }}
-                        className={`w-full pl-10 pr-3 h-[42px] text-sm border rounded-xl focus:outline-none focus:ring-2 transition-all ${errors.nombre ? 'border-red-300 dark:border-red-900/50 focus:ring-red-200 dark:focus:ring-red-900/30 bg-red-50 dark:bg-red-950/40' : 'border-[#E7E0DA] dark:border-[#3A2E4D] focus:ring-[#5C2A52]/30 focus:border-[#5C2A52]'}`}
+                        className={`w-full pl-10 pr-3 h-[42px] text-sm border rounded-none focus:outline-none focus:ring-2 transition-all ${errors.nombre ? 'border-red-300 dark:border-red-900/50 focus:ring-red-200 dark:focus:ring-red-900/30 bg-red-50 dark:bg-red-950/40' : 'border-[#E7E0DA] dark:border-[#3A2E4D] focus:ring-[#5C2A52]/30 focus:border-[#5C2A52]'}`}
                         placeholder="Tu nombre completo"
                         style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} />
                     </div>
@@ -478,7 +478,7 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
                             if (val && !/^\d*$/.test(val)) { setErrors(p => ({ ...p, documento: 'Solo se permiten números' })); return; }
                             setFormData(p => ({ ...p, documento: val })); setErrors(p => ({ ...p, documento: '' }));
                           }}
-                          className={`w-full pl-10 pr-3 h-[42px] text-sm border rounded-xl focus:outline-none focus:ring-2 transition-all ${errors.documento ? 'border-red-300 dark:border-red-900/50 focus:ring-red-200 dark:focus:ring-red-900/30 bg-red-50 dark:bg-red-950/40' : 'border-[#E7E0DA] dark:border-[#3A2E4D] focus:ring-[#5C2A52]/30 focus:border-[#5C2A52]'}`}
+                          className={`w-full pl-10 pr-3 h-[42px] text-sm border rounded-none focus:outline-none focus:ring-2 transition-all ${errors.documento ? 'border-red-300 dark:border-red-900/50 focus:ring-red-200 dark:focus:ring-red-900/30 bg-red-50 dark:bg-red-950/40' : 'border-[#E7E0DA] dark:border-[#3A2E4D] focus:ring-[#5C2A52]/30 focus:border-[#5C2A52]'}`}
                           placeholder="Número de documento"
                           style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} />
                       </div>
@@ -495,7 +495,7 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
                             if (val && !/^\d*$/.test(val)) { setErrors(p => ({ ...p, telefono: 'Solo se permiten números' })); return; }
                             setFormData(p => ({ ...p, telefono: val })); setErrors(p => ({ ...p, telefono: '' }));
                           }}
-                          className={`w-full pl-10 pr-3 h-[42px] text-sm border rounded-xl focus:outline-none focus:ring-2 transition-all ${errors.telefono ? 'border-red-300 dark:border-red-900/50 focus:ring-red-200 dark:focus:ring-red-900/30 bg-red-50 dark:bg-red-950/40' : 'border-[#E7E0DA] dark:border-[#3A2E4D] focus:ring-[#5C2A52]/30 focus:border-[#5C2A52]'}`}
+                          className={`w-full pl-10 pr-3 h-[42px] text-sm border rounded-none focus:outline-none focus:ring-2 transition-all ${errors.telefono ? 'border-red-300 dark:border-red-900/50 focus:ring-red-200 dark:focus:ring-red-900/30 bg-red-50 dark:bg-red-950/40' : 'border-[#E7E0DA] dark:border-[#3A2E4D] focus:ring-[#5C2A52]/30 focus:border-[#5C2A52]'}`}
                           placeholder="3001234567"
                           style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} />
                       </div>
@@ -506,7 +506,7 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
               </div>
 
               {/* Ubicación */}
-              <div className="bg-white dark:bg-[#1e1530] rounded-xl border border-gray-100 dark:border-[#3A2E4D] shadow-sm overflow-hidden">
+              <div className="bg-white dark:bg-[#1e1530] rounded-none border border-gray-100 dark:border-[#3A2E4D] shadow-sm overflow-hidden">
                 <div className="bg-[#F7F5FC] dark:bg-[#17101f] px-5 sm:px-6 py-3 sm:py-4 border-b border-gray-100 dark:border-[#3A2E4D]">
                   <h3 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} className="font-semibold text-gray-900 dark:text-[#F5F3FA] text-base">Ubicación</h3>
                 </div>
@@ -522,7 +522,7 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
                       <MapPin className={`absolute left-3 top-3 w-4 h-4 ${errors.direccion ? 'text-red-400' : 'text-[#5C2A52]'}`} />
                       <textarea value={formData.direccion}
                         onChange={e => { setFormData(p => ({ ...p, direccion: e.target.value })); setErrors(p => ({ ...p, direccion: '' })); }}
-                        className={`w-full pl-10 pr-3 py-2.5 text-sm border rounded-xl focus:outline-none focus:ring-2 min-h-[42px] max-h-[80px] resize-none transition-all ${errors.direccion ? 'border-red-300 dark:border-red-900/50 focus:ring-red-200 dark:focus:ring-red-900/30 bg-red-50 dark:bg-red-950/40' : 'border-[#E7E0DA] dark:border-[#3A2E4D] focus:ring-[#5C2A52]/30 focus:border-[#5C2A52]'}`}
+                        className={`w-full pl-10 pr-3 py-2.5 text-sm border rounded-none focus:outline-none focus:ring-2 min-h-[42px] max-h-[80px] resize-none transition-all ${errors.direccion ? 'border-red-300 dark:border-red-900/50 focus:ring-red-200 dark:focus:ring-red-900/30 bg-red-50 dark:bg-red-950/40' : 'border-[#E7E0DA] dark:border-[#3A2E4D] focus:ring-[#5C2A52]/30 focus:border-[#5C2A52]'}`}
                         placeholder="Calle 10 # 43E – 125, Apto 301..."
                         style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }} />
                     </div>
@@ -535,11 +535,11 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
 
           <DialogFooter className="gap-2 px-5 sm:px-8 py-3 sm:py-5 border-t border-gray-100 dark:border-[#3A2E4D] flex-shrink-0">
             <button type="button" onClick={() => setEditModalOpen(false)} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="px-6 py-2 bg-gray-100 dark:bg-[#221830] text-gray-700 dark:text-[#F5F3FA] rounded-lg hover:bg-gray-200 dark:hover:bg-[#241935] transition">
+              className="px-6 py-2 bg-gray-100 dark:bg-[#221830] text-gray-700 dark:text-[#F5F3FA] rounded-none hover:bg-gray-200 dark:hover:bg-[#241935] transition">
               Cancelar
             </button>
             <button type="button" onClick={handleSaveProfile} disabled={saving} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-              className="px-6 py-2 bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] text-white rounded-lg hover:opacity-90 disabled:opacity-50 flex items-center gap-2 transition">
+              className="px-6 py-2 bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] text-white rounded-none hover:opacity-90 disabled:opacity-50 flex items-center gap-2 transition">
               {saving && <Loader2 className="w-4 h-4 animate-spin" />}
               {saving ? 'Guardando...' : 'Guardar Cambios'}
             </button>
@@ -581,7 +581,7 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
                     value={passwordData[key]}
                     onChange={e => setPasswordData(p => ({ ...p, [key]: e.target.value }))}
                     placeholder={placeholder}
-                    className="w-full pl-10 pr-10 h-11 text-sm border rounded-xl border-gray-200 dark:border-[#3A2E4D] focus:outline-none focus:border-gray-900 dark:focus:border-[#5C2A52] transition-colors bg-white dark:bg-[#17101f] text-gray-900 dark:text-[#F5F3FA]"
+                    className="w-full pl-10 pr-10 h-11 text-sm border rounded-none border-gray-200 dark:border-[#3A2E4D] focus:outline-none focus:border-gray-900 dark:focus:border-[#5C2A52] transition-colors bg-white dark:bg-[#17101f] text-gray-900 dark:text-[#F5F3FA]"
                     style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                   />
                   <button type="button" aria-label="Mostrar/Ocultar"
@@ -623,12 +623,12 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
           <div style={{ padding: '16px 32px 28px' }} className="border-t border-gray-100 dark:border-[#3A2E4D] flex items-center justify-end gap-3">
             <button type="button"
               onClick={() => { setPasswordModalOpen(false); setPasswordData({ current: '', new: '', confirm: '' }); }}
-              className="h-10 px-5 text-sm text-gray-600 dark:text-[#b9aedd] border border-gray-200 dark:border-[#3A2E4D] hover:bg-gray-50 dark:hover:bg-[#221830] transition-colors rounded-xl"
+              className="h-10 px-5 text-sm text-gray-600 dark:text-[#b9aedd] border border-gray-200 dark:border-[#3A2E4D] hover:bg-gray-50 dark:hover:bg-[#221830] transition-colors rounded-none"
               style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
               Cancelar
             </button>
             <button type="button" onClick={handleChangePassword} disabled={saving}
-              className="h-10 px-5 text-sm font-semibold text-white bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] hover:opacity-90 transition-all flex items-center gap-2 disabled:opacity-50 rounded-xl shadow-sm"
+              className="h-10 px-5 text-sm font-semibold text-white bg-gradient-to-r from-[#0A0A0A] via-[#3B0A45] to-[#5C2A52] hover:opacity-90 transition-all flex items-center gap-2 disabled:opacity-50 rounded-none shadow-sm"
               style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
               {saving ? 'Guardando...' : 'Actualizar contraseña'}
@@ -699,7 +699,7 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
                       return (
                         <button key={pedido.pedidoID} type="button"
                           onClick={() => setPedidoSelec(pedido)}
-                          className="group w-full text-left rounded-2xl border border-gray-100 dark:border-[#3A2E4D] bg-white dark:bg-[#17101f] p-5 hover:border-[#C9A8C3] dark:hover:border-[#5a3a48] hover:shadow-md transition-all">
+                          className="group w-full text-left rounded-none border border-gray-100 dark:border-[#3A2E4D] bg-white dark:bg-[#17101f] p-5 hover:border-[#C9A8C3] dark:hover:border-[#5a3a48] hover:shadow-md transition-all">
                           <div className="flex items-start justify-between gap-4 mb-2">
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1.5 flex-wrap">
@@ -749,7 +749,7 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
                 <div style={{ padding: '24px 32px' }} className="space-y-6">
 
                   {/* Estado + Total */}
-                  <div className="flex items-center justify-between rounded-xl px-5 py-4"
+                  <div className="flex items-center justify-between rounded-none px-5 py-4"
                     style={{ background: 'linear-gradient(90deg, #0A0A0A 0%, #3B0A45 55%, #5C2A52 100%)' }}>
                     <span className="px-3 py-1 text-xs font-semibold uppercase tracking-wide rounded-full bg-white/15 text-white">{cfg.label}</span>
                     <span className="text-2xl font-black text-white"
@@ -764,8 +764,8 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
                       style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Productos</p>
                     <div className="space-y-3">
                       {(pedidoSelec.detalles ?? []).map((d, i) => (
-                        <div key={i} className="flex gap-4 rounded-xl border border-gray-100 dark:border-[#3A2E4D] p-4">
-                          <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 dark:bg-[#17101f] flex-shrink-0">
+                        <div key={i} className="flex gap-4 rounded-none border border-gray-100 dark:border-[#3A2E4D] p-4">
+                          <div className="w-16 h-16 rounded-none overflow-hidden bg-gray-100 dark:bg-[#17101f] flex-shrink-0">
                             {d.imagenProducto ? (
                               <img src={d.imagenProducto.startsWith('http') ? d.imagenProducto : `${apiBase}${d.imagenProducto}`}
                                 alt={d.productoNombre} className="w-full h-full object-cover" />
@@ -801,7 +801,7 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
                   <div>
                     <p className="text-xs font-semibold text-gray-400 dark:text-[#b9aedd] uppercase tracking-widest mb-3"
                       style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Resumen</p>
-                    <div className="rounded-xl border border-gray-100 dark:border-[#3A2E4D] overflow-hidden">
+                    <div className="rounded-none border border-gray-100 dark:border-[#3A2E4D] overflow-hidden">
                       {[
                         { label: 'Subtotal', value: fmt(pedidoSelec.subtotal ?? 0), className: 'text-gray-600 dark:text-[#b9aedd]' },
                         ...((pedidoSelec.descuento ?? 0) > 0 ? [{ label: 'Descuento', value: `-${fmt(pedidoSelec.descuento ?? 0)}`, className: 'text-green-600 dark:text-green-400' }] : []),
@@ -823,7 +823,7 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
                   <div>
                     <p className="text-xs font-semibold text-gray-400 dark:text-[#b9aedd] uppercase tracking-widest mb-3"
                       style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Envío</p>
-                    <div className="rounded-xl border border-gray-100 dark:border-[#3A2E4D] overflow-hidden">
+                    <div className="rounded-none border border-gray-100 dark:border-[#3A2E4D] overflow-hidden">
                       {[
                         { icon: <CreditCard className="w-4 h-4 text-gray-400 dark:text-[#b9aedd]" />, label: 'Método de pago', value: pedidoSelec.metodoPago },
                         { icon: <MapPin className="w-4 h-4 text-gray-400 dark:text-[#b9aedd]" />,     label: 'Ciudad',         value: pedidoSelec.ciudad },
@@ -844,7 +844,7 @@ export const PerfilView: React.FC<PerfilViewProps> = ({ onBack, onLogout }) => {
                   </div>
 
                   {pedidoSelec.notas && (
-                    <div className="rounded-xl border border-gray-100 dark:border-[#3A2E4D] p-4 text-sm text-gray-600 dark:text-[#b9aedd]"
+                    <div className="rounded-none border border-gray-100 dark:border-[#3A2E4D] p-4 text-sm text-gray-600 dark:text-[#b9aedd]"
                       style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                       <span className="font-semibold text-gray-900 dark:text-[#F5F3FA]">Notas: </span>{pedidoSelec.notas}
                     </div>

@@ -47,6 +47,8 @@ export const HistorialVentasView: React.FC<HistorialVentasViewProps> = ({ onBack
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [devolucionOpen, setDevolucionOpen] = useState(false);
   const [motivoDevolucion, setMotivoDevolucion] = useState('');
+  const [cancelarOpen, setCancelarOpen] = useState(false);
+  const [motivoCancelacion, setMotivoCancelacion] = useState('');
 
   const loadData = useCallback(async () => {
     try {
@@ -103,6 +105,21 @@ export const HistorialVentasView: React.FC<HistorialVentasViewProps> = ({ onBack
       setDevolucionOpen(false); setViewOpen(false); setMotivoDevolucion('');
       loadData();
     } catch (e: any) { toast.error(e?.data?.message || 'Error registrando la devolución'); }
+    finally { setSaving(false); }
+  };
+
+  const marcarCancelado = async () => {
+    if (!selectedPedido) return;
+    setSaving(true);
+    try {
+      await api.fetchWithAuth(`/api/pedidos/${selectedPedido.pedidoID}/estado`, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ NuevoEstado: 'Cancelado', Notas: motivoCancelacion || null }),
+      });
+      toast.success('Pedido cancelado');
+      setCancelarOpen(false); setViewOpen(false); setMotivoCancelacion('');
+      loadData();
+    } catch (e: any) { toast.error(e?.data?.message || 'Error cancelando el pedido'); }
     finally { setSaving(false); }
   };
 
@@ -313,22 +330,29 @@ export const HistorialVentasView: React.FC<HistorialVentasViewProps> = ({ onBack
           {/* Footer */}
           <div className="px-6 py-4 bg-[#F7F5FC] dark:bg-[#17101f] border-t border-[#E7E0DA] dark:border-[#3A2E4D] flex items-center justify-center gap-2 flex-shrink-0">
             {selectedPedido?.estado === 'Enviado' && (
-              <button type="button" onClick={marcarCompletado} disabled={saving}
-                className="flex items-center gap-2 px-5 py-2 text-white text-sm font-semibold rounded-full disabled:opacity-50 transition-all hover:opacity-90 shadow-md"
-                style={{ background: 'linear-gradient(135deg, #2d6a4f 0%, #1b4332 100%)' }}>
-                {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-                Marcar completado
-              </button>
+              <>
+                <button type="button" onClick={() => setCancelarOpen(true)} disabled={saving}
+                  className="flex items-center gap-2 px-5 py-2 text-white text-sm font-semibold rounded-none disabled:opacity-50 transition-all hover:opacity-90 shadow-md"
+                  style={{ background: 'linear-gradient(135deg, #dc2626 0%, #7f1d1d 100%)' }}>
+                  Cancelar pedido
+                </button>
+                <button type="button" onClick={marcarCompletado} disabled={saving}
+                  className="flex items-center gap-2 px-5 py-2 text-white text-sm font-semibold rounded-none disabled:opacity-50 transition-all hover:opacity-90 shadow-md"
+                  style={{ background: 'linear-gradient(135deg, #2d6a4f 0%, #1b4332 100%)' }}>
+                  {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+                  Marcar completado
+                </button>
+              </>
             )}
             {(selectedPedido?.estado === 'Completado' || selectedPedido?.estado === 'Completada') && (
               <button type="button" onClick={() => setDevolucionOpen(true)} disabled={saving}
-                className="flex items-center gap-2 px-5 py-2 text-white text-sm font-semibold rounded-full disabled:opacity-50 transition-all hover:opacity-90 shadow-md"
+                className="flex items-center gap-2 px-5 py-2 text-white text-sm font-semibold rounded-none disabled:opacity-50 transition-all hover:opacity-90 shadow-md"
                 style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%)' }}>
                 Marcar como devuelto
               </button>
             )}
             <button type="button" onClick={() => setViewOpen(false)}
-              className="px-6 py-2 rounded-full border border-[#E7E0DA] dark:border-[#3A2E4D] bg-white dark:bg-[#1e1530] text-gray-500 dark:text-[#b9aedd] text-sm font-medium hover:bg-[#F7F5FC] dark:hover:bg-[#221830] transition-all shadow-sm">
+              className="px-6 py-2 rounded-none border border-[#E7E0DA] dark:border-[#3A2E4D] bg-white dark:bg-[#1e1530] text-gray-500 dark:text-[#b9aedd] text-sm font-medium hover:bg-[#F7F5FC] dark:hover:bg-[#221830] transition-all shadow-sm">
               Cerrar
             </button>
           </div>
@@ -363,7 +387,7 @@ export const HistorialVentasView: React.FC<HistorialVentasViewProps> = ({ onBack
           </div>
           <div className="px-6 py-4 border-t border-[#E7E0DA] dark:border-[#3A2E4D] bg-[#F7F5FC] dark:bg-[#17101f] flex gap-2">
             <button type="button" onClick={() => setDevolucionOpen(false)}
-              className="flex-1 py-2.5 rounded-full border border-[#E7E0DA] dark:border-[#3A2E4D] bg-white dark:bg-[#1e1530] text-gray-500 dark:text-[#b9aedd] hover:bg-[#F7F5FC] dark:hover:bg-[#221830] transition-all text-sm font-medium shadow-sm">
+              className="flex-1 py-2.5 rounded-none border border-[#E7E0DA] dark:border-[#3A2E4D] bg-white dark:bg-[#1e1530] text-gray-500 dark:text-[#b9aedd] hover:bg-[#F7F5FC] dark:hover:bg-[#221830] transition-all text-sm font-medium shadow-sm">
               Cancelar
             </button>
             <button type="button" onClick={marcarDevuelto} disabled={saving}
@@ -371,6 +395,37 @@ export const HistorialVentasView: React.FC<HistorialVentasViewProps> = ({ onBack
               style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%)' }}>
               {saving && <Loader2 className="w-4 h-4 animate-spin" />}
               Confirmar devolución
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal Cancelar pedido */}
+      <Dialog open={cancelarOpen} onOpenChange={v => { if (!saving) { setCancelarOpen(v); if (!v) setMotivoCancelacion(''); } }}>
+        <DialogContent className="max-w-md p-0 overflow-hidden gap-0">
+          <div className="px-6 pt-6 pb-4 border-b border-[#E7E0DA] dark:border-[#3A2E4D]">
+            <DialogTitle className="text-xl font-semibold text-[#0A0A0A] dark:text-[#F5F3FA]">Cancelar pedido</DialogTitle>
+            <DialogDescription className="text-sm text-gray-500 dark:text-[#b9aedd]">
+              Pedido de <strong className="text-gray-700 dark:text-[#F5F3FA]">{selectedPedido?.nombreCliente}</strong>. El stock de los productos se restaurará automáticamente.
+            </DialogDescription>
+          </div>
+          <div className="px-6 py-5 bg-[#F7F5FC] dark:bg-[#17101f]">
+            <label className="text-sm font-medium text-gray-700 dark:text-[#F5F3FA] mb-1.5 block">Motivo (opcional)</label>
+            <textarea value={motivoCancelacion} onChange={e => setMotivoCancelacion(e.target.value)}
+              placeholder="Ej: El cliente no recibió el paquete, pedido duplicado..."
+              rows={3}
+              className="w-full px-3 py-2.5 border border-red-200 dark:border-red-900/50 rounded-none text-sm focus:outline-none focus:border-red-500 resize-none bg-white dark:bg-[#1e1530] transition" />
+          </div>
+          <div className="px-6 py-4 border-t border-[#E7E0DA] dark:border-[#3A2E4D] bg-[#F7F5FC] dark:bg-[#17101f] flex gap-2">
+            <button type="button" onClick={() => setCancelarOpen(false)}
+              className="flex-1 py-2.5 rounded-none border border-[#E7E0DA] dark:border-[#3A2E4D] bg-white dark:bg-[#1e1530] text-gray-500 dark:text-[#b9aedd] hover:bg-[#F7F5FC] dark:hover:bg-[#221830] transition-all text-sm font-medium shadow-sm">
+              Volver
+            </button>
+            <button type="button" onClick={marcarCancelado} disabled={saving}
+              className="flex-1 py-2.5 text-white rounded-none disabled:opacity-50 flex items-center justify-center gap-2 transition hover:opacity-90 text-sm font-semibold"
+              style={{ background: 'linear-gradient(135deg, #dc2626 0%, #7f1d1d 100%)' }}>
+              {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+              Confirmar cancelación
             </button>
           </div>
         </DialogContent>
