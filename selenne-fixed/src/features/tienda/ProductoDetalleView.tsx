@@ -353,7 +353,7 @@ export const ProductoDetalleView: React.FC = () => {
                     return (
                       <button
                         key={color}
-                        onClick={() => setColorSeleccionado(color)}
+                        onClick={() => setColorSeleccionado(seleccionado ? "" : color)}
                         className={`relative w-9 h-9 rounded-full border transition-all ${
                           seleccionado
                             ? "border-[#0A0A0A] dark:border-[#F5F3FA] scale-110"
