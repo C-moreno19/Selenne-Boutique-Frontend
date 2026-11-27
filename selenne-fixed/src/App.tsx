@@ -70,7 +70,7 @@ function MainApp() {
       <Toaster position="top-center" />
 
       {alert && (
-        <div className="fixed top-8 left-1/2 -translate-x-1/2 w-full max-w-md px-4" style={{ zIndex: 9999 }}>
+        <div className="fixed top-24 left-1/2 -translate-x-1/2 w-full max-w-md px-4" style={{ zIndex: 9999 }}>
           <CustomAlert
             type={alert.type}
             message={alert.message}

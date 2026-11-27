@@ -26,29 +26,23 @@ export const CustomAlert: React.FC<CustomAlertProps> = ({
 
   const config = {
     success: {
-      accent: '#5C2A52',
-      iconBg: 'bg-[#fce7f3]',
-      iconColor: 'text-[#5C2A52]',
+      accent: '#22c55e',
+      iconColor: 'text-[#22c55e]',
       icon: <CheckCircle2 size={17} />,
-      progressColor: '#5C2A52',
     },
     error: {
       accent: '#dc2626',
-      iconBg: 'bg-red-50',
-      iconColor: 'text-red-500',
+      iconColor: 'text-[#dc2626]',
       icon: <XCircle size={17} />,
-      progressColor: '#dc2626',
     },
     info: {
       accent: '#5C2A52',
-      iconBg: 'bg-[#fce7f3]',
-      iconColor: 'text-[#5C2A52]',
+      iconColor: 'text-[#C9A8C3]',
       icon: <Info size={17} />,
-      progressColor: '#5C2A52',
     },
   };
 
-  const { accent, iconBg, iconColor, icon, progressColor } = config[type];
+  const { accent, iconColor, icon } = config[type];
 
   return (
     <AnimatePresence>
@@ -58,19 +52,24 @@ export const CustomAlert: React.FC<CustomAlertProps> = ({
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -10, scale: 0.97 }}
           transition={{ duration: 0.2, ease: 'easeOut' }}
-          className="rounded-2xl overflow-hidden shadow-[0_12px_40px_rgba(163,57,92,.22)]"
-          style={{ background: 'linear-gradient(135deg, #fff 60%, #fce7f3 100%)', borderLeft: `4px solid ${accent}` }}
+          className="overflow-hidden shadow-2xl border border-[#2a1f33]"
+          style={{ background: '#0A0A0A', borderLeft: `4px solid ${accent}` }}
         >
-          <div className="flex items-center gap-3 px-4 py-3">
-            <div className={`${iconBg} ${iconColor} w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0`}>
+          <div className="flex items-center gap-3 px-4 py-3.5">
+            <div className={`${iconColor} flex-shrink-0`}>
               {icon}
             </div>
-            <p className="flex-1 text-[13px] font-medium text-gray-800 leading-snug">{message}</p>
+            <p
+              style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+              className="flex-1 text-[13px] font-semibold text-white leading-snug"
+            >
+              {message}
+            </p>
             <button
               type="button"
               aria-label="Cerrar notificación"
               onClick={onClose}
-              className="flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer bg-transparent border-0 p-1"
+              className="flex-shrink-0 text-[#b9aedd] hover:text-white transition-colors cursor-pointer bg-transparent border-0 p-1"
             >
               <X size={14} />
             </button>
@@ -80,7 +79,7 @@ export const CustomAlert: React.FC<CustomAlertProps> = ({
             initial={{ scaleX: 1 }}
             animate={{ scaleX: 0 }}
             transition={{ duration: duration / 1000, ease: 'linear' }}
-            style={{ background: progressColor, transformOrigin: 'left', height: '3px' }}
+            style={{ background: accent, transformOrigin: 'left', height: '2px' }}
           />
         </motion.div>
       )}

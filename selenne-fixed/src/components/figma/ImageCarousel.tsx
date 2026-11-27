@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
+const ZOOM_SCALE = 2.2;
+
 interface ImageCarouselProps {
   imagenes: string[];
   nombre: string;
@@ -13,6 +15,15 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
   className = '',
 }) => {
   const [imagenActual, setImagenActual] = useState(0);
+  const [zoomOrigin, setZoomOrigin] = useState('50% 50%');
+  const [zooming, setZooming] = useState(false);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    setZoomOrigin(`${x}% ${y}%`);
+  };
 
   // Filtrar imágenes vacías
   const imagenesValidas = (imagenes || []).filter(img => img && img.trim() !== '');
@@ -71,12 +82,22 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
       )}
 
       {/* Imagen principal */}
-      <div className="relative flex-1 min-w-0 bg-[#fafafa] dark:bg-[#17101f] overflow-hidden">
+      <div
+        className="relative flex-1 min-w-0 bg-[#fafafa] dark:bg-[#17101f] overflow-hidden cursor-zoom-in"
+        onMouseMove={handleMouseMove}
+        onMouseEnter={() => setZooming(true)}
+        onMouseLeave={() => setZooming(false)}
+      >
         <img
           key={imagenesValidas[imagenActual]}
           src={imagenesValidas[imagenActual]}
           alt={`${nombre} - Imagen ${imagenActual + 1}`}
-          className="w-full h-full object-contain"
+          className="w-full h-full object-cover"
+          style={{
+            transformOrigin: zoomOrigin,
+            transform: zooming ? `scale(${ZOOM_SCALE})` : 'scale(1)',
+            transition: zooming ? 'none' : 'transform 0.3s ease-out',
+          }}
           loading="eager"
           decoding="async"
           onError={(e) => {
